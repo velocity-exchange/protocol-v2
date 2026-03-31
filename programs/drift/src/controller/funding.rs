@@ -12,7 +12,8 @@ use crate::get_then_update_id;
 use crate::math::amm;
 use crate::math::casting::Cast;
 use crate::math::constants::{
-    FUNDING_RATE_BUFFER, FUNDING_RATE_OFFSET_DENOMINATOR, ONE_HOUR_I128, TWENTY_FOUR_HOUR,
+    FUNDING_RATE_BUFFER, FUNDING_RATE_DEAD_ZONE_THRESHOLD_DENOM, FUNDING_RATE_OFFSET_DENOMINATOR,
+    ONE_HOUR_I128, TWENTY_FOUR_HOUR,
 };
 use crate::math::funding::{calculate_funding_payment, calculate_funding_rate_long_short};
 use crate::math::helpers::on_the_hour_update;
@@ -231,18 +232,30 @@ pub fn update_funding_rate(
         // low periodicity => quickly updating/settled funding rates => lower funding rate payment per interval
         let price_spread = mid_price_twap.cast::<i64>()?.safe_sub(oracle_price_twap)?;
 
-        // add offset 1/FUNDING_RATE_OFFSET_DENOMINATOR*365. if FUNDING_RATE_OFFSET_DENOMINATOR = 5000 => 7.3% annualized rate
-        let price_spread_with_offset = price_spread.safe_add(
-            oracle_price_twap
-                .abs()
-                .safe_div(FUNDING_RATE_OFFSET_DENOMINATOR)?,
-        )?;
+        // Dead zone: when |price_spread| < 0.05% of oracle and dead zone is enabled,
+        // floor the effective spread at the offset-only value so funding stays predictable
+        // even when mark ≈ oracle. Outside the dead zone, add offset to the raw spread.
+        let offset = oracle_price_twap
+            .abs()
+            .safe_div(FUNDING_RATE_OFFSET_DENOMINATOR)?;
+        let effective_price_spread = if market.funding_rate_dead_zone_bps > 0
+            && price_spread.abs()
+                < oracle_price_twap
+                    .abs()
+                    .safe_div(FUNDING_RATE_DEAD_ZONE_THRESHOLD_DENOM)?
+        {
+            // In dead zone: use just the offset as the floor (drop the spread component)
+            offset
+        } else {
+            // Normal path: spread + offset (1/FUNDING_RATE_OFFSET_DENOMINATOR*365 => ~10.95% annualized)
+            price_spread.safe_add(offset)?
+        };
 
         // clamp price divergence based on contract tier for funding rate calculation
         let max_price_spread =
             market.get_max_price_divergence_for_funding_rate(oracle_price_twap)?;
         let clamped_price_spread =
-            price_spread_with_offset.clamp(-max_price_spread, max_price_spread);
+            effective_price_spread.clamp(-max_price_spread, max_price_spread);
 
         let funding_rate = clamped_price_spread
             .cast::<i128>()?

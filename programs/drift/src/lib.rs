@@ -1240,6 +1240,13 @@ pub mod drift {
         handle_update_perp_market_funding_period(ctx, funding_period)
     }
 
+    pub fn update_perp_market_funding_rate_dead_zone(
+        ctx: Context<AdminUpdatePerpMarket>,
+        funding_rate_dead_zone_bps: u32,
+    ) -> Result<()> {
+        handle_update_perp_market_funding_rate_dead_zone(ctx, funding_rate_dead_zone_bps)
+    }
+
     pub fn update_perp_market_max_imbalances(
         ctx: Context<AdminUpdatePerpMarket>,
         unrealized_max_imbalance: u64,

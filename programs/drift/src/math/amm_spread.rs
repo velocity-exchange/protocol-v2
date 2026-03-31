@@ -369,6 +369,7 @@ pub fn calculate_spread(
     short_intensity_volume: u64,
     volume_24h: u64,
     amm_inventory_spread_adjustment: i8,
+    long_spread_funding_bias: u64,
 ) -> DriftResult<(u32, u32)> {
     let (long_vol_spread, short_vol_spread) = calculate_long_short_vol_spread(
         last_oracle_conf_pct,
@@ -429,6 +430,8 @@ pub fn calculate_spread(
     if base_asset_amount_with_amm > 0 {
         long_spread = long_spread
             .safe_mul(inventory_scale_capped)?
+            .safe_div(BID_ASK_SPREAD_PRECISION)?
+            .safe_mul(long_spread_funding_bias)?
             .safe_div(BID_ASK_SPREAD_PRECISION)?;
     } else if base_asset_amount_with_amm < 0 {
         short_spread = short_spread

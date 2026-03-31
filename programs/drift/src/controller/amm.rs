@@ -15,8 +15,8 @@ use crate::math::amm::{calculate_net_user_pnl, calculate_quote_asset_amount_swap
 use crate::math::amm_spread::{calculate_spread_reserves, get_spread_reserves};
 use crate::math::casting::Cast;
 use crate::math::constants::{
-    CONCENTRATION_PRECISION, FEE_POOL_TO_REVENUE_POOL_THRESHOLD, K_BPS_UPDATE_SCALE,
-    MAX_CONCENTRATION_COEFFICIENT, MAX_K_BPS_INCREASE, MAX_SQRT_K,
+    BID_ASK_SPREAD_PRECISION, CONCENTRATION_PRECISION, FEE_POOL_TO_REVENUE_POOL_THRESHOLD,
+    K_BPS_UPDATE_SCALE, MAX_CONCENTRATION_COEFFICIENT, MAX_K_BPS_INCREASE, MAX_SQRT_K,
 };
 use crate::math::cp_curve::get_update_k_result;
 use crate::math::repeg::get_total_fee_lower_bound;
@@ -249,6 +249,14 @@ pub fn update_spreads(
             market.amm.short_intensity_volume,
             market.amm.volume_24h,
             market.amm.amm_inventory_spread_adjustment,
+            // Bias long spread wider when AMM is net long and dead zone funding is active,
+            // to discourage taking on more long inventory at the elevated funding rate.
+            // Formula: 1 + (dead_zone_bps / 10000) in BID_ASK_SPREAD_PRECISION units
+            BID_ASK_SPREAD_PRECISION.safe_add(
+                (market.funding_rate_dead_zone_bps as u64)
+                    .safe_mul(BID_ASK_SPREAD_PRECISION)?
+                    .safe_div(10000)?,
+            )?,
         )?
     } else {
         let half_base_spread = market.amm.base_spread.safe_div(2)?;

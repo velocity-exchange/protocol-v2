@@ -247,14 +247,14 @@ mod get_trigger_price {
             .get_last_funding_basis(oracle_price, now)
             .unwrap();
 
-        assert_eq!(last_funding_basis, 12006794); // $12 basis
+        assert_eq!(last_funding_basis, 1089046); // basis adjusted for ~10.95% APR offset denominator (3333)
 
         let now = last_funding_rate_ts + 1800;
         let last_funding_basis = perp_market
             .get_last_funding_basis(oracle_price, now)
             .unwrap();
 
-        assert_eq!(last_funding_basis, 6003397); // $6 basis
+        assert_eq!(last_funding_basis, 544523); // $6 basis (half period)
 
         let now = last_funding_rate_ts + 3600;
         let last_funding_basis = perp_market

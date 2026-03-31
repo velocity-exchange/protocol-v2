@@ -10666,11 +10666,24 @@
             "type": "u8"
           },
           {
+            "name": "padAlign",
+            "type": {
+              "array": [
+                "u8",
+                2
+              ]
+            }
+          },
+          {
+            "name": "fundingRateDeadZoneBps",
+            "type": "u32"
+          },
+          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                22
+                16
               ]
             }
           }

@@ -15,8 +15,9 @@ use crate::math::casting::Cast;
 use crate::math::constants::{AMM_RESERVE_PRECISION, MAX_CONCENTRATION_COEFFICIENT};
 use crate::math::constants::{
     AMM_TO_QUOTE_PRECISION_RATIO, BID_ASK_SPREAD_PRECISION, BID_ASK_SPREAD_PRECISION_I128,
-    BID_ASK_SPREAD_PRECISION_U128, DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT,
-    FUNDING_RATE_BUFFER_I128, FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
+    BID_ASK_SPREAD_PRECISION_U128, DEFAULT_FUNDING_RATE_DEAD_ZONE_BPS,
+    DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT, FUNDING_RATE_BUFFER_I128,
+    FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
     LIQUIDATION_FEE_TO_MARGIN_PRECISION_RATIO, MARGIN_PRECISION, MARGIN_PRECISION_U128,
     MAX_LIQUIDATION_MULTIPLIER, PEG_PRECISION, PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I128,
     PERCENTAGE_PRECISION_I64, PERCENTAGE_PRECISION_U64, PRICE_PRECISION, PRICE_PRECISION_I128,
@@ -258,7 +259,12 @@ pub struct PerpMarket {
     pub last_fill_price: u64,
     pub lp_pool_id: u8,
     pub market_config: u8,
-    pub padding: [u8; 22],
+    /// Explicit alignment padding for funding_rate_dead_zone_bps
+    pub pad_align: [u8; 2],
+    /// The APR applied when mark/oracle spread is within 0.05% of oracle price
+    /// precision: basis points (1 bps = 0.01% APR), 0 = dead zone disabled
+    pub funding_rate_dead_zone_bps: u32,
+    pub padding: [u8; 16],
 }
 
 impl Default for PerpMarket {
@@ -307,7 +313,9 @@ impl Default for PerpMarket {
             last_fill_price: 0,
             lp_pool_id: 0,
             market_config: 0,
-            padding: [0; 22],
+            pad_align: [0; 2],
+            funding_rate_dead_zone_bps: DEFAULT_FUNDING_RATE_DEAD_ZONE_BPS,
+            padding: [0; 16],
         }
     }
 }

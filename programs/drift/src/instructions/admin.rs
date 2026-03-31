@@ -18,7 +18,8 @@ use crate::load;
 use crate::load_mut;
 use crate::math::casting::Cast;
 use crate::math::constants::{
-    AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, DEFAULT_LIQUIDATION_MARGIN_BUFFER_RATIO,
+    AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, DEFAULT_FUNDING_RATE_DEAD_ZONE_BPS,
+    DEFAULT_LIQUIDATION_MARGIN_BUFFER_RATIO,
     EPOCH_DURATION, FEE_ADJUSTMENT_MAX, FEE_POOL_TO_REVENUE_POOL_THRESHOLD, GOV_SPOT_MARKET_INDEX,
     IF_FACTOR_PRECISION, INSURANCE_A_MAX, INSURANCE_B_MAX, INSURANCE_C_MAX,
     INSURANCE_SPECULATIVE_MAX, LIQUIDATION_FEE_PRECISION, MAX_CONCENTRATION_COEFFICIENT,
@@ -1007,7 +1008,9 @@ pub fn handle_initialize_perp_market(
         last_fill_price: 0,
         lp_pool_id,
         market_config: 0,
-        padding: [0; 22],
+        pad_align: [0; 2],
+        funding_rate_dead_zone_bps: DEFAULT_FUNDING_RATE_DEAD_ZONE_BPS,
+        padding: [0; 16],
         amm: AMM {
             oracle: *ctx.accounts.oracle.key,
             oracle_source,
@@ -2703,6 +2706,30 @@ pub fn handle_update_perp_market_funding_period(
     );
 
     perp_market.amm.funding_period = funding_period;
+    Ok(())
+}
+
+#[access_control(
+    perp_market_valid(&ctx.accounts.perp_market)
+)]
+pub fn handle_update_perp_market_funding_rate_dead_zone(
+    ctx: Context<AdminUpdatePerpMarket>,
+    funding_rate_dead_zone_bps: u32,
+) -> Result<()> {
+    let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
+
+    msg!(
+        "updating funding rate dead zone for perp market {}",
+        perp_market.market_index
+    );
+
+    msg!(
+        "perp_market.funding_rate_dead_zone_bps: {:?} -> {:?}",
+        perp_market.funding_rate_dead_zone_bps,
+        funding_rate_dead_zone_bps
+    );
+
+    perp_market.funding_rate_dead_zone_bps = funding_rate_dead_zone_bps;
     Ok(())
 }
 

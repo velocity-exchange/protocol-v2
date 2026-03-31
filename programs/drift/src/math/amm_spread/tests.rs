@@ -60,7 +60,7 @@ mod test {
             max_offset,
         )
         .unwrap();
-        assert_eq!(res, 455); // 237*2/3); // 1 penny divergence
+        assert_eq!(res, 290); // 1 penny divergence, offset denominator 3333 (~10.95% APR)
         let res = calculate_reference_price_offset(
             rev_price,
             1,
@@ -73,7 +73,7 @@ mod test {
             max_offset,
         )
         .unwrap();
-        assert_eq!(res, 2035);
+        assert_eq!(res, 1870);
 
         let res = calculate_reference_price_offset(
             rev_price,
@@ -308,6 +308,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, (base_spread * 10 / 2));
@@ -338,6 +339,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread2, 16667);
@@ -368,6 +370,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -404,6 +407,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert!(short_spread4 < long_spread4);
@@ -434,6 +438,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -563,6 +568,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -590,6 +596,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -644,6 +651,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -693,6 +701,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, 500);
@@ -721,6 +730,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, 345);
@@ -748,6 +758,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, 110);
@@ -798,6 +809,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, 199926);
@@ -824,6 +836,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, 199951);
@@ -850,6 +863,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread1, 199815);
@@ -1207,6 +1221,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -1248,6 +1263,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             -50,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -1275,6 +1291,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             -100,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -1302,6 +1319,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -1329,6 +1347,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 197666);
@@ -1355,6 +1374,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 819);
@@ -1455,6 +1475,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -1496,6 +1517,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
 
@@ -1523,6 +1545,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 197814); // big cause of oracel pct
@@ -1549,6 +1572,7 @@ mod test {
             short_intensity_volume,
             volume_24h,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 819);
@@ -1580,6 +1604,7 @@ mod test {
             72230366233,
             432067603632,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 89746);
@@ -1607,6 +1632,7 @@ mod test {
             72230366233,
             432067603632,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 89746);
@@ -1634,6 +1660,7 @@ mod test {
             72230366233,
             432067603632,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 89746);
@@ -1662,6 +1689,7 @@ mod test {
             53979922148,
             427588331503,
             0,
+            BID_ASK_SPREAD_PRECISION,
         )
         .unwrap();
         assert_eq!(long_spread, 11068);
