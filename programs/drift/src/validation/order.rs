@@ -472,51 +472,6 @@ fn validate_oracle_auction_params(order: &Order) -> DriftResult {
     Ok(())
 }
 
-pub fn validate_spot_order(order: &Order, step_size: u64, min_order_size: u64) -> DriftResult {
-    match order.order_type {
-        OrderType::Market => validate_market_order(order, step_size, min_order_size)?,
-        OrderType::Limit => validate_spot_limit_order(order, step_size, min_order_size)?,
-        OrderType::TriggerMarket => {
-            validate_trigger_market_order(order, step_size, min_order_size)?
-        }
-        OrderType::TriggerLimit => validate_trigger_limit_order(order, step_size, min_order_size)?,
-        OrderType::Oracle => validate_oracle_order(order, step_size, min_order_size)?,
-    }
-
-    Ok(())
-}
-
-fn validate_spot_limit_order(order: &Order, step_size: u64, min_order_size: u64) -> DriftResult {
-    validate_base_asset_amount(order, step_size, min_order_size, order.reduce_only)?;
-
-    if order.price == 0 && !order.has_oracle_price_offset() {
-        msg!("Limit order price == 0");
-        return Err(ErrorCode::InvalidOrderLimitPrice);
-    }
-
-    if order.has_oracle_price_offset() && order.price != 0 {
-        msg!("Limit order price must be 0 for taker oracle offset order");
-        return Err(ErrorCode::InvalidOrderOracleOffset);
-    }
-
-    if order.trigger_price > 0 {
-        msg!("Limit order should not have trigger price");
-        return Err(ErrorCode::InvalidOrderTrigger);
-    }
-
-    if order.post_only {
-        validate!(
-            !order.has_auction(),
-            ErrorCode::InvalidOrder,
-            "post only limit order cant have auction"
-        )?;
-    }
-
-    validate_limit_order_auction_params(order)?;
-
-    Ok(())
-}
-
 pub fn validate_order_for_force_reduce_only(order: &Order, existing_position: i64) -> DriftResult {
     validate!(
         order.reduce_only,

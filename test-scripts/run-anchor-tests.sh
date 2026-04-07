@@ -34,7 +34,7 @@ test_files=(
   deleteInitializedSpotMarket.ts
   depositIntoSpotMarketVault.ts
   driftClient.ts
-  fillSpot.ts
+  # fillSpot.ts # spot DLOB disabled
   highLeverageMode.ts
   ifRebalance.ts
   adminWithdrawFromInsuranceFundVault.ts
@@ -56,8 +56,8 @@ test_files=(
   maxLeverageOrderParams.ts
   modifyOrder.ts
   multipleMakerOrders.ts
-  multipleSpotMakerOrders.ts
-  openbookTest.ts
+  # multipleSpotMakerOrders.ts # spot DLOB disabled
+  # openbookTest.ts # spot DLOB disabled
   oracleDiffSources.ts
   oracleFillPriceGuardrails.ts
   oracleOffsetOrders.ts
@@ -67,17 +67,17 @@ test_files=(
   ordersWithSpread.ts
   pauseExchange.ts
   pauseDepositWithdraw.ts
-  phoenixTest.ts
+  # phoenixTest.ts # spot DLOB disabled
   placeAndMakePerp.ts
   placeAndMakeSignedMsgBankrun.ts
-  placeAndMakeSpotOrder.ts
+  # placeAndMakeSpotOrder.ts # spot DLOB disabled
   postOnly.ts
   prelisting.ts
   pyth.ts
   pythLazerBankrun.ts
   referrer.ts
   roundInFavorBaseAsset.ts
-  serumTest.ts
+  # serumTest.ts # spot DLOB disabled
   settlePNLInvariant.ts
   spotDepositWithdraw.ts
   spotDepositWithdraw22.ts
@@ -91,7 +91,7 @@ test_files=(
   switchboardTxCus.ts
   switchOracle.ts
   triggerOrders.ts
-  triggerSpotOrder.ts
+  # triggerSpotOrder.ts # spot DLOB disabled
   transferPerpPosition.ts
   userAccount.ts
   userDelegate.ts
