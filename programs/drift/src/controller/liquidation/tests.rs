@@ -27,7 +27,8 @@ pub mod liquidate_perp {
     use crate::state::margin_calculation::{MarginCalculation, MarginContext};
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -2536,7 +2537,8 @@ pub mod liquidate_perp_with_fill {
 
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -4678,7 +4680,8 @@ pub mod liquidate_borrow_for_perp_pnl {
     use crate::state::oracle::HistoricalOracleData;
     use crate::state::oracle::OracleSource;
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -5914,7 +5917,8 @@ pub mod liquidate_perp_pnl_for_deposit {
     use crate::state::oracle::HistoricalOracleData;
     use crate::state::oracle::OracleSource;
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{ContractTier, PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::spot_market::{AssetTier, SpotBalanceType, SpotMarket};
     use crate::state::spot_market_map::SpotMarketMap;
@@ -7573,7 +7577,8 @@ pub mod resolve_perp_bankruptcy {
     };
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, PoolBalance, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, PoolBalance, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -8025,7 +8030,8 @@ pub mod resolve_spot_bankruptcy {
     use crate::math::spot_balance::get_token_amount;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -8189,7 +8195,8 @@ pub mod set_user_status_to_being_liquidated {
     };
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -9058,7 +9065,8 @@ pub mod liquidate_isolated_perp {
     use crate::state::margin_calculation::MarginContext;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -10201,7 +10209,8 @@ pub mod liquidate_isolated_perp_pnl_for_deposit {
     use crate::state::oracle::HistoricalOracleData;
     use crate::state::oracle::OracleSource;
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{ContractTier, PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
     use crate::state::spot_market_map::SpotMarketMap;
@@ -10575,7 +10584,8 @@ mod liquidation_mode {
     use crate::state::oracle::HistoricalOracleData;
     use crate::state::oracle::OracleSource;
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
     use crate::state::spot_market_map::SpotMarketMap;

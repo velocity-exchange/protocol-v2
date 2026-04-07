@@ -23,7 +23,8 @@ use crate::state::margin_calculation::{
 };
 use crate::state::oracle::{OraclePriceData, StrictOraclePrice};
 use crate::state::oracle_map::OracleMap;
-use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket};
+use crate::state::market_status::MarketStatus;
+use crate::state::perp_market::{ContractTier, PerpMarket};
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::{AssetTier, SpotBalanceType};
 use crate::state::spot_market_map::SpotMarketMap;

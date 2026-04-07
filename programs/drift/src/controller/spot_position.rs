@@ -11,7 +11,7 @@ use crate::math_error;
 use crate::safe_decrement;
 use crate::safe_increment;
 use crate::state::paused_operations::SpotOperation;
-use crate::state::perp_market::MarketStatus;
+use crate::state::market_status::MarketStatus;
 use crate::state::spot_market::{AssetTier, SpotBalance, SpotBalanceType, SpotMarket};
 use crate::state::user::{SpotPosition, User};
 

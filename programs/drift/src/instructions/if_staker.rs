@@ -11,7 +11,7 @@ use crate::math::constants::QUOTE_SPOT_MARKET_INDEX;
 use crate::optional_accounts::get_token_mint;
 use crate::state::insurance_fund_stake::{InsuranceFundStake, ProtocolIfSharesTransferConfig};
 use crate::state::paused_operations::InsuranceFundOperation;
-use crate::state::perp_market::MarketStatus;
+use crate::state::market_status::MarketStatus;
 use crate::state::spot_market::SpotMarket;
 use crate::state::state::State;
 use crate::state::traits::Size;

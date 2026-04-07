@@ -27,7 +27,7 @@ use crate::state::events::{OrderAction, OrderActionRecord, OrderRecord};
 use crate::state::events::{OrderActionExplanation, SettlePnlExplanation, SettlePnlRecord};
 use crate::state::oracle_map::OracleMap;
 use crate::state::paused_operations::PerpOperation;
-use crate::state::perp_market::MarketStatus;
+use crate::state::market_status::MarketStatus;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::settle_pnl_mode::SettlePnlMode;
 use crate::state::spot_market::{SpotBalance, SpotBalanceType};

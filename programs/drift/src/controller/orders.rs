@@ -64,7 +64,8 @@ use crate::state::order_params::{
     ModifyOrderParams, OrderParams, PlaceOrderOptions, PostOnlyParam,
 };
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
-use crate::state::perp_market::{MarketStatus, PerpMarket};
+use crate::state::market_status::MarketStatus;
+use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::protected_maker_mode_config::ProtectedMakerParams;
 use crate::state::spot_fulfillment_params::{ExternalSpotFill, SpotFulfillmentParams};

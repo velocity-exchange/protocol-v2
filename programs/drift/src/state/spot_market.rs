@@ -22,9 +22,10 @@ use crate::math::safe_math::SafeMath;
 use crate::math::spot_balance::{calculate_utilization, get_token_amount, get_token_value};
 
 use crate::math::stats::calculate_new_twap;
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{HistoricalIndexData, HistoricalOracleData, OracleSource};
 use crate::state::paused_operations::{InsuranceFundOperation, SpotOperation};
-use crate::state::perp_market::{MarketStatus, PoolBalance};
+use crate::state::perp_market::PoolBalance;
 use crate::state::traits::{MarketIndexOffset, Size};
 use crate::validate;
 

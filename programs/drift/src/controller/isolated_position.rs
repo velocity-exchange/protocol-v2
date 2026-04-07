@@ -10,7 +10,7 @@ use crate::math::safe_math::SafeMath;
 use crate::state::events::{DepositDirection, DepositExplanation, DepositRecord};
 use crate::state::margin_calculation::MarginTypeConfig;
 use crate::state::oracle_map::OracleMap;
-use crate::state::perp_market::MarketStatus;
+use crate::state::market_status::MarketStatus;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::SpotBalanceType;
 use crate::state::spot_market_map::SpotMarketMap;

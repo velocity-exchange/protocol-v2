@@ -409,7 +409,8 @@ mod calculate_margin_requirement_and_total_collateral {
     use crate::state::margin_calculation::{MarginCalculation, MarginContext};
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -2145,7 +2146,8 @@ mod calculate_margin_requirement_and_total_collateral_and_liability_info {
     use crate::state::margin_calculation::{MarginCalculation, MarginContext};
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{ContractTier, PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -3414,7 +3416,8 @@ mod validate_spot_margin_trading {
     use crate::test_utils::get_pyth_price;
     use crate::test_utils::*;
 
-    use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{ContractTier, PerpMarket, AMM};
     use crate::{AMM_RESERVE_PRECISION, BASE_PRECISION_I64, PEG_PRECISION, QUOTE_PRECISION_I64};
 
     #[test]
@@ -4485,7 +4488,8 @@ mod pools {
     use crate::state::margin_calculation::MarginContext;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -4621,7 +4625,8 @@ mod isolated_position {
     use crate::state::margin_calculation::MarginContext;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -4810,7 +4815,8 @@ mod meets_place_order_margin_requirement_with_isolated {
     use crate::math::margin::meets_place_order_margin_requirement;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -6197,20 +6203,17 @@ mod meets_place_order_margin_requirement_with_isolated {
             status: MarketStatus::Initialized,
             ..PerpMarket::default()
         };
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_one(&eth_perp_market_account_info, true).unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 100000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
+        use crate::math::margin::meets_place_order_margin_requirement;
+        use crate::state::oracle::{HistoricalOracleData, OracleSource};
+        use crate::state::oracle_map::OracleMap;
+        use crate::state::market_status::MarketStatus;
+        use crate::state::perp_market::{PerpMarket, AMM};
+        use crate::state::perp_market_map::PerpMarketMap;
+        use crate::state::spot_market::{SpotBalanceType, SpotMarket};
+        use crate::state::spot_market_map::SpotMarketMap;
+        use crate::state::user::{
+            MarketType, Order, OrderStatus, OrderType, PerpPosition, PositionFlag, SpotPosition,
+            User,
         };
         create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
         let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
@@ -6353,1645 +6356,960 @@ mod meets_place_order_margin_requirement_with_isolated {
             status: MarketStatus::Initialized,
             ..PerpMarket::default()
         };
-        create_anchor_account_info!(sol_perp_market, PerpMarket, sol_perp_market_account_info);
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_multiple(
-            vec![&sol_perp_market_account_info, &eth_perp_market_account_info],
-            true,
-        )
-        .unwrap();
+        use crate::state::margin_calculation::{MarginContext, MarginTypeConfig};
+        use crate::state::oracle::{HistoricalOracleData, OracleSource};
+        use crate::state::oracle_map::OracleMap;
+        use crate::state::market_status::MarketStatus;
+        use crate::state::perp_market::{PerpMarket, AMM};
+        use crate::state::perp_market_map::PerpMarketMap;
+        use crate::state::spot_market::{SpotBalanceType, SpotMarket};
+        use crate::state::spot_market_map::SpotMarketMap;
+        use crate::state::user::{Order, PerpPosition, PositionFlag, SpotPosition, User};
+        use crate::test_utils::get_pyth_price;
+        use crate::test_utils::*;
+        use crate::{create_anchor_account_info, QUOTE_PRECISION_I64};
 
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 100000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(spot_market_account_infos, true).unwrap();
+        const NOW: i64 = 0;
 
-        // User has:
-        // - 1000 USDC cross collateral
-        // - Existing isolated SOL-PERP position: 10 SOL long @ $100 = $1000 notional
-        //   - With only $40 isolated collateral
-        //   - MM required: $1000 * 5% = $50 (FAILS - $40 < $50)
-        // - New isolated ETH-PERP position: 1 ETH long @ $1000 = $1000 notional
-        //   - With $200 isolated collateral
-        //   - IM required: $1000 * 10% = $100 (PASSES - $200 > $100)
-        let mut spot_positions = [SpotPosition::default(); 8];
-        spot_positions[0] = SpotPosition {
-            market_index: 0,
-            balance_type: SpotBalanceType::Deposit,
-            scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64, // 1000 USDC cross collateral
-            ..SpotPosition::default()
-        };
-
-        let mut perp_positions = [PerpPosition::default(); 8];
-        // Existing isolated SOL-PERP position that FAILS maintenance margin
-        perp_positions[0] = PerpPosition {
-            market_index: 0,
-            base_asset_amount: 10 * BASE_PRECISION_I64, // 10 SOL long
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64, // Entry at $100
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64, // Only $40 - fails MM
-            ..PerpPosition::default()
-        };
-        // New isolated ETH-PERP position with sufficient collateral
-        perp_positions[1] = PerpPosition {
-            market_index: 2,
-            base_asset_amount: 1 * BASE_PRECISION_I64, // 1 ETH long
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64, // Entry at $1000
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 200 * SPOT_BALANCE_PRECISION_U64, // $200 isolated collateral
-            ..PerpPosition::default()
-        };
-
-        let user = User {
-            orders: [Order::default(); 32],
-            perp_positions,
-            spot_positions,
-            ..User::default()
-        };
-
-        // Test: Try to place an order on the new ETH-PERP isolated position
-        // Even though ETH-PERP itself passes IM, the existing SOL-PERP fails MM
-        let result = meets_place_order_margin_requirement(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            true,
-            Some(2), // isolated_market_index = 2 (ETH-PERP)
-        );
-
-        // Should FAIL because:
-        // - Existing isolated SOL-PERP: $40 collateral < $50 MM required -> FAILS MM
-        // - When opening new isolated position, all other isolated positions must pass MM
-        assert!(
-            result.is_err(),
-            "Isolated order should fail when other isolated position fails maintenance margin"
-        );
-    }
-
-    #[test]
-    fn isolated_order_passes_when_cross_only_passes_maintenance() {
-        // Scenario: Current isolated PI, cross PM (no other isolated). Place isolated order (risk increasing).
-        // Cross has no perp position so cross margin req 0; cross $70 is PM-level. Isolated ETH $150 >= IM $100.
-        // Expected: PASS.
-        let slot = 0_u64;
-        let mut sol_oracle_price = get_pyth_price(100, 6);
-        let sol_oracle_price_key =
-            Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_anchor_account_info!(
-            sol_oracle_price,
-            &sol_oracle_price_key,
-            PythLazerOracle,
-            sol_oracle_account_info
-        );
-        let mut eth_oracle_price = get_pyth_price(1000, 6);
-        let eth_oracle_price_key =
-            Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_anchor_account_info!(
-            eth_oracle_price,
-            &eth_oracle_price_key,
-            PythLazerOracle,
-            eth_oracle_account_info
-        );
-        let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
-        let mut oracle_map =
-            OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
-
-        let mut sol_perp_market = PerpMarket {
-            market_index: 0,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 100 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: sol_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        let mut eth_perp_market = PerpMarket {
-            market_index: 2,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 1000 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: eth_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        create_anchor_account_info!(sol_perp_market, PerpMarket, sol_perp_market_account_info);
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_multiple(
-            vec![&sol_perp_market_account_info, &eth_perp_market_account_info],
-            true,
-        )
-        .unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(spot_market_account_infos, true).unwrap();
-
-        let mut spot_positions = [SpotPosition::default(); 8];
-        spot_positions[0] = SpotPosition {
-            market_index: 0,
-            balance_type: SpotBalanceType::Deposit,
-            scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64, // cross PM (no cross position)
-            ..SpotPosition::default()
-        };
-        let mut perp_positions = [PerpPosition::default(); 8];
-        perp_positions[0] = PerpPosition {
-            market_index: 2,
-            base_asset_amount: 1 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64, // PI: >= $100 IM
-            ..PerpPosition::default()
-        };
-
-        let user = User {
-            orders: [Order::default(); 32],
-            perp_positions,
-            spot_positions,
-            ..User::default()
-        };
-
-        let result = meets_place_order_margin_requirement(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            true,
-            Some(2),
-        );
-        assert!(
-            result.is_ok(),
-            "Isolated order should pass when cross only passes maintenance. Error: {:?}",
-            result
-        );
-    }
-
-    #[test]
-    fn isolated_order_fails_when_current_isolated_only_passes_maintenance() {
-        // Scenario: Current isolated PM (collateral $70 < IM $100), cross/other ok. Place isolated order (risk increasing).
-        // Expected: FAIL (current isolated must pass Initial).
-        let slot = 0_u64;
-        let mut eth_oracle_price = get_pyth_price(1000, 6);
-        let eth_oracle_price_key =
-            Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_anchor_account_info!(
-            eth_oracle_price,
-            &eth_oracle_price_key,
-            PythLazerOracle,
-            eth_oracle_account_info
-        );
-        let oracle_account_infos = vec![eth_oracle_account_info];
-        let mut oracle_map =
-            OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
-
-        let mut eth_perp_market = PerpMarket {
-            market_index: 2,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 1000 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: eth_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_one(&eth_perp_market_account_info, true).unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(spot_market_account_infos, true).unwrap();
-
-        let mut spot_positions = [SpotPosition::default(); 8];
-        spot_positions[0] = SpotPosition {
-            market_index: 0,
-            balance_type: SpotBalanceType::Deposit,
-            scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
-            ..SpotPosition::default()
-        };
-        let mut perp_positions = [PerpPosition::default(); 8];
-        perp_positions[0] = PerpPosition {
-            market_index: 2,
-            base_asset_amount: 1 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64, // PM: $70 < IM $100
-            ..PerpPosition::default()
-        };
-
-        let user = User {
-            orders: [Order::default(); 32],
-            perp_positions,
-            spot_positions,
-            ..User::default()
-        };
-
-        let result = meets_place_order_margin_requirement(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            true,
-            Some(2),
-        );
-        assert!(
-            result.is_err(),
-            "Isolated order should fail when current isolated only passes maintenance"
-        );
-    }
-
-    #[test]
-    fn isolated_order_fails_when_current_isolated_fails_maintenance() {
-        // Scenario: Current isolated FM (collateral $40 < MM $50). Place isolated order. Expected: FAIL.
-        let slot = 0_u64;
-        let mut eth_oracle_price = get_pyth_price(1000, 6);
-        let eth_oracle_price_key =
-            Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_anchor_account_info!(
-            eth_oracle_price,
-            &eth_oracle_price_key,
-            PythLazerOracle,
-            eth_oracle_account_info
-        );
-        let oracle_account_infos = vec![eth_oracle_account_info];
-        let mut oracle_map =
-            OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
-
-        let mut eth_perp_market = PerpMarket {
-            market_index: 2,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 1000 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: eth_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_one(&eth_perp_market_account_info, true).unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(spot_market_account_infos, true).unwrap();
-
-        let mut spot_positions = [SpotPosition::default(); 8];
-        spot_positions[0] = SpotPosition {
-            market_index: 0,
-            balance_type: SpotBalanceType::Deposit,
-            scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
-            ..SpotPosition::default()
-        };
-        let mut perp_positions = [PerpPosition::default(); 8];
-        perp_positions[0] = PerpPosition {
-            market_index: 2,
-            base_asset_amount: 1 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64, // FM: < $50 MM
-            ..PerpPosition::default()
-        };
-
-        let user = User {
-            orders: [Order::default(); 32],
-            perp_positions,
-            spot_positions,
-            ..User::default()
-        };
-
-        let result = meets_place_order_margin_requirement(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            true,
-            Some(2),
-        );
-        assert!(
-            result.is_err(),
-            "Isolated order should fail when current isolated fails maintenance"
-        );
-    }
-
-    #[test]
-    fn isolated_order_not_risk_increasing_passes_when_all_pass_maintenance() {
-        // Scenario: Current isolated PM, cross PM. risk_increasing: false -> all Maintenance. Expected: PASS.
-        let slot = 0_u64;
-        let mut sol_oracle_price = get_pyth_price(100, 6);
-        let sol_oracle_price_key =
-            Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_anchor_account_info!(
-            sol_oracle_price,
-            &sol_oracle_price_key,
-            PythLazerOracle,
-            sol_oracle_account_info
-        );
-        let mut eth_oracle_price = get_pyth_price(1000, 6);
-        let eth_oracle_price_key =
-            Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_anchor_account_info!(
-            eth_oracle_price,
-            &eth_oracle_price_key,
-            PythLazerOracle,
-            eth_oracle_account_info
-        );
-        let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
-        let mut oracle_map =
-            OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
-
-        let mut sol_perp_market = PerpMarket {
-            market_index: 0,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 100 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: sol_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        let mut eth_perp_market = PerpMarket {
-            market_index: 2,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 1000 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: eth_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        create_anchor_account_info!(sol_perp_market, PerpMarket, sol_perp_market_account_info);
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_multiple(
-            vec![&sol_perp_market_account_info, &eth_perp_market_account_info],
-            true,
-        )
-        .unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(spot_market_account_infos, true).unwrap();
-
-        let mut spot_positions = [SpotPosition::default(); 8];
-        spot_positions[0] = SpotPosition {
-            market_index: 0,
-            balance_type: SpotBalanceType::Deposit,
-            scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64, // cross PM
-            ..SpotPosition::default()
-        };
-        let mut perp_positions = [PerpPosition::default(); 8];
-        perp_positions[0] = PerpPosition {
-            market_index: 0,
-            base_asset_amount: 10 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            ..PerpPosition::default()
-        };
-        perp_positions[1] = PerpPosition {
-            market_index: 2,
-            base_asset_amount: 1 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64, // isolated PM
-            ..PerpPosition::default()
-        };
-
-        let user = User {
-            orders: [Order::default(); 32],
-            perp_positions,
-            spot_positions,
-            ..User::default()
-        };
-
-        let result = meets_place_order_margin_requirement(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            false,
-            Some(2),
-        );
-        assert!(
-            result.is_ok(),
-            "Isolated order not risk increasing should pass when all pass maintenance. Error: {:?}",
-            result
-        );
-    }
-
-    #[test]
-    fn isolated_order_not_risk_increasing_fails_when_other_isolated_fails_maintenance() {
-        // Scenario: Current PI, cross PI, other isolated FM. risk_increasing: false. Expected: FAIL.
-        let slot = 0_u64;
-        let mut sol_oracle_price = get_pyth_price(100, 6);
-        let sol_oracle_price_key =
-            Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_anchor_account_info!(
-            sol_oracle_price,
-            &sol_oracle_price_key,
-            PythLazerOracle,
-            sol_oracle_account_info
-        );
-        let mut eth_oracle_price = get_pyth_price(1000, 6);
-        let eth_oracle_price_key =
-            Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_anchor_account_info!(
-            eth_oracle_price,
-            &eth_oracle_price_key,
-            PythLazerOracle,
-            eth_oracle_account_info
-        );
-        let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
-        let mut oracle_map =
-            OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
-
-        let mut sol_perp_market = PerpMarket {
-            market_index: 0,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 100 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: sol_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        let mut eth_perp_market = PerpMarket {
-            market_index: 2,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 1000 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: eth_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        create_anchor_account_info!(sol_perp_market, PerpMarket, sol_perp_market_account_info);
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_multiple(
-            vec![&sol_perp_market_account_info, &eth_perp_market_account_info],
-            true,
-        )
-        .unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_account_infos = Vec::from([&usdc_spot_market_account_info]);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(spot_market_account_infos, true).unwrap();
-
-        let mut spot_positions = [SpotPosition::default(); 8];
-        spot_positions[0] = SpotPosition {
-            market_index: 0,
-            balance_type: SpotBalanceType::Deposit,
-            scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
-            ..SpotPosition::default()
-        };
-        let mut perp_positions = [PerpPosition::default(); 8];
-        perp_positions[0] = PerpPosition {
-            market_index: 0,
-            base_asset_amount: 10 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64, // other isolated FM
-            ..PerpPosition::default()
-        };
-        perp_positions[1] = PerpPosition {
-            market_index: 2,
-            base_asset_amount: 1 * BASE_PRECISION_I64,
-            quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-            position_flag: PositionFlag::IsolatedPosition as u8,
-            isolated_position_scaled_balance: 200 * SPOT_BALANCE_PRECISION_U64, // current PI
-            ..PerpPosition::default()
-        };
-
-        let user = User {
-            orders: [Order::default(); 32],
-            perp_positions,
-            spot_positions,
-            ..User::default()
-        };
-
-        let result = meets_place_order_margin_requirement(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            false,
-            Some(2),
-        );
-        assert!(
-            result.is_err(),
-            "Isolated order not risk increasing should fail when other isolated fails maintenance"
-        );
-    }
-}
-
-mod fill_perp_order_margin_requirement_with_isolated {
-    use std::str::FromStr;
-
-    use anchor_lang::prelude::Pubkey;
-
-    use crate::math::constants::{
-        AMM_RESERVE_PRECISION, BASE_PRECISION_I64, PEG_PRECISION, SPOT_BALANCE_PRECISION,
-        SPOT_BALANCE_PRECISION_U64, SPOT_CUMULATIVE_INTEREST_PRECISION, SPOT_WEIGHT_PRECISION,
-    };
-    use crate::math::margin::{
-        calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
-    };
-    use crate::state::margin_calculation::{MarginContext, MarginTypeConfig};
-    use crate::state::oracle::{HistoricalOracleData, OracleSource};
-    use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
-    use crate::state::perp_market_map::PerpMarketMap;
-    use crate::state::pyth_lazer_oracle::PythLazerOracle;
-    use crate::state::spot_market::{SpotBalanceType, SpotMarket};
-    use crate::state::spot_market_map::SpotMarketMap;
-    use crate::state::user::{Order, PerpPosition, PositionFlag, SpotPosition, User};
-    use crate::test_utils::get_pyth_price;
-    use crate::{create_anchor_account_info, QUOTE_PRECISION_I64};
-
-    const NOW: i64 = 0;
-
-    fn with_sol_eth_setup<F, R>(slot: u64, f: F) -> R
-    where
-        F: FnOnce(&mut OracleMap, &PerpMarketMap, &SpotMarketMap) -> R,
-    {
-        let sol_oracle_price_key =
-            Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let eth_oracle_price_key =
-            Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        let mut sol_oracle_price = get_pyth_price(100, 6);
-        let mut eth_oracle_price = get_pyth_price(1000, 6);
-        create_anchor_account_info!(
-            sol_oracle_price,
-            &sol_oracle_price_key,
-            PythLazerOracle,
-            sol_oracle_account_info
-        );
-        create_anchor_account_info!(
-            eth_oracle_price,
-            &eth_oracle_price_key,
-            PythLazerOracle,
-            eth_oracle_account_info
-        );
-        let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
-        let mut oracle_map =
-            OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
-
-        let mut sol_perp_market = PerpMarket {
-            market_index: 0,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 100 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: sol_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        let mut eth_perp_market = PerpMarket {
-            market_index: 2,
-            amm: AMM {
-                base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
-                bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
-                ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
-                sqrt_k: 100 * AMM_RESERVE_PRECISION,
-                peg_multiplier: 1000 * PEG_PRECISION,
-                order_step_size: 10000000,
-                oracle: eth_oracle_price_key,
-                oracle_source: OracleSource::PythLazer,
-                ..AMM::default()
-            },
-            margin_ratio_initial: 1000,
-            margin_ratio_maintenance: 500,
-            status: MarketStatus::Initialized,
-            ..PerpMarket::default()
-        };
-        create_anchor_account_info!(sol_perp_market, PerpMarket, sol_perp_market_account_info);
-        create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
-        let perp_market_map = PerpMarketMap::load_multiple(
-            vec![&sol_perp_market_account_info, &eth_perp_market_account_info],
-            true,
-        )
-        .unwrap();
-
-        let mut usdc_spot_market = SpotMarket {
-            market_index: 0,
-            oracle_source: OracleSource::QuoteAsset,
-            cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
-            decimals: 6,
-            initial_asset_weight: SPOT_WEIGHT_PRECISION,
-            maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
-            deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
-            liquidator_fee: 0,
-            historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
-            ..SpotMarket::default()
-        };
-        create_anchor_account_info!(usdc_spot_market, SpotMarket, usdc_spot_market_account_info);
-        let spot_market_map =
-            SpotMarketMap::load_multiple(vec![&usdc_spot_market_account_info], true).unwrap();
-
-        f(&mut oracle_map, &perp_market_map, &spot_market_map)
-    }
-
-    // --- Scenario 1a: Isolated fill, position increasing (current isolated = Fill) ---
-
-    #[test]
-    fn isolated_fill_increasing_passes_when_current_isolated_passes_fill_others_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
-
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -100 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
-
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
-
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
-
-            assert!(
-            calculation.meets_margin_requirement(),
-            "Isolated fill increasing should pass when current isolated passes Fill and others pass Maintenance"
-        );
-        });
-    }
-
-    #[test]
-    fn isolated_fill_increasing_fails_when_current_isolated_only_passes_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
-
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -100 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 7 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
-
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, 9 * BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
-
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
-
-            assert!(
-            !calculation.meets_margin_requirement(),
-            "Isolated fill increasing should fail when current isolated only passes Maintenance (needs Fill after delta)"
-        );
-        });
-    }
-
-    #[test]
-    fn isolated_fill_increasing_fails_when_current_isolated_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
-
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
-
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
-
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
-
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Isolated fill increasing should fail when current isolated fails Maintenance"
+        fn with_sol_eth_setup<F, R>(slot: u64, f: F) -> R
+        where
+            F: FnOnce(&mut OracleMap, &PerpMarketMap, &SpotMarketMap) -> R,
+        {
+            let sol_oracle_price_key =
+                Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
+            let eth_oracle_price_key =
+                Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
+            let mut sol_oracle_price = get_pyth_price(100, 6);
+            let mut eth_oracle_price = get_pyth_price(1000, 6);
+            let pyth_program = crate::ids::pyth_program::id();
+            create_account_info!(
+                sol_oracle_price,
+                &sol_oracle_price_key,
+                &pyth_program,
+                sol_oracle_account_info
             );
-        });
-    }
+            create_account_info!(
+                eth_oracle_price,
+                &eth_oracle_price_key,
+                &pyth_program,
+                eth_oracle_account_info
+            );
+            let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
+            let mut oracle_map =
+                OracleMap::load(&mut oracle_account_infos.iter().peekable(), slot, None).unwrap();
 
-    #[test]
-    fn isolated_fill_increasing_fails_when_cross_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
+            let mut sol_perp_market = PerpMarket {
                 market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
+                amm: AMM {
+                    base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
+                    quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
+                    bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
+                    bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
+                    ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
+                    ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
+                    sqrt_k: 100 * AMM_RESERVE_PRECISION,
+                    peg_multiplier: 100 * PEG_PRECISION,
+                    order_step_size: 10000000,
+                    oracle: sol_oracle_price_key,
+                    ..AMM::default()
+                },
+                margin_ratio_initial: 1000,
+                margin_ratio_maintenance: 500,
+                status: MarketStatus::Initialized,
+                ..PerpMarket::default()
             };
-
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -100 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-            perp_positions[1] = PerpPosition {
+            let mut eth_perp_market = PerpMarket {
                 market_index: 2,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
+                amm: AMM {
+                    base_asset_reserve: 100 * AMM_RESERVE_PRECISION,
+                    quote_asset_reserve: 100 * AMM_RESERVE_PRECISION,
+                    bid_base_asset_reserve: 101 * AMM_RESERVE_PRECISION,
+                    bid_quote_asset_reserve: 99 * AMM_RESERVE_PRECISION,
+                    ask_base_asset_reserve: 99 * AMM_RESERVE_PRECISION,
+                    ask_quote_asset_reserve: 101 * AMM_RESERVE_PRECISION,
+                    sqrt_k: 100 * AMM_RESERVE_PRECISION,
+                    peg_multiplier: 1000 * PEG_PRECISION,
+                    order_step_size: 10000000,
+                    oracle: eth_oracle_price_key,
+                    ..AMM::default()
+                },
+                margin_ratio_initial: 1000,
+                margin_ratio_maintenance: 500,
+                status: MarketStatus::Initialized,
+                ..PerpMarket::default()
             };
-
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
-
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
-
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
+            create_anchor_account_info!(sol_perp_market, PerpMarket, sol_perp_market_account_info);
+            create_anchor_account_info!(eth_perp_market, PerpMarket, eth_perp_market_account_info);
+            let perp_market_map = PerpMarketMap::load_multiple(
+                vec![&sol_perp_market_account_info, &eth_perp_market_account_info],
+                true,
             )
             .unwrap();
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Isolated fill increasing should fail when cross fails Maintenance"
+            let mut usdc_spot_market = SpotMarket {
+                market_index: 0,
+                oracle_source: OracleSource::QuoteAsset,
+                cumulative_deposit_interest: SPOT_CUMULATIVE_INTEREST_PRECISION,
+                decimals: 6,
+                initial_asset_weight: SPOT_WEIGHT_PRECISION,
+                maintenance_asset_weight: SPOT_WEIGHT_PRECISION,
+                deposit_balance: 10000 * SPOT_BALANCE_PRECISION,
+                liquidator_fee: 0,
+                historical_oracle_data: HistoricalOracleData::default_quote_oracle(),
+                ..SpotMarket::default()
+            };
+            create_anchor_account_info!(
+                usdc_spot_market,
+                SpotMarket,
+                usdc_spot_market_account_info
             );
-        });
-    }
+            let spot_market_map =
+                SpotMarketMap::load_multiple(vec![&usdc_spot_market_account_info], true).unwrap();
 
-    #[test]
-    fn isolated_fill_increasing_fails_when_other_isolated_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+            f(&mut oracle_map, &perp_market_map, &spot_market_map)
+        }
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -100 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-            perp_positions[1] = PerpPosition {
-                market_index: 2,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
+        // --- Scenario 1a: Isolated fill, position increasing (current isolated = Fill) ---
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+        #[test]
+        fn isolated_fill_increasing_passes_when_current_isolated_passes_fill_others_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -100 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Isolated fill increasing should fail when other isolated fails Maintenance"
-            );
-        });
-    }
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-    // --- Scenario 1b: Isolated fill, position decreasing (all Maintenance) ---
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-    #[test]
-    fn isolated_fill_decreasing_passes_when_all_pass_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
-
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
-
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Maintenance,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
-
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
-
-            assert!(
+                assert!(
                 calculation.meets_margin_requirement(),
-                "Isolated fill decreasing should pass when all pass Maintenance"
+                "Isolated fill increasing should pass when current isolated passes Fill and others pass Maintenance"
             );
-        });
-    }
+            });
+        }
 
-    #[test]
-    fn isolated_fill_decreasing_fails_when_current_isolated_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+        #[test]
+        fn isolated_fill_increasing_fails_when_current_isolated_only_passes_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -100 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 7 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Maintenance,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, 9 * BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            assert!(
+                assert!(
                 !calculation.meets_margin_requirement(),
-                "Isolated fill decreasing should fail when current isolated fails Maintenance"
+                "Isolated fill increasing should fail when current isolated only passes Maintenance (needs Fill after delta)"
             );
-        });
-    }
+            });
+        }
 
-    #[test]
-    fn isolated_fill_decreasing_fails_when_other_isolated_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+        #[test]
+        fn isolated_fill_increasing_fails_when_current_isolated_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
-            perp_positions[1] = PerpPosition {
-                market_index: 2,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
-                market_index: 0,
-                margin_requirement_type: MarginRequirementType::Maintenance,
-                default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
-                cross_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Isolated fill decreasing should fail when other isolated fails Maintenance"
-            );
-        });
-    }
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Isolated fill increasing should fail when current isolated fails Maintenance"
+                );
+            });
+        }
 
-    // --- Scenario 2a: Cross fill, position increasing (cross = Fill) ---
+        #[test]
+        fn isolated_fill_increasing_fails_when_cross_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-    #[test]
-    fn cross_fill_increasing_passes_when_cross_passes_fill_isolated_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -100 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
+                perp_positions[1] = PerpPosition {
+                    market_index: 2,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -100 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Isolated fill increasing should fail when cross fails Maintenance"
+                );
+            });
+        }
 
-            assert!(
-            calculation.meets_margin_requirement(),
-            "Cross fill increasing should pass when cross passes Fill and isolated pass Maintenance"
-        );
-        });
-    }
+        #[test]
+        fn isolated_fill_increasing_fails_when_other_isolated_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-    #[test]
-    fn cross_fill_increasing_fails_when_cross_only_passes_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -100 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
+                perp_positions[1] = PerpPosition {
+                    market_index: 2,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Isolated fill increasing should fail when other isolated fails Maintenance"
+                );
+            });
+        }
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Cross fill increasing should fail when cross only passes Maintenance"
-            );
-        });
-    }
+        // --- Scenario 1b: Isolated fill, position decreasing (all Maintenance) ---
 
-    #[test]
-    fn cross_fill_increasing_fails_when_cross_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+        #[test]
+        fn isolated_fill_decreasing_passes_when_all_pass_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Maintenance,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, -BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Cross fill increasing should fail when cross fails Maintenance"
-            );
-        });
-    }
+                assert!(
+                    calculation.meets_margin_requirement(),
+                    "Isolated fill decreasing should pass when all pass Maintenance"
+                );
+            });
+        }
 
-    #[test]
-    fn cross_fill_increasing_fails_when_other_isolated_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+        #[test]
+        fn isolated_fill_decreasing_fails_when_current_isolated_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 1000 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -100 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
-            perp_positions[1] = PerpPosition {
-                market_index: 2,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Fill,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Maintenance,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, -BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Cross fill increasing should fail when other isolated fails Maintenance"
-            );
-        });
-    }
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Isolated fill decreasing should fail when current isolated fails Maintenance"
+                );
+            });
+        }
 
-    // --- Scenario 2b: Cross fill, position decreasing (all Maintenance) ---
+        #[test]
+        fn isolated_fill_decreasing_fails_when_other_isolated_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-    #[test]
-    fn cross_fill_decreasing_passes_when_all_pass_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
+                perp_positions[1] = PerpPosition {
+                    market_index: 2,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let margin_type_config = MarginTypeConfig::IsolatedPositionOverride {
+                    market_index: 0,
+                    margin_requirement_type: MarginRequirementType::Maintenance,
+                    default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
+                    cross_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, -BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Maintenance,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Isolated fill decreasing should fail when other isolated fails Maintenance"
+                );
+            });
+        }
 
-            assert!(
+        // --- Scenario 2a: Cross fill, position increasing (cross = Fill) ---
+
+        #[test]
+        fn cross_fill_increasing_passes_when_cross_passes_fill_isolated_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
+
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -100 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
+
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
+
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
+
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
+
+                assert!(
                 calculation.meets_margin_requirement(),
-                "Cross fill decreasing should pass when all pass Maintenance"
+                "Cross fill increasing should pass when cross passes Fill and isolated pass Maintenance"
             );
-        });
-    }
+            });
+        }
 
-    #[test]
-    fn cross_fill_decreasing_fails_when_cross_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+        #[test]
+        fn cross_fill_increasing_fails_when_cross_only_passes_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Maintenance,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Cross fill decreasing should fail when cross fails Maintenance"
-            );
-        });
-    }
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Cross fill increasing should fail when cross only passes Maintenance"
+                );
+            });
+        }
 
-    #[test]
-    fn cross_fill_decreasing_fails_when_other_isolated_fails_maintenance() {
-        with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
-            let mut spot_positions = [SpotPosition::default(); 8];
-            spot_positions[0] = SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            };
+        #[test]
+        fn cross_fill_increasing_fails_when_cross_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
 
-            let mut perp_positions = [PerpPosition::default(); 8];
-            perp_positions[0] = PerpPosition {
-                market_index: 0,
-                base_asset_amount: 10 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                ..PerpPosition::default()
-            };
-            perp_positions[1] = PerpPosition {
-                market_index: 2,
-                base_asset_amount: 1 * BASE_PRECISION_I64,
-                quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
-                position_flag: PositionFlag::IsolatedPosition as u8,
-                isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
-                ..PerpPosition::default()
-            };
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
 
-            let user = User {
-                orders: [Order::default(); 32],
-                perp_positions,
-                spot_positions,
-                ..User::default()
-            };
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
 
-            let margin_type_config = MarginTypeConfig::CrossMarginOverride {
-                margin_requirement_type: MarginRequirementType::Maintenance,
-                default_margin_requirement_type: MarginRequirementType::Maintenance,
-            };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
 
-            let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
-                &user,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                context,
-            )
-            .unwrap();
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
 
-            assert!(
-                !calculation.meets_margin_requirement(),
-                "Cross fill decreasing should fail when other isolated fails Maintenance"
-            );
-        });
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Cross fill increasing should fail when cross fails Maintenance"
+                );
+            });
+        }
+
+        #[test]
+        fn cross_fill_increasing_fails_when_other_isolated_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 150 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
+
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -100 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
+                perp_positions[1] = PerpPosition {
+                    market_index: 2,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
+
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
+
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Fill,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
+
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
+
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Cross fill increasing should fail when other isolated fails Maintenance"
+                );
+            });
+        }
+
+        // --- Scenario 2b: Cross fill, position decreasing (all Maintenance) ---
+
+        #[test]
+        fn cross_fill_decreasing_passes_when_all_pass_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
+
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
+
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
+
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Maintenance,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, -BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
+
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
+
+                assert!(
+                    calculation.meets_margin_requirement(),
+                    "Cross fill decreasing should pass when all pass Maintenance"
+                );
+            });
+        }
+
+        #[test]
+        fn cross_fill_decreasing_fails_when_cross_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
+
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
+
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
+
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Maintenance,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, -BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
+
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
+
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Cross fill decreasing should fail when cross fails Maintenance"
+                );
+            });
+        }
+
+        #[test]
+        fn cross_fill_decreasing_fails_when_other_isolated_fails_maintenance() {
+            with_sol_eth_setup(0, |mut oracle_map, perp_market_map, spot_market_map| {
+                let mut spot_positions = [SpotPosition::default(); 8];
+                spot_positions[0] = SpotPosition {
+                    market_index: 0,
+                    balance_type: SpotBalanceType::Deposit,
+                    scaled_balance: 70 * SPOT_BALANCE_PRECISION_U64,
+                    ..SpotPosition::default()
+                };
+
+                let mut perp_positions = [PerpPosition::default(); 8];
+                perp_positions[0] = PerpPosition {
+                    market_index: 0,
+                    base_asset_amount: 10 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    ..PerpPosition::default()
+                };
+                perp_positions[1] = PerpPosition {
+                    market_index: 2,
+                    base_asset_amount: 1 * BASE_PRECISION_I64,
+                    quote_asset_amount: -1000 * QUOTE_PRECISION_I64,
+                    position_flag: PositionFlag::IsolatedPosition as u8,
+                    isolated_position_scaled_balance: 40 * SPOT_BALANCE_PRECISION_U64,
+                    ..PerpPosition::default()
+                };
+
+                let user = User {
+                    orders: [Order::default(); 32],
+                    perp_positions,
+                    spot_positions,
+                    ..User::default()
+                };
+
+                let margin_type_config = MarginTypeConfig::CrossMarginOverride {
+                    margin_requirement_type: MarginRequirementType::Maintenance,
+                    default_margin_requirement_type: MarginRequirementType::Maintenance,
+                };
+                let context = MarginContext::standard_with_config(margin_type_config)
+                    .fuel_perp_delta(0, -BASE_PRECISION_I64)
+                    .fuel_numerator(&user, NOW);
+
+                let calculation =
+                    calculate_margin_requirement_and_total_collateral_and_liability_info(
+                        &user,
+                        &perp_market_map,
+                        &spot_market_map,
+                        &mut oracle_map,
+                        context,
+                    )
+                    .unwrap();
+
+                assert!(
+                    !calculation.meets_margin_requirement(),
+                    "Cross fill decreasing should fail when other isolated fails Maintenance"
+                );
+            });
+        }
     }
 }

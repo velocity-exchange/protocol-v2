@@ -9,6 +9,7 @@ pub mod insurance_fund_stake;
 pub mod liquidation_mode;
 pub mod load_ref;
 pub mod lp_pool;
+pub mod market_status;
 pub mod margin_calculation;
 pub mod oracle;
 pub mod oracle_map;

@@ -15696,18 +15696,6 @@
             "name": "Active"
           },
           {
-            "name": "FundingPaused"
-          },
-          {
-            "name": "AmmPaused"
-          },
-          {
-            "name": "FillPaused"
-          },
-          {
-            "name": "WithdrawPaused"
-          },
-          {
             "name": "ReduceOnly"
           },
           {
@@ -19917,8 +19905,5 @@
       "name": "InvalidInsuranceFundWithdrawalRecipient",
       "msg": "Insurance fund withdrawal recipient must be the designated treasury address"
     }
-  ],
-  "metadata": {
-    "address": "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH"
-  }
+  ]
 }
