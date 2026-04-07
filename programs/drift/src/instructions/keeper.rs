@@ -1579,7 +1579,7 @@ pub fn handle_liquidate_spot_with_swap_begin<'c: 'info, 'info>(
             found_end = true;
 
             // must be the SwapEnd instruction
-            let discriminator = [0u8; 8]; // dummy data
+            let discriminator = crate::instruction::LiquidateSpotWithSwapEnd::discriminator();
             validate!(
                 ix.data[0..8] == discriminator,
                 ErrorCode::InvalidLiquidateSpotWithSwap,
