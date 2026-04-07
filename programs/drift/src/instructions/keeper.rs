@@ -244,6 +244,8 @@ pub fn handle_fill_spot_order<'c: 'info, 'info>(
     fulfillment_type: Option<SpotFulfillmentType>,
     _maker_order_id: Option<u32>,
 ) -> Result<()> {
+    spot_dlob_trading_disabled()?;
+
     let (order_id, market_index) = {
         let user = &load!(ctx.accounts.user)?;
         // if there is no order id, use the users last order id
@@ -372,21 +374,19 @@ pub fn handle_trigger_order<'c: 'info, 'info>(
     ctx: Context<'_, '_, 'c, 'info, TriggerOrder<'info>>,
     order_id: u32,
 ) -> Result<()> {
-    let (market_type, market_index) = match load!(ctx.accounts.user)?.get_order(order_id) {
-        Some(order) => (order.market_type, order.market_index),
+    let market_type = match load!(ctx.accounts.user)?.get_order(order_id) {
+        Some(order) => order.market_type,
         None => {
             msg!("order_id not found {}", order_id);
             return Ok(());
         }
     };
 
-    let (writeable_perp_markets, writeable_spot_markets) = match market_type {
-        MarketType::Spot => (
-            MarketSet::new(),
-            get_writable_spot_market_set_from_many(vec![QUOTE_SPOT_MARKET_INDEX, market_index]),
-        ),
-        MarketType::Perp => (MarketSet::new(), MarketSet::new()),
-    };
+    if market_type == MarketType::Spot {
+        return spot_dlob_trading_disabled();
+    }
+
+    let (writeable_perp_markets, writeable_spot_markets) = (MarketSet::new(), MarketSet::new());
 
     let AccountMaps {
         perp_market_map,
@@ -400,28 +400,16 @@ pub fn handle_trigger_order<'c: 'info, 'info>(
         None,
     )?;
 
-    match market_type {
-        MarketType::Perp => controller::orders::trigger_order(
-            order_id,
-            &ctx.accounts.state,
-            &ctx.accounts.user,
-            &spot_market_map,
-            &perp_market_map,
-            &mut oracle_map,
-            &ctx.accounts.filler,
-            &Clock::get()?,
-        )?,
-        MarketType::Spot => controller::orders::trigger_spot_order(
-            order_id,
-            &ctx.accounts.state,
-            &ctx.accounts.user,
-            &spot_market_map,
-            &perp_market_map,
-            &mut oracle_map,
-            &ctx.accounts.filler,
-            &Clock::get()?,
-        )?,
-    }
+    controller::orders::trigger_order(
+        order_id,
+        &ctx.accounts.state,
+        &ctx.accounts.user,
+        &spot_market_map,
+        &perp_market_map,
+        &mut oracle_map,
+        &ctx.accounts.filler,
+        &Clock::get()?,
+    )?;
 
     Ok(())
 }

@@ -2717,17 +2717,7 @@ fn place_orders<'c: 'info, 'info>(
                 &mut None,
             )?;
         } else {
-            controller::orders::place_spot_order(
-                state,
-                &mut user,
-                user_key,
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                clock,
-                *params,
-                options,
-            )?;
+            spot_dlob_trading_disabled()?;
         }
     }
 
@@ -3107,6 +3097,8 @@ pub fn handle_place_spot_order<'c: 'info, 'info>(
     ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
     params: OrderParams,
 ) -> Result<()> {
+    spot_dlob_trading_disabled()?;
+
     let AccountMaps {
         perp_market_map,
         spot_market_map,
@@ -3151,6 +3143,8 @@ pub fn handle_place_and_take_spot_order<'c: 'info, 'info>(
     fulfillment_type: SpotFulfillmentType,
     _maker_order_id: Option<u32>,
 ) -> Result<()> {
+    spot_dlob_trading_disabled()?;
+
     let clock = Clock::get()?;
     let market_index = params.market_index;
 
@@ -3299,6 +3293,8 @@ pub fn handle_place_and_make_spot_order<'c: 'info, 'info>(
     taker_order_id: u32,
     fulfillment_type: SpotFulfillmentType,
 ) -> Result<()> {
+    spot_dlob_trading_disabled()?;
+
     let clock = &Clock::get()?;
     let state = &ctx.accounts.state;
 

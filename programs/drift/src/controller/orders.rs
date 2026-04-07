@@ -887,17 +887,7 @@ pub fn modify_order(
                 &mut None,
             )?;
         } else {
-            place_spot_order(
-                state,
-                &mut user,
-                user_key,
-                perp_market_map,
-                spot_market_map,
-                oracle_map,
-                clock,
-                order_params,
-                PlaceOrderOptions::default(),
-            )?;
+            validate!(false, ErrorCode::SpotDlobTradingDisabled)?;
         }
     }
 

@@ -430,6 +430,8 @@ pub enum ErrorCode {
     UnsupportedSpotMarket,
     #[msg("SpotOrdersDisabled")]
     SpotOrdersDisabled,
+    #[msg("Spot DLOB trading is disabled")]
+    SpotDlobTradingDisabled,
     #[msg("Market Being Initialized")]
     MarketBeingInitialized,
     #[msg("Invalid Sub Account Id")]

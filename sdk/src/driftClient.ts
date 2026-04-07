@@ -72,6 +72,10 @@ import {
 } from './types';
 import driftIDL from './idl/drift.json';
 
+/** Client-side guardrail; mirrors on-chain `ErrorCode::SpotDlobTradingDisabled`. */
+const SPOT_DLOB_TRADING_DISABLED_MSG =
+	'Spot DLOB trading is disabled; spot balances, deposits, and swaps remain available.';
+
 import {
 	AccountMeta,
 	AddressLookupTableAccount,
@@ -5882,16 +5886,7 @@ export class DriftClient {
 		txParams?: TxParams,
 		subAccountId?: number
 	): Promise<TransactionSignature> {
-		const { txSig, slot } = await this.sendTransaction(
-			(await this.preparePlaceSpotOrderTx(orderParams, txParams, subAccountId))
-				.placeSpotOrderTx,
-			[],
-			this.opts,
-			false
-		);
-		this.spotMarketLastSlotCache.set(orderParams.marketIndex, slot);
-		this.spotMarketLastSlotCache.set(QUOTE_SPOT_MARKET_INDEX, slot);
-		return txSig;
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async preparePlaceSpotOrderTx(
@@ -5899,14 +5894,7 @@ export class DriftClient {
 		txParams?: TxParams,
 		subAccountId?: number
 	) {
-		const tx = await this.buildTransaction(
-			await this.getPlaceSpotOrderIx(orderParams, subAccountId),
-			txParams
-		);
-
-		return {
-			placeSpotOrderTx: tx,
-		};
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async getPlaceSpotOrderIx(
@@ -5916,30 +5904,7 @@ export class DriftClient {
 			authority?: PublicKey;
 		}
 	): Promise<TransactionInstruction> {
-		orderParams = getOrderParams(orderParams, { marketType: MarketType.SPOT });
-		const userAccountPublicKey = await this.getUserAccountPublicKey(
-			subAccountId
-		);
-		const authority = overrides?.authority ?? this.wallet.publicKey;
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [this.getUserAccount(subAccountId)],
-			useMarketLastSlotCache: true,
-			readableSpotMarketIndexes: [
-				orderParams.marketIndex,
-				QUOTE_SPOT_MARKET_INDEX,
-			],
-		});
-
-		return await this.program.instruction.placeSpotOrder(orderParams, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user: userAccountPublicKey,
-				userStats: this.getUserStatsAccountPublicKey(),
-				authority,
-			},
-			remainingAccounts,
-		});
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async fillSpotOrder(
@@ -5954,22 +5919,7 @@ export class DriftClient {
 		referrerInfo?: ReferrerInfo,
 		txParams?: TxParams
 	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getFillSpotOrderIx(
-					userAccountPublicKey,
-					user,
-					order,
-					fulfillmentConfig,
-					makerInfo,
-					referrerInfo
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async getFillSpotOrderIx(
@@ -5984,72 +5934,7 @@ export class DriftClient {
 		referrerInfo?: ReferrerInfo,
 		fillerPublicKey?: PublicKey
 	): Promise<TransactionInstruction> {
-		const userStatsPublicKey = getUserStatsAccountPublicKey(
-			this.program.programId,
-			userAccount.authority
-		);
-
-		const filler = fillerPublicKey ?? (await this.getUserAccountPublicKey());
-		const fillerStatsPublicKey = this.getUserStatsAccountPublicKey();
-
-		const marketIndex = order
-			? order.marketIndex
-			: userAccount.orders.find(
-					(order) => order.orderId === userAccount.nextOrderId - 1
-			  ).marketIndex;
-
-		makerInfo = Array.isArray(makerInfo)
-			? makerInfo
-			: makerInfo
-			? [makerInfo]
-			: [];
-
-		const userAccounts = [userAccount];
-		for (const maker of makerInfo) {
-			userAccounts.push(maker.makerUserAccount);
-		}
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts,
-			writableSpotMarketIndexes: [marketIndex, QUOTE_SPOT_MARKET_INDEX],
-		});
-
-		for (const maker of makerInfo) {
-			remainingAccounts.push({
-				pubkey: maker.maker,
-				isWritable: true,
-				isSigner: false,
-			});
-			remainingAccounts.push({
-				pubkey: maker.makerStats,
-				isWritable: true,
-				isSigner: false,
-			});
-		}
-
-		const orderId = order.orderId;
-
-		this.addSpotFulfillmentAccounts(
-			marketIndex,
-			remainingAccounts,
-			fulfillmentConfig
-		);
-
-		return await this.program.instruction.fillSpotOrder(
-			orderId,
-			fulfillmentConfig ? fulfillmentConfig.fulfillmentType : null,
-			null,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					filler,
-					fillerStats: fillerStatsPublicKey,
-					user: userAccountPublicKey,
-					userStats: userStatsPublicKey,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts,
-			}
-		);
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	addSpotFulfillmentAccounts(
@@ -8244,20 +8129,7 @@ export class DriftClient {
 		txParams?: TxParams,
 		subAccountId?: number
 	) {
-		const tx = await this.buildTransaction(
-			await this.getPlaceAndTakeSpotOrderIx(
-				orderParams,
-				fulfillmentConfig,
-				makerInfo,
-				referrerInfo,
-				subAccountId
-			),
-			txParams
-		);
-
-		return {
-			placeAndTakeSpotOrderTx: tx,
-		};
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async placeAndTakeSpotOrder(
@@ -8268,24 +8140,7 @@ export class DriftClient {
 		txParams?: TxParams,
 		subAccountId?: number
 	): Promise<TransactionSignature> {
-		const { txSig, slot } = await this.sendTransaction(
-			(
-				await this.preparePlaceAndTakeSpotOrder(
-					orderParams,
-					fulfillmentConfig,
-					makerInfo,
-					referrerInfo,
-					txParams,
-					subAccountId
-				)
-			).placeAndTakeSpotOrderTx,
-			[],
-			this.opts,
-			false
-		);
-		this.spotMarketLastSlotCache.set(orderParams.marketIndex, slot);
-		this.spotMarketLastSlotCache.set(QUOTE_SPOT_MARKET_INDEX, slot);
-		return txSig;
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 	public async getPlaceAndTakeSpotOrderIx(
 		orderParams: OptionalOrderParams,
@@ -8294,71 +8149,7 @@ export class DriftClient {
 		referrerInfo?: ReferrerInfo,
 		subAccountId?: number
 	): Promise<TransactionInstruction> {
-		orderParams = getOrderParams(orderParams, { marketType: MarketType.SPOT });
-		const userStatsPublicKey = this.getUserStatsAccountPublicKey();
-		const user = await this.getUserAccountPublicKey(subAccountId);
-
-		const userAccounts = [this.getUserAccount(subAccountId)];
-		if (makerInfo !== undefined) {
-			userAccounts.push(makerInfo.makerUserAccount);
-		}
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts,
-			useMarketLastSlotCache: true,
-			writableSpotMarketIndexes: [
-				orderParams.marketIndex,
-				QUOTE_SPOT_MARKET_INDEX,
-			],
-		});
-
-		let makerOrderId = null;
-		if (makerInfo) {
-			makerOrderId = makerInfo.order.orderId;
-			remainingAccounts.push({
-				pubkey: makerInfo.maker,
-				isSigner: false,
-				isWritable: true,
-			});
-			remainingAccounts.push({
-				pubkey: makerInfo.makerStats,
-				isSigner: false,
-				isWritable: true,
-			});
-		}
-
-		if (referrerInfo) {
-			remainingAccounts.push({
-				pubkey: referrerInfo.referrer,
-				isWritable: true,
-				isSigner: false,
-			});
-			remainingAccounts.push({
-				pubkey: referrerInfo.referrerStats,
-				isWritable: true,
-				isSigner: false,
-			});
-		}
-
-		this.addSpotFulfillmentAccounts(
-			orderParams.marketIndex,
-			remainingAccounts,
-			fulfillmentConfig
-		);
-
-		return await this.program.instruction.placeAndTakeSpotOrder(
-			orderParams,
-			fulfillmentConfig ? fulfillmentConfig.fulfillmentType : null,
-			makerOrderId,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					userStats: userStatsPublicKey,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts,
-			}
-		);
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async placeAndMakeSpotOrder(
@@ -8369,23 +8160,7 @@ export class DriftClient {
 		txParams?: TxParams,
 		subAccountId?: number
 	): Promise<TransactionSignature> {
-		const { txSig, slot } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getPlaceAndMakeSpotOrderIx(
-					orderParams,
-					takerInfo,
-					fulfillmentConfig,
-					referrerInfo,
-					subAccountId
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		this.spotMarketLastSlotCache.set(orderParams.marketIndex, slot);
-		this.spotMarketLastSlotCache.set(QUOTE_SPOT_MARKET_INDEX, slot);
-		return txSig;
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async getPlaceAndMakeSpotOrderIx(
@@ -8395,58 +8170,7 @@ export class DriftClient {
 		referrerInfo?: ReferrerInfo,
 		subAccountId?: number
 	): Promise<TransactionInstruction> {
-		orderParams = getOrderParams(orderParams, { marketType: MarketType.SPOT });
-		const userStatsPublicKey = this.getUserStatsAccountPublicKey();
-		const user = await this.getUserAccountPublicKey(subAccountId);
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [
-				this.getUserAccount(subAccountId),
-				takerInfo.takerUserAccount,
-			],
-			useMarketLastSlotCache: true,
-			writableSpotMarketIndexes: [
-				orderParams.marketIndex,
-				QUOTE_SPOT_MARKET_INDEX,
-			],
-		});
-
-		if (referrerInfo) {
-			remainingAccounts.push({
-				pubkey: referrerInfo.referrer,
-				isWritable: true,
-				isSigner: false,
-			});
-			remainingAccounts.push({
-				pubkey: referrerInfo.referrerStats,
-				isWritable: true,
-				isSigner: false,
-			});
-		}
-
-		this.addSpotFulfillmentAccounts(
-			orderParams.marketIndex,
-			remainingAccounts,
-			fulfillmentConfig
-		);
-
-		const takerOrderId = takerInfo.order.orderId;
-		return await this.program.instruction.placeAndMakeSpotOrder(
-			orderParams,
-			takerOrderId,
-			fulfillmentConfig ? fulfillmentConfig.fulfillmentType : null,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					userStats: userStatsPublicKey,
-					taker: takerInfo.taker,
-					takerStats: takerInfo.takerStats,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts,
-			}
-		);
+		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	/**
