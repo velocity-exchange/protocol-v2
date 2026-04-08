@@ -5882,25 +5882,25 @@ export class DriftClient {
 	}
 
 	public async placeSpotOrder(
-		orderParams: OptionalOrderParams,
-		txParams?: TxParams,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_txParams?: TxParams,
+		_subAccountId?: number
 	): Promise<TransactionSignature> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async preparePlaceSpotOrderTx(
-		orderParams: OptionalOrderParams,
-		txParams?: TxParams,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_txParams?: TxParams,
+		_subAccountId?: number
 	) {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async getPlaceSpotOrderIx(
-		orderParams: OptionalOrderParams,
-		subAccountId?: number,
-		overrides?: {
+		_orderParams: OptionalOrderParams,
+		_subAccountId?: number,
+		_overrides?: {
 			authority?: PublicKey;
 		}
 	): Promise<TransactionInstruction> {
@@ -5908,31 +5908,31 @@ export class DriftClient {
 	}
 
 	public async fillSpotOrder(
-		userAccountPublicKey: PublicKey,
-		user: UserAccount,
-		order?: Pick<Order, 'marketIndex' | 'orderId'>,
-		fulfillmentConfig?:
+		_userAccountPublicKey: PublicKey,
+		_user: UserAccount,
+		_order?: Pick<Order, 'marketIndex' | 'orderId'>,
+		_fulfillmentConfig?:
 			| SerumV3FulfillmentConfigAccount
 			| PhoenixV1FulfillmentConfigAccount
 			| OpenbookV2FulfillmentConfigAccount,
-		makerInfo?: MakerInfo | MakerInfo[],
-		referrerInfo?: ReferrerInfo,
-		txParams?: TxParams
+		_makerInfo?: MakerInfo | MakerInfo[],
+		_referrerInfo?: ReferrerInfo,
+		_txParams?: TxParams
 	): Promise<TransactionSignature> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async getFillSpotOrderIx(
-		userAccountPublicKey: PublicKey,
-		userAccount: UserAccount,
-		order?: Pick<Order, 'marketIndex' | 'orderId'>,
-		fulfillmentConfig?:
+		_userAccountPublicKey: PublicKey,
+		_userAccount: UserAccount,
+		_order?: Pick<Order, 'marketIndex' | 'orderId'>,
+		_fulfillmentConfig?:
 			| SerumV3FulfillmentConfigAccount
 			| PhoenixV1FulfillmentConfigAccount
 			| OpenbookV2FulfillmentConfigAccount,
-		makerInfo?: MakerInfo | MakerInfo[],
-		referrerInfo?: ReferrerInfo,
-		fillerPublicKey?: PublicKey
+		_makerInfo?: MakerInfo | MakerInfo[],
+		_referrerInfo?: ReferrerInfo,
+		_fillerPublicKey?: PublicKey
 	): Promise<TransactionInstruction> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
@@ -8122,53 +8122,53 @@ export class DriftClient {
 	}
 
 	public async preparePlaceAndTakeSpotOrder(
-		orderParams: OptionalOrderParams,
-		fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
-		makerInfo?: MakerInfo,
-		referrerInfo?: ReferrerInfo,
-		txParams?: TxParams,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_makerInfo?: MakerInfo,
+		_referrerInfo?: ReferrerInfo,
+		_txParams?: TxParams,
+		_subAccountId?: number
 	) {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async placeAndTakeSpotOrder(
-		orderParams: OptionalOrderParams,
-		fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
-		makerInfo?: MakerInfo,
-		referrerInfo?: ReferrerInfo,
-		txParams?: TxParams,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_makerInfo?: MakerInfo,
+		_referrerInfo?: ReferrerInfo,
+		_txParams?: TxParams,
+		_subAccountId?: number
 	): Promise<TransactionSignature> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 	public async getPlaceAndTakeSpotOrderIx(
-		orderParams: OptionalOrderParams,
-		fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
-		makerInfo?: MakerInfo,
-		referrerInfo?: ReferrerInfo,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_makerInfo?: MakerInfo,
+		_referrerInfo?: ReferrerInfo,
+		_subAccountId?: number
 	): Promise<TransactionInstruction> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async placeAndMakeSpotOrder(
-		orderParams: OptionalOrderParams,
-		takerInfo: TakerInfo,
-		fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
-		referrerInfo?: ReferrerInfo,
-		txParams?: TxParams,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_takerInfo: TakerInfo,
+		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_referrerInfo?: ReferrerInfo,
+		_txParams?: TxParams,
+		_subAccountId?: number
 	): Promise<TransactionSignature> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
 	public async getPlaceAndMakeSpotOrderIx(
-		orderParams: OptionalOrderParams,
-		takerInfo: TakerInfo,
-		fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
-		referrerInfo?: ReferrerInfo,
-		subAccountId?: number
+		_orderParams: OptionalOrderParams,
+		_takerInfo: TakerInfo,
+		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_referrerInfo?: ReferrerInfo,
+		_subAccountId?: number
 	): Promise<TransactionInstruction> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}

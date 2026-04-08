@@ -586,5 +586,4 @@ describe('scale orders', () => {
 		// Cancel all orders
 		await driftClient.cancelOrders();
 	});
-
 });
