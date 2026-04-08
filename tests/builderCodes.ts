@@ -648,12 +648,16 @@ describe('builder codes', () => {
 			fillTx
 		);
 		const events = parseLogs(builderClient.program, logs);
-		assert(events[0].name === 'OrderActionRecord');
-		const fillQuoteAssetAmount = events[0].data['quoteAssetAmountFilled'] as BN;
-		const builderFee = events[0].data['builderFee'] as BN | null;
-		const takerFee = events[0].data['takerFee'] as BN;
+		const orderActionRecords = events.filter(
+			(e) => e.name === 'OrderActionRecord'
+		);
+		assert(orderActionRecords.length > 0);
+		const fillEvent = orderActionRecords[orderActionRecords.length - 1];
+		const fillQuoteAssetAmount = fillEvent.data['quoteAssetAmountFilled'] as BN;
+		const builderFee = fillEvent.data['builderFee'] as BN | null;
+		const takerFee = fillEvent.data['takerFee'] as BN;
 		const totalFeePaid = takerFee;
-		const referrerReward = new BN(events[0].data['referrerReward'] as number);
+		const referrerReward = new BN(fillEvent.data['referrerReward'] as number);
 		assert(builderFee === null);
 		assert(referrerReward.gt(ZERO));
 
@@ -843,11 +847,15 @@ describe('builder codes', () => {
 			fillTx
 		);
 		const events = parseLogs(builderClient.program, logs);
-		assert(events[0].name === 'OrderActionRecord');
-		const fillQuoteAssetAmount = events[0].data['quoteAssetAmountFilled'] as BN;
-		const builderFee = events[0].data['builderFee'] as BN;
-		const takerFee = events[0].data['takerFee'] as BN;
-		// const referrerReward = events[0].data['referrerReward'] as number;
+		const orderActionRecords = events.filter(
+			(e) => e.name === 'OrderActionRecord'
+		);
+		assert(orderActionRecords.length > 0);
+		const fillEvent = orderActionRecords[orderActionRecords.length - 1];
+		const fillQuoteAssetAmount = fillEvent.data['quoteAssetAmountFilled'] as BN;
+		const builderFee = fillEvent.data['builderFee'] as BN;
+		const takerFee = fillEvent.data['takerFee'] as BN;
+		// const referrerReward = fillEvent.data['referrerReward'] as number;
 		assert(
 			builderFee.eq(fillQuoteAssetAmount.muln(builderFeeBps).divn(100000))
 		);
@@ -857,7 +865,7 @@ describe('builder codes', () => {
 		assert(userOrders.length === 2);
 
 		const pos = userClient.getUser().getPerpPosition(0);
-		const takerOrderCumulativeQuoteAssetAmountFilled = events[0].data[
+		const takerOrderCumulativeQuoteAssetAmountFilled = fillEvent.data[
 			'takerOrderCumulativeQuoteAssetAmountFilled'
 		] as BN;
 		assert(
