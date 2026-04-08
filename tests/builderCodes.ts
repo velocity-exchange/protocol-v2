@@ -777,6 +777,7 @@ describe('builder codes', () => {
 				0,
 				false // remove
 			);
+			console.log("didn't throw error on revoke builder with open orders");
 			assert(
 				false,
 				'should throw error when revoking builder with open orders'
