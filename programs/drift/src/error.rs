@@ -430,8 +430,6 @@ pub enum ErrorCode {
     UnsupportedSpotMarket,
     #[msg("SpotOrdersDisabled")]
     SpotOrdersDisabled,
-    #[msg("Spot DLOB trading is disabled")]
-    SpotDlobTradingDisabled,
     #[msg("Market Being Initialized")]
     MarketBeingInitialized,
     #[msg("Invalid Sub Account Id")]
@@ -706,6 +704,8 @@ pub enum ErrorCode {
     InvalidPerpMarketConfig,
     #[msg("Insurance fund withdrawal recipient must be the designated treasury address")]
     InvalidInsuranceFundWithdrawalRecipient,
+    #[msg("Spot DLOB trading is disabled")]
+    SpotDlobTradingDisabled,
 }
 
 #[macro_export]
