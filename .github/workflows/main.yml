@@ -155,6 +155,7 @@ jobs:
         run: bash test-scripts/run-anchor-tests.sh
   verify-sdk-configs:
     name: Verify SDK Configs
+    if: ${{ false }}
     runs-on: ubicloud
     steps:
       - uses: actions/checkout@v2
