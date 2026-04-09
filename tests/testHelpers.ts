@@ -855,7 +855,32 @@ export const getFeedDataNoProgram = async (
 ) => {
 	// @ts-ignore
 	const info = await connection.getAccountInfoAndContext(priceFeed);
-	return parsePriceData(info.value.data);
+	try {
+		return parsePriceData(info.value.data);
+	} catch (_e) {
+		// Bankrun tests often use mockOracleNoProgram(), which writes Drift's
+		// PythLazerOracle account layout (48 bytes) instead of legacy Pyth price account bytes.
+		const data = info.value.data as Buffer;
+		if (data.length === 48) {
+			const scaledPrice = Number(data.readBigInt64LE(8));
+			const currentSlot = Number(data.readBigUInt64LE(24));
+			const exponent = data.readInt32LE(32);
+			const scaledConf = Number(data.readBigUInt64LE(40));
+			const scale = Math.pow(10, exponent);
+			const price = scaledPrice * scale;
+			const confidence = scaledConf * scale;
+			return {
+				price,
+				exponent,
+				confidence,
+				twap: price,
+				twac: confidence,
+				currentSlot,
+				lastSlot: currentSlot,
+			};
+		}
+		throw _e;
+	}
 };
 
 export const getOraclePriceData = async (

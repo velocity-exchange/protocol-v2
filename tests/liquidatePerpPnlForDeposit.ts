@@ -102,7 +102,13 @@ describe('liquidate perp pnl for deposit', () => {
 
 		await eventSubscriber.subscribe();
 
-		solOracle = await mockOracleNoProgram(bankrunContextWrapper, 1);
+		solOracle = await mockOracleNoProgram(
+			bankrunContextWrapper,
+			1,
+			undefined,
+			undefined,
+			10000
+		);
 
 		driftClient = new TestClient({
 			connection: bankrunContextWrapper.connection.toConnection(),
@@ -213,7 +219,7 @@ describe('liquidate perp pnl for deposit', () => {
 	});
 
 	it('liquidate', async () => {
-		await setFeedPriceNoProgram(bankrunContextWrapper, 50, solOracle);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 50, solOracle, 10000);
 		await driftClient.updateInitialPctToLiquidate(
 			LIQUIDATION_PCT_PRECISION.toNumber()
 		);

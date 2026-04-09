@@ -81,7 +81,8 @@ describe('User Account', () => {
 			bankrunContextWrapper,
 			initialSOLPrice,
 			-10,
-			0.0005
+			0.0005,
+			10000
 		);
 
 		driftClient = new TestClient({
@@ -258,7 +259,8 @@ describe('User Account', () => {
 		await setFeedPriceNoProgram(
 			bankrunContextWrapper,
 			convertToNumber(reservePrice.sub(new BN(250))),
-			solUsdOracle
+			solUsdOracle,
+			10000
 		);
 		await sleep(5000);
 
@@ -343,7 +345,8 @@ describe('User Account', () => {
 		await setFeedPriceNoProgram(
 			bankrunContextWrapper,
 			convertToNumber(reservePrice.sub(new BN(275))),
-			solUsdOracle
+			solUsdOracle,
+			10000
 		);
 		await sleep(5000);
 
