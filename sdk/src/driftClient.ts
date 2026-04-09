@@ -26,7 +26,6 @@ import {
 } from '@solana/spl-token';
 import {
 	DriftClientMetricsEvents,
-	HighLeverageModeConfig,
 	isVariant,
 	IWallet,
 	MakerInfo,
@@ -99,7 +98,6 @@ import {
 	getDriftSignerPublicKey,
 	getDriftStateAccountPublicKey,
 	getFuelOverflowAccountPublicKey,
-	getHighLeverageModeConfigPublicKey,
 	getInsuranceFundStakeAccountPublicKey,
 	getOpenbookV2FulfillmentConfigPublicKey,
 	getPerpMarketPublicKey,
@@ -181,7 +179,7 @@ import { SwapMode, UnifiedQuoteResponse } from './swap/UnifiedSwapClient';
 import { getNonIdleUserFilter } from './memcmp';
 import { UserStatsSubscriptionConfig } from './userStatsConfig';
 import { getMarinadeDepositIx, getMarinadeFinanceProgram } from './marinade';
-import { getOrderParams, isUpdateHighLeverageMode } from './orderParams';
+import { getOrderParams } from './orderParams';
 import { numberToSafeBN } from './math/utils';
 import { TransactionParamProcessor } from './tx/txParamProcessor';
 import {
@@ -1884,21 +1882,14 @@ export class DriftClient {
 		perpMarketIndex: number,
 		marginRatio: number,
 		subAccountId = 0,
-		txParams?: TxParams,
-		enterHighLeverageMode?: boolean
+		txParams?: TxParams
 	): Promise<TransactionSignature> {
-		const ixs = [];
-		if (enterHighLeverageMode) {
-			const enableIx = await this.getEnableHighLeverageModeIx(subAccountId);
-			ixs.push(enableIx);
-		}
 		const updateIx = await this.getUpdateUserPerpPositionCustomMarginRatioIx(
 			perpMarketIndex,
 			marginRatio,
 			subAccountId
 		);
-		ixs.push(updateIx);
-		const tx = await this.buildTransaction(ixs, txParams ?? this.txParams);
+		const tx = await this.buildTransaction(updateIx, txParams ?? this.txParams);
 		const { txSig } = await this.sendTransaction(tx, [], this.opts);
 		return txSig;
 	}
@@ -5018,14 +5009,6 @@ export class DriftClient {
 				: undefined,
 		});
 
-		if (isUpdateHighLeverageMode(orderParams.bitFlags)) {
-			remainingAccounts.push({
-				pubkey: getHighLeverageModeConfigPublicKey(this.program.programId),
-				isWritable: true,
-				isSigner: false,
-			});
-		}
-
 		return await this.program.instruction.placePerpOrder(orderParams, {
 			accounts: {
 				state: await this.getStatePublicKey(),
@@ -5514,16 +5497,6 @@ export class DriftClient {
 			useMarketLastSlotCache: true,
 		});
 
-		for (const param of params) {
-			if (isUpdateHighLeverageMode(param.bitFlags)) {
-				remainingAccounts.push({
-					pubkey: getHighLeverageModeConfigPublicKey(this.program.programId),
-					isWritable: true,
-					isSigner: false,
-				});
-			}
-		}
-
 		const formattedParams = params.map((item) => getOrderParams(item));
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 
@@ -5564,16 +5537,6 @@ export class DriftClient {
 			readableSpotMarketIndexes,
 			useMarketLastSlotCache: true,
 		});
-
-		for (const param of params) {
-			if (isUpdateHighLeverageMode(param.bitFlags)) {
-				remainingAccounts.push({
-					pubkey: getHighLeverageModeConfigPublicKey(this.program.programId),
-					isWritable: true,
-					isSigner: false,
-				});
-			}
-		}
 
 		const formattedParams = params.map((item) => getOrderParams(item));
 
@@ -5659,14 +5622,6 @@ export class DriftClient {
 			readableSpotMarketIndexes: isPerp ? [] : [params.marketIndex],
 			useMarketLastSlotCache: true,
 		});
-
-		if (isUpdateHighLeverageMode(params.bitFlags)) {
-			remainingAccounts.push({
-				pubkey: getHighLeverageModeConfigPublicKey(this.program.programId),
-				isWritable: true,
-				isSigner: false,
-			});
-		}
 
 		const formattedParams = {
 			marketType: params.marketType,
@@ -7721,14 +7676,6 @@ export class DriftClient {
 			}
 		}
 
-		if (isUpdateHighLeverageMode(orderParams.bitFlags)) {
-			remainingAccounts.push({
-				pubkey: getHighLeverageModeConfigPublicKey(this.program.programId),
-				isWritable: true,
-				isSigner: false,
-			});
-		}
-
 		let optionalParams = null;
 		if (auctionDurationPercentage || successCondition) {
 			optionalParams =
@@ -8033,13 +7980,6 @@ export class DriftClient {
 			writableSpotMarketIndexes,
 		});
 
-		if (isUpdateHighLeverageMode(signedMessage.signedMsgOrderParams.bitFlags)) {
-			remainingAccounts.push({
-				pubkey: getHighLeverageModeConfigPublicKey(this.program.programId),
-				isWritable: true,
-				isSigner: false,
-			});
-		}
 		if (
 			signedMessage.builderFeeTenthBps !== null &&
 			signedMessage.builderIdx !== null
@@ -11069,14 +11009,10 @@ export class DriftClient {
 	public getMarketFees(
 		marketType: MarketType,
 		marketIndex?: number,
-		user?: User,
-		enteringHighLeverageMode?: boolean
+		user?: User
 	) {
 		let feeTier;
-		const userHLM =
-			(user?.isHighLeverageMode('Initial') ?? false) ||
-			enteringHighLeverageMode;
-		if (user && !userHLM) {
+		if (user) {
 			feeTier = user.getUserFeeTier(marketType);
 		} else {
 			const state = this.getStateAccount();
@@ -11098,9 +11034,6 @@ export class DriftClient {
 			}
 
 			takerFee += (takerFee * marketAccount.feeAdjustment) / 100;
-			if (userHLM) {
-				takerFee *= 2;
-			}
 			makerFee += (makerFee * marketAccount.feeAdjustment) / 100;
 		}
 
@@ -11576,125 +11509,6 @@ export class DriftClient {
 		);
 
 		return [postIxs, encodedVaaKeypair];
-	}
-
-	public async enableUserHighLeverageMode(
-		subAccountId: number,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getEnableHighLeverageModeIx(subAccountId),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async getEnableHighLeverageModeIx(
-		subAccountId: number,
-		depositToTradeArgs?: {
-			isMakingNewAccount: boolean;
-			depositMarketIndex: number;
-			orderMarketIndex: number;
-		},
-		overrides?: {
-			user?: User;
-			signingAuthority?: PublicKey;
-		}
-	): Promise<TransactionInstruction> {
-		const isDepositToTradeTx = depositToTradeArgs !== undefined;
-		const userAccountPublicKey =
-			overrides?.user?.getUserAccountPublicKey() ??
-			getUserAccountPublicKeySync(
-				this.program.programId,
-				this.wallet.publicKey,
-				subAccountId
-			);
-		const signingAuthority =
-			overrides?.signingAuthority ?? this.wallet.publicKey;
-		const userAccount =
-			overrides?.user.getUserAccount() ?? this.getUserAccount(subAccountId);
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: depositToTradeArgs?.isMakingNewAccount ? [] : [userAccount],
-			useMarketLastSlotCache: false,
-			readablePerpMarketIndex: depositToTradeArgs?.orderMarketIndex,
-			readableSpotMarketIndexes: isDepositToTradeTx
-				? [depositToTradeArgs?.depositMarketIndex]
-				: undefined,
-		});
-
-		const ix = await this.program.instruction.enableUserHighLeverageMode(
-			subAccountId,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user: userAccountPublicKey,
-					authority: signingAuthority,
-					highLeverageModeConfig: getHighLeverageModeConfigPublicKey(
-						this.program.programId
-					),
-				},
-				remainingAccounts,
-			}
-		);
-
-		return ix;
-	}
-
-	public async disableUserHighLeverageMode(
-		user: PublicKey,
-		userAccount?: UserAccount,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getDisableHighLeverageModeIx(user, userAccount),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async getDisableHighLeverageModeIx(
-		user: PublicKey,
-		userAccount?: UserAccount,
-		maintenance = false
-	): Promise<TransactionInstruction> {
-		const remainingAccounts = userAccount
-			? this.getRemainingAccounts({
-					userAccounts: [userAccount],
-			  })
-			: undefined;
-
-		const ix = await this.program.instruction.disableUserHighLeverageMode(
-			maintenance,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					authority: this.wallet.publicKey,
-					highLeverageModeConfig: getHighLeverageModeConfigPublicKey(
-						this.program.programId
-					),
-				},
-				remainingAccounts,
-			}
-		);
-
-		return ix;
-	}
-
-	public async fetchHighLeverageModeConfig(): Promise<HighLeverageModeConfig> {
-		const config = await this.program.account.highLeverageModeConfig.fetch(
-			getHighLeverageModeConfigPublicKey(this.program.programId)
-		);
-		return config as HighLeverageModeConfig;
 	}
 
 	public async fetchProtectedMakerModeConfig(): Promise<ProtectedMakerModeConfig> {

@@ -39,7 +39,6 @@ use crate::math::constants::{
     QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX,
 };
 use crate::math::lp_pool::perp_lp_pool_settlement;
-use crate::math::margin::get_margin_calculation_for_disable_high_leverage_mode;
 use crate::math::margin::{calculate_user_equity, meets_settle_pnl_maintenance_margin_requirement};
 use crate::math::orders::{
     estimate_price_from_side, filter_bids_asks_by_oracle_divergence, find_bids_and_asks_from_users,
@@ -58,7 +57,6 @@ use crate::state::fulfillment_params::drift::MatchFulfillmentParams;
 use crate::state::fulfillment_params::openbook_v2::OpenbookV2FulfillmentParams;
 use crate::state::fulfillment_params::phoenix::PhoenixFulfillmentParams;
 use crate::state::fulfillment_params::serum::SerumFulfillmentParams;
-use crate::state::high_leverage_mode_config::HighLeverageModeConfig;
 use crate::state::insurance_fund_stake::InsuranceFundStake;
 use crate::state::lp_pool::Constituent;
 use crate::state::lp_pool::LPPool;
@@ -89,7 +87,7 @@ use crate::state::spot_market_map::{
 };
 use crate::state::state::State;
 use crate::state::user::{
-    MarginMode, MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats,
+    MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats,
 };
 use crate::state::user_map::{load_user_map, load_user_maps, UserMap, UserStatsMap};
 use crate::state::zero_copy::AccountZeroCopyMut;
@@ -105,7 +103,6 @@ use crate::math::margin::calculate_margin_requirement_and_total_collateral_and_l
 use crate::math::margin::MarginRequirementType;
 use crate::state::margin_calculation::MarginContext;
 
-use super::optional_accounts::get_high_leverage_mode_config;
 use super::optional_accounts::get_token_interface;
 
 #[access_control(
@@ -666,8 +663,6 @@ pub fn handle_place_signed_msg_taker_order<'c: 'info, 'info>(
         Some(state.oracle_guard_rails),
     )?;
 
-    let high_leverage_mode_config = get_high_leverage_mode_config(&mut remaining_accounts)?;
-
     let taker_key = ctx.accounts.user.key();
     let mut taker = load_mut!(ctx.accounts.user)?;
     let mut taker_stats = load_mut!(ctx.accounts.user_stats)?;
@@ -689,7 +684,6 @@ pub fn handle_place_signed_msg_taker_order<'c: 'info, 'info>(
         &perp_market_map,
         &mut spot_market_map,
         &mut oracle_map,
-        high_leverage_mode_config,
         escrow,
         state,
         is_delegate_signer,
@@ -707,7 +701,6 @@ pub fn place_signed_msg_taker_order<'c: 'info, 'info>(
     perp_market_map: &PerpMarketMap,
     spot_market_map: &mut SpotMarketMap,
     oracle_map: &mut OracleMap,
-    high_leverage_mode_config: Option<AccountLoader<HighLeverageModeConfig>>,
     escrow: Option<RevenueShareEscrowZeroCopyMut<'info>>,
     state: &State,
     is_delegate_signer: bool,
@@ -938,7 +931,6 @@ pub fn place_signed_msg_taker_order<'c: 'info, 'info>(
             perp_market_map,
             spot_market_map,
             oracle_map,
-            &None,
             clock,
             stop_loss_order,
             PlaceOrderOptions {
@@ -1003,7 +995,6 @@ pub fn place_signed_msg_taker_order<'c: 'info, 'info>(
             perp_market_map,
             spot_market_map,
             oracle_map,
-            &None,
             clock,
             take_profit_order,
             PlaceOrderOptions {
@@ -1051,7 +1042,6 @@ pub fn place_signed_msg_taker_order<'c: 'info, 'info>(
         perp_market_map,
         spot_market_map,
         oracle_map,
-        &high_leverage_mode_config,
         &clock,
         *matching_taker_order_params,
         PlaceOrderOptions {
@@ -3036,119 +3026,6 @@ pub fn handle_update_user_gov_token_insurance_stake(
     Ok(())
 }
 
-pub fn handle_disable_user_high_leverage_mode<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, DisableUserHighLeverageMode<'info>>,
-    disable_maintenance: bool,
-) -> Result<()> {
-    let state = &ctx.accounts.state;
-    let mut user = load_mut!(ctx.accounts.user)?;
-
-    let slot = Clock::get()?.slot;
-
-    let AccountMaps {
-        perp_market_map,
-        spot_market_map,
-        mut oracle_map,
-    } = load_maps(
-        &mut ctx.remaining_accounts.iter().peekable(),
-        &MarketSet::new(),
-        &MarketSet::new(),
-        slot,
-        Some(state.oracle_guard_rails),
-    )?;
-
-    let in_high_leverage_mode = user.is_high_leverage_mode(MarginRequirementType::Maintenance);
-    validate!(
-        in_high_leverage_mode,
-        ErrorCode::DefaultError,
-        "user is not in high leverage mode"
-    )?;
-
-    let old_margin_mode = user.margin_mode;
-
-    if disable_maintenance {
-        validate!(
-            user.margin_mode == MarginMode::HighLeverageMaintenance,
-            ErrorCode::DefaultError,
-            "user must be in high leverage maintenance mode"
-        )?;
-
-        user.margin_mode = MarginMode::Default;
-    } else {
-        let mut has_high_leverage_pos = false;
-        for position in user.perp_positions.iter().filter(|p| !p.is_available()) {
-            let perp_market = perp_market_map.get_ref(&position.market_index)?;
-            if perp_market.is_high_leverage_mode_enabled() {
-                has_high_leverage_pos = true;
-                break;
-            }
-        }
-
-        if !has_high_leverage_pos {
-            user.margin_mode = MarginMode::Default;
-        } else {
-            validate!(
-                user.margin_mode == MarginMode::HighLeverage,
-                ErrorCode::DefaultError,
-                "user must be in high leverage mode"
-            )?;
-
-            user.margin_mode = MarginMode::HighLeverageMaintenance;
-        }
-    }
-
-    let margin_calc = get_margin_calculation_for_disable_high_leverage_mode(
-        &mut user,
-        &perp_market_map,
-        &spot_market_map,
-        &mut oracle_map,
-    )?;
-
-    if margin_calc.num_perp_liabilities > 0 {
-        for position in user.perp_positions.iter().filter(|p| !p.is_available()) {
-            let perp_market = perp_market_map.get_ref(&position.market_index)?;
-            if perp_market.is_high_leverage_mode_enabled() {
-                validate!(
-                    margin_calc.meets_margin_requirement_with_buffer(),
-                    ErrorCode::DefaultError,
-                    "User does not meet margin requirement with buffer"
-                )?;
-            }
-        }
-    }
-
-    // only check if signer is not user authority
-    if user.authority != *ctx.accounts.authority.key {
-        let slots_since_last_active = slot.safe_sub(user.last_active_slot)?;
-
-        let min_slots_inactive = 2250; // 15 * 60 / .4
-
-        validate!(
-            slots_since_last_active >= min_slots_inactive || user.idle,
-            ErrorCode::DefaultError,
-            "user not inactive for long enough: {} < {}",
-            slots_since_last_active,
-            min_slots_inactive
-        )?;
-    }
-
-    let mut config = load_mut!(ctx.accounts.high_leverage_mode_config)?;
-
-    if old_margin_mode == MarginMode::HighLeverageMaintenance {
-        config.current_maintenance_users = config.current_maintenance_users.safe_sub(1)?;
-    } else {
-        config.current_users = config.current_users.safe_sub(1)?;
-    }
-
-    if user.margin_mode == MarginMode::HighLeverageMaintenance {
-        config.current_maintenance_users = config.current_maintenance_users.safe_add(1)?;
-    }
-
-    config.validate()?;
-
-    Ok(())
-}
-
 pub fn handle_force_delete_user<'c: 'info, 'info>(
     ctx: Context<'_, '_, 'c, 'info, ForceDeleteUser<'info>>,
 ) -> Result<()> {
@@ -4276,16 +4153,6 @@ pub struct UpdatePrelaunchOracle<'info> {
     #[account(mut)]
     /// CHECK: checked in ix
     pub oracle: AccountInfo<'info>,
-}
-
-#[derive(Accounts)]
-pub struct DisableUserHighLeverageMode<'info> {
-    pub state: Box<Account<'info, State>>,
-    pub authority: Signer<'info>,
-    #[account(mut)]
-    pub user: AccountLoader<'info, User>,
-    #[account(mut)]
-    pub high_leverage_mode_config: AccountLoader<'info, HighLeverageModeConfig>,
 }
 
 #[derive(Accounts)]

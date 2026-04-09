@@ -2,7 +2,6 @@ import {
 	DefaultOrderParams,
 	OptionalOrderParams,
 	OrderParams,
-	OrderParamsBitFlag,
 	OrderTriggerCondition,
 	OrderType,
 } from './types';
@@ -77,8 +76,4 @@ export function getOrderParams(
 		optionalOrderParams,
 		overridingParams
 	);
-}
-
-export function isUpdateHighLeverageMode(bitFlags: number): boolean {
-	return (bitFlags & OrderParamsBitFlag.UpdateHighLeverageMode) !== 0;
 }

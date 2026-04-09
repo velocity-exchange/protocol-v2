@@ -4,7 +4,6 @@ use std::ops::{Deref, DerefMut};
 use std::u64;
 
 use crate::msg;
-use crate::state::high_leverage_mode_config::HighLeverageModeConfig;
 use crate::state::revenue_share::{
     RevenueShareEscrowZeroCopyMut, RevenueShareOrder, RevenueShareOrderBitFlag,
 };
@@ -100,7 +99,6 @@ pub fn place_perp_order(
     perp_market_map: &PerpMarketMap,
     spot_market_map: &SpotMarketMap,
     oracle_map: &mut OracleMap,
-    high_leverage_mode_config: &Option<AccountLoader<HighLeverageModeConfig>>,
     clock: &Clock,
     mut params: OrderParams,
     mut options: PlaceOrderOptions,
@@ -120,20 +118,6 @@ pub fn place_perp_order(
     }
 
     validate!(!user.is_bankrupt(), ErrorCode::UserBankrupt)?;
-
-    if params.is_update_high_leverage_mode() {
-        if let Some(config) = high_leverage_mode_config {
-            let mut config = load_mut!(config)?;
-            if !config.is_full() || params.is_max_leverage_order() {
-                config.enable_high_leverage(user)?;
-            } else {
-                msg!("high leverage mode config is full");
-            }
-        } else {
-            msg!("high leverage mode config not found");
-            return Err(ErrorCode::InvalidOrder);
-        }
-    }
 
     if options.try_expire_orders {
         expire_orders(
@@ -880,7 +864,6 @@ pub fn modify_order(
                 perp_market_map,
                 spot_market_map,
                 oracle_map,
-                &None,
                 clock,
                 order_params,
                 PlaceOrderOptions::default(),
@@ -2258,12 +2241,7 @@ pub fn fulfill_perp_order_with_amm(
             (override_base_asset_amount, limit_price, override_fill_price)
         }
         None => {
-            let fee_tier = determine_user_fee_tier(
-                user_stats,
-                fee_structure,
-                &MarketType::Perp,
-                user.is_high_leverage_mode(MarginRequirementType::Initial),
-            )?;
+            let fee_tier = determine_user_fee_tier(user_stats, fee_structure, &MarketType::Perp)?;
             let (base_asset_amount, limit_price) = calculate_base_asset_amount_for_amm_to_fulfill(
                 &user.orders[order_index],
                 market,
@@ -2396,7 +2374,6 @@ pub fn fulfill_perp_order_with_amm(
         quote_asset_amount_surplus,
         order_post_only,
         market.fee_adjustment,
-        user.is_high_leverage_mode(MarginRequirementType::Initial),
         builder_order_fee_bps,
     )?;
 
@@ -2923,7 +2900,6 @@ pub fn fulfill_perp_order_with_match(
         referrer_stats,
         &MarketType::Perp,
         market.fee_adjustment,
-        taker.is_high_leverage_mode(MarginRequirementType::Initial),
         builder_order_fee_bps,
     )?;
     let builder_fee = builder_fee_option.unwrap_or(0);
@@ -5081,7 +5057,6 @@ pub fn fulfill_spot_order_with_match(
         &None,
         &MarketType::Spot,
         base_market.fee_adjustment,
-        false,
         None,
     )?;
 

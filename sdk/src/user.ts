@@ -525,7 +525,6 @@ export class User {
 	public getPerpBuyingPower(
 		marketIndex: number,
 		collateralBuffer = ZERO,
-		enterHighLeverageMode = undefined,
 		maxMarginRatio = undefined,
 		positionType: 'isolated' | 'cross' = 'cross'
 	): BN {
@@ -560,7 +559,6 @@ export class User {
 			);
 			const generalFreeCollateral = this.getFreeCollateral(
 				'Initial',
-				enterHighLeverageMode,
 				undefined
 			);
 			freeCollateral = BN.min(
@@ -569,18 +567,15 @@ export class User {
 			).sub(collateralBuffer);
 		} else {
 			// free collateral from the cross account only
-			freeCollateral = this.getFreeCollateral(
-				'Initial',
-				enterHighLeverageMode,
-				undefined
-			).sub(collateralBuffer);
+			freeCollateral = this.getFreeCollateral('Initial', undefined).sub(
+				collateralBuffer
+			);
 		}
 
 		return this.getPerpBuyingPowerFromFreeCollateralAndBaseAssetAmount(
 			marketIndex,
 			freeCollateral,
 			worstCaseBaseAssetAmount,
-			enterHighLeverageMode,
 			maxMarginRatio || perpPosition.maxMarginRatio
 		);
 	}
@@ -589,7 +584,6 @@ export class User {
 		marketIndex: number,
 		freeCollateral: BN,
 		baseAssetAmount: BN,
-		enterHighLeverageMode = undefined,
 		perpMarketMaxMarginRatio = undefined
 	): BN {
 		const maxMarginRatio = Math.max(
@@ -600,8 +594,7 @@ export class User {
 			this.driftClient.getPerpMarketAccount(marketIndex),
 			baseAssetAmount,
 			'Initial',
-			maxMarginRatio,
-			enterHighLeverageMode || this.isHighLeverageMode('Initial')
+			maxMarginRatio
 		);
 
 		return freeCollateral.mul(MARGIN_PRECISION).div(new BN(marginRatio));
@@ -613,11 +606,9 @@ export class User {
 	 */
 	public getFreeCollateral(
 		marginCategory: MarginCategory = 'Initial',
-		enterHighLeverageMode = false,
 		perpMarketIndex?: number
 	): BN {
 		const calc = this.getMarginCalculation(marginCategory, {
-			enteringHighLeverage: enterHighLeverageMode,
 			strict: marginCategory === 'Initial',
 		});
 
@@ -640,8 +631,7 @@ export class User {
 		marginCategory: MarginCategory,
 		liquidationBuffer?: BN,
 		strict?: boolean,
-		includeOpenOrders?: boolean,
-		enteringHighLeverage?: boolean
+		includeOpenOrders?: boolean
 	): BN;
 
 	/**
@@ -651,7 +641,6 @@ export class User {
 	 * @param liquidationBuffer - Optional buffer amount to consider during liquidation scenarios.
 	 * @param strict - Optional flag to enforce strict margin calculations.
 	 * @param includeOpenOrders - Optional flag to include open orders in the margin calculation.
-	 * @param enteringHighLeverage - Optional flag indicating if the user is entering high leverage mode.
 	 * @param perpMarketIndex - Optional index of the perpetual market. Required if marginType is 'Isolated'.
 	 *
 	 * @returns The calculated margin requirement as a BN (BigNumber).
@@ -661,7 +650,6 @@ export class User {
 		liquidationBuffer?: BN,
 		strict?: boolean,
 		includeOpenOrders?: boolean,
-		enteringHighLeverage?: boolean,
 		perpMarketIndex?: number
 	): BN;
 
@@ -670,7 +658,6 @@ export class User {
 		liquidationBuffer?: BN,
 		strict?: boolean,
 		includeOpenOrders?: boolean,
-		enteringHighLeverage?: boolean,
 		perpMarketIndex?: number
 	): BN {
 		const liquidationBufferMap = new Map();
@@ -683,7 +670,6 @@ export class User {
 		const marginCalc = this.getMarginCalculation(marginCategory, {
 			strict,
 			includeOpenOrders,
-			enteringHighLeverage,
 			liquidationBufferMap,
 		});
 
@@ -711,16 +697,12 @@ export class User {
 	/**
 	 * @returns The initial margin requirement in USDC. : QUOTE_PRECISION
 	 */
-	public getInitialMarginRequirement(
-		enterHighLeverageMode = false,
-		perpMarketIndex?: number
-	): BN {
+	public getInitialMarginRequirement(perpMarketIndex?: number): BN {
 		return this.getMarginRequirement(
 			'Initial',
 			undefined,
 			true,
 			undefined,
-			enterHighLeverageMode,
 			perpMarketIndex
 		);
 	}
@@ -737,7 +719,6 @@ export class User {
 			liquidationBuffer,
 			false, // strict default
 			true, // includeOpenOrders default
-			false, // enteringHighLeverage default
 			perpMarketIndex
 		);
 	}
@@ -1438,8 +1419,7 @@ export class User {
 		marginCategory?: MarginCategory,
 		liquidationBuffer?: BN,
 		includeOpenOrders?: boolean,
-		strict = false,
-		enteringHighLeverage = undefined
+		strict = false
 	): BN {
 		const market = this.driftClient.getPerpMarketAccount(
 			perpPosition.marketIndex
@@ -1483,11 +1463,7 @@ export class User {
 					market,
 					baseAssetAmount.abs(),
 					marginCategory,
-					enteringHighLeverage === false
-						? Math.max(market.marginRatioInitial, userCustomMargin)
-						: userCustomMargin,
-					this.isHighLeverageMode(marginCategory) ||
-						enteringHighLeverage === true
+					userCustomMargin
 				)
 			);
 
@@ -1561,8 +1537,7 @@ export class User {
 		marginCategory?: MarginCategory,
 		liquidationBuffer?: BN,
 		includeOpenOrders?: boolean,
-		strict = false,
-		enteringHighLeverage = undefined
+		strict = false
 	): BN {
 		return this.getActivePerpPositions().reduce(
 			(totalPerpValue, perpPosition) => {
@@ -1571,8 +1546,7 @@ export class User {
 					marginCategory,
 					liquidationBuffer,
 					includeOpenOrders,
-					strict,
-					enteringHighLeverage
+					strict
 				);
 				return totalPerpValue.add(baseAssetValue);
 			},
@@ -1933,14 +1907,12 @@ export class User {
 	 * for large sizes where imf factor activates, result is a lower bound
 	 * @param marginCategory {Initial, Maintenance}
 	 * @param isLp if calculating max leveraging for adding lp, need to add buffer
-	 * @param enterHighLeverageMode can pass this as true to calculate max leverage if the user was to enter high leverage mode
 	 * @returns : Precision TEN_THOUSAND
 	 */
 	public getMaxLeverageForPerp(
 		perpMarketIndex: number,
 		_marginCategory: MarginCategory = 'Initial',
-		isLp = false,
-		enterHighLeverageMode = undefined
+		isLp = false
 	): BN {
 		const market = this.driftClient.getPerpMarketAccount(perpMarketIndex);
 		const marketPrice =
@@ -1969,14 +1941,12 @@ export class User {
 				this.getMaxTradeSizeUSDCForPerp(
 					perpMarketIndex,
 					PositionDirection.LONG,
-					false,
-					enterHighLeverageMode || this.isHighLeverageMode('Initial')
+					false
 				).tradeSize,
 				this.getMaxTradeSizeUSDCForPerp(
 					perpMarketIndex,
 					PositionDirection.SHORT,
-					false,
-					enterHighLeverageMode || this.isHighLeverageMode('Initial')
+					false
 				).tradeSize
 			).sub(lpBuffer),
 			ZERO
@@ -2241,14 +2211,6 @@ export class User {
 		return (this.getUserAccount().status & UserStatus.BANKRUPT) > 0;
 	}
 
-	public isHighLeverageMode(marginCategory: MarginCategory): boolean {
-		return (
-			isVariant(this.getUserAccount().marginMode, 'highLeverage') ||
-			(marginCategory === 'Maintenance' &&
-				isVariant(this.getUserAccount().marginMode, 'highLeverageMaintenance'))
-		);
-	}
-
 	/**
 	 * Checks if any user position cumulative funding differs from respective market cumulative funding
 	 * @returns
@@ -2389,7 +2351,6 @@ export class User {
 		marginCategory: MarginCategory = 'Maintenance',
 		includeOpenOrders = false,
 		offsetCollateral = ZERO,
-		enteringHighLeverage = false,
 		marginType?: MarginType
 	): BN {
 		const market = this.driftClient.getPerpMarketAccount(marketIndex);
@@ -2406,7 +2367,6 @@ export class User {
 			const marginCalculation = this.getMarginCalculation(marginCategory, {
 				strict: false,
 				includeOpenOrders,
-				enteringHighLeverage,
 			});
 			const isolatedMarginCalculation =
 				marginCalculation.isolatedMarginCalculations.get(marketIndex);
@@ -2424,8 +2384,7 @@ export class User {
 				positionBaseSizeChange,
 				oraclePrice,
 				marginCategory,
-				includeOpenOrders,
-				enteringHighLeverage
+				includeOpenOrders
 			);
 
 			if (!freeCollateralDelta || freeCollateralDelta.eq(ZERO)) {
@@ -2455,8 +2414,7 @@ export class User {
 			marginCategory,
 			undefined,
 			false,
-			includeOpenOrders,
-			enteringHighLeverage
+			includeOpenOrders
 		);
 
 		let freeCollateral = BN.max(
@@ -2476,8 +2434,7 @@ export class User {
 				currentPerpPosition,
 				positionBaseSizeChange,
 				estimatedEntryPrice,
-				includeOpenOrders,
-				enteringHighLeverage
+				includeOpenOrders
 			);
 
 		freeCollateral = freeCollateral.add(freeCollateralChangeFromNewPosition);
@@ -2488,8 +2445,7 @@ export class User {
 			positionBaseSizeChange,
 			oraclePrice,
 			marginCategory,
-			includeOpenOrders,
-			enteringHighLeverage
+			includeOpenOrders
 		);
 
 		if (!freeCollateralDelta) {
@@ -2559,7 +2515,6 @@ export class User {
 		positionBaseSizeChange: BN,
 		estimatedEntryPrice: BN,
 		includeOpenOrders: boolean,
-		enteringHighLeverage = undefined,
 		marginCategory: MarginCategory = 'Maintenance'
 	): BN {
 		let freeCollateralChange = ZERO;
@@ -2620,10 +2575,7 @@ export class User {
 				market,
 				baseAssetAmount.abs(),
 				marginCategory,
-				enteringHighLeverage === false
-					? Math.max(market.marginRatioInitial, userCustomMargin)
-					: userCustomMargin,
-				this.isHighLeverageMode(marginCategory) || enteringHighLeverage === true
+				userCustomMargin
 			);
 
 			return liabilityValue.mul(new BN(marginRatio)).div(MARGIN_PRECISION);
@@ -2651,8 +2603,7 @@ export class User {
 		positionBaseSizeChange: BN,
 		oraclePrice: BN,
 		marginCategory: MarginCategory = 'Maintenance',
-		includeOpenOrders = false,
-		enteringHighLeverage = undefined
+		includeOpenOrders = false
 	): BN | undefined {
 		const baseAssetAmount = includeOpenOrders
 			? calculateWorstCaseBaseAssetAmount(perpPosition, market, oraclePrice)
@@ -2674,10 +2625,7 @@ export class User {
 			market,
 			proposedBaseAssetAmount.abs(),
 			marginCategory,
-			enteringHighLeverage === false
-				? Math.max(market.marginRatioInitial, userCustomMargin)
-				: userCustomMargin,
-			this.isHighLeverageMode(marginCategory) || enteringHighLeverage === true
+			userCustomMargin
 		);
 
 		const marginRatioQuotePrecision = new BN(marginRatio)
@@ -2800,7 +2748,6 @@ export class User {
 			targetMarketIndex,
 			baseSize,
 			maxMarginRatio,
-			undefined,
 			estEntryPrice
 		);
 	}
@@ -2820,8 +2767,7 @@ export class User {
 			targetMarketIndex,
 			baseSize,
 			collateralIndex,
-			maxMarginRatio,
-			false // assume user cant be high leverage if they havent created user account ?
+			maxMarginRatio
 		);
 	}
 
@@ -2838,7 +2784,6 @@ export class User {
 		targetMarketIndex: number,
 		tradeSide: PositionDirection,
 		isLp = false,
-		enterHighLeverageMode = undefined,
 		maxMarginRatio = undefined,
 		positionType: 'isolated' | 'cross' = 'cross'
 	): { tradeSize: BN; oppositeSideTradeSize: BN } {
@@ -2879,7 +2824,6 @@ export class User {
 		const maxPositionSize = this.getPerpBuyingPower(
 			targetMarketIndex,
 			lpBuffer,
-			enterHighLeverageMode,
 			maxMarginRatio,
 			positionType
 		);
@@ -2905,9 +2849,7 @@ export class User {
 					isVariant(market.contractType, 'prediction')
 				);
 				const totalCollateral = this.getTotalCollateral();
-				const marginRequirement = this.getInitialMarginRequirement(
-					enterHighLeverageMode
-				);
+				const marginRequirement = this.getInitialMarginRequirement();
 				const marginRatio = Math.max(
 					currentPosition.maxMarginRatio,
 					this.getUserAccount().maxMarginRatio
@@ -2941,10 +2883,7 @@ export class User {
 			}
 		}
 
-		const freeCollateral = this.getFreeCollateral(
-			'Initial',
-			enterHighLeverageMode
-		);
+		const freeCollateral = this.getFreeCollateral('Initial');
 
 		let baseTradeSize =
 			targetSide === 'long'
@@ -2959,7 +2898,6 @@ export class User {
 				baseTradeSize,
 				oracleData.price,
 				false,
-				enterHighLeverageMode,
 				'Initial'
 			);
 
@@ -2980,7 +2918,6 @@ export class User {
 					baseTradeSize,
 					oracleData.price,
 					false,
-					enterHighLeverageMode,
 					'Initial'
 				);
 		}
@@ -3698,10 +3635,6 @@ export class User {
 
 		const feeTierIndex = 0;
 		if (isVariant(marketType, 'perp')) {
-			if (this.isHighLeverageMode('Initial')) {
-				return state.perpFeeStructure.feeTiers[0];
-			}
-
 			const userStatsAccount: UserStatsAccount = this.driftClient
 				.getUserStats()
 				.getAccount();
@@ -3766,17 +3699,12 @@ export class User {
 	 * @param quoteAmount
 	 * @returns feeForQuote : Precision QUOTE_PRECISION
 	 */
-	public calculateFeeForQuoteAmount(
-		quoteAmount: BN,
-		marketIndex?: number,
-		enteringHighLeverageMode?: boolean
-	): BN {
+	public calculateFeeForQuoteAmount(quoteAmount: BN, marketIndex?: number): BN {
 		if (marketIndex !== undefined) {
 			const takerFeeMultiplier = this.driftClient.getMarketFees(
 				MarketType.PERP,
 				marketIndex,
-				this,
-				enteringHighLeverageMode
+				this
 			).takerFee;
 			const feeAmountNum =
 				BigNum.from(quoteAmount, QUOTE_PRECISION_EXP).toNum() *
@@ -4144,8 +4072,7 @@ export class User {
 				perpMarket,
 				worstCaseBaseAmount.abs(),
 				marginCategory,
-				userCustomMargin,
-				this.isHighLeverageMode(marginCategory)
+				userCustomMargin
 			)
 		);
 
@@ -4427,12 +4354,10 @@ export class User {
 		opts?: {
 			strict?: boolean; // mirror StrictOraclePrice application
 			includeOpenOrders?: boolean;
-			enteringHighLeverage?: boolean;
 			liquidationBufferMap?: Map<number | 'cross', BN>; // margin_buffer analog for buffer mode
 		}
 	): MarginCalculation {
 		const strict = opts?.strict ?? false;
-		const enteringHighLeverage = opts?.enteringHighLeverage ?? false;
 		const liquidationBufferMap = opts?.liquidationBufferMap ?? new Map();
 		const includeOpenOrders = opts?.includeOpenOrders ?? true;
 
@@ -4604,8 +4529,7 @@ export class User {
 					market,
 					worstCaseBaseAssetAmount.abs(),
 					marginCategory,
-					customMarginRatio,
-					this.isHighLeverageMode(marginCategory) || enteringHighLeverage
+					customMarginRatio
 				)
 			);
 			if (isVariant(market.status, 'settlement')) {

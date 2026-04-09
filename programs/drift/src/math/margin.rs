@@ -1,14 +1,13 @@
 use crate::error::DriftResult;
 use crate::error::ErrorCode;
 use crate::math::constants::{
-    MARGIN_PRECISION_U128, MAX_POSITIVE_UPNL_FOR_INITIAL_MARGIN, PERCENTAGE_PRECISION,
-    PRICE_PRECISION, SPOT_IMF_PRECISION_U128, SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_U128,
+    MARGIN_PRECISION_U128, MAX_POSITIVE_UPNL_FOR_INITIAL_MARGIN, PRICE_PRECISION,
+    SPOT_IMF_PRECISION_U128, SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_U128,
 };
 use crate::math::oracle::LogMode;
 use crate::math::position::calculate_base_asset_value_and_pnl_with_oracle_price;
 
-use crate::math::constants::{MARGIN_PRECISION, PRICE_PRECISION_I128, PRICE_PRECISION_I64};
-use crate::state::margin_calculation::MarginTypeConfig;
+use crate::math::constants::{PRICE_PRECISION_I128, PRICE_PRECISION_I64};
 use crate::validate;
 use crate::validation;
 
@@ -16,21 +15,21 @@ use crate::math::casting::Cast;
 use crate::math::funding::calculate_funding_payment;
 use crate::math::oracle::{is_oracle_valid_for_action, DriftAction};
 
-use crate::math::helpers::get_proportion_u128;
 use crate::math::safe_math::SafeMath;
 use crate::math::spot_balance::{get_strict_token_value, get_token_value};
 use crate::msg;
-use crate::state::margin_calculation::{MarginCalculation, MarginContext, MarketIdentifier};
+use crate::state::margin_calculation::{
+    MarginCalculation, MarginContext, MarginTypeConfig, MarketIdentifier,
+};
 use crate::state::oracle::{OraclePriceData, StrictOraclePrice};
 use crate::state::oracle_map::OracleMap;
 use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket};
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::{AssetTier, SpotBalanceType};
 use crate::state::spot_market_map::SpotMarketMap;
-use crate::state::user::{MarginMode, MarketType, OrderFillSimulation, PerpPosition, User};
+use crate::state::user::{MarketType, OrderFillSimulation, PerpPosition, User};
 use num_integer::Roots;
 use std::cmp::{max, min, Ordering};
-use std::collections::BTreeMap;
 
 use super::spot_balance::get_token_amount;
 
@@ -79,40 +78,6 @@ pub fn calculate_size_premium_liability_weight(
     Ok(size_premium_liability_weight)
 }
 
-pub fn calc_high_leverage_mode_initial_margin_ratio_from_size(
-    pre_size_adj_margin_ratio: u32,
-    size_adj_margin_ratio: u32,
-    default_margin_ratio: u32,
-) -> DriftResult<u32> {
-    let result = if size_adj_margin_ratio < pre_size_adj_margin_ratio {
-        let size_pct_discount_factor = PERCENTAGE_PRECISION.saturating_sub(
-            pre_size_adj_margin_ratio
-                .cast::<u128>()?
-                .safe_sub(size_adj_margin_ratio.cast::<u128>()?)?
-                .safe_mul(PERCENTAGE_PRECISION)?
-                .safe_div((pre_size_adj_margin_ratio.safe_div(5)?).cast::<u128>()?)?,
-        );
-
-        let hlm_margin_delta = pre_size_adj_margin_ratio
-            .saturating_sub(default_margin_ratio)
-            .max(1);
-
-        let hlm_margin_delta_proportion = get_proportion_u128(
-            hlm_margin_delta.cast()?,
-            size_pct_discount_factor,
-            PERCENTAGE_PRECISION,
-        )?
-        .cast::<u32>()?;
-        hlm_margin_delta_proportion.safe_add(default_margin_ratio)?
-    } else if size_adj_margin_ratio == pre_size_adj_margin_ratio {
-        default_margin_ratio
-    } else {
-        size_adj_margin_ratio
-    };
-
-    Ok(result)
-}
-
 pub fn calculate_size_discount_asset_weight(
     size: u128, // AMM_RESERVE_PRECISION
     imf_factor: u32,
@@ -145,7 +110,6 @@ pub fn calculate_perp_position_value_and_pnl(
     strict_quote_price: &StrictOraclePrice,
     margin_requirement_type: MarginRequirementType,
     user_custom_margin_ratio: u32,
-    user_high_leverage_mode: bool,
 ) -> DriftResult<(u128, i128, u128, u128)> {
     let valuation_price = if market.status == MarketStatus::Settlement {
         market.expiry_price
@@ -182,7 +146,6 @@ pub fn calculate_perp_position_value_and_pnl(
         let margin_ratio = user_custom_margin_ratio.max(market.get_margin_ratio(
             worst_case_base_asset_amount.unsigned_abs(),
             margin_requirement_type,
-            user_high_leverage_mode,
         )?);
 
         worse_case_liability_value
@@ -608,9 +571,6 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
                 margin_ratio_override.max(perp_position_custom_margin_ratio);
         }
 
-        let perp_position_user_high_leverage_mode =
-            user.is_high_leverage_mode(position_margin_type);
-
         let (perp_margin_requirement, weighted_pnl, worst_case_liability_value, base_asset_value) =
             calculate_perp_position_value_and_pnl(
                 market_position,
@@ -618,8 +578,7 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
                 oracle_price_data,
                 &strict_quote_price,
                 position_margin_type,
-                perp_position_custom_margin_ratio,
-                perp_position_user_high_leverage_mode,
+                perp_user_custom_margin_ratio.max(perp_position_custom_margin_ratio),
             )?;
 
         calculation.update_fuel_perp_bonus(
@@ -858,32 +817,6 @@ pub fn meets_maintenance_margin_requirement(
     .map(|calc| calc.meets_margin_requirement())
 }
 
-/// Validates that the user is allowed to enable high leverage mode: not already in HLM and meets maintenance margin.
-/// Same logic as handle_enable_user_high_leverage_mode uses before calling config.enable_high_leverage.
-pub fn validate_user_can_enable_high_leverage_mode(
-    user: &User,
-    perp_market_map: &PerpMarketMap,
-    spot_market_map: &SpotMarketMap,
-    oracle_map: &mut OracleMap,
-) -> DriftResult<()> {
-    validate!(
-        user.margin_mode != MarginMode::HighLeverage,
-        ErrorCode::DefaultError,
-        "user already in high leverage mode"
-    )?;
-
-    let meets_maintenance_requirement =
-        meets_maintenance_margin_requirement(user, perp_market_map, spot_market_map, oracle_map)?;
-
-    validate!(
-        meets_maintenance_requirement,
-        ErrorCode::InsufficientCollateral,
-        "user does not meet maintenance margin requirement"
-    )?;
-
-    Ok(())
-}
-
 pub fn calculate_max_withdrawable_amount(
     market_index: u16,
     user: &User,
@@ -1008,41 +941,6 @@ pub fn validate_spot_margin_trading(
     )?;
 
     Ok(())
-}
-
-pub fn get_margin_calculation_for_disable_high_leverage_mode(
-    user: &mut User,
-    perp_market_map: &PerpMarketMap,
-    spot_market_map: &SpotMarketMap,
-    oracle_map: &mut OracleMap,
-) -> DriftResult<MarginCalculation> {
-    let custom_margin_ratio_before = user.max_margin_ratio;
-
-    let mut perp_position_max_margin_ratio_map = BTreeMap::new();
-    for (index, position) in user.perp_positions.iter_mut().enumerate() {
-        if position.max_margin_ratio == 0 {
-            continue;
-        }
-
-        perp_position_max_margin_ratio_map.insert(index, position.max_margin_ratio);
-        position.max_margin_ratio = 0;
-    }
-
-    let margin_buffer = MARGIN_PRECISION / 100; // 1% buffer
-    let margin_calc = calculate_margin_requirement_and_total_collateral_and_liability_info(
-        user,
-        perp_market_map,
-        spot_market_map,
-        oracle_map,
-        MarginContext::standard(MarginRequirementType::Initial).margin_buffer(margin_buffer),
-    )?;
-
-    user.max_margin_ratio = custom_margin_ratio_before;
-    for (index, perp_position_max_margin_ratio) in perp_position_max_margin_ratio_map.iter() {
-        user.perp_positions[*index].max_margin_ratio = *perp_position_max_margin_ratio;
-    }
-
-    Ok(margin_calc)
 }
 
 pub fn calculate_user_equity(

@@ -788,7 +788,6 @@ pub fn calculate_max_perp_order_size(
 
     let user_custom_margin_ratio = user.max_margin_ratio;
     let perp_position_margin_ratio = user.perp_positions[position_index].max_margin_ratio as u32;
-    let user_high_leverage_mode = user.is_high_leverage_mode(MarginRequirementType::Initial);
 
     let is_isolated_position = user.perp_positions[position_index].is_isolated();
     let free_collateral_before = if is_isolated_position {
@@ -824,7 +823,6 @@ pub fn calculate_max_perp_order_size(
         .get_margin_ratio(
             worst_case_base_asset_amount.unsigned_abs(),
             MarginRequirementType::Initial,
-            user_high_leverage_mode,
         )?
         .max(user_custom_margin_ratio)
         .max(perp_position_margin_ratio);
@@ -902,7 +900,6 @@ pub fn calculate_max_perp_order_size(
             .get_margin_ratio(
                 worst_case_base_asset_amount.unsigned_abs(),
                 MarginRequirementType::Initial,
-                user_high_leverage_mode,
             )?
             .max(user_custom_margin_ratio)
             .max(perp_position_margin_ratio);

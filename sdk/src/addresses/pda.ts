@@ -362,15 +362,6 @@ export function getTokenProgramForSpotMarket(
 	return TOKEN_PROGRAM_ID;
 }
 
-export function getHighLeverageModeConfigPublicKey(
-	programId: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[Buffer.from(anchor.utils.bytes.utf8.encode('high_leverage_mode_config'))],
-		programId
-	)[0];
-}
-
 export function getProtectedMakerModeConfigPublicKey(
 	programId: PublicKey
 ): PublicKey {
