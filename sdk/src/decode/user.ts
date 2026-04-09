@@ -1,6 +1,5 @@
 import { BN } from '@coral-xyz/anchor';
 import {
-	MarginMode,
 	MarketType,
 	Order,
 	OrderStatus,
@@ -344,21 +343,7 @@ export function decodeUser(buffer: Buffer): UserAccount {
 	const hasOpenAuction = buffer.readUInt8(offset) === 1;
 	offset += 1;
 
-	let marginMode: MarginMode;
-	const marginModeNum = buffer.readUInt8(offset);
-	if (marginModeNum === 0) {
-		marginMode = MarginMode.DEFAULT;
-	} else if (marginModeNum === 1) {
-		marginMode = MarginMode.HIGH_LEVERAGE;
-	} else if (marginModeNum === 2) {
-		marginMode = MarginMode.HIGH_LEVERAGE_MAINTENANCE;
-	} else {
-		console.error(
-			`Detected unknown margin mode: ${marginModeNum}. Please update @drift-labs/sdk for latest IDL.`
-		);
-		marginMode = MarginMode.DEFAULT;
-	}
-	offset += 1;
+	offset += 1; // marginMode (removed)
 
 	const poolId = buffer.readUint8(offset);
 	offset += 1;
@@ -393,7 +378,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		hasOpenOrder,
 		openAuctions,
 		hasOpenAuction,
-		marginMode,
 		poolId,
 		lastFuelBonusUpdateTs,
 	};

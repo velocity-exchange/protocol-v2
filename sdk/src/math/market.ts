@@ -19,7 +19,6 @@ import {
 import {
 	calculateSizeDiscountAssetWeight,
 	calculateSizePremiumLiabilityWeight,
-	calcHighLeverageModeInitialMarginRatioFromSize,
 } from './margin';
 import { MMOraclePriceData, OraclePriceData } from '../oracles/types';
 import {
@@ -141,31 +140,17 @@ export function calculateMarketMarginRatio(
 	market: PerpMarketAccount,
 	size: BN,
 	marginCategory: MarginCategory,
-	customMarginRatio = 0,
-	userHighLeverageMode = false
+	customMarginRatio = 0
 ): number {
 	if (market.status === 'Settlement') return 0;
-
-	const isHighLeverageUser =
-		userHighLeverageMode &&
-		market.highLeverageMarginRatioInitial > 0 &&
-		market.highLeverageMarginRatioMaintenance > 0;
-
-	const marginRatioInitial = isHighLeverageUser
-		? market.highLeverageMarginRatioInitial
-		: market.marginRatioInitial;
-
-	const marginRatioMaintenance = isHighLeverageUser
-		? market.highLeverageMarginRatioMaintenance
-		: market.marginRatioMaintenance;
 
 	let defaultMarginRatio: number;
 	switch (marginCategory) {
 		case 'Initial':
-			defaultMarginRatio = marginRatioInitial;
+			defaultMarginRatio = market.marginRatioInitial;
 			break;
 		case 'Maintenance':
-			defaultMarginRatio = marginRatioMaintenance;
+			defaultMarginRatio = market.marginRatioMaintenance;
 			break;
 		default:
 			throw new Error('Invalid margin category');
@@ -173,42 +158,15 @@ export function calculateMarketMarginRatio(
 
 	let marginRatio: number;
 
-	if (isHighLeverageUser && marginCategory !== 'Maintenance') {
-		// Use ordinary-mode initial/fill ratios for size-adjusted calc
-		let preSizeAdjMarginRatio: number;
-		switch (marginCategory) {
-			case 'Initial':
-				preSizeAdjMarginRatio = market.marginRatioInitial;
-				break;
-			default:
-				preSizeAdjMarginRatio = marginRatioMaintenance;
-				break;
-		}
+	const sizeAdjMarginRatio = calculateSizePremiumLiabilityWeight(
+		size,
+		new BN(market.imfFactor),
+		new BN(defaultMarginRatio),
+		MARGIN_PRECISION,
+		true
+	).toNumber();
 
-		const sizeAdjMarginRatio = calculateSizePremiumLiabilityWeight(
-			size,
-			new BN(market.imfFactor),
-			new BN(preSizeAdjMarginRatio),
-			MARGIN_PRECISION,
-			false
-		).toNumber();
-
-		marginRatio = calcHighLeverageModeInitialMarginRatioFromSize(
-			new BN(preSizeAdjMarginRatio),
-			new BN(sizeAdjMarginRatio),
-			new BN(defaultMarginRatio)
-		).toNumber();
-	} else {
-		const sizeAdjMarginRatio = calculateSizePremiumLiabilityWeight(
-			size,
-			new BN(market.imfFactor),
-			new BN(defaultMarginRatio),
-			MARGIN_PRECISION,
-			true
-		).toNumber();
-
-		marginRatio = Math.max(defaultMarginRatio, sizeAdjMarginRatio);
-	}
+	marginRatio = Math.max(defaultMarginRatio, sizeAdjMarginRatio);
 
 	if (marginCategory === 'Initial') {
 		marginRatio = Math.max(marginRatio, customMarginRatio);
@@ -376,19 +334,9 @@ export function calculateAvailablePerpLiquidity(
 }
 
 export function calculatePerpMarketBaseLiquidatorFee(
-	market: PerpMarketAccount,
-	userHighLeverageMode: boolean
+	market: PerpMarketAccount
 ): number {
-	if (userHighLeverageMode && market.highLeverageMarginRatioMaintenance > 0) {
-		const marginRatio = market.highLeverageMarginRatioMaintenance * 100;
-		// min(liquidator_fee, .8 * high_leverage_margin_ratio_maintenance)
-		return Math.min(
-			market.liquidatorFee,
-			marginRatio - Math.floor(marginRatio / 5)
-		);
-	} else {
-		return market.liquidatorFee;
-	}
+	return market.liquidatorFee;
 }
 
 /**

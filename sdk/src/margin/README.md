@@ -109,7 +109,6 @@ public getMarginCalculation(
   opts?: {
     strict?: boolean;                              // mirror StrictOraclePrice application
     includeOpenOrders?: boolean;                   // include open orders in margin calc
-    enteringHighLeverage?: boolean;                // entering high leverage mode
     liquidationBufferMap?: Map<number | 'cross', BN>; // margin buffer for liquidation mode
   }
 ): MarginCalculation;

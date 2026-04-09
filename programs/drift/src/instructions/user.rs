@@ -40,9 +40,7 @@ use crate::math::liquidation::is_cross_margin_being_liquidated;
 use crate::math::margin::calculate_margin_requirement_and_total_collateral_and_liability_info;
 use crate::math::margin::meets_initial_margin_requirement;
 use crate::math::margin::{
-    calculate_max_withdrawable_amount, meets_maintenance_margin_requirement,
-    validate_spot_margin_trading, validate_user_can_enable_high_leverage_mode,
-    MarginRequirementType,
+    calculate_max_withdrawable_amount, validate_spot_margin_trading, MarginRequirementType,
 };
 use crate::math::oracle::is_oracle_valid_for_action;
 use crate::math::oracle::DriftAction;
@@ -70,7 +68,6 @@ use crate::state::events::{
     NewUserRecord, OrderActionExplanation, SwapRecord,
 };
 use crate::state::fill_mode::FillMode;
-use crate::state::high_leverage_mode_config::HighLeverageModeConfig;
 use crate::state::margin_calculation::MarginContext;
 use crate::state::oracle::StrictOraclePrice;
 use crate::state::order_params::{
@@ -116,8 +113,6 @@ use crate::{load_mut, ExchangeStatus};
 use anchor_lang::solana_program::sysvar::instructions;
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::sysvar::instructions::ID as IX_ID;
-
-use super::optional_accounts::get_high_leverage_mode_config;
 
 pub fn handle_initialize_user<'c: 'info, 'info>(
     ctx: Context<'_, '_, 'c, 'info, InitializeUser<'info>>,
@@ -2335,8 +2330,6 @@ pub fn handle_place_perp_order<'c: 'info, 'info>(
         Some(state.oracle_guard_rails),
     )?;
 
-    let high_leverage_mode_config = get_high_leverage_mode_config(&mut remaining_accounts)?;
-
     if params.is_immediate_or_cancel() {
         msg!("immediate_or_cancel order must be in place_and_make or place_and_take");
         return Err(print_error!(ErrorCode::InvalidOrderIOC)().into());
@@ -2352,7 +2345,6 @@ pub fn handle_place_perp_order<'c: 'info, 'info>(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
-        &high_leverage_mode_config,
         clock,
         params,
         PlaceOrderOptions::default(),
@@ -2644,8 +2636,6 @@ fn place_orders<'c: 'info, 'info>(
         Some(state.oracle_guard_rails),
     )?;
 
-    let high_leverage_mode_config = get_high_leverage_mode_config(&mut remaining_accounts)?;
-
     // Convert input to order params, expanding scale orders if needed
     let order_params = match input {
         PlaceOrdersInput::Orders(params) => params,
@@ -2705,7 +2695,6 @@ fn place_orders<'c: 'info, 'info>(
                 &perp_market_map,
                 &spot_market_map,
                 &mut oracle_map,
-                &high_leverage_mode_config,
                 clock,
                 *params,
                 options,
@@ -2751,8 +2740,6 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
     let (makers_and_referrer, makers_and_referrer_stats) =
         load_user_maps(remaining_accounts_iter, true)?;
 
-    let high_leverage_mode_config = get_high_leverage_mode_config(remaining_accounts_iter)?;
-
     let is_immediate_or_cancel = params.is_immediate_or_cancel();
 
     controller::repeg::update_amm(
@@ -2776,7 +2763,6 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
-        &high_leverage_mode_config,
         &clock,
         params,
         PlaceOrderOptions::default(),
@@ -2901,7 +2887,6 @@ pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
-        &None,
         clock,
         params,
         PlaceOrderOptions::default(),
@@ -3016,7 +3001,6 @@ pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
-        &None,
         clock,
         params,
         PlaceOrderOptions::default(),
@@ -3406,39 +3390,6 @@ pub fn handle_deposit_into_spot_market_revenue_pool<'c: 'info, 'info>(
         &spot_market,
         ctx.accounts.spot_market_vault.amount,
     )?;
-
-    Ok(())
-}
-
-pub fn handle_enable_user_high_leverage_mode<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, EnableUserHighLeverageMode>,
-    _sub_account_id: u16,
-) -> Result<()> {
-    let state = &ctx.accounts.state;
-    let mut user = load_mut!(ctx.accounts.user)?;
-
-    let AccountMaps {
-        perp_market_map,
-        spot_market_map,
-        mut oracle_map,
-    } = load_maps(
-        &mut ctx.remaining_accounts.iter().peekable(),
-        &MarketSet::new(),
-        &MarketSet::new(),
-        Clock::get()?.slot,
-        Some(state.oracle_guard_rails),
-    )?;
-
-    validate_user_can_enable_high_leverage_mode(
-        &user,
-        &perp_market_map,
-        &spot_market_map,
-        &mut oracle_map,
-    )?;
-
-    let mut config = load_mut!(ctx.accounts.high_leverage_mode_config)?;
-
-    config.enable_high_leverage(&mut user)?;
 
     Ok(())
 }
@@ -4868,22 +4819,6 @@ pub struct Swap<'info> {
     /// CHECK: fixed instructions sysvar account
     #[account(address = instructions::ID)]
     pub instructions: UncheckedAccount<'info>,
-}
-
-#[derive(Accounts)]
-#[instruction(
-    sub_account_id: u16,
-)]
-pub struct EnableUserHighLeverageMode<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(
-        mut,
-        constraint = can_sign_for_user(&user, &authority)?
-    )]
-    pub user: AccountLoader<'info, User>,
-    pub authority: Signer<'info>,
-    #[account(mut)]
-    pub high_leverage_mode_config: AccountLoader<'info, HighLeverageModeConfig>,
 }
 
 #[derive(Accounts)]

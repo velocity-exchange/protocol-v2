@@ -7,7 +7,6 @@ import {
 	UserStatsAccount,
 	InsuranceFundStake,
 	ConstituentAccount,
-	HighLeverageModeConfig,
 } from '../types';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
@@ -247,30 +246,6 @@ export type LaserGrpcConfigs = BaseGrpcConfigs & {
 };
 
 export type GrpcConfigs = YellowstoneGrpcConfigs | LaserGrpcConfigs;
-
-export interface HighLeverageModeConfigAccountSubscriber {
-	eventEmitter: StrictEventEmitter<
-		EventEmitter,
-		HighLeverageModeConfigAccountEvents
-	>;
-	isSubscribed: boolean;
-
-	subscribe(
-		highLeverageModeConfigAccount?: HighLeverageModeConfig
-	): Promise<boolean>;
-	fetch(): Promise<void>;
-	unsubscribe(): Promise<void>;
-
-	getHighLeverageModeConfigAccountAndSlot(): DataAndSlot<HighLeverageModeConfig>;
-}
-
-export interface HighLeverageModeConfigAccountEvents {
-	highLeverageModeConfigAccountUpdate: (
-		payload: HighLeverageModeConfig
-	) => void;
-	update: void;
-	error: (e: Error) => void;
-}
 
 export interface ConstituentAccountSubscriber {
 	eventEmitter: StrictEventEmitter<EventEmitter, ConstituentAccountEvents>;

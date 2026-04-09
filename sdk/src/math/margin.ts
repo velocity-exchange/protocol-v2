@@ -10,7 +10,6 @@ import {
 	MARGIN_PRECISION,
 	PRICE_PRECISION,
 	QUOTE_PRECISION,
-	PERCENTAGE_PRECISION,
 } from '../constants/numericConstants';
 import { BN } from '@coral-xyz/anchor';
 import { OraclePriceData } from '../oracles/types';
@@ -237,7 +236,6 @@ export function calculateMarginUSDCRequiredForTrade(
 	targetMarketIndex: number,
 	baseSize: BN,
 	userMaxMarginRatio?: number,
-	userHighLeverageMode?: boolean,
 	entryPrice?: BN
 ): BN {
 	const targetMarket = driftClient.getPerpMarketAccount(targetMarketIndex);
@@ -257,8 +255,7 @@ export function calculateMarginUSDCRequiredForTrade(
 			targetMarket,
 			baseSize.abs(),
 			'Initial',
-			userMaxMarginRatio,
-			userHighLeverageMode
+			userMaxMarginRatio
 		)
 	)
 		.mul(perpLiabilityValue)
@@ -278,7 +275,6 @@ export function calculateCollateralDepositRequiredForTrade(
 	baseSize: BN,
 	collateralIndex: number,
 	userMaxMarginRatio?: number,
-	userHighLeverageMode?: boolean,
 	estEntryPrice?: BN
 ): BN {
 	const marginRequiredUsdc = calculateMarginUSDCRequiredForTrade(
@@ -286,7 +282,6 @@ export function calculateCollateralDepositRequiredForTrade(
 		targetMarketIndex,
 		baseSize,
 		userMaxMarginRatio,
-		userHighLeverageMode,
 		estEntryPrice
 	);
 
@@ -386,38 +381,4 @@ export function calculateUserMaxPerpOrderSize(
 	user.isSubscribed = true;
 
 	return user.getMaxTradeSizeUSDCForPerp(targetMarketIndex, tradeSide);
-}
-
-export function calcHighLeverageModeInitialMarginRatioFromSize(
-	preSizeAdjMarginRatio: BN,
-	sizeAdjMarginRatio: BN,
-	defaultMarginRatio: BN
-): BN {
-	let result: BN;
-
-	if (sizeAdjMarginRatio.lt(preSizeAdjMarginRatio)) {
-		const sizePctDiscountFactor = PERCENTAGE_PRECISION.sub(
-			preSizeAdjMarginRatio
-				.sub(sizeAdjMarginRatio)
-				.mul(PERCENTAGE_PRECISION)
-				.div(preSizeAdjMarginRatio.div(new BN(5)))
-		);
-
-		const hlmMarginDelta = BN.max(
-			preSizeAdjMarginRatio.sub(defaultMarginRatio),
-			new BN(1)
-		);
-
-		const hlmMarginDeltaProportion = hlmMarginDelta
-			.mul(sizePctDiscountFactor)
-			.div(PERCENTAGE_PRECISION);
-
-		result = hlmMarginDeltaProportion.add(defaultMarginRatio);
-	} else if (sizeAdjMarginRatio.eq(preSizeAdjMarginRatio)) {
-		result = defaultMarginRatio;
-	} else {
-		result = sizeAdjMarginRatio;
-	}
-
-	return result;
 }

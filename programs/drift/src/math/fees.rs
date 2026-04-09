@@ -45,15 +45,9 @@ pub fn calculate_fee_for_fulfillment_with_amm(
     quote_asset_amount_surplus: i64,
     is_post_only: bool,
     fee_adjustment: i16,
-    user_high_leverage_mode: bool,
     builder_fee_bps: Option<u16>,
 ) -> DriftResult<FillFees> {
-    let fee_tier = determine_user_fee_tier(
-        user_stats,
-        fee_structure,
-        &MarketType::Perp,
-        user_high_leverage_mode,
-    )?;
+    let fee_tier = determine_user_fee_tier(user_stats, fee_structure, &MarketType::Perp)?;
 
     // if there was a quote_asset_amount_surplus, the order was a maker order and fee_to_market comes from surplus
     if is_post_only {
@@ -97,11 +91,7 @@ pub fn calculate_fee_for_fulfillment_with_amm(
             builder_fee: None,
         })
     } else {
-        let mut fee = calculate_taker_fee(quote_asset_amount, &fee_tier, fee_adjustment)?;
-
-        if user_high_leverage_mode {
-            fee = fee.safe_mul(2)?;
-        }
+        let fee = calculate_taker_fee(quote_asset_amount, &fee_tier, fee_adjustment)?;
 
         let (fee, referee_discount, referrer_reward) = if reward_referrer {
             calculate_referee_fee_and_referrer_reward(
@@ -299,26 +289,16 @@ pub fn calculate_fee_for_fulfillment_with_match(
     referrer_stats: &Option<&mut UserStats>,
     market_type: &MarketType,
     fee_adjustment: i16,
-    user_high_leverage_mode: bool,
     builder_fee_bps: Option<u16>,
 ) -> DriftResult<FillFees> {
-    let taker_fee_tier = determine_user_fee_tier(
-        taker_stats,
-        fee_structure,
-        market_type,
-        user_high_leverage_mode,
-    )?;
+    let taker_fee_tier = determine_user_fee_tier(taker_stats, fee_structure, market_type)?;
     let maker_fee_tier = if let Some(maker_stats) = maker_stats {
-        determine_user_fee_tier(maker_stats, fee_structure, market_type, false)?
+        determine_user_fee_tier(maker_stats, fee_structure, market_type)?
     } else {
-        determine_user_fee_tier(taker_stats, fee_structure, market_type, false)?
+        determine_user_fee_tier(taker_stats, fee_structure, market_type)?
     };
 
-    let mut taker_fee = calculate_taker_fee(quote_asset_amount, &taker_fee_tier, fee_adjustment)?;
-
-    if user_high_leverage_mode {
-        taker_fee = taker_fee.safe_mul(2)?;
-    }
+    let taker_fee = calculate_taker_fee(quote_asset_amount, &taker_fee_tier, fee_adjustment)?;
 
     let (taker_fee, referee_discount, referrer_reward) = if reward_referrer {
         calculate_referee_fee_and_referrer_reward(
@@ -393,8 +373,7 @@ pub fn calculate_fee_for_fulfillment_with_external_market(
     fee_pool_amount: u64,
     fee_adjustment: i16,
 ) -> DriftResult<ExternalFillFees> {
-    let taker_fee_tier =
-        determine_user_fee_tier(user_stats, fee_structure, &MarketType::Spot, false)?;
+    let taker_fee_tier = determine_user_fee_tier(user_stats, fee_structure, &MarketType::Spot)?;
 
     let fee = calculate_taker_fee(quote_asset_amount, &taker_fee_tier, fee_adjustment)?;
 
@@ -445,10 +424,8 @@ pub fn determine_user_fee_tier<'a>(
     user_stats: &UserStats,
     fee_structure: &'a FeeStructure,
     market_type: &MarketType,
-    user_high_leverage_mode: bool,
 ) -> DriftResult<FeeTier> {
     match market_type {
-        MarketType::Perp if user_high_leverage_mode => Ok(fee_structure.fee_tiers[0]),
         MarketType::Perp => determine_perp_fee_tier(user_stats, fee_structure),
         MarketType::Spot => Ok(*determine_spot_fee_tier(user_stats, fee_structure)?),
     }

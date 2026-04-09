@@ -92,10 +92,6 @@ export enum MarketConfigFlag {
 
 export class MarginMode {
 	static readonly DEFAULT = { default: {} };
-	static readonly HIGH_LEVERAGE = { highLeverage: {} };
-	static readonly HIGH_LEVERAGE_MAINTENANCE = {
-		highLeverageMaintenance: {},
-	};
 }
 
 export class ContractType {
@@ -904,8 +900,6 @@ export type PerpMarketAccount = {
 	fuelBoostMaker: number;
 	fuelBoostPosition: number;
 
-	highLeverageMarginRatioInitial: number;
-	highLeverageMarginRatioMaintenance: number;
 	protectedMakerLimitPriceDivisor: number;
 	protectedMakerDynamicDivisor: number;
 	lastFillPrice: BN;
@@ -1230,7 +1224,6 @@ export type UserAccount = {
 	openAuctions: number;
 	hasOpenAuction: boolean;
 	lastFuelBonusUpdateTs: number;
-	marginMode: MarginMode;
 	poolId: number;
 };
 
@@ -1338,7 +1331,6 @@ export type ScaleOrderParams = {
 
 export class OrderParamsBitFlag {
 	static readonly ImmediateOrCancel = 1;
-	static readonly UpdateHighLeverageMode = 2;
 }
 
 export class PositionFlag {
@@ -1672,12 +1664,6 @@ export type SignedTxData = {
 	signedTx: Transaction | VersionedTransaction;
 	lastValidBlockHeight?: number;
 	blockHash: string;
-};
-
-export type HighLeverageModeConfig = {
-	maxUsers: number;
-	currentUsers: number;
-	reduceOnly: boolean;
 };
 
 export type ProtectedMakerModeConfig = {

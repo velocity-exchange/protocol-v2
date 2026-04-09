@@ -46,7 +46,6 @@ import {
 	convertToNumber,
 	OrderParams,
 	SignedMsgOrderParamsDelegateMessage,
-	OrderParamsBitFlag,
 } from '../sdk/src';
 
 import {
@@ -1222,7 +1221,6 @@ describe('place and make signedMsg order', () => {
 			auctionDuration: 10,
 			userOrderId: 1,
 			postOnly: PostOnlyParams.NONE,
-			bitFlags: OrderParamsBitFlag.UpdateHighLeverageMode,
 		}) as OrderParams;
 		const signedMsgSlot = slot.subn(5);
 		const uuid = Uint8Array.from(Buffer.from(nanoid(8)));
@@ -1238,7 +1236,6 @@ describe('place and make signedMsg order', () => {
 			takerOrderParamsMessage
 		);
 
-		await makerDriftClient.initializeHighLeverageModeConfig(1);
 		await makerDriftClient.placeSignedMsgTakerOrder(
 			signedOrderParams,
 			marketIndex,
