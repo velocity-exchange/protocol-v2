@@ -6813,7 +6813,6 @@ pub mod fill_order {
     }
 }
 
-
 pub mod force_cancel_orders {
     use std::str::FromStr;
 
@@ -8577,7 +8576,6 @@ pub mod get_maker_orders_info {
         assert_eq!(maker_order_price_and_indexes.len(), 64);
     }
 }
-
 
 pub mod update_trigger_order_params {
     use crate::controller::orders::update_trigger_order_params;
