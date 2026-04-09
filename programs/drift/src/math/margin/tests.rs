@@ -4797,13 +4797,11 @@ mod isolated_position {
 
 #[cfg(test)]
 mod meets_place_order_margin_requirement_with_isolated {
-    use anchor_lang::Owner;
     use std::str::FromStr;
 
     use anchor_lang::prelude::Pubkey;
 
     use crate::controller::position::PositionDirection;
-    use crate::create_account_info;
     use crate::math::constants::{
         AMM_RESERVE_PRECISION, BASE_PRECISION_I64, BASE_PRECISION_U64, PEG_PRECISION,
         SPOT_BALANCE_PRECISION, SPOT_BALANCE_PRECISION_U64, SPOT_CUMULATIVE_INTEREST_PRECISION,
@@ -4821,7 +4819,6 @@ mod meets_place_order_margin_requirement_with_isolated {
         MarketType, Order, OrderStatus, OrderType, PerpPosition, PositionFlag, SpotPosition, User,
     };
     use crate::test_utils::get_pyth_price;
-    use crate::test_utils::*;
     use crate::{create_anchor_account_info, QUOTE_PRECISION_I64};
 
     #[test]
@@ -4862,6 +4859,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -4950,14 +4948,13 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
-            oracle_account_info
+            PythLazerOracle,
+            sol_oracle_account_info
         );
-        let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
+        let mut oracle_map = OracleMap::load_one(&sol_oracle_account_info, slot, None).unwrap();
 
         let mut sol_perp_market = PerpMarket {
             market_index: 0,
@@ -5039,11 +5036,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -5061,6 +5057,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -5134,11 +5131,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -5156,6 +5152,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -5228,11 +5225,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -5250,6 +5246,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -5321,11 +5318,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -5343,6 +5339,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -5414,11 +5411,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -5436,6 +5432,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -5508,11 +5505,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -5530,6 +5526,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -5606,23 +5603,22 @@ mod meets_place_order_margin_requirement_with_isolated {
 
         let slot = 0_u64;
 
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
 
@@ -5644,6 +5640,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -5665,6 +5662,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -5777,23 +5775,22 @@ mod meets_place_order_margin_requirement_with_isolated {
 
         let slot = 0_u64;
 
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
 
@@ -5815,6 +5812,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -5837,6 +5835,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -5959,23 +5958,22 @@ mod meets_place_order_margin_requirement_with_isolated {
 
         let slot = 0_u64;
 
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
 
@@ -5997,6 +5995,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -6019,6 +6018,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -6161,14 +6161,13 @@ mod meets_place_order_margin_requirement_with_isolated {
 
         let slot = 0_u64;
 
-        let pyth_program = crate::ids::pyth_program::id();
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
 
@@ -6190,6 +6189,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -6285,23 +6285,22 @@ mod meets_place_order_margin_requirement_with_isolated {
 
         let slot = 0_u64;
 
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
 
@@ -6323,6 +6322,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -6345,6 +6345,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,    // 10%
@@ -6446,23 +6447,22 @@ mod meets_place_order_margin_requirement_with_isolated {
         // Cross has no perp position so cross margin req 0; cross $70 is PM-level. Isolated ETH $150 >= IM $100.
         // Expected: PASS.
         let slot = 0_u64;
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
         let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
@@ -6482,6 +6482,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6502,6 +6503,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6581,11 +6583,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
         let oracle_account_infos = vec![eth_oracle_account_info];
@@ -6605,6 +6606,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6677,11 +6679,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
         let oracle_account_infos = vec![eth_oracle_account_info];
@@ -6701,6 +6702,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6770,23 +6772,22 @@ mod meets_place_order_margin_requirement_with_isolated {
     fn isolated_order_not_risk_increasing_passes_when_all_pass_maintenance() {
         // Scenario: Current isolated PM, cross PM. risk_increasing: false -> all Maintenance. Expected: PASS.
         let slot = 0_u64;
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
         let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
@@ -6806,6 +6807,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6826,6 +6828,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6907,23 +6910,22 @@ mod meets_place_order_margin_requirement_with_isolated {
     fn isolated_order_not_risk_increasing_fails_when_other_isolated_fails_maintenance() {
         // Scenario: Current PI, cross PI, other isolated FM. risk_increasing: false. Expected: FAIL.
         let slot = 0_u64;
-        let pyth_program = crate::ids::pyth_program::id();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let sol_oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
         let mut eth_oracle_price = get_pyth_price(1000, 6);
         let eth_oracle_price_key =
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
         let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
@@ -6943,6 +6945,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -6963,6 +6966,7 @@ mod meets_place_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -7046,9 +7050,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
     use std::str::FromStr;
 
     use anchor_lang::prelude::Pubkey;
-    use anchor_lang::Owner;
 
-    use crate::create_account_info;
     use crate::math::constants::{
         AMM_RESERVE_PRECISION, BASE_PRECISION_I64, PEG_PRECISION, SPOT_BALANCE_PRECISION,
         SPOT_BALANCE_PRECISION_U64, SPOT_CUMULATIVE_INTEREST_PRECISION, SPOT_WEIGHT_PRECISION,
@@ -7061,11 +7063,11 @@ mod fill_perp_order_margin_requirement_with_isolated {
     use crate::state::oracle_map::OracleMap;
     use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
+    use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
     use crate::state::spot_market_map::SpotMarketMap;
     use crate::state::user::{Order, PerpPosition, PositionFlag, SpotPosition, User};
     use crate::test_utils::get_pyth_price;
-    use crate::test_utils::*;
     use crate::{create_anchor_account_info, QUOTE_PRECISION_I64};
 
     const NOW: i64 = 0;
@@ -7080,17 +7082,16 @@ mod fill_perp_order_margin_requirement_with_isolated {
             Pubkey::from_str("AHRAk64kPiGwkbkisDvjVYzq6Ho5Q2wQSj28vAaAt7Tq").unwrap();
         let mut sol_oracle_price = get_pyth_price(100, 6);
         let mut eth_oracle_price = get_pyth_price(1000, 6);
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             sol_oracle_price,
             &sol_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             sol_oracle_account_info
         );
-        create_account_info!(
+        create_anchor_account_info!(
             eth_oracle_price,
             &eth_oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             eth_oracle_account_info
         );
         let oracle_account_infos = vec![sol_oracle_account_info, eth_oracle_account_info];
@@ -7110,6 +7111,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 peg_multiplier: 100 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: sol_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
@@ -7130,6 +7132,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 peg_multiplier: 1000 * PEG_PRECISION,
                 order_step_size: 10000000,
                 oracle: eth_oracle_price_key,
+                oracle_source: OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,
