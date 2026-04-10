@@ -7,23 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Branch `lukas1/be-263-remove-spot-trading` (vs `origin/master`)
-
-- program: disable spot DLOB trading (BE-263): add `ErrorCode::SpotDlobTradingDisabled` and `spot_dlob_trading_disabled()`; spot order user and keeper handlers fail fast with that error; comment out program entry points for `place_spot_order`, `place_and_take_spot_order`, `place_and_make_spot_order`, and `fill_spot_order` so they are absent from the published IDL.
-- program: remove spot orderbook fulfillment helpers (`SpotFulfillmentMethod`, `determine_spot_fulfillment_methods`) and `validate_spot_order` now that spot DLOB matching is disabled.
-- sdk: spot order–related `DriftClient` methods throw a clear error aligned with on-chain disablement; refresh `idl/drift.json`.
-- tests: large reduction of `controller/orders` unit tests; remove `tests/scaleOrders.ts`; adjust `tests/builderCodes.ts` and `test-scripts/run-anchor-tests.sh`.
-
 ### Features
 
 - program: add ix to transfer between perp market fee and pnl pool [#1](https://github.com/drift-labs/protocol-v2-shadow/pull/1)
-- program: remove HLM [#2](https://github.com/drift-labs/protocol-v2-shadow/pull/2)
 
 ### Fixes
 
 ### Breaking
 
-- program: spot DLOB order placement and keeper fills are disabled; spot balances, deposits, and swaps remain available per constraint docs.
+- program: remove HLM [#2](https://github.com/drift-labs/protocol-v2-shadow/pull/2)
+- program: remove spot DLOB order placement and keeper fills; spot balances, deposits, and swaps remain available per constraint docs. [#6](https://github.com/drift-labs/protocol-v2-shadow/pull/6)
 
 ## [2.162.0] - 2026-04-01
 
