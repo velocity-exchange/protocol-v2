@@ -9,11 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
+- program: add ix to transfer between perp market fee and pnl pool [#1](https://github.com/drift-labs/protocol-v2-shadow/pull/1)
+- program: remove HLM [#2](https://github.com/drift-labs/protocol-v2-shadow/pull/2)
+
 ### Fixes
 
 ### Breaking
 
 ## [2.162.0] - 2026-04-01
+
 ### Features
 
 ### Fixes
@@ -21,15 +25,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking
 
 ## [2.161.0] - 2026-03-26
+
 ### Features
 
 ### Fixes
+
+- program: ensure error codes stay consistent [#2157](https://github.com/drift-labs/protocol-v2/pull/2157)
 
 ### Breaking
 
 ## [2.160.0] - 2026-03-18
 
 ### Features
+
 - program: admin withdrawal from IF [#2120](https://github.com/drift-labs/protocol-v2/pull/2120)
 
 ### Fixes
@@ -37,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking
 
 ## [2.159.0] - 2026-03-16
+
 ### Features
 
 - program: allow for swap-involved ATA closures [#2118](https://github.com/drift-labs/protocol-v2/pull/2118)
