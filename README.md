@@ -103,6 +103,16 @@ cargo test
 bash test-scripts/run-anchor-tests.sh
 ```
 
+## Development (with docker-compose)
+
+You can also run the dev environment using Docker Compose:
+
+```bash
+cd .devcontainer
+docker compose up -d
+docker compose exec drift bash
+```
+
 # Bug Bounty
 
 Information about the Bug Bounty can be found [here](./bug-bounty/README.md)
