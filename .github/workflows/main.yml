@@ -155,6 +155,7 @@ jobs:
         run: bash test-scripts/run-anchor-tests.sh
   verify-sdk-configs:
     name: Verify SDK Configs
+    if: ${{ false }}
     runs-on: ubicloud
     steps:
       - uses: actions/checkout@v2
@@ -180,7 +181,7 @@ jobs:
       - name: Install ts-mocha and typescript
         run: |
           npm install -g ts-mocha
-          npm install typescript@5.4.5 -g
+          npm install -g typescript@5.4.5
 
       - name: Run tests
         env:

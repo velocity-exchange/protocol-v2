@@ -76,7 +76,7 @@ export const mockAMM: AMM = {
 	lastOracleReservePriceSpreadPct: new BN(0),
 	lastOracleConfPct: new BN(0),
 	oracle: PublicKey.default,
-	oracleSource: OracleSource.PYTH,
+	oracleSource: OracleSource.PYTH_LAZER,
 	fundingPeriod: new BN(0),
 	cumulativeFundingRateLong: new BN(0),
 	cumulativeFundingRateShort: new BN(0),
@@ -173,8 +173,6 @@ export const mockPerpMarkets: Array<PerpMarketAccount> = [
 		numberOfUsers: 0,
 		marginRatioInitial: 2000,
 		marginRatioMaintenance: 1000,
-		highLeverageMarginRatioInitial: 0,
-		highLeverageMarginRatioMaintenance: 0,
 		nextFillRecordId: new BN(0),
 		pnlPool: {
 			scaledBalance: new BN(0),
@@ -228,8 +226,6 @@ export const mockPerpMarkets: Array<PerpMarketAccount> = [
 		numberOfUsers: 0,
 		marginRatioInitial: 0,
 		marginRatioMaintenance: 0,
-		highLeverageMarginRatioInitial: 0,
-		highLeverageMarginRatioMaintenance: 0,
 		nextFillRecordId: new BN(0),
 		pnlPool: {
 			scaledBalance: new BN(0),
@@ -281,8 +277,6 @@ export const mockPerpMarkets: Array<PerpMarketAccount> = [
 		numberOfUsers: 0,
 		marginRatioInitial: 0,
 		marginRatioMaintenance: 0,
-		highLeverageMarginRatioInitial: 0,
-		highLeverageMarginRatioMaintenance: 0,
 		nextFillRecordId: new BN(0),
 		pnlPool: {
 			scaledBalance: new BN(0),
@@ -384,7 +378,7 @@ export const mockSpotMarkets: Array<SpotMarketAccount> = [
 		totalSwapFee: new BN(0),
 		flashLoanAmount: new BN(0),
 		flashLoanInitialTokenAmount: new BN(0),
-		oracleSource: OracleSource.PYTH,
+		oracleSource: OracleSource.PYTH_LAZER,
 		historicalOracleData: {
 			lastOraclePrice: PRICE_PRECISION,
 			lastOracleConf: new BN(0),
@@ -476,7 +470,7 @@ export const mockSpotMarkets: Array<SpotMarketAccount> = [
 		totalSwapFee: new BN(0),
 		flashLoanAmount: new BN(0),
 		flashLoanInitialTokenAmount: new BN(0),
-		oracleSource: OracleSource.PYTH,
+		oracleSource: OracleSource.PYTH_LAZER,
 		historicalOracleData: {
 			lastOraclePrice: new BN(0),
 			lastOracleConf: new BN(0),
@@ -568,7 +562,7 @@ export const mockSpotMarkets: Array<SpotMarketAccount> = [
 		totalSwapFee: new BN(0),
 		flashLoanAmount: new BN(0),
 		flashLoanInitialTokenAmount: new BN(0),
-		oracleSource: OracleSource.PYTH,
+		oracleSource: OracleSource.PYTH_LAZER,
 		historicalOracleData: {
 			lastOraclePrice: new BN(0),
 			lastOracleConf: new BN(0),

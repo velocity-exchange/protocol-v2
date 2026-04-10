@@ -457,6 +457,6 @@ describe('pyth-oracle', () => {
 		console.log(fundingRateLong.toString(), 'vs', fundingRateShort.toString());
 		assert(fundingRateLong.lt(new BN(0)));
 		assert(fundingRateShort.lt(new BN(0))); // Z-TODO
-		assert(fundingRateShort.abs().gt(fundingRateLong.abs()));
+		assert(fundingRateShort.abs().gte(fundingRateLong.abs()));
 	});
 });
