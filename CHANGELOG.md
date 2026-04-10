@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Branch `lukas/rm-pyth-pull-push-completely` (vs `origin/master`)
+
+- program: remove Pyth pull oracle instruction and related admin wiring (`pyth_pull_oracle`, exports, and instruction handlers).
+- program: Pyth Lazer oracle update drops unused `verify_message_direct` import from `pyth_lazer::storage`.
+- program: use `-1` for the spot oracle stale-for-AMM-immediate override in margin and spot balance paths (replacing `0`).
+- program: clearer error logging when oracle account info is invalid in `oracle_map`.
+- sdk: default `oracleSource` for spot market admin helpers is `PYTH_LAZER` instead of `PYTH`.
+- ci: disable the “Verify SDK Configs” workflow job; install TypeScript with `npm install -g`.
+- tests: refactor Anchor/bankrun and integration tests for Pyth Lazer–only flows, fresh slots, and isolated-position scenarios; update shared test helpers accordingly.
+
 ### Features
 
 - program: add ix to transfer between perp market fee and pnl pool [#1](https://github.com/drift-labs/protocol-v2-shadow/pull/1)
@@ -15,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixes
 
 ### Breaking
+
+- program: Pyth pull oracle update instruction removed; callers must migrate to supported oracle flows (e.g. Pyth Lazer).
 
 ## [2.162.0] - 2026-04-01
 
