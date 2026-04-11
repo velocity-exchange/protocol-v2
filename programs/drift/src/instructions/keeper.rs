@@ -2700,13 +2700,6 @@ pub fn handle_update_perp_bid_ask_twap<'c: 'info, 'info>(
         estimated_ask
     );
 
-    if perp_market.contract_type == ContractType::Prediction
-        && perp_market.is_operation_paused(PerpOperation::AmmFill)
-        && (estimated_bid.is_none() || estimated_ask.is_none())
-    {
-        msg!("skipping mark twap update for disabled amm prediction market");
-        return Ok(());
-    }
     let before_bid_price_twap = perp_market.amm.last_bid_price_twap;
     let before_ask_price_twap = perp_market.amm.last_ask_price_twap;
     let before_mark_twap_ts = perp_market.amm.last_mark_price_twap_ts;
@@ -2722,8 +2715,8 @@ pub fn handle_update_perp_bid_ask_twap<'c: 'info, 'info>(
     )?;
 
     msg!(
-        "after amm bid twap = {} -> {} 
-        ask twap = {} -> {} 
+        "after amm bid twap = {} -> {}
+        ask twap = {} -> {}
         ts = {} -> {}",
         before_bid_price_twap,
         perp_market.amm.last_bid_price_twap,

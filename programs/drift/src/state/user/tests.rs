@@ -1918,9 +1918,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_liability) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_liability) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, -BASE_PRECISION_I128);
         assert_eq!(worst_case_liability, 100 * QUOTE_PRECISION);
@@ -1935,9 +1934,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_liability) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_liability) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, 2 * BASE_PRECISION_I128);
         assert_eq!(worst_case_liability, 200 * QUOTE_PRECISION);
@@ -1951,9 +1949,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_loss) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, 98 * BASE_PRECISION_I128);
         assert_eq!(worst_case_loss, 98 * 100 * QUOTE_PRECISION);
@@ -1967,9 +1964,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_loss) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, -98 * BASE_PRECISION_I128);
         assert_eq!(worst_case_loss, 98 * 100 * QUOTE_PRECISION);

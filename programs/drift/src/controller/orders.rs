@@ -3293,7 +3293,7 @@ pub fn trigger_order(
 
     let (_, worst_case_liability_value_before) = user
         .get_perp_position(market_index)?
-        .worst_case_liability_value(oracle_price, perp_market.contract_type)?;
+        .worst_case_liability_value(oracle_price)?;
 
     let mut bit_flags = 0;
     {
@@ -3373,7 +3373,7 @@ pub fn trigger_order(
 
     let (_, worst_case_liability_value_after) = user
         .get_perp_position(market_index)?
-        .worst_case_liability_value(oracle_price, perp_market.contract_type)?;
+        .worst_case_liability_value(oracle_price)?;
 
     let is_risk_increasing = worst_case_liability_value_after > worst_case_liability_value_before;
 

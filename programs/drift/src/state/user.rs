@@ -3,9 +3,9 @@ use crate::error::{DriftResult, ErrorCode};
 use crate::math::auction::{calculate_auction_price, is_auction_complete};
 use crate::math::casting::Cast;
 use crate::math::constants::{
-    EPOCH_DURATION, FUEL_OVERFLOW_THRESHOLD_U32, FUEL_START_TS, MAX_PREDICTION_MARKET_PRICE,
-    OPEN_ORDER_MARGIN_REQUIREMENT, QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX,
-    SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_I128, THIRTY_DAY,
+    EPOCH_DURATION, FUEL_OVERFLOW_THRESHOLD_U32, FUEL_START_TS, OPEN_ORDER_MARGIN_REQUIREMENT,
+    QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX, SPOT_WEIGHT_PRECISION,
+    SPOT_WEIGHT_PRECISION_I128, THIRTY_DAY,
 };
 use crate::math::margin::MarginRequirementType;
 use crate::math::orders::{
@@ -1228,20 +1228,11 @@ impl PerpPosition {
         self.base_asset_amount == 0 && self.quote_asset_amount != 0
     }
 
-    pub fn worst_case_base_asset_amount(
-        &self,
-        oracle_price: i64,
-        contract_type: ContractType,
-    ) -> DriftResult<i128> {
-        self.worst_case_liability_value(oracle_price, contract_type)
-            .map(|v| v.0)
+    pub fn worst_case_base_asset_amount(&self, oracle_price: i64) -> DriftResult<i128> {
+        self.worst_case_liability_value(oracle_price).map(|v| v.0)
     }
 
-    pub fn worst_case_liability_value(
-        &self,
-        oracle_price: i64,
-        contract_type: ContractType,
-    ) -> DriftResult<(i128, u128)> {
+    pub fn worst_case_liability_value(&self, oracle_price: i64) -> DriftResult<(i128, u128)> {
         let base_asset_amount_all_bids_fill = self
             .base_asset_amount
             .safe_add(self.open_bids)?
@@ -1251,17 +1242,11 @@ impl PerpPosition {
             .safe_add(self.open_asks)?
             .cast::<i128>()?;
 
-        let liability_value_all_bids_fill = calculate_perp_liability_value(
-            base_asset_amount_all_bids_fill,
-            oracle_price,
-            contract_type,
-        )?;
+        let liability_value_all_bids_fill =
+            calculate_perp_liability_value(base_asset_amount_all_bids_fill, oracle_price)?;
 
-        let liability_value_all_asks_fill = calculate_perp_liability_value(
-            base_asset_amount_all_asks_fill,
-            oracle_price,
-            contract_type,
-        )?;
+        let liability_value_all_asks_fill =
+            calculate_perp_liability_value(base_asset_amount_all_asks_fill, oracle_price)?;
 
         if liability_value_all_asks_fill >= liability_value_all_bids_fill {
             Ok((

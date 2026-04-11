@@ -1,7 +1,7 @@
 use crate::controller::position::PositionDirection;
 use crate::error::{DriftResult, ErrorCode};
 use crate::math::casting::Cast;
-use crate::math::constants::{AUCTION_DERIVE_PRICE_FRACTION, MAX_PREDICTION_MARKET_PRICE};
+use crate::math::constants::AUCTION_DERIVE_PRICE_FRACTION;
 use crate::math::orders::standardize_price;
 use crate::math::safe_math::SafeMath;
 use crate::msg;

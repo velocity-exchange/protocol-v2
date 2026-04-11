@@ -10,9 +10,8 @@ use crate::math::amm::calculate_amm_available_liquidity;
 use crate::math::casting::Cast;
 use crate::math::constants::{
     BASE_PRECISION_I128, FEE_ADJUSTMENT_MAX, MARGIN_PRECISION_I128, MARGIN_PRECISION_U128,
-    MAX_PREDICTION_MARKET_PRICE, MAX_PREDICTION_MARKET_PRICE_I64, OPEN_ORDER_MARGIN_REQUIREMENT,
-    PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_U64, PRICE_PRECISION_I128, PRICE_PRECISION_U64,
-    QUOTE_PRECISION_I128, SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_I128,
+    OPEN_ORDER_MARGIN_REQUIREMENT, PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_U64,
+    PRICE_PRECISION_I128, QUOTE_PRECISION_I128, SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_I128,
 };
 use crate::state::protected_maker_mode_config::ProtectedMakerParams;
 use crate::state::user::OrderBitFlag;
@@ -794,8 +793,8 @@ pub fn calculate_max_perp_order_size(
     drop(quote_spot_market);
 
     let perp_position: &PerpPosition = &user.perp_positions[position_index];
-    let (worst_case_base_asset_amount, worst_case_liability_value) = perp_position
-        .worst_case_liability_value(oracle_price_data_price, perp_market.contract_type)?;
+    let (worst_case_base_asset_amount, worst_case_liability_value) =
+        perp_position.worst_case_liability_value(oracle_price_data_price)?;
 
     let margin_ratio = perp_market
         .get_margin_ratio(
