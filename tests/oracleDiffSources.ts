@@ -86,8 +86,8 @@ describe('oracle diff sources', () => {
 		marketIndexes = [0, 1];
 		spotMarketIndexes = [0, 1, 2];
 		oracleInfos = [
-			{ publicKey: solOracle, source: OracleSource.PYTH },
-			{ publicKey: solOracle, source: OracleSource.PYTH_1K },
+			{ publicKey: solOracle, source: OracleSource.PYTH_LAZER },
+			{ publicKey: solOracle, source: OracleSource.PYTH_LAZER_1K },
 		];
 
 		admin = new TestClient({
@@ -116,14 +116,14 @@ describe('oracle diff sources', () => {
 			admin,
 			solOracle,
 			undefined,
-			OracleSource.PYTH
+			OracleSource.PYTH_LAZER
 		);
 
 		await initializeSolSpotMarket(
 			admin,
 			solOracle,
 			undefined,
-			OracleSource.PYTH_1K
+			OracleSource.PYTH_LAZER_1K
 		);
 
 		const periodicity = new BN(0);
@@ -134,7 +134,7 @@ describe('oracle diff sources', () => {
 			ammInitialQuoteAssetReserve,
 			periodicity,
 			new BN(3 * PEG_PRECISION.toNumber()),
-			OracleSource.PYTH
+			OracleSource.PYTH_LAZER
 		);
 
 		await admin.initializePerpMarket(
@@ -144,13 +144,13 @@ describe('oracle diff sources', () => {
 			ammInitialQuoteAssetReserve,
 			periodicity,
 			new BN(3000 * PEG_PRECISION.toNumber()),
-			OracleSource.PYTH_1K
+			OracleSource.PYTH_LAZER_1K
 		);
 	});
 
 	beforeEach(async () => {
-		// await admin.updateSpotMarketOracle(1, solOracle, OracleSource.PYTH);
-		// await admin.updatePerpMarketOracle(0, solOracle, OracleSource.PYTH);
+		// await admin.updateSpotMarketOracle(1, solOracle, OracleSource.PYTH_LAZER);
+		// await admin.updatePerpMarketOracle(0, solOracle, OracleSource.PYTH_LAZER);
 	});
 
 	after(async () => {
