@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+- program: remove prediction markets [#13](https://github.com/drift-labs/protocol-v2-shadow/pull/13)
+
 ## [2.162.0] - 2026-04-01
 
 ### Features
