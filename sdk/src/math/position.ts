@@ -55,7 +55,6 @@ export function calculateBaseAssetValue(
 					market.amm,
 					directionToClose,
 					mmOraclePriceData,
-					undefined,
 					latestSlot
 				);
 			prepegAmm = {

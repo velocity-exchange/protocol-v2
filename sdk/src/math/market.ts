@@ -69,7 +69,6 @@ export function calculateBidPrice(
 			market.amm,
 			PositionDirection.SHORT,
 			mmOraclePriceData,
-			undefined,
 			latestSlot
 		);
 
@@ -92,7 +91,6 @@ export function calculateAskPrice(
 			market.amm,
 			PositionDirection.LONG,
 			mmOraclePriceData,
-			undefined,
 			latestSlot
 		);
 
