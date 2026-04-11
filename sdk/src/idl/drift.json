@@ -4610,27 +4610,6 @@
       "args": []
     },
     {
-      "name": "initializePredictionMarket",
-      "accounts": [
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "perpMarket",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "deleteInitializedPerpMarket",
       "accounts": [
         {
@@ -15743,12 +15722,6 @@
         "variants": [
           {
             "name": "Perpetual"
-          },
-          {
-            "name": "Future"
-          },
-          {
-            "name": "Prediction"
           }
         ]
       }
@@ -19589,8 +19562,8 @@
     },
     {
       "code": 6284,
-      "name": "InvalidPredictionMarketOrder",
-      "msg": "Invalid prediction market order"
+      "name": "DepreciatedPredictionMarketOrder",
+      "msg": "Deprecated"
     },
     {
       "code": 6285,
@@ -19917,8 +19890,5 @@
       "name": "InvalidInsuranceFundWithdrawalRecipient",
       "msg": "Insurance fund withdrawal recipient must be the designated treasury address"
     }
-  ],
-  "metadata": {
-    "address": "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH"
-  }
+  ]
 }
