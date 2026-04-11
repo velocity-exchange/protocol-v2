@@ -91,10 +91,6 @@ impl OrderParams {
             OrderParams::get_perp_baseline_start_price_offset(perp_market, self.direction)?;
         let mut new_auction_start_price = oracle_price.safe_add(auction_start_price_offset)?;
 
-        if perp_market.is_prediction_market() {
-            new_auction_start_price = new_auction_start_price.min(MAX_PREDICTION_MARKET_PRICE_I64);
-        }
-
         if self.auction_duration.unwrap_or(0) == 0 {
             match self.direction {
                 PositionDirection::Long => {
@@ -544,11 +540,6 @@ impl OrderParams {
                     auction_end_price = auction_end_price.safe_add(start_buffer_price)?;
                 }
             }
-        }
-
-        if perp_market.is_prediction_market() {
-            auction_start_price = auction_start_price.min(MAX_PREDICTION_MARKET_PRICE_I64);
-            auction_end_price = auction_end_price.min(MAX_PREDICTION_MARKET_PRICE_I64);
         }
 
         if limit_price != 0 {

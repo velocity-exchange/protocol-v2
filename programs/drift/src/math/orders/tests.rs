@@ -160,7 +160,6 @@ mod order_breaches_oracle_price_limits {
             slot,
             tick_size,
             margin_ratio_initial,
-            false,
         )
         .unwrap();
 
@@ -191,7 +190,6 @@ mod order_breaches_oracle_price_limits {
             slot,
             tick_size,
             margin_ratio_initial,
-            false,
         )
         .unwrap();
 
@@ -224,7 +222,6 @@ mod order_breaches_oracle_price_limits {
             slot,
             tick_size,
             margin_ratio_initial,
-            false,
         )
         .unwrap();
 
@@ -257,7 +254,6 @@ mod order_breaches_oracle_price_limits {
             slot,
             tick_size,
             margin_ratio_initial,
-            false,
         )
         .unwrap();
 
@@ -290,7 +286,6 @@ mod order_breaches_oracle_price_limits {
             slot,
             tick_size,
             margin_ratio_initial,
-            false,
         )
         .unwrap();
 
@@ -323,7 +318,6 @@ mod order_breaches_oracle_price_limits {
             slot,
             tick_size,
             margin_ratio_initial,
-            false,
         )
         .unwrap();
 
@@ -734,7 +728,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -770,7 +763,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -807,7 +799,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -844,7 +835,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -881,7 +871,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -918,7 +907,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -958,7 +946,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -1000,7 +987,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -1047,7 +1033,6 @@ mod find_maker_orders {
             Some(oracle_price),
             slot,
             tick_size,
-            false,
             None,
         )
         .unwrap();
@@ -3428,7 +3413,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_ok())
@@ -3447,7 +3431,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_ok())
@@ -3467,7 +3450,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_err())
@@ -3487,7 +3469,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_err())
@@ -3507,7 +3488,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_err())
@@ -3527,7 +3507,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_err())
@@ -3547,7 +3526,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_err())
@@ -3567,7 +3545,6 @@ pub mod validate_fill_price_within_price_bands {
             twap,
             margin_ratio_initial,
             (PERCENTAGE_PRECISION / 2) as u64,
-            false,
             None,
         )
         .is_err())

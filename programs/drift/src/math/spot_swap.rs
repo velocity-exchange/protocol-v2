@@ -141,7 +141,6 @@ pub fn validate_price_bands_for_swap(
         oracle_twap_5min,
         margin_ratio,
         oracle_twap_5min_percent_divergence,
-        false,
         Some(direction),
     )?;
 

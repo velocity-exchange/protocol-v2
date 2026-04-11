@@ -42,32 +42,6 @@ pub fn validate_order(
         }
     }
 
-    if market.is_prediction_market() {
-        validate!(
-            order.price <= MAX_PREDICTION_MARKET_PRICE,
-            ErrorCode::InvalidPredictionMarketOrder,
-            "prediction market price must be <= 1"
-        )?;
-
-        validate!(
-            order.auction_start_price.unsigned_abs() <= MAX_PREDICTION_MARKET_PRICE,
-            ErrorCode::InvalidPredictionMarketOrder,
-            "prediction market auction start price abs must be <= 1"
-        )?;
-
-        validate!(
-            order.auction_end_price.unsigned_abs() <= MAX_PREDICTION_MARKET_PRICE,
-            ErrorCode::InvalidPredictionMarketOrder,
-            "prediction market auction end price abs must be <= 1"
-        )?;
-
-        validate!(
-            order.oracle_price_offset.unsigned_abs() <= MAX_PREDICTION_MARKET_PRICE as u32,
-            ErrorCode::InvalidPredictionMarketOrder,
-            "prediction market auction end price abs must be <= 1"
-        )?;
-    }
-
     Ok(())
 }
 
@@ -220,7 +194,6 @@ fn validate_post_only_order(
         None,
         slot,
         market.amm.order_tick_size,
-        market.is_prediction_market(),
         None,
     )?;
 

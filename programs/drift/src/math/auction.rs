@@ -86,7 +86,6 @@ pub fn calculate_auction_price(
     slot: u64,
     tick_size: u64,
     valid_oracle_price: Option<i64>,
-    is_prediction_market: bool,
 ) -> DriftResult<u64> {
     match order.order_type {
         OrderType::TriggerMarket if order.is_bit_flag_set(OrderBitFlag::OracleTriggerMarket) => {
@@ -95,7 +94,6 @@ pub fn calculate_auction_price(
                 slot,
                 tick_size,
                 valid_oracle_price,
-                is_prediction_market,
             )
         }
         OrderType::Market | OrderType::TriggerMarket | OrderType::TriggerLimit => {
@@ -108,7 +106,6 @@ pub fn calculate_auction_price(
                     slot,
                     tick_size,
                     valid_oracle_price,
-                    is_prediction_market,
                 )
             } else {
                 calculate_auction_price_for_fixed_auction(order, slot, tick_size)
@@ -119,7 +116,6 @@ pub fn calculate_auction_price(
             slot,
             tick_size,
             valid_oracle_price,
-            is_prediction_market,
         ),
     }
 }
@@ -165,7 +161,6 @@ fn calculate_auction_price_for_oracle_offset_auction(
     slot: u64,
     tick_size: u64,
     valid_oracle_price: Option<i64>,
-    is_prediction_market: bool,
 ) -> DriftResult<u64> {
     let oracle_price = valid_oracle_price.ok_or_else(|| {
         msg!("Could not find oracle too calculate oracle offset auction price");
@@ -185,10 +180,6 @@ fn calculate_auction_price_for_oracle_offset_auction(
             .safe_add(auction_end_price_offset)?
             .max(tick_size.cast()?)
             .cast::<u64>()?;
-
-        if is_prediction_market {
-            price = price.min(MAX_PREDICTION_MARKET_PRICE);
-        }
 
         return standardize_price(price, tick_size, order.direction);
     }
@@ -213,10 +204,6 @@ fn calculate_auction_price_for_oracle_offset_auction(
         .safe_add(price_offset)?
         .max(tick_size.cast()?)
         .cast::<u64>()?;
-
-    if is_prediction_market {
-        price = price.min(MAX_PREDICTION_MARKET_PRICE);
-    }
 
     standardize_price(price, tick_size, order.direction)
 }

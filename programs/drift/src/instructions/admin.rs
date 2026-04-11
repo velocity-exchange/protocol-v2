@@ -3322,14 +3322,6 @@ pub fn handle_update_perp_market_paused_operations(
 
     perp_market.paused_operations = paused_operations;
 
-    if perp_market.is_prediction_market() {
-        validate!(
-            perp_market.is_operation_paused(PerpOperation::UpdateFunding),
-            ErrorCode::DefaultError,
-            "prediction market must have funding paused"
-        )?;
-    }
-
     PerpOperation::log_all_operations_paused(perp_market.paused_operations);
 
     Ok(())

@@ -1548,7 +1548,6 @@ impl Order {
         fallback_price: Option<u64>,
         slot: u64,
         tick_size: u64,
-        is_prediction_market: bool,
         pmm_params: Option<ProtectedMakerParams>,
     ) -> DriftResult<Option<u64>> {
         let price = if self.has_auction_price(self.slot, self.auction_duration, slot)? {
@@ -1557,7 +1556,6 @@ impl Order {
                 slot,
                 tick_size,
                 valid_oracle_price,
-                is_prediction_market,
             )?)
         } else if self.has_oracle_price_offset() {
             let oracle_price = valid_oracle_price.ok_or_else(|| {
@@ -1569,10 +1567,6 @@ impl Order {
                 .safe_add(self.oracle_price_offset.cast()?)?
                 .max(tick_size.cast()?)
                 .cast::<u64>()?;
-
-            if is_prediction_market {
-                limit_price = limit_price.min(MAX_PREDICTION_MARKET_PRICE)
-            }
 
             if let Some(pmm_params) = pmm_params {
                 limit_price = apply_protected_maker_limit_price_offset(
@@ -1615,7 +1609,6 @@ impl Order {
         fallback_price: Option<u64>,
         slot: u64,
         tick_size: u64,
-        is_prediction_market: bool,
         pmm_params: Option<ProtectedMakerParams>,
     ) -> DriftResult<u64> {
         match self.get_limit_price(
@@ -1623,7 +1616,6 @@ impl Order {
             fallback_price,
             slot,
             tick_size,
-            is_prediction_market,
             pmm_params,
         )? {
             Some(price) => Ok(price),

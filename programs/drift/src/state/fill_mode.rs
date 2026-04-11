@@ -22,18 +22,11 @@ impl FillMode {
         valid_oracle_price: Option<i64>,
         slot: u64,
         tick_size: u64,
-        is_prediction_market: bool,
     ) -> DriftResult<Option<u64>> {
         match self {
-            FillMode::Fill | FillMode::PlaceAndMake | FillMode::Liquidation => order
-                .get_limit_price(
-                    valid_oracle_price,
-                    None,
-                    slot,
-                    tick_size,
-                    is_prediction_market,
-                    None,
-                ),
+            FillMode::Fill | FillMode::PlaceAndMake | FillMode::Liquidation => {
+                order.get_limit_price(valid_oracle_price, None, slot, tick_size, None)
+            }
             FillMode::PlaceAndTake(_, auction_duration_percentage) => {
                 let auction_duration = order
                     .auction_duration
@@ -48,18 +41,10 @@ impl FillMode {
                         order.slot.safe_add(auction_duration)?,
                         tick_size,
                         valid_oracle_price,
-                        is_prediction_market,
                     )
                     .map(Some)
                 } else {
-                    order.get_limit_price(
-                        valid_oracle_price,
-                        None,
-                        slot,
-                        tick_size,
-                        is_prediction_market,
-                        None,
-                    )
+                    order.get_limit_price(valid_oracle_price, None, slot, tick_size, None)
                 }
             }
         }

@@ -1904,10 +1904,7 @@ mod fuel {
 mod worst_case_liability_value {
     use crate::state::perp_market::ContractType;
     use crate::state::user::PerpPosition;
-    use crate::{
-        BASE_PRECISION_I128, BASE_PRECISION_I64, MAX_PREDICTION_MARKET_PRICE_I64,
-        MAX_PREDICTION_MARKET_PRICE_U128, PRICE_PRECISION_I64, QUOTE_PRECISION,
-    };
+    use crate::{BASE_PRECISION_I128, BASE_PRECISION_I64, PRICE_PRECISION_I64, QUOTE_PRECISION};
 
     #[test]
     fn perp() {
@@ -1982,10 +1979,7 @@ mod worst_case_liability_value {
 mod get_limit_price {
     use crate::state::protected_maker_mode_config::ProtectedMakerParams;
     use crate::state::user::{Order, OrderType};
-    use crate::{
-        PositionDirection, MAX_PREDICTION_MARKET_PRICE, MAX_PREDICTION_MARKET_PRICE_I64,
-        PRICE_PRECISION, PRICE_PRECISION_U64,
-    };
+    use crate::{PositionDirection, PRICE_PRECISION, PRICE_PRECISION_U64};
 
     #[test]
     fn protected_maker_limit_fixed_price() {
@@ -1999,7 +1993,7 @@ mod get_limit_price {
         let oracle_price: Option<i64> = Some((101 * PRICE_PRECISION) as i64);
 
         let limit_price = long_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(long_order.price));
@@ -2017,7 +2011,6 @@ mod get_limit_price {
                 None,
                 0,
                 1,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     tick_size: 1,
@@ -2031,7 +2024,7 @@ mod get_limit_price {
 
         // double check no mut or state issues
         let limit_price = long_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(long_order.price));
@@ -2050,7 +2043,7 @@ mod get_limit_price {
 
         // Case 1: Protected maker mode disabled
         let limit_price = short_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(short_order.price));
@@ -2062,7 +2055,6 @@ mod get_limit_price {
                 None,
                 0,
                 1,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     tick_size: 1,
@@ -2075,7 +2067,7 @@ mod get_limit_price {
 
         // Double-check no mutation or state issues
         let limit_price = short_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(short_order.price));
@@ -2095,7 +2087,7 @@ mod get_limit_price {
 
         // test min price
         let limit_price = long_order_small
-            .get_limit_price(oracle_price, None, 0, 100, false, None)
+            .get_limit_price(oracle_price, None, 0, 100, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(10106600));
@@ -2107,7 +2099,6 @@ mod get_limit_price {
                 None,
                 0,
                 100,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     ..ProtectedMakerParams::default()
@@ -2132,7 +2123,7 @@ mod get_limit_price {
 
         // test min price
         let limit_price = long_order_small
-            .get_limit_price(oracle_price, None, 0, 10000, false, None)
+            .get_limit_price(oracle_price, None, 0, 10000, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(20000));
@@ -2144,7 +2135,6 @@ mod get_limit_price {
                 None,
                 0,
                 10000,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     tick_size: 10000,
