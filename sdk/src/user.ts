@@ -1448,8 +1448,7 @@ export class User {
 			baseAssetAmount = perpPosition.baseAssetAmount;
 			liabilityValue = calculatePerpLiabilityValue(
 				baseAssetAmount,
-				valuationPrice,
-				isVariant(market.contractType, 'prediction')
+				valuationPrice
 			);
 		}
 
@@ -1598,8 +1597,7 @@ export class User {
 		} else {
 			return calculatePerpLiabilityValue(
 				userPosition.baseAssetAmount,
-				oraclePriceData.price,
-				isVariant(market.contractType, 'prediction')
+				oraclePriceData.price
 			);
 		}
 	}
@@ -2562,8 +2560,7 @@ export class User {
 				baseAssetAmount = perpPosition.baseAssetAmount;
 				liabilityValue = calculatePerpLiabilityValue(
 					baseAssetAmount,
-					oraclePrice,
-					isVariant(market.contractType, 'prediction')
+					oraclePrice
 				);
 			}
 
@@ -2637,33 +2634,24 @@ export class User {
 		}
 
 		let freeCollateralDelta = ZERO;
-		if (isVariant(market.contractType, 'prediction')) {
-			// for prediction market, increase in pnl and margin requirement will net out for position
-			// open order margin requirement will change with price though
-			if (orderBaseAssetAmount.gt(ZERO)) {
-				freeCollateralDelta = marginRatioQuotePrecision.neg();
-			} else if (orderBaseAssetAmount.lt(ZERO)) {
-				freeCollateralDelta = marginRatioQuotePrecision;
-			}
-		} else {
-			if (proposedBaseAssetAmount.gt(ZERO)) {
-				freeCollateralDelta = QUOTE_PRECISION.sub(marginRatioQuotePrecision)
-					.mul(proposedBaseAssetAmount)
-					.div(BASE_PRECISION);
-			} else {
-				freeCollateralDelta = QUOTE_PRECISION.neg()
-					.sub(marginRatioQuotePrecision)
-					.mul(proposedBaseAssetAmount.abs())
-					.div(BASE_PRECISION);
-			}
 
-			if (!orderBaseAssetAmount.eq(ZERO)) {
-				freeCollateralDelta = freeCollateralDelta.sub(
-					marginRatioQuotePrecision
-						.mul(orderBaseAssetAmount.abs())
-						.div(BASE_PRECISION)
-				);
-			}
+		if (proposedBaseAssetAmount.gt(ZERO)) {
+			freeCollateralDelta = QUOTE_PRECISION.sub(marginRatioQuotePrecision)
+				.mul(proposedBaseAssetAmount)
+				.div(BASE_PRECISION);
+		} else {
+			freeCollateralDelta = QUOTE_PRECISION.neg()
+				.sub(marginRatioQuotePrecision)
+				.mul(proposedBaseAssetAmount.abs())
+				.div(BASE_PRECISION);
+		}
+
+		if (!orderBaseAssetAmount.eq(ZERO)) {
+			freeCollateralDelta = freeCollateralDelta.sub(
+				marginRatioQuotePrecision
+					.mul(orderBaseAssetAmount.abs())
+					.div(BASE_PRECISION)
+			);
 		}
 
 		return freeCollateralDelta;
@@ -2817,8 +2805,7 @@ export class User {
 			? ZERO
 			: calculatePerpLiabilityValue(
 					currentPosition.baseAssetAmount,
-					oracleData.price,
-					isVariant(marketAccount.contractType, 'prediction')
+					oracleData.price
 			  );
 
 		const maxPositionSize = this.getPerpBuyingPower(
@@ -2842,11 +2829,9 @@ export class User {
 			// current leverage is greater than max leverage - can only reduce position size
 
 			if (!targetingSameSide) {
-				const market = this.driftClient.getPerpMarketAccount(targetMarketIndex);
 				const perpLiabilityValue = calculatePerpLiabilityValue(
 					currentPosition.baseAssetAmount,
-					oracleData.price,
-					isVariant(market.contractType, 'prediction')
+					oracleData.price
 				);
 				const totalCollateral = this.getTotalCollateral();
 				const marginRequirement = this.getInitialMarginRequirement();
@@ -4058,8 +4043,7 @@ export class User {
 			worstCaseBaseAmount = perpPosition.baseAssetAmount;
 			worstCaseLiabilityValue = calculatePerpLiabilityValue(
 				perpPosition.baseAssetAmount,
-				oraclePrice,
-				isVariant(perpMarket.contractType, 'prediction')
+				oraclePrice
 			);
 		}
 
