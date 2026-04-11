@@ -21,9 +21,9 @@ use crate::msg;
 use crate::state::margin_calculation::{
     MarginCalculation, MarginContext, MarginTypeConfig, MarketIdentifier,
 };
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{OraclePriceData, StrictOraclePrice};
 use crate::state::oracle_map::OracleMap;
-use crate::state::market_status::MarketStatus;
 use crate::state::perp_market::{ContractTier, PerpMarket};
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::{AssetTier, SpotBalanceType};

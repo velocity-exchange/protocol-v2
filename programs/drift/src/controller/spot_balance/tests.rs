@@ -24,9 +24,9 @@ use crate::math::spot_withdraw::{
 };
 use crate::math::stats::calculate_weighted_average;
 use crate::state::margin_calculation::{MarginCalculation, MarginContext};
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{HistoricalOracleData, OracleSource};
 use crate::state::oracle_map::OracleMap;
-use crate::state::market_status::MarketStatus;
 use crate::state::perp_market::{PerpMarket, AMM};
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::pyth_lazer_oracle::PythLazerOracle;

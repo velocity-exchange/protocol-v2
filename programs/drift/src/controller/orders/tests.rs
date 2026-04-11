@@ -2,8 +2,8 @@ use anchor_lang::prelude::Pubkey;
 
 use crate::math::oracle::oracle_validity;
 use crate::state::fill_mode::FillMode;
-use crate::state::oracle_map::OracleMap;
 use crate::state::market_status::MarketStatus;
+use crate::state::oracle_map::OracleMap;
 use crate::state::perp_market::PerpMarket;
 use crate::state::state::{FeeStructure, FeeTier, State};
 use crate::state::user::{MarketType, Order, PerpPosition};
