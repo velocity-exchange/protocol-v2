@@ -112,6 +112,8 @@ impl LpStatus {
 pub enum ContractType {
     #[default]
     Perpetual,
+    DeprecatedFuture,
+    DeprecatedPrediction,
 }
 
 #[derive(

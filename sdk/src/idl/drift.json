@@ -15722,6 +15722,12 @@
         "variants": [
           {
             "name": "Perpetual"
+          },
+          {
+            "name": "DeprecatedFuture"
+          },
+          {
+            "name": "DeprecatedPrediction"
           }
         ]
       }
