@@ -26,9 +26,10 @@ use crate::math::repeg;
 use crate::math::safe_math::SafeMath;
 use crate::math::spot_balance::get_token_amount;
 
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::OracleSource;
 use crate::state::oracle_map::OracleMap;
-use crate::state::perp_market::{MarketStatus, PerpMarket};
+use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::SpotBalance;
 use crate::state::spot_market::SpotBalanceType;

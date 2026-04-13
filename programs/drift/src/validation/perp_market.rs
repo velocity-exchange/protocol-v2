@@ -5,7 +5,8 @@ use crate::math::constants::{BID_ASK_SPREAD_PRECISION, MAX_BASE_ASSET_AMOUNT_WIT
 use crate::math::safe_math::SafeMath;
 
 use crate::msg;
-use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+use crate::state::market_status::MarketStatus;
+use crate::state::perp_market::{PerpMarket, AMM};
 use crate::validate;
 
 #[allow(clippy::comparison_chain)]

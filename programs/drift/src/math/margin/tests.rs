@@ -407,9 +407,10 @@ mod calculate_margin_requirement_and_total_collateral {
         calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
     };
     use crate::state::margin_calculation::{MarginCalculation, MarginContext};
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -2143,9 +2144,10 @@ mod calculate_margin_requirement_and_total_collateral_and_liability_info {
         calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
     };
     use crate::state::margin_calculation::{MarginCalculation, MarginContext};
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{ContractTier, PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -3414,7 +3416,8 @@ mod validate_spot_margin_trading {
     use crate::test_utils::get_pyth_price;
     use crate::test_utils::*;
 
-    use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket, AMM};
+    use crate::state::market_status::MarketStatus;
+    use crate::state::perp_market::{ContractTier, PerpMarket, AMM};
     use crate::{AMM_RESERVE_PRECISION, BASE_PRECISION_I64, PEG_PRECISION, QUOTE_PRECISION_I64};
 
     #[test]
@@ -4350,9 +4353,10 @@ mod pools {
         calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
     };
     use crate::state::margin_calculation::MarginContext;
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -4486,9 +4490,10 @@ mod isolated_position {
         calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
     };
     use crate::state::margin_calculation::MarginContext;
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -4675,9 +4680,10 @@ mod meets_place_order_margin_requirement_with_isolated {
         SPOT_WEIGHT_PRECISION,
     };
     use crate::math::margin::meets_place_order_margin_requirement;
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -6926,9 +6932,10 @@ mod fill_perp_order_margin_requirement_with_isolated {
         calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
     };
     use crate::state::margin_calculation::{MarginContext, MarginTypeConfig};
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};

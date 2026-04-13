@@ -38,10 +38,6 @@ export enum FeatureBitFlags {
 export class MarketStatus {
 	static readonly INITIALIZED = { initialized: {} };
 	static readonly ACTIVE = { active: {} };
-	static readonly FUNDING_PAUSED = { fundingPaused: {} };
-	static readonly AMM_PAUSED = { ammPaused: {} };
-	static readonly FILL_PAUSED = { fillPaused: {} };
-	static readonly WITHDRAW_PAUSED = { withdrawPaused: {} };
 	static readonly REDUCE_ONLY = { reduceOnly: {} };
 	static readonly SETTLEMENT = { settlement: {} };
 	static readonly DELISTED = { delisted: {} };

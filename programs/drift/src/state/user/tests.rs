@@ -2300,9 +2300,10 @@ pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
         SPOT_WEIGHT_PRECISION,
     };
     use crate::math::margin::MarginRequirementType;
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};

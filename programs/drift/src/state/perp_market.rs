@@ -1,5 +1,6 @@
 use crate::msg;
 use crate::state::fill_mode::FillMode;
+use crate::state::market_status::MarketStatus;
 use crate::state::pyth_lazer_oracle::PythLazerOracle;
 use crate::state::user::{MarketType, Order};
 use anchor_lang::prelude::*;
@@ -50,46 +51,6 @@ use crate::math::oracle::{
 
 #[cfg(test)]
 mod tests;
-
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
-pub enum MarketStatus {
-    /// warm up period for initialization, fills are paused
-    #[default]
-    Initialized,
-    /// all operations allowed
-    Active,
-    /// Deprecated in favor of PausedOperations
-    FundingPaused,
-    /// Deprecated in favor of PausedOperations
-    AmmPaused,
-    /// Deprecated in favor of PausedOperations
-    FillPaused,
-    /// Deprecated in favor of PausedOperations
-    WithdrawPaused,
-    /// fills only able to reduce liability
-    ReduceOnly,
-    /// market has determined settlement price and positions are expired must be settled
-    Settlement,
-    /// market has no remaining participants
-    Delisted,
-}
-
-impl MarketStatus {
-    pub fn validate_not_deprecated(&self) -> DriftResult {
-        if matches!(
-            self,
-            MarketStatus::FundingPaused
-                | MarketStatus::AmmPaused
-                | MarketStatus::FillPaused
-                | MarketStatus::WithdrawPaused
-        ) {
-            msg!("MarketStatus is deprecated");
-            Err(ErrorCode::DefaultError)
-        } else {
-            Ok(())
-        }
-    }
-}
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum LpStatus {

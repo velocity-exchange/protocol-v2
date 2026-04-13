@@ -14,9 +14,10 @@ use crate::math::constants::{
 use crate::math::margin::{
     meets_maintenance_margin_requirement, meets_settle_pnl_maintenance_margin_requirement,
 };
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{HistoricalOracleData, OracleSource};
 use crate::state::oracle_map::OracleMap;
-use crate::state::perp_market::{MarketStatus, PerpMarket, PoolBalance, AMM};
+use crate::state::perp_market::{PerpMarket, PoolBalance, AMM};
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::pyth_lazer_oracle::PythLazerOracle;
 use crate::state::spot_market::{SpotBalanceType, SpotMarket};

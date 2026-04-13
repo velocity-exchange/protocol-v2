@@ -53,6 +53,7 @@ use crate::state::fulfillment_params::serum::SerumV3FulfillmentConfig;
 use crate::state::if_rebalance_config::{IfRebalanceConfig, IfRebalanceConfigParams};
 use crate::state::insurance_fund_stake::InsuranceFundStake;
 use crate::state::insurance_fund_stake::ProtocolIfSharesTransferConfig;
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::get_sb_on_demand_price;
 use crate::state::oracle::{
     get_oracle_price, get_prelaunch_price, get_pyth_price, get_switchboard_price,
@@ -62,8 +63,7 @@ use crate::state::oracle::{
 use crate::state::oracle_map::OracleMap;
 use crate::state::paused_operations::{InsuranceFundOperation, PerpOperation, SpotOperation};
 use crate::state::perp_market::{
-    ContractTier, ContractType, InsuranceClaim, MarketConfigFlag, MarketStatus, PerpMarket,
-    PoolBalance, AMM,
+    ContractTier, ContractType, InsuranceClaim, MarketConfigFlag, PerpMarket, PoolBalance, AMM,
 };
 use crate::state::perp_market_map::{get_writable_perp_market_set, MarketSet};
 use crate::state::protected_maker_mode_config::ProtectedMakerModeConfig;
@@ -2964,7 +2964,6 @@ pub fn handle_update_spot_market_status(
     ctx: Context<AdminUpdateSpotMarket>,
     status: MarketStatus,
 ) -> Result<()> {
-    status.validate_not_deprecated()?;
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
     msg!("spot market {}", spot_market.market_index);
 
@@ -3262,8 +3261,6 @@ pub fn handle_update_perp_market_status(
         ErrorCode::DefaultError,
         "must set settlement/delist through another instruction",
     )?;
-
-    status.validate_not_deprecated()?;
 
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
 

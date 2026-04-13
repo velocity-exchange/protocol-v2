@@ -15675,18 +15675,6 @@
             "name": "Active"
           },
           {
-            "name": "FundingPaused"
-          },
-          {
-            "name": "AmmPaused"
-          },
-          {
-            "name": "FillPaused"
-          },
-          {
-            "name": "WithdrawPaused"
-          },
-          {
             "name": "ReduceOnly"
           },
           {
