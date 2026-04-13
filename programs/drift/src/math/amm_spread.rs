@@ -567,16 +567,6 @@ pub fn calculate_spread_reserves(
             .safe_sub(quote_asset_reserve_delta.unsigned_abs())?
     };
 
-    if market.contract_type == ContractType::Prediction {
-        let (quote_asset_reserve_lower_bound, quote_asset_reserve_upper_bound) =
-            market.get_quote_asset_reserve_prediction_market_bounds(direction)?;
-
-        quote_asset_reserve = quote_asset_reserve.clamp(
-            quote_asset_reserve_lower_bound,
-            quote_asset_reserve_upper_bound,
-        );
-    }
-
     let invariant_sqrt_u192 = U192::from(market.amm.sqrt_k);
     let invariant = invariant_sqrt_u192.safe_mul(invariant_sqrt_u192)?;
 

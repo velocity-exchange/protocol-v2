@@ -507,7 +507,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -632,7 +632,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -757,7 +757,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -882,7 +882,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1007,7 +1007,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1097,7 +1097,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1189,7 +1189,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1281,7 +1281,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1373,7 +1373,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1485,7 +1485,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1600,11 +1600,11 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = taker.orders[0]
-            .force_get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .force_get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         fulfill_perp_order_with_match(
@@ -1724,7 +1724,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1847,7 +1847,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -1994,7 +1994,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -2116,7 +2116,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -2251,7 +2251,6 @@ pub mod fulfill_order_with_maker_order {
                 None,
                 slot,
                 market.amm.order_tick_size,
-                false,
                 None,
             )
             .unwrap();
@@ -2394,7 +2393,6 @@ pub mod fulfill_order_with_maker_order {
                 None,
                 slot,
                 1,
-                false,
                 None,
             )
             .unwrap();
@@ -2561,7 +2559,6 @@ pub mod fulfill_order_with_maker_order {
                 None,
                 slot,
                 market.amm.order_tick_size,
-                false,
                 None,
             )
             .unwrap();
@@ -2708,7 +2705,6 @@ pub mod fulfill_order_with_maker_order {
                 None,
                 slot,
                 1,
-                false,
                 None,
             )
             .unwrap();
@@ -2838,7 +2834,7 @@ pub mod fulfill_order_with_maker_order {
 
         assert_eq!(
             taker.orders[0]
-                .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+                .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
                 .unwrap(),
             Some(55000000)
         );
@@ -2851,7 +2847,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;
@@ -2971,7 +2967,7 @@ pub mod fulfill_order_with_maker_order {
 
         assert_eq!(
             taker.orders[0]
-                .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+                .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
                 .unwrap(),
             Some(100000000)
         );
@@ -2983,7 +2979,7 @@ pub mod fulfill_order_with_maker_order {
         let mut maker_stats = UserStats::default();
 
         let taker_limit_price = taker.orders[0]
-            .get_limit_price(None, None, slot, market.amm.order_tick_size, false, None)
+            .get_limit_price(None, None, slot, market.amm.order_tick_size, None)
             .unwrap();
 
         let maker_price = maker.orders[0].price;

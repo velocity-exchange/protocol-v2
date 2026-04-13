@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+- program: remove prediction markets [#13](https://github.com/drift-labs/protocol-v2-shadow/pull/13)
 - program: remove pyth pull update instruction, callers must migrate to supported oracles (eg: pyth lazer) [#7](https://github.com/drift-labs/protocol-v2-shadow/pull/7)
 
 ## [2.162.0] - 2026-04-01

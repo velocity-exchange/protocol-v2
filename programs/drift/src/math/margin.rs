@@ -132,8 +132,8 @@ pub fn calculate_perp_position_value_and_pnl(
 
     let total_unrealized_pnl = unrealized_pnl.safe_add(unrealized_funding.cast()?)?;
 
-    let (worst_case_base_asset_amount, worse_case_liability_value) = market_position
-        .worst_case_liability_value(oracle_price_data.price, market.contract_type)?;
+    let (worst_case_base_asset_amount, worse_case_liability_value) =
+        market_position.worst_case_liability_value(oracle_price_data.price)?;
 
     // for calculating the perps value, since it's a liability, use the large of twap and quote oracle price
     let worse_case_liability_value = worse_case_liability_value

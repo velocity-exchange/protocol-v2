@@ -5,7 +5,6 @@ import {
 	ZERO,
 	BID_ASK_SPREAD_PRECISION,
 	AMM_RESERVE_PRECISION,
-	MAX_PREDICTION_PRICE,
 	BASE_PRECISION,
 	MARGIN_PRECISION,
 	PRICE_PRECISION,
@@ -167,15 +166,13 @@ export function calculateWorstCasePerpLiabilityValue(
 	oraclePrice: BN,
 	includeOpenOrders: boolean = true
 ): { worstCaseBaseAssetAmount: BN; worstCaseLiabilityValue: BN } {
-	const isPredictionMarket = isVariant(perpMarket.contractType, 'prediction');
 	// return early if no open orders required
 	if (!includeOpenOrders) {
 		return {
 			worstCaseBaseAssetAmount: perpPosition.baseAssetAmount,
 			worstCaseLiabilityValue: calculatePerpLiabilityValue(
 				perpPosition.baseAssetAmount,
-				oraclePrice,
-				isPredictionMarket
+				oraclePrice
 			),
 		};
 	}
@@ -184,13 +181,11 @@ export function calculateWorstCasePerpLiabilityValue(
 
 	const allBidsLiabilityValue = calculatePerpLiabilityValue(
 		allBids,
-		oraclePrice,
-		isPredictionMarket
+		oraclePrice
 	);
 	const allAsksLiabilityValue = calculatePerpLiabilityValue(
 		allAsks,
-		oraclePrice,
-		isPredictionMarket
+		oraclePrice
 	);
 
 	if (allAsksLiabilityValue.gte(allBidsLiabilityValue)) {
@@ -208,21 +203,9 @@ export function calculateWorstCasePerpLiabilityValue(
 
 export function calculatePerpLiabilityValue(
 	baseAssetAmount: BN,
-	price: BN,
-	isPredictionMarket: boolean
+	price: BN
 ): BN {
-	if (isPredictionMarket) {
-		if (baseAssetAmount.gt(ZERO)) {
-			return baseAssetAmount.mul(price).div(BASE_PRECISION);
-		} else {
-			return baseAssetAmount
-				.abs()
-				.mul(MAX_PREDICTION_PRICE.sub(price))
-				.div(BASE_PRECISION);
-		}
-	} else {
-		return baseAssetAmount.abs().mul(price).div(BASE_PRECISION);
-	}
+	return baseAssetAmount.abs().mul(price).div(BASE_PRECISION);
 }
 
 /**
@@ -244,11 +227,7 @@ export function calculateMarginUSDCRequiredForTrade(
 		entryPrice ??
 		driftClient.getOracleDataForPerpMarket(targetMarket.marketIndex).price;
 
-	const perpLiabilityValue = calculatePerpLiabilityValue(
-		baseSize,
-		price,
-		isVariant(targetMarket.contractType, 'prediction')
-	);
+	const perpLiabilityValue = calculatePerpLiabilityValue(baseSize, price);
 
 	const marginRequired = new BN(
 		calculateMarketMarginRatio(
