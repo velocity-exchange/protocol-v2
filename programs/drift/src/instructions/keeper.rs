@@ -84,7 +84,7 @@ use crate::state::state::State;
 use crate::state::user::{
     MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats,
 };
-use crate::state::user_map::{load_user_map, load_user_maps, UserMap, UserStatsMap};
+use crate::state::user_map::{load_user_map, load_user_maps};
 use crate::state::zero_copy::AccountZeroCopyMut;
 use crate::state::zero_copy::ZeroCopyLoader;
 use crate::validate;
@@ -228,19 +228,6 @@ pub enum SpotFulfillmentType {
 }
 
 #[access_control(
-    fill_not_paused(&ctx.accounts.state)
-)]
-pub fn handle_fill_spot_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, FillOrder<'info>>,
-    _order_id: Option<u32>,
-    _fulfillment_type: Option<SpotFulfillmentType>,
-    _maker_order_id: Option<u32>,
-) -> Result<()> {
-    let _ = ctx;
-    spot_dlob_trading_disabled()
-}
-
-#[access_control(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_trigger_order<'c: 'info, 'info>(
@@ -256,7 +243,7 @@ pub fn handle_trigger_order<'c: 'info, 'info>(
     };
 
     if market_type == MarketType::Spot {
-        return spot_dlob_trading_disabled();
+        return Err(ErrorCode::SpotDlobTradingDisabled.into());
     }
 
     let (writeable_perp_markets, writeable_spot_markets) = (MarketSet::new(), MarketSet::new());

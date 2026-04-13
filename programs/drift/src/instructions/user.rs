@@ -32,10 +32,9 @@ use crate::instructions::optional_accounts::get_revenue_share_escrow_account;
 use crate::instructions::optional_accounts::{
     get_referrer_and_referrer_stats, get_whitelist_token, load_maps, AccountMaps,
 };
-use crate::instructions::SpotFulfillmentType;
 use crate::load;
 use crate::math::casting::Cast;
-use crate::math::constants::{QUOTE_SPOT_MARKET_INDEX, THIRTEEN_DAY};
+use crate::math::constants::THIRTEEN_DAY;
 use crate::math::liquidation::is_cross_margin_being_liquidated;
 use crate::math::margin::calculate_margin_requirement_and_total_collateral_and_liability_info;
 use crate::math::margin::meets_initial_margin_requirement;
@@ -103,7 +102,7 @@ use crate::state::user::ReferrerStatus;
 use crate::state::user::{
     FuelOverflow, FuelOverflowProvider, MarketType, OrderType, ReferrerName, User, UserStats,
 };
-use crate::state::user_map::{load_user_maps, UserMap, UserStatsMap};
+use crate::state::user_map::load_user_maps;
 use crate::validate;
 use crate::validation::position::validate_perp_position_with_perp_market;
 use crate::validation::user::validate_user_deletion;
@@ -2701,7 +2700,7 @@ fn place_orders<'c: 'info, 'info>(
                 &mut None,
             )?;
         } else {
-            spot_dlob_trading_disabled()?;
+            return Err(ErrorCode::SpotDlobTradingDisabled.into());
         }
     }
 
@@ -3070,43 +3069,6 @@ pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
     }
 
     Ok(())
-}
-
-#[access_control(
-    exchange_not_paused(&ctx.accounts.state)
-)]
-pub fn handle_place_spot_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
-    _params: OrderParams,
-) -> Result<()> {
-    let _ = ctx;
-    spot_dlob_trading_disabled()
-}
-
-#[access_control(
-    fill_not_paused(&ctx.accounts.state)
-)]
-pub fn handle_place_and_take_spot_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceAndTake<'info>>,
-    _params: OrderParams,
-    _fulfillment_type: SpotFulfillmentType,
-    _maker_order_id: Option<u32>,
-) -> Result<()> {
-    let _ = ctx;
-    spot_dlob_trading_disabled()
-}
-
-#[access_control(
-    fill_not_paused(&ctx.accounts.state)
-)]
-pub fn handle_place_and_make_spot_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceAndMake<'info>>,
-    _params: OrderParams,
-    _taker_order_id: u32,
-    _fulfillment_type: SpotFulfillmentType,
-) -> Result<()> {
-    let _ = ctx;
-    spot_dlob_trading_disabled()
 }
 
 pub fn handle_update_user_name(

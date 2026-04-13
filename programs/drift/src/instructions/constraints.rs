@@ -53,11 +53,6 @@ pub fn spot_market_valid(market: &AccountLoader<SpotMarket>) -> anchor_lang::Res
     Ok(())
 }
 
-/// Spot order book (DLOB) placement and fills are disabled; spot balances, deposits, and swaps remain enabled.
-pub fn spot_dlob_trading_disabled() -> anchor_lang::Result<()> {
-    Err(ErrorCode::SpotDlobTradingDisabled.into())
-}
-
 pub fn valid_oracle_for_spot_market(
     oracle: &AccountInfo,
     market: &AccountLoader<SpotMarket>,
