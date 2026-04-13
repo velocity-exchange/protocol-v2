@@ -1904,71 +1904,7 @@ mod fuel {
 mod worst_case_liability_value {
     use crate::state::perp_market::ContractType;
     use crate::state::user::PerpPosition;
-    use crate::{
-        BASE_PRECISION_I128, BASE_PRECISION_I64, MAX_PREDICTION_MARKET_PRICE_I64,
-        MAX_PREDICTION_MARKET_PRICE_U128, PRICE_PRECISION_I64, QUOTE_PRECISION,
-    };
-
-    #[test]
-    fn prediction() {
-        let contract_type = ContractType::Prediction;
-        let position = PerpPosition {
-            base_asset_amount: 0,
-            open_bids: BASE_PRECISION_I64,
-            open_asks: -BASE_PRECISION_I64,
-            ..PerpPosition::default()
-        };
-
-        let price = MAX_PREDICTION_MARKET_PRICE_I64 * 3 / 4;
-
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
-
-        assert_eq!(worst_case_base_asset_amount, BASE_PRECISION_I128);
-        assert_eq!(worst_case_loss, MAX_PREDICTION_MARKET_PRICE_U128 * 3 / 4);
-
-        let price = MAX_PREDICTION_MARKET_PRICE_I64 / 4;
-
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
-
-        assert_eq!(worst_case_base_asset_amount, -BASE_PRECISION_I128);
-        assert_eq!(worst_case_loss, MAX_PREDICTION_MARKET_PRICE_U128 * 3 / 4);
-
-        let position = PerpPosition {
-            base_asset_amount: 98 * BASE_PRECISION_I64,
-            open_bids: 0,
-            open_asks: -99 * BASE_PRECISION_I64,
-            ..PerpPosition::default()
-        };
-
-        let price = MAX_PREDICTION_MARKET_PRICE_I64 / 100;
-
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
-
-        assert_eq!(worst_case_base_asset_amount, -BASE_PRECISION_I128);
-        assert_eq!(worst_case_loss, MAX_PREDICTION_MARKET_PRICE_U128 * 99 / 100);
-
-        let position = PerpPosition {
-            base_asset_amount: -98 * BASE_PRECISION_I64,
-            open_bids: 99 * BASE_PRECISION_I64,
-            open_asks: 0,
-            ..PerpPosition::default()
-        };
-
-        let price = MAX_PREDICTION_MARKET_PRICE_I64 * 99 / 100;
-
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
-
-        assert_eq!(worst_case_base_asset_amount, BASE_PRECISION_I128);
-        assert_eq!(worst_case_loss, MAX_PREDICTION_MARKET_PRICE_U128 * 99 / 100);
-    }
+    use crate::{BASE_PRECISION_I128, BASE_PRECISION_I64, PRICE_PRECISION_I64, QUOTE_PRECISION};
 
     #[test]
     fn perp() {
@@ -1982,9 +1918,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_liability) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_liability) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, -BASE_PRECISION_I128);
         assert_eq!(worst_case_liability, 100 * QUOTE_PRECISION);
@@ -1999,9 +1934,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_liability) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_liability) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, 2 * BASE_PRECISION_I128);
         assert_eq!(worst_case_liability, 200 * QUOTE_PRECISION);
@@ -2015,9 +1949,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_loss) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, 98 * BASE_PRECISION_I128);
         assert_eq!(worst_case_loss, 98 * 100 * QUOTE_PRECISION);
@@ -2031,9 +1964,8 @@ mod worst_case_liability_value {
 
         let price = 100 * PRICE_PRECISION_I64;
 
-        let (worst_case_base_asset_amount, worst_case_loss) = position
-            .worst_case_liability_value(price, contract_type)
-            .unwrap();
+        let (worst_case_base_asset_amount, worst_case_loss) =
+            position.worst_case_liability_value(price).unwrap();
 
         assert_eq!(worst_case_base_asset_amount, -98 * BASE_PRECISION_I128);
         assert_eq!(worst_case_loss, 98 * 100 * QUOTE_PRECISION);
@@ -2043,10 +1975,7 @@ mod worst_case_liability_value {
 mod get_limit_price {
     use crate::state::protected_maker_mode_config::ProtectedMakerParams;
     use crate::state::user::{Order, OrderType};
-    use crate::{
-        PositionDirection, MAX_PREDICTION_MARKET_PRICE, MAX_PREDICTION_MARKET_PRICE_I64,
-        PRICE_PRECISION, PRICE_PRECISION_U64,
-    };
+    use crate::{PositionDirection, PRICE_PRECISION, PRICE_PRECISION_U64};
 
     #[test]
     fn protected_maker_limit_fixed_price() {
@@ -2060,7 +1989,7 @@ mod get_limit_price {
         let oracle_price: Option<i64> = Some((101 * PRICE_PRECISION) as i64);
 
         let limit_price = long_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(long_order.price));
@@ -2078,7 +2007,6 @@ mod get_limit_price {
                 None,
                 0,
                 1,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     tick_size: 1,
@@ -2092,7 +2020,7 @@ mod get_limit_price {
 
         // double check no mut or state issues
         let limit_price = long_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(long_order.price));
@@ -2111,7 +2039,7 @@ mod get_limit_price {
 
         // Case 1: Protected maker mode disabled
         let limit_price = short_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(short_order.price));
@@ -2123,7 +2051,6 @@ mod get_limit_price {
                 None,
                 0,
                 1,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     tick_size: 1,
@@ -2136,7 +2063,7 @@ mod get_limit_price {
 
         // Double-check no mutation or state issues
         let limit_price = short_order
-            .get_limit_price(oracle_price, None, 0, 1, false, None)
+            .get_limit_price(oracle_price, None, 0, 1, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(short_order.price));
@@ -2156,7 +2083,7 @@ mod get_limit_price {
 
         // test min price
         let limit_price = long_order_small
-            .get_limit_price(oracle_price, None, 0, 100, false, None)
+            .get_limit_price(oracle_price, None, 0, 100, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(10106600));
@@ -2168,7 +2095,6 @@ mod get_limit_price {
                 None,
                 0,
                 100,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     ..ProtectedMakerParams::default()
@@ -2193,7 +2119,7 @@ mod get_limit_price {
 
         // test min price
         let limit_price = long_order_small
-            .get_limit_price(oracle_price, None, 0, 10000, false, None)
+            .get_limit_price(oracle_price, None, 0, 10000, None)
             .unwrap();
 
         assert_eq!(limit_price, Some(20000));
@@ -2205,7 +2131,6 @@ mod get_limit_price {
                 None,
                 0,
                 10000,
-                false,
                 Some(ProtectedMakerParams {
                     limit_price_divisor: 10,
                     tick_size: 10000,
@@ -2214,68 +2139,6 @@ mod get_limit_price {
             )
             .unwrap();
         assert_eq!(limit_price, Some(10000));
-    }
-
-    #[test]
-    fn prediction_market() {
-        let order = Order {
-            order_type: OrderType::Limit,
-            oracle_price_offset: MAX_PREDICTION_MARKET_PRICE as i32,
-            ..Order::default()
-        };
-
-        let oracle_price = Some(MAX_PREDICTION_MARKET_PRICE_I64 / 2);
-
-        let limit_price = order
-            .get_limit_price(oracle_price, None, 0, 1, true, None)
-            .unwrap();
-
-        assert_eq!(limit_price, Some(MAX_PREDICTION_MARKET_PRICE));
-
-        let order = Order {
-            order_type: OrderType::Limit,
-            oracle_price_offset: -(MAX_PREDICTION_MARKET_PRICE as i32),
-            ..Order::default()
-        };
-
-        let limit_price = order
-            .get_limit_price(oracle_price, None, 0, 1, true, None)
-            .unwrap();
-
-        assert_eq!(limit_price, Some(1));
-
-        let order = Order {
-            order_type: OrderType::Oracle,
-            auction_start_price: MAX_PREDICTION_MARKET_PRICE_I64,
-            auction_end_price: MAX_PREDICTION_MARKET_PRICE_I64,
-            oracle_price_offset: MAX_PREDICTION_MARKET_PRICE as i32,
-            slot: 1,
-            auction_duration: 10,
-            ..Order::default()
-        };
-
-        let limit_price = order
-            .get_limit_price(oracle_price, None, 2, 1, true, None)
-            .unwrap();
-
-        assert_eq!(limit_price, Some(MAX_PREDICTION_MARKET_PRICE));
-
-        let order = Order {
-            order_type: OrderType::Oracle,
-            direction: PositionDirection::Short,
-            auction_start_price: -MAX_PREDICTION_MARKET_PRICE_I64,
-            auction_end_price: -MAX_PREDICTION_MARKET_PRICE_I64,
-            oracle_price_offset: -(MAX_PREDICTION_MARKET_PRICE as i32),
-            slot: 1,
-            auction_duration: 10,
-            ..Order::default()
-        };
-
-        let limit_price = order
-            .get_limit_price(oracle_price, None, 2, 1, true, None)
-            .unwrap();
-
-        assert_eq!(limit_price, Some(1));
     }
 }
 
@@ -2421,43 +2284,35 @@ mod force_get_isolated_perp_position_mut {
 }
 
 pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
-    use crate::math::constants::ONE_HOUR;
     use crate::state::state::State;
     use std::collections::BTreeSet;
     use std::str::FromStr;
 
-    use anchor_lang::Owner;
     use solana_program::pubkey::Pubkey;
 
-    use crate::controller::liquidation::{liquidate_perp, liquidate_spot};
     use crate::controller::position::PositionDirection;
     use crate::create_anchor_account_info;
     use crate::error::ErrorCode;
     use crate::math::constants::{
         AMM_RESERVE_PRECISION, BASE_PRECISION_I128, BASE_PRECISION_I64, BASE_PRECISION_U64,
-        LIQUIDATION_FEE_PRECISION, LIQUIDATION_PCT_PRECISION, MARGIN_PRECISION,
-        MARGIN_PRECISION_U128, PEG_PRECISION, PRICE_PRECISION, PRICE_PRECISION_U64,
-        QUOTE_PRECISION, QUOTE_PRECISION_I128, QUOTE_PRECISION_I64, SPOT_BALANCE_PRECISION_U64,
-        SPOT_CUMULATIVE_INTEREST_PRECISION, SPOT_WEIGHT_PRECISION,
+        LIQUIDATION_FEE_PRECISION, LIQUIDATION_PCT_PRECISION, PEG_PRECISION, QUOTE_PRECISION_I128,
+        QUOTE_PRECISION_I64, SPOT_BALANCE_PRECISION_U64, SPOT_CUMULATIVE_INTEREST_PRECISION,
+        SPOT_WEIGHT_PRECISION,
     };
-    use crate::math::liquidation::is_cross_margin_being_liquidated;
-    use crate::math::margin::{
-        calculate_margin_requirement_and_total_collateral_and_liability_info, MarginRequirementType,
-    };
-    use crate::math::position::calculate_base_asset_value_with_oracle_price;
-    use crate::state::margin_calculation::{MarginCalculation, MarginContext};
+    use crate::math::margin::MarginRequirementType;
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::{HistoricalOracleData, OracleSource};
     use crate::state::oracle_map::OracleMap;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::perp_market_map::PerpMarketMap;
+    use crate::state::pyth_lazer_oracle::PythLazerOracle;
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
     use crate::state::spot_market_map::SpotMarketMap;
     use crate::state::user::{
         Order, OrderStatus, OrderType, PerpPosition, PositionFlag, SpotPosition, User, UserStats,
     };
-    use crate::test_utils::*;
     use crate::test_utils::{get_orders, get_positions, get_pyth_price, get_spot_positions};
-    use crate::{create_account_info, PRICE_PRECISION_I64};
+    use crate::PRICE_PRECISION_I64;
 
     #[test]
     pub fn unhealthy_isolated_perp_blocks_withdraw() {
@@ -2467,11 +2322,10 @@ pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
         let mut oracle_price = get_pyth_price(100, 6);
         let oracle_price_key =
             Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-        let pyth_program = crate::ids::pyth_program::id();
-        create_account_info!(
+        create_anchor_account_info!(
             oracle_price,
             &oracle_price_key,
-            &pyth_program,
+            PythLazerOracle,
             oracle_account_info
         );
         let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -2492,7 +2346,8 @@ pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
                 quote_asset_amount: -150 * QUOTE_PRECISION_I128,
                 base_asset_amount_with_amm: BASE_PRECISION_I128,
                 oracle: oracle_price_key,
-                historical_oracle_data: HistoricalOracleData::default_price(oracle_price.agg.price),
+                historical_oracle_data: HistoricalOracleData::default_price(oracle_price.price),
+                oracle_source: crate::state::oracle::OracleSource::PythLazer,
                 ..AMM::default()
             },
             margin_ratio_initial: 1000,

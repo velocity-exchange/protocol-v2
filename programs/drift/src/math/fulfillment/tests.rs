@@ -5,8 +5,9 @@ mod determine_perp_fulfillment_methods {
     };
     use crate::math::fulfillment::determine_perp_fulfillment_methods;
     use crate::state::fulfillment::PerpFulfillmentMethod;
+    use crate::state::market_status::MarketStatus;
     use crate::state::oracle::HistoricalOracleData;
-    use crate::state::perp_market::{MarketStatus, PerpMarket, AMM};
+    use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::user::Order;
     use solana_program::pubkey::Pubkey;
 

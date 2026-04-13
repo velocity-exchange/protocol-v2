@@ -59,10 +59,10 @@ use crate::state::events::{
 };
 use crate::state::fill_mode::FillMode;
 use crate::state::margin_calculation::{MarginCalculation, MarginContext, MarketIdentifier};
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle_map::OracleMap;
 use crate::state::order_params::PlaceOrderOptions;
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
-use crate::state::perp_market::MarketStatus;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::SpotBalanceType;
 use crate::state::spot_market_map::SpotMarketMap;

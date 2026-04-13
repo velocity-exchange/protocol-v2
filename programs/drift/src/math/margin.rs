@@ -21,9 +21,10 @@ use crate::msg;
 use crate::state::margin_calculation::{
     MarginCalculation, MarginContext, MarginTypeConfig, MarketIdentifier,
 };
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{OraclePriceData, StrictOraclePrice};
 use crate::state::oracle_map::OracleMap;
-use crate::state::perp_market::{ContractTier, MarketStatus, PerpMarket};
+use crate::state::perp_market::{ContractTier, PerpMarket};
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::spot_market::{AssetTier, SpotBalanceType};
 use crate::state::spot_market_map::SpotMarketMap;
@@ -132,8 +133,8 @@ pub fn calculate_perp_position_value_and_pnl(
 
     let total_unrealized_pnl = unrealized_pnl.safe_add(unrealized_funding.cast()?)?;
 
-    let (worst_case_base_asset_amount, worse_case_liability_value) = market_position
-        .worst_case_liability_value(oracle_price_data.price, market.contract_type)?;
+    let (worst_case_base_asset_amount, worse_case_liability_value) =
+        market_position.worst_case_liability_value(oracle_price_data.price)?;
 
     // for calculating the perps value, since it's a liability, use the large of twap and quote oracle price
     let worse_case_liability_value = worse_case_liability_value
@@ -260,7 +261,7 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
             &spot_market.oracle_id(),
             spot_market.historical_oracle_data.last_oracle_price_twap,
             spot_market.get_max_confidence_interval_multiplier()?,
-            0,
+            -1,
             0,
             Some(LogMode::Margin),
         )?;
@@ -517,7 +518,7 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
                     .historical_oracle_data
                     .last_oracle_price_twap,
                 quote_spot_market.get_max_confidence_interval_multiplier()?,
-                0,
+                -1,
                 0,
                 Some(LogMode::Margin),
             )?;
@@ -964,7 +965,7 @@ pub fn calculate_user_equity(
             &spot_market.oracle_id(),
             spot_market.historical_oracle_data.last_oracle_price_twap,
             spot_market.get_max_confidence_interval_multiplier()?,
-            0,
+            -1,
             0,
             Some(LogMode::Margin),
         )?;
@@ -996,7 +997,7 @@ pub fn calculate_user_equity(
                         .historical_oracle_data
                         .last_oracle_price_twap,
                     quote_spot_market.get_max_confidence_interval_multiplier()?,
-                    0,
+                    -1,
                     0,
                     Some(LogMode::Margin),
                 )?;

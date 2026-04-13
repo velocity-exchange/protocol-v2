@@ -51,13 +51,14 @@ use crate::state::events::{OrderAction, OrderActionExplanation};
 use crate::state::fill_mode::FillMode;
 use crate::state::fulfillment::PerpFulfillmentMethod;
 use crate::state::margin_calculation::{MarginCalculation, MarginContext, MarginTypeConfig};
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{OraclePriceData, StrictOraclePrice};
 use crate::state::oracle_map::OracleMap;
 use crate::state::order_params::{
     ModifyOrderParams, OrderParams, PlaceOrderOptions, PostOnlyParam,
 };
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
-use crate::state::perp_market::{MarketStatus, PerpMarket};
+use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::protected_maker_mode_config::ProtectedMakerParams;
 use crate::state::spot_market::{SpotBalanceType, SpotMarket};
@@ -1193,13 +1194,7 @@ pub fn fill_perp_order(
         if let Some(filler) = filler.as_deref_mut() {
             filler.update_last_active_slot(slot);
         }
-
-        if !perp_market_map
-            .get_ref_mut(&market_index)?
-            .is_prediction_market()
-        {
-            return Ok((0, 0));
-        }
+        return Ok((0, 0));
     }
 
     let should_expire_order = should_expire_order(user, order_index, now)?;
@@ -1292,7 +1287,6 @@ pub fn fill_perp_order(
             state
                 .oracle_guard_rails
                 .max_oracle_twap_5min_percent_divergence(),
-            perp_market.is_prediction_market(),
             None,
         )?;
 
@@ -1403,10 +1397,6 @@ pub fn validate_market_within_price_band(
     state: &State,
     oracle_price: i64,
 ) -> DriftResult<bool> {
-    if market.is_prediction_market() {
-        return Ok(true);
-    }
-
     let reserve_price = market.amm.reserve_price()?;
 
     let reserve_spread_pct =
@@ -1498,7 +1488,6 @@ fn get_maker_orders_info(
             Some(oracle_price),
             slot,
             market.amm.order_tick_size,
-            market.is_prediction_market(),
             get_protected_maker_params(
                 is_protected_maker,
                 jit_maker_order_id.is_some(),
@@ -1773,7 +1762,6 @@ fn fulfill_perp_order(
         valid_oracle_price,
         slot,
         perp_market.amm.order_tick_size,
-        perp_market.is_prediction_market(),
     )?;
     let perp_market_oi_before = perp_market.get_open_interest();
     drop(perp_market);
@@ -3286,7 +3274,7 @@ pub fn trigger_order(
 
     let (_, worst_case_liability_value_before) = user
         .get_perp_position(market_index)?
-        .worst_case_liability_value(oracle_price, perp_market.contract_type)?;
+        .worst_case_liability_value(oracle_price)?;
 
     let mut bit_flags = 0;
     {
@@ -3366,7 +3354,7 @@ pub fn trigger_order(
 
     let (_, worst_case_liability_value_after) = user
         .get_perp_position(market_index)?
-        .worst_case_liability_value(oracle_price, perp_market.contract_type)?;
+        .worst_case_liability_value(oracle_price)?;
 
     let is_risk_increasing = worst_case_liability_value_after > worst_case_liability_value_before;
 

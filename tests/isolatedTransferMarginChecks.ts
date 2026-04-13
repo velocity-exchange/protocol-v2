@@ -89,9 +89,27 @@ describe('isolated transfer margin checks', () => {
 		);
 
 		// Create oracles for SOL, ETH and BTC
-		solUsd = await mockOracleNoProgram(bankrunContextWrapper, 100); // $100 per SOL
-		ethUsd = await mockOracleNoProgram(bankrunContextWrapper, 1000); // $1000 per ETH
-		btcUsd = await mockOracleNoProgram(bankrunContextWrapper, 100000); // $100000 per BTC
+		solUsd = await mockOracleNoProgram(
+			bankrunContextWrapper,
+			100,
+			-7,
+			undefined,
+			10000
+		); // $100 per SOL
+		ethUsd = await mockOracleNoProgram(
+			bankrunContextWrapper,
+			1000,
+			-7,
+			undefined,
+			10000
+		); // $1000 per ETH
+		btcUsd = await mockOracleNoProgram(
+			bankrunContextWrapper,
+			100000,
+			-7,
+			undefined,
+			10000
+		); // $100000 per BTC
 
 		eventSubscriber = new EventSubscriber(
 			bankrunContextWrapper.connection.toConnection(),
@@ -112,9 +130,9 @@ describe('isolated transfer margin checks', () => {
 			spotMarketIndexes: [0],
 			subAccountIds: [],
 			oracleInfos: [
-				{ publicKey: solUsd, source: OracleSource.PYTH },
-				{ publicKey: ethUsd, source: OracleSource.PYTH },
-				{ publicKey: btcUsd, source: OracleSource.PYTH },
+				{ publicKey: solUsd, source: OracleSource.PYTH_LAZER },
+				{ publicKey: ethUsd, source: OracleSource.PYTH_LAZER },
+				{ publicKey: btcUsd, source: OracleSource.PYTH_LAZER },
 			],
 			userStats: true,
 			accountSubscription: {
@@ -210,9 +228,9 @@ describe('isolated transfer margin checks', () => {
 	// Rules: cross must pass IM after transfer, no other isolated may fail MM
 	async function resetUserState() {
 		// Restore oracle feeds to default prices so tests start with deterministic state
-		await setFeedPriceNoProgram(bankrunContextWrapper, 100, solUsd);
-		await setFeedPriceNoProgram(bankrunContextWrapper, 1000, ethUsd);
-		await setFeedPriceNoProgram(bankrunContextWrapper, 100000, btcUsd);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 100, solUsd, 10000);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 1000, ethUsd, 10000);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 100000, btcUsd, 10000);
 
 		await driftClient.fetchAccounts();
 
@@ -400,7 +418,7 @@ describe('isolated transfer margin checks', () => {
 				0
 			);
 			// 10 SOL @ 100->70: loss 200, effective 300 collateral, need 350 IM
-			await setFeedPriceNoProgram(bankrunContextWrapper, 70, solUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 70, solUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			const restoreConsole = suppressConsole();
@@ -442,7 +460,7 @@ describe('isolated transfer margin checks', () => {
 				new BN(10 * 10 ** 9),
 				0
 			);
-			await setFeedPriceNoProgram(bankrunContextWrapper, 70, solUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 70, solUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			const restoreConsole = suppressConsole();
@@ -491,7 +509,7 @@ describe('isolated transfer margin checks', () => {
 				0
 			);
 			// SOL at 50: 10*(100-50)=500 loss, 600-500=100 < 333 MM
-			await setFeedPriceNoProgram(bankrunContextWrapper, 50, solUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 50, solUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			// Cross has 1400, isolated SOL has 100 effective (fails MM)
@@ -542,7 +560,7 @@ describe('isolated transfer margin checks', () => {
 				0
 			);
 			// SOL at 80: 10*(100-80)=200 loss, 600-200=400 > 333 MM
-			await setFeedPriceNoProgram(bankrunContextWrapper, 80, solUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 80, solUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			const txSig = await driftClient.transferIsolatedPerpPositionDeposit(
@@ -595,7 +613,7 @@ describe('isolated transfer margin checks', () => {
 			);
 			// Cross: 700, 10 SOL @ 100. Sol at 100, cross IM 500, cross ok.
 			// ETH at 700: 1*(1000-700)=300 loss, 600-300=300 < 333 MM
-			await setFeedPriceNoProgram(bankrunContextWrapper, 700, ethUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 700, ethUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			// const restoreConsole = suppressConsole();
@@ -650,7 +668,7 @@ describe('isolated transfer margin checks', () => {
 				1
 			);
 			// ETH at 800: 1*(1000-800)=200 loss, 600-200=400 > 333 MM - passes
-			await setFeedPriceNoProgram(bankrunContextWrapper, 800, ethUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 800, ethUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			const restoreConsole = suppressConsole();
@@ -712,8 +730,8 @@ describe('isolated transfer margin checks', () => {
 				1
 			);
 			// SOL at 80: passes MM. ETH at 600: fails MM
-			await setFeedPriceNoProgram(bankrunContextWrapper, 80, solUsd);
-			await setFeedPriceNoProgram(bankrunContextWrapper, 600, ethUsd);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 80, solUsd, 10000);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 600, ethUsd, 10000);
 			await driftClient.fetchAccounts();
 
 			const restoreConsole = suppressConsole();

@@ -87,7 +87,13 @@ describe('liquidate perp (no open orders)', () => {
 			bankrunContextWrapper
 		);
 
-		const oracle = await mockOracleNoProgram(bankrunContextWrapper, 1);
+		const oracle = await mockOracleNoProgram(
+			bankrunContextWrapper,
+			1,
+			-7,
+			undefined,
+			10000
+		);
 
 		driftClient = new TestClient({
 			connection: bankrunContextWrapper.connection.toConnection(),
@@ -102,7 +108,7 @@ describe('liquidate perp (no open orders)', () => {
 			oracleInfos: [
 				{
 					publicKey: oracle,
-					source: OracleSource.PYTH,
+					source: OracleSource.PYTH_LAZER,
 				},
 			],
 			accountSubscription: {
@@ -180,7 +186,7 @@ describe('liquidate perp (no open orders)', () => {
 			oracleInfos: [
 				{
 					publicKey: oracle,
-					source: OracleSource.PYTH,
+					source: OracleSource.PYTH_LAZER,
 				},
 			],
 			accountSubscription: {
@@ -225,13 +231,13 @@ describe('liquidate perp (no open orders)', () => {
 		console.log('deltaValueToLiq:', deltaValueToLiq.toString());
 		console.log('pp.base:', pp.baseAssetAmount.toString());
 
-		const expectedLiqPrice = 0.45219;
+		const expectedLiqPrice = 0.452195;
 		const liqPrice = driftClientUser.liquidationPrice(0, ZERO);
 		console.log('liqPrice:', liqPrice.toString());
 		assert(liqPrice.eq(new BN(expectedLiqPrice * PRICE_PRECISION.toNumber())));
 
 		const oracle = driftClient.getPerpMarketAccount(0).amm.oracle;
-		await setFeedPriceNoProgram(bankrunContextWrapper, 0.9, oracle);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 0.9, oracle, 10000);
 		await sleep(2000);
 		await driftClient.fetchAccounts();
 		await driftClientUser.fetchAccounts();
@@ -287,13 +293,13 @@ describe('liquidate perp (no open orders)', () => {
 			)
 		);
 
-		await setFeedPriceNoProgram(bankrunContextWrapper, 1.1, oracle);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 1.1, oracle, 10000);
 		await sleep(2000);
 		await driftClient.fetchAccounts();
 		await driftClientUser.fetchAccounts();
 		const oraclePrice3 = driftClient.getOracleDataForPerpMarket(0).price;
 		console.log('oraclePrice3:', oraclePrice3.toString());
-		assert(oraclePrice3.eq(new BN(1099999)));
+		assert(oraclePrice3.eq(new BN(1100000)));
 		await driftClient.settlePNL(
 			driftClientUser.userAccountPublicKey,
 			driftClientUser.getUserAccount(),
@@ -315,7 +321,7 @@ describe('liquidate perp (no open orders)', () => {
 		);
 		await driftClientUser.unsubscribe();
 
-		await setFeedPriceNoProgram(bankrunContextWrapper, 0.1, oracle);
+		await setFeedPriceNoProgram(bankrunContextWrapper, 0.1, oracle, 10000);
 
 		const txSig1 = await liquidatorDriftClient.setUserStatusToBeingLiquidated(
 			await driftClient.getUserAccountPublicKey(),
@@ -412,7 +418,7 @@ describe('liquidate perp (no open orders)', () => {
 		assert(
 			driftClient
 				.getUserAccount()
-				.perpPositions[0].quoteAssetAmount.eq(new BN(-5767653))
+				.perpPositions[0].quoteAssetAmount.eq(new BN(-5767726))
 		);
 
 		await driftClient.updatePerpMarketContractTier(0, ContractTier.A);
@@ -464,7 +470,7 @@ describe('liquidate perp (no open orders)', () => {
 			'marketAfterBankruptcy.amm.totalSocialLoss:',
 			marketAfterBankruptcy.amm.totalSocialLoss.toString()
 		);
-		assert(marketAfterBankruptcy.amm.totalSocialLoss.eq(new BN(5767653)));
+		assert(marketAfterBankruptcy.amm.totalSocialLoss.eq(new BN(5767726)));
 
 		// assert(!driftClient.getUserAccount().isBankrupt);
 		// assert(!driftClient.getUserAccount().isBeingLiquidated);
@@ -489,13 +495,13 @@ describe('liquidate perp (no open orders)', () => {
 		console.log(
 			perpBankruptcyRecord.perpBankruptcy.cumulativeFundingRateDelta.toString()
 		);
-		assert(perpBankruptcyRecord.perpBankruptcy.pnl.eq(new BN(-5767653)));
+		assert(perpBankruptcyRecord.perpBankruptcy.pnl.eq(new BN(-5767726)));
 		console.log(
 			perpBankruptcyRecord.perpBankruptcy.cumulativeFundingRateDelta.toString()
 		);
 		assert(
 			perpBankruptcyRecord.perpBankruptcy.cumulativeFundingRateDelta.eq(
-				new BN(329581000)
+				new BN(329585000)
 			)
 		);
 
@@ -504,7 +510,7 @@ describe('liquidate perp (no open orders)', () => {
 			market.amm.cumulativeFundingRateLong.toString(),
 			market.amm.cumulativeFundingRateShort.toString()
 		);
-		assert(market.amm.cumulativeFundingRateLong.eq(new BN(329589333)));
-		assert(market.amm.cumulativeFundingRateShort.eq(new BN(-329572667)));
+		assert(market.amm.cumulativeFundingRateLong.eq(new BN(329597500)));
+		assert(market.amm.cumulativeFundingRateShort.eq(new BN(-329572500)));
 	});
 });

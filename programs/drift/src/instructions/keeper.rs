@@ -58,11 +58,12 @@ use crate::state::lp_pool::Constituent;
 use crate::state::lp_pool::LPPool;
 use crate::state::lp_pool::CONSTITUENT_PDA_SEED;
 use crate::state::lp_pool::SETTLE_AMM_ORACLE_MAX_DELAY;
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle_map::OracleMap;
 use crate::state::order_params::{OrderParams, PlaceOrderOptions};
 use crate::state::paused_operations::PerpLpOperation;
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
-use crate::state::perp_market::{ContractType, MarketStatus, PerpMarket};
+use crate::state::perp_market::{ContractType, PerpMarket};
 use crate::state::perp_market_map::{
     get_market_set_for_spot_positions, get_market_set_for_user_positions, get_market_set_from_list,
     get_writable_perp_market_set, get_writable_perp_market_set_from_vec, MarketSet, PerpMarketMap,
@@ -2551,13 +2552,6 @@ pub fn handle_update_perp_bid_ask_twap<'c: 'info, 'info>(
         estimated_ask
     );
 
-    if perp_market.contract_type == ContractType::Prediction
-        && perp_market.is_operation_paused(PerpOperation::AmmFill)
-        && (estimated_bid.is_none() || estimated_ask.is_none())
-    {
-        msg!("skipping mark twap update for disabled amm prediction market");
-        return Ok(());
-    }
     let before_bid_price_twap = perp_market.amm.last_bid_price_twap;
     let before_ask_price_twap = perp_market.amm.last_ask_price_twap;
     let before_mark_twap_ts = perp_market.amm.last_mark_price_twap_ts;
@@ -2573,8 +2567,8 @@ pub fn handle_update_perp_bid_ask_twap<'c: 'info, 'info>(
     )?;
 
     msg!(
-        "after amm bid twap = {} -> {} 
-        ask twap = {} -> {} 
+        "after amm bid twap = {} -> {}
+        ask twap = {} -> {}
         ts = {} -> {}",
         before_bid_price_twap,
         perp_market.amm.last_bid_price_twap,

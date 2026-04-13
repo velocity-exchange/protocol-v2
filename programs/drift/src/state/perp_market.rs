@@ -1,5 +1,6 @@
 use crate::msg;
 use crate::state::fill_mode::FillMode;
+use crate::state::market_status::MarketStatus;
 use crate::state::pyth_lazer_oracle::PythLazerOracle;
 use crate::state::user::{MarketType, Order};
 use anchor_lang::prelude::*;
@@ -52,46 +53,6 @@ use crate::math::oracle::{
 mod tests;
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
-pub enum MarketStatus {
-    /// warm up period for initialization, fills are paused
-    #[default]
-    Initialized,
-    /// all operations allowed
-    Active,
-    /// Deprecated in favor of PausedOperations
-    FundingPaused,
-    /// Deprecated in favor of PausedOperations
-    AmmPaused,
-    /// Deprecated in favor of PausedOperations
-    FillPaused,
-    /// Deprecated in favor of PausedOperations
-    WithdrawPaused,
-    /// fills only able to reduce liability
-    ReduceOnly,
-    /// market has determined settlement price and positions are expired must be settled
-    Settlement,
-    /// market has no remaining participants
-    Delisted,
-}
-
-impl MarketStatus {
-    pub fn validate_not_deprecated(&self) -> DriftResult {
-        if matches!(
-            self,
-            MarketStatus::FundingPaused
-                | MarketStatus::AmmPaused
-                | MarketStatus::FillPaused
-                | MarketStatus::WithdrawPaused
-        ) {
-            msg!("MarketStatus is deprecated");
-            Err(ErrorCode::DefaultError)
-        } else {
-            Ok(())
-        }
-    }
-}
-
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum LpStatus {
     /// Not considered
     #[default]
@@ -112,8 +73,8 @@ impl LpStatus {
 pub enum ContractType {
     #[default]
     Perpetual,
-    Future,
-    Prediction,
+    DeprecatedFuture,
+    DeprecatedPrediction,
 }
 
 #[derive(
@@ -640,59 +601,6 @@ impl PerpMarket {
 
     pub fn can_sanitize_market_order_auctions(&self) -> bool {
         self.amm.oracle_source != OracleSource::Prelaunch
-    }
-
-    pub fn is_prediction_market(&self) -> bool {
-        self.contract_type == ContractType::Prediction
-    }
-
-    pub fn get_quote_asset_reserve_prediction_market_bounds(
-        &self,
-        direction: PositionDirection,
-    ) -> DriftResult<(u128, u128)> {
-        let mut quote_asset_reserve_lower_bound = 0_u128;
-
-        //precision scaling: 1e6 -> 1e12 -> 1e6
-        let peg_sqrt = (self
-            .amm
-            .peg_multiplier
-            .safe_mul(PEG_PRECISION)?
-            .saturating_add(1))
-        .nth_root(2)
-        .saturating_add(1);
-
-        // $1 limit
-        let mut quote_asset_reserve_upper_bound = self
-            .amm
-            .sqrt_k
-            .safe_mul(peg_sqrt)?
-            .safe_div(self.amm.peg_multiplier)?;
-
-        // for price [0,1] maintain following invariants:
-        if direction == PositionDirection::Long {
-            // lowest ask price is $0.05
-            quote_asset_reserve_lower_bound = self
-                .amm
-                .sqrt_k
-                .safe_mul(22361)?
-                .safe_mul(peg_sqrt)?
-                .safe_div(100000)?
-                .safe_div(self.amm.peg_multiplier)?
-        } else {
-            // highest bid price is $0.95
-            quote_asset_reserve_upper_bound = self
-                .amm
-                .sqrt_k
-                .safe_mul(97467)?
-                .safe_mul(peg_sqrt)?
-                .safe_div(100000)?
-                .safe_div(self.amm.peg_multiplier)?
-        }
-
-        Ok((
-            quote_asset_reserve_lower_bound,
-            quote_asset_reserve_upper_bound,
-        ))
     }
 
     pub fn get_protected_maker_params(&self) -> ProtectedMakerParams {

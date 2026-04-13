@@ -12,7 +12,8 @@ use crate::math::constants::{
 use crate::math::position::{calculate_base_asset_value, calculate_base_asset_value_and_pnl};
 use crate::math::safe_math::SafeMath;
 
-use crate::state::perp_market::{MarketStatus, PerpMarket};
+use crate::state::market_status::MarketStatus;
+use crate::state::perp_market::PerpMarket;
 use crate::validate;
 
 #[cfg(test)]

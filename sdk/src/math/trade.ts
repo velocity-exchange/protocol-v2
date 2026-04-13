@@ -117,7 +117,6 @@ export function calculateTradeSlippage(
 				market.amm,
 				direction,
 				mmOraclePriceData,
-				undefined,
 				latestSlot
 			);
 		amm = {
@@ -189,7 +188,6 @@ export function calculateTradeAcquiredAmounts(
 				market.amm,
 				direction,
 				mmOraclePriceData,
-				undefined,
 				latestSlot
 			);
 		amm = {
@@ -280,7 +278,6 @@ export function calculateTargetPriceTrade(
 				market.amm,
 				direction,
 				mmOraclePriceData,
-				undefined,
 				latestSlot
 			);
 		baseAssetReserveBefore = baseAssetReserve;
@@ -443,7 +440,6 @@ export function calculateEstimatedPerpEntryPrice(
 			market.amm,
 			direction,
 			mmOraclePriceData,
-			undefined,
 			new BN(slot)
 		);
 	const amm = {

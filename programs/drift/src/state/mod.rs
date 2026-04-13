@@ -10,6 +10,7 @@ pub mod liquidation_mode;
 pub mod load_ref;
 pub mod lp_pool;
 pub mod margin_calculation;
+pub mod market_status;
 pub mod oracle;
 pub mod oracle_map;
 pub mod order_params;

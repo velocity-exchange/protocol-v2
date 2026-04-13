@@ -12,9 +12,10 @@ use state::oracle::OracleSource;
 use crate::controller::position::PositionDirection;
 use crate::state::events::TransferFeeAndPnlPoolDirection;
 use crate::state::if_rebalance_config::IfRebalanceConfigParams;
+use crate::state::market_status::MarketStatus;
 use crate::state::oracle::PrelaunchOracleParams;
 use crate::state::order_params::{ModifyOrderParams, OrderParams};
-use crate::state::perp_market::{ContractTier, MarketStatus};
+use crate::state::perp_market::ContractTier;
 use crate::state::scale_order_params::ScaleOrderParams;
 use crate::state::settle_pnl_mode::SettlePnlMode;
 use crate::state::spot_market::AssetTier;
@@ -1026,12 +1027,6 @@ pub mod drift {
         ctx: Context<'_, '_, 'c, 'info, UpdateInitialAmmCacheInfo<'info>>,
     ) -> Result<()> {
         handle_update_initial_amm_cache_info(ctx)
-    }
-
-    pub fn initialize_prediction_market<'c: 'info, 'info>(
-        ctx: Context<'_, '_, 'c, 'info, AdminUpdatePerpMarket<'info>>,
-    ) -> Result<()> {
-        handle_initialize_prediction_market(ctx)
     }
 
     pub fn delete_initialized_perp_market(

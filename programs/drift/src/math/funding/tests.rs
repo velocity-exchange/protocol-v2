@@ -44,10 +44,8 @@ fn calculate_funding_rate(
     Ok(funding_rate)
 }
 
-use crate::create_account_info;
-use crate::test_utils::create_account_info;
-#[cfg(test)]
-use crate::test_utils::get_account_bytes;
+use crate::create_anchor_account_info;
+use crate::state::pyth_lazer_oracle::PythLazerOracle;
 
 #[test]
 fn balanced_funding_test() {
@@ -272,11 +270,10 @@ fn max_funding_rates() {
     let mut oracle_price = get_pyth_price(51, 6);
     let oracle_price_key =
         Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-    let pyth_program = crate::ids::pyth_program::id();
-    create_account_info!(
+    create_anchor_account_info!(
         oracle_price,
         &oracle_price_key,
-        &pyth_program,
+        PythLazerOracle,
         oracle_account_info
     );
     let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -284,6 +281,7 @@ fn max_funding_rates() {
         market_index: 0,
         amm: AMM {
             oracle: oracle_price_key,
+            oracle_source: crate::state::oracle::OracleSource::PythLazer,
 
             base_asset_reserve: 512295081967,
             quote_asset_reserve: 488 * AMM_RESERVE_PRECISION,
@@ -359,11 +357,10 @@ fn unsettled_funding_pnl() {
     let mut oracle_price = get_pyth_price(51, 6);
     let oracle_price_key =
         Pubkey::from_str("J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix").unwrap();
-    let pyth_program = crate::ids::pyth_program::id();
-    create_account_info!(
+    create_anchor_account_info!(
         oracle_price,
         &oracle_price_key,
-        &pyth_program,
+        PythLazerOracle,
         oracle_account_info
     );
     let mut oracle_map = OracleMap::load_one(&oracle_account_info, slot, None).unwrap();
@@ -371,6 +368,7 @@ fn unsettled_funding_pnl() {
         market_index: 0,
         amm: AMM {
             oracle: oracle_price_key,
+            oracle_source: crate::state::oracle::OracleSource::PythLazer,
 
             base_asset_reserve: 512295081967,
             quote_asset_reserve: 488 * AMM_RESERVE_PRECISION,
@@ -477,15 +475,15 @@ fn unsettled_funding_pnl() {
         51000000
     );
 
-    assert_eq!(market.amm.cumulative_funding_rate_long, -140002666); // negative funding
-    assert_eq!(market.amm.cumulative_funding_rate_short, -140002666);
-    assert_eq!(market.amm.last_funding_rate, -140002666);
-    assert_eq!(market.amm.last_24h_avg_funding_rate, -140002666 / 24 + 1);
+    assert_eq!(market.amm.cumulative_funding_rate_long, -139790125); // negative funding
+    assert_eq!(market.amm.cumulative_funding_rate_short, -139790125);
+    assert_eq!(market.amm.last_funding_rate, -139790125);
+    assert_eq!(market.amm.last_24h_avg_funding_rate, -139790125 / 24 + 1);
     assert_eq!(market.amm.last_funding_rate_ts, now);
     assert_eq!(market.amm.net_revenue_since_last_funding, 0); // back to 0
-    assert_eq!(market.amm.total_fee_minus_distributions, 100070722677); //71.722677 gain
+    assert_eq!(market.amm.total_fee_minus_distributions, 100070613793); //70.61 gain
     assert_eq!(market.amm.total_fee, 0);
 
     assert_ne!(market.amm.net_unsettled_funding_pnl, 0); // important: imbalanced market adds funding rev
-    assert_eq!(market.amm.net_unsettled_funding_pnl, -71722677); // users up
+    assert_eq!(market.amm.net_unsettled_funding_pnl, -71613793); // users up
 }

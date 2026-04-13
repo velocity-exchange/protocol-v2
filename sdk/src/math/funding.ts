@@ -6,6 +6,7 @@ import {
 	ZERO,
 	ONE,
 	FUNDING_RATE_OFFSET_DENOMINATOR,
+	FUNDING_RATE_CLAMP_DENOMINATOR,
 } from '../constants/numericConstants';
 import { BigNum } from '../factory/bigNum';
 import { PerpMarketAccount, isVariant } from '../types';
@@ -164,9 +165,13 @@ export function calculateAllEstimatedFundingRate(
 	// }
 
 	const twapSpread = markTwap.sub(oracleTwap);
-	const twapSpreadWithOffset = twapSpread.add(
-		oracleTwap.abs().div(FUNDING_RATE_OFFSET_DENOMINATOR)
-	);
+	const offset = oracleTwap.abs().div(FUNDING_RATE_OFFSET_DENOMINATOR);
+	const twapSpreadWithOffset = twapSpread
+		.abs()
+		.lte(oracleTwap.abs().div(FUNDING_RATE_CLAMP_DENOMINATOR))
+		? offset
+		: twapSpread.add(offset);
+
 	const maxSpread = getMaxPriceDivergenceForFundingRate(market, oracleTwap);
 
 	const clampedSpreadWithOffset = clampBN(
