@@ -344,7 +344,7 @@ describe('liquidate perp (no open orders)', () => {
 		assert(
 			driftClient
 				.getUserAccount()
-				.perpPositions[0].quoteAssetAmount.eq(new BN(-5767653))
+				.perpPositions[0].quoteAssetAmount.eq(new BN(-5767726))
 		);
 
 		await driftClient.updatePerpMarketContractTier(0, ContractTier.A);
@@ -396,7 +396,7 @@ describe('liquidate perp (no open orders)', () => {
 			'marketAfterBankruptcy.amm.totalSocialLoss:',
 			marketAfterBankruptcy.amm.totalSocialLoss.toString()
 		);
-		assert(marketAfterBankruptcy.amm.totalSocialLoss.eq(new BN(5767653))); // more goes to socialised loss after removal of fee pool topping up during settlement
+		assert(marketAfterBankruptcy.amm.totalSocialLoss.eq(new BN(5767726))); // more goes to socialised loss after removal of fee pool topping up during settlement
 
 		// assert(!driftClient.getUserAccount().isBankrupt);
 		// assert(!driftClient.getUserAccount().isBeingLiquidated);
@@ -417,13 +417,13 @@ describe('liquidate perp (no open orders)', () => {
 		console.log(
 			perpBankruptcyRecord.perpBankruptcy.cumulativeFundingRateDelta.toString()
 		);
-		assert(perpBankruptcyRecord.perpBankruptcy.pnl.eq(new BN(-5767653)));
+		assert(perpBankruptcyRecord.perpBankruptcy.pnl.eq(new BN(-5767726)));
 		console.log(
 			perpBankruptcyRecord.perpBankruptcy.cumulativeFundingRateDelta.toString()
 		);
 		assert(
 			perpBankruptcyRecord.perpBankruptcy.cumulativeFundingRateDelta.eq(
-				new BN(329581000)
+				new BN(329585000)
 			)
 		);
 
@@ -432,7 +432,7 @@ describe('liquidate perp (no open orders)', () => {
 			market.amm.cumulativeFundingRateLong.toString(),
 			market.amm.cumulativeFundingRateShort.toString()
 		);
-		assert(market.amm.cumulativeFundingRateLong.eq(new BN(329589333)));
-		assert(market.amm.cumulativeFundingRateShort.eq(new BN(-329572667)));
+		assert(market.amm.cumulativeFundingRateLong.eq(new BN(329597500)));
+		assert(market.amm.cumulativeFundingRateShort.eq(new BN(-329572500)));
 	});
 });

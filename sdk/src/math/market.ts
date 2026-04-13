@@ -397,7 +397,7 @@ function getLastFundingBasis(
 			.div(market.amm.lastFundingOracleTwap)
 			.muln(24);
 		const lastFundingRatePreAdj = lastFundingRate.sub(
-			FUNDING_RATE_PRECISION.div(new BN(5000)) // FUNDING_RATE_OFFSET_PERCENTAGE
+			FUNDING_RATE_PRECISION.div(new BN(3333)) // FUNDING_RATE_OFFSET_PERCENTAGE
 		);
 		const timeLeftUntilFundingUpdate = BN.min(
 			BN.max(now.sub(market.amm.lastFundingRateTs), ZERO),

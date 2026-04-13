@@ -60,7 +60,7 @@ mod test {
             max_offset,
         )
         .unwrap();
-        assert_eq!(res, 455); // 237*2/3); // 1 penny divergence
+        assert_eq!(res, 290); // 1 penny divergence
         let res = calculate_reference_price_offset(
             rev_price,
             1,
@@ -73,7 +73,7 @@ mod test {
             max_offset,
         )
         .unwrap();
-        assert_eq!(res, 2035);
+        assert_eq!(res, 1870);
 
         let res = calculate_reference_price_offset(
             rev_price,

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - program: add ix to transfer between perp market fee and pnl pool [#1](https://github.com/drift-labs/protocol-v2-shadow/pull/1)
 - program: remove HLM [#2](https://github.com/drift-labs/protocol-v2-shadow/pull/2)
+- program: add funding clamp/dead zone and increase funding rate floor from 7.3% to 10.94% annualized
 
 ### Fixes
 
