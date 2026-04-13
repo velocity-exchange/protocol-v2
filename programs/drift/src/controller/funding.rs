@@ -12,7 +12,8 @@ use crate::get_then_update_id;
 use crate::math::amm;
 use crate::math::casting::Cast;
 use crate::math::constants::{
-    FUNDING_RATE_BUFFER, FUNDING_RATE_OFFSET_DENOMINATOR, ONE_HOUR_I128, TWENTY_FOUR_HOUR,
+    FUNDING_RATE_BUFFER, FUNDING_RATE_CLAMP_DENOMINATOR, FUNDING_RATE_OFFSET_DENOMINATOR,
+    ONE_HOUR_I128, TWENTY_FOUR_HOUR,
 };
 use crate::math::funding::{calculate_funding_payment, calculate_funding_rate_long_short};
 use crate::math::helpers::on_the_hour_update;
@@ -231,12 +232,21 @@ pub fn update_funding_rate(
         // low periodicity => quickly updating/settled funding rates => lower funding rate payment per interval
         let price_spread = mid_price_twap.cast::<i64>()?.safe_sub(oracle_price_twap)?;
 
-        // add offset 1/FUNDING_RATE_OFFSET_DENOMINATOR*365. if FUNDING_RATE_OFFSET_DENOMINATOR = 5000 => 7.3% annualized rate
-        let price_spread_with_offset = price_spread.safe_add(
-            oracle_price_twap
+        // add offset 1/FUNDING_RATE_OFFSET_DENOMINATOR*365. if FUNDING_RATE_OFFSET_DENOMINATOR = 3333 => 10.95% annualized rate
+        // clamp when |price_spread| <= 0.05% to floor 10.95% annualized rate
+        let funding_rate_offset = oracle_price_twap
+            .abs()
+            .safe_div(FUNDING_RATE_OFFSET_DENOMINATOR)?;
+
+        let price_spread_with_offset = if price_spread.abs()
+            <= oracle_price_twap
                 .abs()
-                .safe_div(FUNDING_RATE_OFFSET_DENOMINATOR)?,
-        )?;
+                .safe_div(FUNDING_RATE_CLAMP_DENOMINATOR)?
+        {
+            funding_rate_offset
+        } else {
+            price_spread.safe_add(funding_rate_offset)?
+        };
 
         // clamp price divergence based on contract tier for funding rate calculation
         let max_price_spread =

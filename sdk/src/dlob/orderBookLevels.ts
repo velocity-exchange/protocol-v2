@@ -213,7 +213,6 @@ export function getVammL2Generator({
 		updatedAmm,
 		mmOraclePriceData,
 		now,
-		isVariant(marketAccount.contractType, 'prediction'),
 		latestSlot
 	);
 

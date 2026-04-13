@@ -11,11 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - program: add ix to transfer between perp market fee and pnl pool [#1](https://github.com/drift-labs/protocol-v2-shadow/pull/1)
 - program: remove HLM [#2](https://github.com/drift-labs/protocol-v2-shadow/pull/2)
+- program: add funding clamp/dead zone and increase funding rate floor from 7.3% to 10.94% annualized
 
 ### Fixes
 
 ### Breaking
 
+- program: remove prediction markets [#13](https://github.com/drift-labs/protocol-v2-shadow/pull/13)
 - program: remove pyth pull update instruction, callers must migrate to supported oracles (eg: pyth lazer) [#7](https://github.com/drift-labs/protocol-v2-shadow/pull/7)
 - program: remove deprecated MarketStatus variants (FundingPaused, AmmPaused, FillPaused, WithdrawPaused) and extract MarketStatus into its own module [#5](https://github.com/drift-labs/protocol-v2-shadow/pull/5)
 

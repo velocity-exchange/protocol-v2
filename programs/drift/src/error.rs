@@ -572,8 +572,9 @@ pub enum ErrorCode {
     NonZeroTransferFee,
     #[msg("Liquidation order failed to fill")]
     LiquidationOrderFailedToFill,
-    #[msg("Invalid prediction market order")]
-    InvalidPredictionMarketOrder,
+    /// Deprecated: kept to preserve error code ordering
+    #[msg("Deprecated")]
+    DepreciatedPredictionMarketOrder,
     #[msg("Ed25519 Ix must be before place and make SignedMsg order ix")]
     InvalidVerificationIxIndex,
     #[msg("SignedMsg message verificaiton failed")]

@@ -93,7 +93,6 @@ export class MarginMode {
 export class ContractType {
 	static readonly PERPETUAL = { perpetual: {} };
 	static readonly FUTURE = { future: {} };
-	static readonly PREDICTION = { prediction: {} };
 }
 
 export class ContractTier {
