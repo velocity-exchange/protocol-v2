@@ -21,7 +21,7 @@ use crate::controller::spot_position::{
     update_spot_balances_and_cumulative_deposits,
     update_spot_balances_and_cumulative_deposits_with_limits,
 };
-use crate::error::ErrorCode;
+use crate::error::{DriftResult, ErrorCode};
 use crate::get_then_update_id;
 use crate::ids::admin_hot_wallet;
 use crate::ids::{
@@ -2686,6 +2686,8 @@ fn place_orders<'c: 'info, 'info>(
             existing_position_direction_override: None,
         };
 
+        validate_spot_dlob_trading_enabled_for_market_type(params.market_type)?;
+
         if params.market_type == MarketType::Perp {
             controller::orders::place_perp_order(
                 state,
@@ -2699,9 +2701,15 @@ fn place_orders<'c: 'info, 'info>(
                 options,
                 &mut None,
             )?;
-        } else {
-            return Err(ErrorCode::SpotDlobTradingDisabled.into());
         }
+    }
+
+    Ok(())
+}
+
+fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
+    if market_type == MarketType::Spot {
+        return Err(ErrorCode::SpotDlobTradingDisabled);
     }
 
     Ok(())
@@ -4897,4 +4905,23 @@ pub struct ChangeApprovedBuilder<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_spot_dlob_trading_enabled_for_market_type;
+    use crate::error::ErrorCode;
+    use crate::state::user::MarketType;
+
+    #[test]
+    fn validate_spot_dlob_trading_enabled_for_market_type_rejects_spot() {
+        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Spot);
+        assert_eq!(result, Err(ErrorCode::SpotDlobTradingDisabled));
+    }
+
+    #[test]
+    fn validate_spot_dlob_trading_enabled_for_market_type_allows_perp() {
+        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Perp);
+        assert_eq!(result, Ok(()));
+    }
 }

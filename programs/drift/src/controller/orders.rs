@@ -784,6 +784,14 @@ pub enum ModifyOrderId {
     OrderId(u32),
 }
 
+fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
+    if market_type == MarketType::Spot {
+        return Err(ErrorCode::SpotDlobTradingDisabled);
+    }
+
+    Ok(())
+}
+
 pub fn modify_order(
     order_id: ModifyOrderId,
     modify_order_params: ModifyOrderParams,
@@ -847,22 +855,20 @@ pub fn modify_order(
         merge_modify_order_params_with_existing_order(&existing_order, &modify_order_params)?;
 
     if let Some(order_params) = order_params {
-        if order_params.market_type == MarketType::Perp {
-            place_perp_order(
-                state,
-                &mut user,
-                user_key,
-                perp_market_map,
-                spot_market_map,
-                oracle_map,
-                clock,
-                order_params,
-                PlaceOrderOptions::default(),
-                &mut None,
-            )?;
-        } else {
-            validate!(false, ErrorCode::SpotDlobTradingDisabled)?;
-        }
+        validate_spot_dlob_trading_enabled_for_market_type(order_params.market_type)?;
+
+        place_perp_order(
+            state,
+            &mut user,
+            user_key,
+            perp_market_map,
+            spot_market_map,
+            oracle_map,
+            clock,
+            order_params,
+            PlaceOrderOptions::default(),
+            &mut None,
+        )?;
     }
 
     Ok(())

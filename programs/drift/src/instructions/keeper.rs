@@ -22,7 +22,7 @@ use crate::controller::position::get_position_index;
 use crate::controller::position::PositionDirection;
 use crate::controller::spot_balance::update_spot_balances;
 use crate::controller::token::{receive, send_from_program_vault};
-use crate::error::ErrorCode;
+use crate::error::{DriftResult, ErrorCode};
 use crate::get_then_update_id;
 use crate::ids::admin_hot_wallet;
 use crate::ids::{
@@ -228,6 +228,14 @@ pub enum SpotFulfillmentType {
     OpenbookV2,
 }
 
+fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
+    if market_type == MarketType::Spot {
+        return Err(ErrorCode::SpotDlobTradingDisabled);
+    }
+
+    Ok(())
+}
+
 #[access_control(
     exchange_not_paused(&ctx.accounts.state)
 )]
@@ -243,9 +251,7 @@ pub fn handle_trigger_order<'c: 'info, 'info>(
         }
     };
 
-    if market_type == MarketType::Spot {
-        return Err(ErrorCode::SpotDlobTradingDisabled.into());
-    }
+    validate_spot_dlob_trading_enabled_for_market_type(market_type)?;
 
     let (writeable_perp_markets, writeable_spot_markets) = (MarketSet::new(), MarketSet::new());
 
@@ -4035,4 +4041,23 @@ pub struct PauseSpotMarketDepositWithdraw<'info> {
         bump,
     )]
     pub spot_market_vault: Box<InterfaceAccount<'info, TokenAccount>>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_spot_dlob_trading_enabled_for_market_type;
+    use crate::error::ErrorCode;
+    use crate::state::user::MarketType;
+
+    #[test]
+    fn validate_spot_dlob_trading_enabled_for_market_type_rejects_spot() {
+        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Spot);
+        assert_eq!(result, Err(ErrorCode::SpotDlobTradingDisabled));
+    }
+
+    #[test]
+    fn validate_spot_dlob_trading_enabled_for_market_type_allows_perp() {
+        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Perp);
+        assert_eq!(result, Ok(()));
+    }
 }
