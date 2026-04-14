@@ -707,6 +707,8 @@ pub enum ErrorCode {
     InvalidPerpMarketConfig,
     #[msg("Insurance fund withdrawal recipient must be the designated treasury address")]
     InvalidInsuranceFundWithdrawalRecipient,
+    #[msg("Spot DLOB trading is disabled")]
+    SpotDlobTradingDisabled,
 }
 
 #[macro_export]

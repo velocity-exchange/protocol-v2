@@ -4,7 +4,7 @@ use crate::math::casting::Cast;
 use crate::math::matching::do_orders_cross;
 use crate::math::safe_unwrap::SafeUnwrap;
 use crate::msg;
-use crate::state::fulfillment::{PerpFulfillmentMethod, SpotFulfillmentMethod};
+use crate::state::fulfillment::PerpFulfillmentMethod;
 use crate::state::perp_market::AMM;
 use crate::state::user::Order;
 use solana_program::pubkey::Pubkey;
@@ -124,43 +124,4 @@ fn determine_perp_fulfillment_methods_for_maker(
     } else {
         Ok(vec![])
     }
-}
-
-pub fn determine_spot_fulfillment_methods(
-    order: &Order,
-    maker_orders_info: &[(Pubkey, usize, u64)],
-    limit_price: Option<u64>,
-    external_fulfillment_params_available: bool,
-) -> DriftResult<Vec<SpotFulfillmentMethod>> {
-    let mut fulfillment_methods = Vec::with_capacity(8);
-
-    if !order.post_only && external_fulfillment_params_available {
-        fulfillment_methods.push(SpotFulfillmentMethod::ExternalMarket);
-        return Ok(fulfillment_methods);
-    }
-
-    let maker_direction = order.direction.opposite();
-
-    for (maker_key, maker_order_index, maker_price) in maker_orders_info.iter() {
-        let taker_crosses_maker = match limit_price {
-            Some(taker_price) => do_orders_cross(maker_direction, *maker_price, taker_price),
-            // todo come up with fallback price
-            None => false,
-        };
-
-        if !taker_crosses_maker {
-            break;
-        }
-
-        fulfillment_methods.push(SpotFulfillmentMethod::Match(
-            *maker_key,
-            *maker_order_index as u16,
-        ));
-
-        if fulfillment_methods.len() > 6 {
-            break;
-        }
-    }
-
-    Ok(fulfillment_methods)
 }

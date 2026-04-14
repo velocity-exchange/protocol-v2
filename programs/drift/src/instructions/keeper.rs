@@ -17,12 +17,14 @@ use crate::controller::liquidation::{
     liquidate_spot_with_swap_begin, liquidate_spot_with_swap_end,
 };
 use crate::controller::orders::cancel_orders;
-use crate::controller::orders::validate_market_within_price_band;
+use crate::controller::orders::{
+    validate_market_within_price_band, validate_spot_dlob_trading_enabled_for_market_type,
+};
 use crate::controller::position::get_position_index;
 use crate::controller::position::PositionDirection;
 use crate::controller::spot_balance::update_spot_balances;
 use crate::controller::token::{receive, send_from_program_vault};
-use crate::error::ErrorCode;
+use crate::error::{DriftResult, ErrorCode};
 use crate::get_then_update_id;
 use crate::ids::admin_hot_wallet;
 use crate::ids::{
@@ -53,10 +55,6 @@ use crate::state::amm_cache::CacheInfo;
 use crate::state::events::LPSettleRecord;
 use crate::state::events::{DeleteUserRecord, OrderActionExplanation, SignedMsgOrderRecord};
 use crate::state::fill_mode::FillMode;
-use crate::state::fulfillment_params::drift::MatchFulfillmentParams;
-use crate::state::fulfillment_params::openbook_v2::OpenbookV2FulfillmentParams;
-use crate::state::fulfillment_params::phoenix::PhoenixFulfillmentParams;
-use crate::state::fulfillment_params::serum::SerumFulfillmentParams;
 use crate::state::insurance_fund_stake::InsuranceFundStake;
 use crate::state::lp_pool::Constituent;
 use crate::state::lp_pool::LPPool;
@@ -81,7 +79,6 @@ use crate::state::signed_msg_user::{
     SignedMsgOrderId, SignedMsgUserOrdersLoader, SignedMsgUserOrdersZeroCopyMut,
     SIGNED_MSG_PDA_SEED,
 };
-use crate::state::spot_fulfillment_params::SpotFulfillmentParams;
 use crate::state::spot_market::{SpotBalanceType, SpotMarket};
 use crate::state::spot_market_map::{
     get_writable_spot_market_set, get_writable_spot_market_set_from_many, SpotMarketMap,
@@ -90,7 +87,7 @@ use crate::state::state::State;
 use crate::state::user::{
     MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats,
 };
-use crate::state::user_map::{load_user_map, load_user_maps, UserMap, UserStatsMap};
+use crate::state::user_map::{load_user_map, load_user_maps};
 use crate::state::zero_copy::AccountZeroCopyMut;
 use crate::state::zero_copy::ZeroCopyLoader;
 use crate::validate;
@@ -234,157 +231,23 @@ pub enum SpotFulfillmentType {
 }
 
 #[access_control(
-    fill_not_paused(&ctx.accounts.state)
-)]
-pub fn handle_fill_spot_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, FillOrder<'info>>,
-    order_id: Option<u32>,
-    fulfillment_type: Option<SpotFulfillmentType>,
-    _maker_order_id: Option<u32>,
-) -> Result<()> {
-    let (order_id, market_index) = {
-        let user = &load!(ctx.accounts.user)?;
-        // if there is no order id, use the users last order id
-        let order_id = order_id.unwrap_or_else(|| user.get_last_order_id());
-        let market_index = user
-            .get_order(order_id)
-            .map(|order| order.market_index)
-            .ok_or(ErrorCode::OrderDoesNotExist)?;
-
-        (order_id, market_index)
-    };
-
-    let user_key = &ctx.accounts.user.key();
-    fill_spot_order(
-        ctx,
-        order_id,
-        market_index,
-        fulfillment_type.unwrap_or(SpotFulfillmentType::Match),
-    )
-    .map_err(|e| {
-        msg!("Err filling order id {} for user {}", order_id, user_key);
-        e
-    })?;
-
-    Ok(())
-}
-
-fn fill_spot_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, FillOrder<'info>>,
-    order_id: u32,
-    market_index: u16,
-    fulfillment_type: SpotFulfillmentType,
-) -> Result<()> {
-    let clock = Clock::get()?;
-
-    let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
-    let AccountMaps {
-        perp_market_map,
-        spot_market_map,
-        mut oracle_map,
-    } = load_maps(
-        remaining_accounts_iter,
-        &MarketSet::new(),
-        &get_writable_spot_market_set_from_many(vec![QUOTE_SPOT_MARKET_INDEX, market_index]),
-        Clock::get()?.slot,
-        None,
-    )?;
-
-    let (makers_and_referrer, makers_and_referrer_stats) = match fulfillment_type {
-        SpotFulfillmentType::Match => load_user_maps(remaining_accounts_iter, true)?,
-        _ => (UserMap::empty(), UserStatsMap::empty()),
-    };
-
-    let mut fulfillment_params: Box<dyn SpotFulfillmentParams> = match fulfillment_type {
-        SpotFulfillmentType::SerumV3 => {
-            let base_market = spot_market_map.get_ref(&market_index)?;
-            let quote_market = spot_market_map.get_quote_spot_market()?;
-            Box::new(SerumFulfillmentParams::new(
-                remaining_accounts_iter,
-                &ctx.accounts.state,
-                &base_market,
-                &quote_market,
-                clock.unix_timestamp,
-            )?)
-        }
-        SpotFulfillmentType::PhoenixV1 => {
-            let base_market = spot_market_map.get_ref(&market_index)?;
-            let quote_market = spot_market_map.get_quote_spot_market()?;
-            Box::new(PhoenixFulfillmentParams::new(
-                remaining_accounts_iter,
-                &ctx.accounts.state,
-                &base_market,
-                &quote_market,
-            )?)
-        }
-        SpotFulfillmentType::OpenbookV2 => {
-            let base_market = spot_market_map.get_ref(&market_index)?;
-            let quote_market = spot_market_map.get_quote_spot_market()?;
-            Box::new(OpenbookV2FulfillmentParams::new(
-                remaining_accounts_iter,
-                &ctx.accounts.state,
-                &base_market,
-                &quote_market,
-                clock.unix_timestamp,
-            )?)
-        }
-        SpotFulfillmentType::Match => {
-            let base_market = spot_market_map.get_ref(&market_index)?;
-            let quote_market = spot_market_map.get_quote_spot_market()?;
-            Box::new(MatchFulfillmentParams::new(
-                remaining_accounts_iter,
-                &base_market,
-                &quote_market,
-            )?)
-        }
-    };
-
-    controller::orders::fill_spot_order(
-        order_id,
-        &ctx.accounts.state,
-        &ctx.accounts.user,
-        &ctx.accounts.user_stats,
-        &spot_market_map,
-        &perp_market_map,
-        &mut oracle_map,
-        &ctx.accounts.filler,
-        &ctx.accounts.filler_stats,
-        &makers_and_referrer,
-        &makers_and_referrer_stats,
-        None,
-        &clock,
-        fulfillment_params.as_mut(),
-    )?;
-
-    let base_market = spot_market_map.get_ref(&market_index)?;
-    let quote_market = spot_market_map.get_quote_spot_market()?;
-    fulfillment_params.validate_vault_amounts(&base_market, &quote_market)?;
-
-    Ok(())
-}
-
-#[access_control(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_trigger_order<'c: 'info, 'info>(
     ctx: Context<'_, '_, 'c, 'info, TriggerOrder<'info>>,
     order_id: u32,
 ) -> Result<()> {
-    let (market_type, market_index) = match load!(ctx.accounts.user)?.get_order(order_id) {
-        Some(order) => (order.market_type, order.market_index),
+    let market_type = match load!(ctx.accounts.user)?.get_order(order_id) {
+        Some(order) => order.market_type,
         None => {
             msg!("order_id not found {}", order_id);
             return Ok(());
         }
     };
 
-    let (writeable_perp_markets, writeable_spot_markets) = match market_type {
-        MarketType::Spot => (
-            MarketSet::new(),
-            get_writable_spot_market_set_from_many(vec![QUOTE_SPOT_MARKET_INDEX, market_index]),
-        ),
-        MarketType::Perp => (MarketSet::new(), MarketSet::new()),
-    };
+    validate_spot_dlob_trading_enabled_for_market_type(market_type)?;
+
+    let (writeable_perp_markets, writeable_spot_markets) = (MarketSet::new(), MarketSet::new());
 
     let AccountMaps {
         perp_market_map,
@@ -398,28 +261,16 @@ pub fn handle_trigger_order<'c: 'info, 'info>(
         None,
     )?;
 
-    match market_type {
-        MarketType::Perp => controller::orders::trigger_order(
-            order_id,
-            &ctx.accounts.state,
-            &ctx.accounts.user,
-            &spot_market_map,
-            &perp_market_map,
-            &mut oracle_map,
-            &ctx.accounts.filler,
-            &Clock::get()?,
-        )?,
-        MarketType::Spot => controller::orders::trigger_spot_order(
-            order_id,
-            &ctx.accounts.state,
-            &ctx.accounts.user,
-            &spot_market_map,
-            &perp_market_map,
-            &mut oracle_map,
-            &ctx.accounts.filler,
-            &Clock::get()?,
-        )?,
-    }
+    controller::orders::trigger_order(
+        order_id,
+        &ctx.accounts.state,
+        &ctx.accounts.user,
+        &spot_market_map,
+        &perp_market_map,
+        &mut oracle_map,
+        &ctx.accounts.filler,
+        &Clock::get()?,
+    )?;
 
     Ok(())
 }

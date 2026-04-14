@@ -332,41 +332,6 @@ pub mod drift {
         )
     }
 
-    pub fn place_spot_order<'c: 'info, 'info>(
-        ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
-        params: OrderParams,
-    ) -> Result<()> {
-        handle_place_spot_order(ctx, params)
-    }
-
-    pub fn place_and_take_spot_order<'c: 'info, 'info>(
-        ctx: Context<'_, '_, 'c, 'info, PlaceAndTake<'info>>,
-        params: OrderParams,
-        fulfillment_type: Option<SpotFulfillmentType>,
-        maker_order_id: Option<u32>,
-    ) -> Result<()> {
-        handle_place_and_take_spot_order(
-            ctx,
-            params,
-            fulfillment_type.unwrap_or(SpotFulfillmentType::Match),
-            maker_order_id,
-        )
-    }
-
-    pub fn place_and_make_spot_order<'c: 'info, 'info>(
-        ctx: Context<'_, '_, 'c, 'info, PlaceAndMake<'info>>,
-        params: OrderParams,
-        taker_order_id: u32,
-        fulfillment_type: Option<SpotFulfillmentType>,
-    ) -> Result<()> {
-        handle_place_and_make_spot_order(
-            ctx,
-            params,
-            taker_order_id,
-            fulfillment_type.unwrap_or(SpotFulfillmentType::Match),
-        )
-    }
-
     pub fn place_orders<'c: 'info, 'info>(
         ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
         params: Vec<OrderParams>,
@@ -518,15 +483,6 @@ pub mod drift {
 
     pub fn revert_fill(ctx: Context<RevertFill>) -> Result<()> {
         handle_revert_fill(ctx)
-    }
-
-    pub fn fill_spot_order<'c: 'info, 'info>(
-        ctx: Context<'_, '_, 'c, 'info, FillOrder<'info>>,
-        order_id: Option<u32>,
-        fulfillment_type: Option<SpotFulfillmentType>,
-        maker_order_id: Option<u32>,
-    ) -> Result<()> {
-        handle_fill_spot_order(ctx, order_id, fulfillment_type, maker_order_id)
     }
 
     pub fn trigger_order<'c: 'info, 'info>(

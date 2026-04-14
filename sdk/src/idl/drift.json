@@ -1223,136 +1223,6 @@
       ]
     },
     {
-      "name": "placeSpotOrder",
-      "accounts": [
-        {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "params",
-          "type": {
-            "defined": "OrderParams"
-          }
-        }
-      ]
-    },
-    {
-      "name": "placeAndTakeSpotOrder",
-      "accounts": [
-        {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userStats",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "params",
-          "type": {
-            "defined": "OrderParams"
-          }
-        },
-        {
-          "name": "fulfillmentType",
-          "type": {
-            "option": {
-              "defined": "SpotFulfillmentType"
-            }
-          }
-        },
-        {
-          "name": "makerOrderId",
-          "type": {
-            "option": "u32"
-          }
-        }
-      ]
-    },
-    {
-      "name": "placeAndMakeSpotOrder",
-      "accounts": [
-        {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userStats",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "taker",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "takerStats",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "params",
-          "type": {
-            "defined": "OrderParams"
-          }
-        },
-        {
-          "name": "takerOrderId",
-          "type": "u32"
-        },
-        {
-          "name": "fulfillmentType",
-          "type": {
-            "option": {
-              "defined": "SpotFulfillmentType"
-            }
-          }
-        }
-      ]
-    },
-    {
       "name": "placeOrders",
       "accounts": [
         {
@@ -1981,63 +1851,6 @@
         }
       ],
       "args": []
-    },
-    {
-      "name": "fillSpotOrder",
-      "accounts": [
-        {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "filler",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "fillerStats",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userStats",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "orderId",
-          "type": {
-            "option": "u32"
-          }
-        },
-        {
-          "name": "fulfillmentType",
-          "type": {
-            "option": {
-              "defined": "SpotFulfillmentType"
-            }
-          }
-        },
-        {
-          "name": "makerOrderId",
-          "type": {
-            "option": "u32"
-          }
-        }
-      ]
     },
     {
       "name": "triggerOrder",
@@ -15327,24 +15140,6 @@
       }
     },
     {
-      "name": "SpotFulfillmentMethod",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "ExternalMarket"
-          },
-          {
-            "name": "Match",
-            "fields": [
-              "publicKey",
-              "u16"
-            ]
-          }
-        ]
-      }
-    },
-    {
       "name": "ConstituentStatus",
       "type": {
         "kind": "enum",
@@ -15438,6 +15233,29 @@
                 }
               }
             ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Initialized"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "ReduceOnly"
+          },
+          {
+            "name": "Settlement"
+          },
+          {
+            "name": "Delisted"
           }
         ]
       }
@@ -15659,29 +15477,6 @@
           },
           {
             "name": "Withdraw"
-          }
-        ]
-      }
-    },
-    {
-      "name": "MarketStatus",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Initialized"
-          },
-          {
-            "name": "Active"
-          },
-          {
-            "name": "ReduceOnly"
-          },
-          {
-            "name": "Settlement"
-          },
-          {
-            "name": "Delisted"
           }
         ]
       }
@@ -19883,6 +19678,11 @@
       "code": 6349,
       "name": "InvalidInsuranceFundWithdrawalRecipient",
       "msg": "Insurance fund withdrawal recipient must be the designated treasury address"
+    },
+    {
+      "code": 6350,
+      "name": "SpotDlobTradingDisabled",
+      "msg": "Spot DLOB trading is disabled"
     }
   ]
 }

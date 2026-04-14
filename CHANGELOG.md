@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - program: remove prediction markets [#13](https://github.com/drift-labs/protocol-v2-shadow/pull/13)
 - program: remove pyth pull update instruction, callers must migrate to supported oracles (eg: pyth lazer) [#7](https://github.com/drift-labs/protocol-v2-shadow/pull/7)
 - program: remove deprecated MarketStatus variants (FundingPaused, AmmPaused, FillPaused, WithdrawPaused) and extract MarketStatus into its own module [#5](https://github.com/drift-labs/protocol-v2-shadow/pull/5)
+- program: disable spot DLOB trading (BE-263): remove spot order user and keeper instruction handlers from the program/IDL, and return `ErrorCode::SpotDlobTradingDisabled` from remaining spot-ordering paths.
 
 ## [2.162.0] - 2026-04-01
 

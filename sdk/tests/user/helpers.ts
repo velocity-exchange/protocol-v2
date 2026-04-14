@@ -17,7 +17,6 @@ import {
 	PositionDirection,
 	OrderTriggerCondition,
 	ZERO,
-	MarginMode,
 	MMOraclePriceData,
 } from '../../src';
 
@@ -96,7 +95,6 @@ export const mockUserAccount: UserAccount = {
 	openAuctions: 0,
 	hasOpenAuction: false,
 	lastFuelBonusUpdateTs: 0,
-	marginMode: MarginMode.DEFAULT,
 	poolId: 0,
 };
 
