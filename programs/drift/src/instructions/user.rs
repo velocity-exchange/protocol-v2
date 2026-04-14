@@ -13,7 +13,9 @@ use solana_program::program::invoke;
 use solana_program::system_instruction::transfer;
 
 use crate::controller::funding::settle_funding_payment;
-use crate::controller::orders::{cancel_orders, ModifyOrderId};
+use crate::controller::orders::{
+    cancel_orders, validate_spot_dlob_trading_enabled_for_market_type, ModifyOrderId,
+};
 use crate::controller::position::update_position_and_market;
 use crate::controller::position::PositionDirection;
 use crate::controller::spot_balance::update_revenue_pool_balances;
@@ -2707,14 +2709,6 @@ fn place_orders<'c: 'info, 'info>(
     Ok(())
 }
 
-fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
-    if market_type == MarketType::Spot {
-        return Err(ErrorCode::SpotDlobTradingDisabled);
-    }
-
-    Ok(())
-}
-
 #[access_control(
     fill_not_paused(&ctx.accounts.state)
 )]
@@ -4905,23 +4899,4 @@ pub struct ChangeApprovedBuilder<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     pub system_program: Program<'info, System>,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::validate_spot_dlob_trading_enabled_for_market_type;
-    use crate::error::ErrorCode;
-    use crate::state::user::MarketType;
-
-    #[test]
-    fn validate_spot_dlob_trading_enabled_for_market_type_rejects_spot() {
-        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Spot);
-        assert_eq!(result, Err(ErrorCode::SpotDlobTradingDisabled));
-    }
-
-    #[test]
-    fn validate_spot_dlob_trading_enabled_for_market_type_allows_perp() {
-        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Perp);
-        assert_eq!(result, Ok(()));
-    }
 }

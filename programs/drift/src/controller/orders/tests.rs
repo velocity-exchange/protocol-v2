@@ -11,7 +11,10 @@ use crate::state::user::{MarketType, Order, PerpPosition};
 #[test]
 fn validate_spot_dlob_trading_enabled_for_market_type_rejects_spot() {
     let result = super::validate_spot_dlob_trading_enabled_for_market_type(MarketType::Spot);
-    assert_eq!(result, Err(crate::error::ErrorCode::SpotDlobTradingDisabled));
+    assert_eq!(
+        result,
+        Err(crate::error::ErrorCode::SpotDlobTradingDisabled)
+    );
 }
 
 #[test]

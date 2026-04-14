@@ -17,7 +17,9 @@ use crate::controller::liquidation::{
     liquidate_spot_with_swap_begin, liquidate_spot_with_swap_end,
 };
 use crate::controller::orders::cancel_orders;
-use crate::controller::orders::validate_market_within_price_band;
+use crate::controller::orders::{
+    validate_market_within_price_band, validate_spot_dlob_trading_enabled_for_market_type,
+};
 use crate::controller::position::get_position_index;
 use crate::controller::position::PositionDirection;
 use crate::controller::spot_balance::update_spot_balances;
@@ -226,14 +228,6 @@ pub enum SpotFulfillmentType {
     Match,
     PhoenixV1,
     OpenbookV2,
-}
-
-fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
-    if market_type == MarketType::Spot {
-        return Err(ErrorCode::SpotDlobTradingDisabled);
-    }
-
-    Ok(())
 }
 
 #[access_control(
@@ -4041,23 +4035,4 @@ pub struct PauseSpotMarketDepositWithdraw<'info> {
         bump,
     )]
     pub spot_market_vault: Box<InterfaceAccount<'info, TokenAccount>>,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::validate_spot_dlob_trading_enabled_for_market_type;
-    use crate::error::ErrorCode;
-    use crate::state::user::MarketType;
-
-    #[test]
-    fn validate_spot_dlob_trading_enabled_for_market_type_rejects_spot() {
-        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Spot);
-        assert_eq!(result, Err(ErrorCode::SpotDlobTradingDisabled));
-    }
-
-    #[test]
-    fn validate_spot_dlob_trading_enabled_for_market_type_allows_perp() {
-        let result = validate_spot_dlob_trading_enabled_for_market_type(MarketType::Perp);
-        assert_eq!(result, Ok(()));
-    }
 }

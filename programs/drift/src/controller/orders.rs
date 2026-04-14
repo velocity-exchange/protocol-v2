@@ -784,7 +784,7 @@ pub enum ModifyOrderId {
     OrderId(u32),
 }
 
-fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
+pub fn validate_spot_dlob_trading_enabled_for_market_type(market_type: MarketType) -> DriftResult {
     if market_type == MarketType::Spot {
         return Err(ErrorCode::SpotDlobTradingDisabled);
     }
