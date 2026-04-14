@@ -1,3 +1,14 @@
+/**
+ * Shared TypeScript types for the Drift SDK.
+ *
+ * Contains TypeScript mirrors of all on-chain account structs (UserAccount, PerpMarketAccount,
+ * SpotMarketAccount, StateAccount, OracleData, etc.), instruction parameter types (OrderParams,
+ * ModifyOrderParams), enums (MarketType, OrderType, PositionDirection, OracleSource), and
+ * precision constants used throughout the SDK.
+ *
+ * The authoritative layout source is `sdk/src/idl/drift.json` (generated from the program).
+ * Do not edit struct shapes here without a corresponding on-chain change.
+ */
 import {
 	Keypair,
 	PublicKey,

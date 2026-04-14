@@ -1,3 +1,9 @@
+/**
+ * PDA derivation helpers for all Drift protocol accounts.
+ * Covers: User, UserStats, PerpMarket, SpotMarket, InsuranceFundStake,
+ * ProtectedMakerModeConfig, HighLeverageModeConfig, State, and vault PDAs.
+ * All functions are pure (no RPC calls).
+ */
 import { PublicKey } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import { BN } from '@coral-xyz/anchor';

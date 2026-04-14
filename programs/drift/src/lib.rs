@@ -1,3 +1,8 @@
+//! Drift Protocol v2 — Solana perpetuals and spot trading.
+//! Two entrypoints: custom high-frequency dispatcher at discriminator `[0xFF, 0xFF, 0xFF, 0xFF, opcode]`
+//! (bypasses Anchor overhead for keeper cranks) and the standard Anchor `#[program]` entrypoint.
+//! Instruction handlers → `instructions/`. Core logic → `controller/`. Pure math → `math/`. Account structs → `state/`.
+
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::bool_assert_comparison)]
 #![allow(clippy::comparison_chain)]

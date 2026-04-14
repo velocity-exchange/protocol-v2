@@ -1,3 +1,11 @@
+//! Pure numeric logic: margin, fees, funding, AMM pricing, oracle validation.
+//! No account I/O — all functions are deterministic given inputs.
+//! `margin.rs` = margin requirement and free collateral calculations.
+//! `orders.rs` / `matching.rs` = order price validation and maker/taker matching logic.
+//! `amm.rs` / `amm_spread.rs` / `cp_curve.rs` = AMM invariant math and spread computation.
+//! `funding.rs` = funding rate calculation. `oracle.rs` = oracle validity and TWAP divergence checks.
+//! `liquidation.rs` = liquidation fee and amount math. `fees.rs` = taker/maker fee tiers.
+
 pub mod amm;
 pub mod amm_jit;
 pub mod amm_spread;

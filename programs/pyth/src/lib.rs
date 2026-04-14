@@ -1,3 +1,4 @@
+//! Pyth oracle stub — exposes `Price` account layout for Drift to deserialize. No program logic.
 use anchor_lang::prelude::*;
 pub mod pc;
 use pc::Price;

@@ -1,3 +1,13 @@
+/**
+ * Account subscription interfaces and types.
+ *
+ * DriftClient uses a `DriftClientAccountSubscriber` (WebSocket or polling) to keep
+ * market, oracle, and state accounts cached in memory. `User` uses a `UserAccountSubscriber`
+ * for the individual User account. All subscribers implement the interfaces defined here.
+ *
+ * Implementations: `webSocketDriftClientAccountSubscriber.ts` (default),
+ * `pollingDriftClientAccountSubscriber.ts`, `bulkAccountLoader.ts` (batched RPC).
+ */
 import {
 	SpotMarketAccount,
 	PerpMarketAccount,

@@ -1,3 +1,8 @@
+//! Liquidation engine: margin checks, position reduction, social loss, insurance fund draws.
+//! Entry points are in `crate::instructions::keeper` (liquidate_perp, liquidate_spot, etc.).
+//! `liquidate_perp` = perp position reduction with liquidation fee. `liquidate_spot` = spot borrow resolution.
+//! `resolve_perp_bankruptcy` / `resolve_spot_bankruptcy` = social loss and insurance draws.
+
 use std::ops::{Deref, DerefMut};
 
 use crate::msg;

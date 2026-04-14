@@ -1,3 +1,17 @@
+/**
+ * DriftClient — main SDK entry point for all trading and keeper operations.
+ *
+ * Responsibilities:
+ *   - Builds and sends all on-chain instructions (place/cancel/fill orders, deposits, withdrawals,
+ *     settle PnL, update funding rate, liquidations).
+ *   - Manages the program account subscription lifecycle (markets, oracles, user accounts).
+ *   - Provides oracle price reads, market config lookups, and PDA derivation helpers.
+ *
+ * Admin operations (market init, fee updates, oracle config) live in {@link AdminClient} (adminClient.ts).
+ * Read-only user account queries (margin, positions, PnL) live in {@link User} (user.ts).
+ *
+ * Instruction → on-chain handler mapping: see ARCHITECTURE.md § SDK↔Instruction Mapping.
+ */
 import * as anchor from '@coral-xyz/anchor';
 import {
 	AnchorProvider,

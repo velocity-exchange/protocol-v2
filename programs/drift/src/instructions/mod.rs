@@ -1,3 +1,10 @@
+//! Anchor instruction handlers: account constraints, deserialization, and delegation to `controller`.
+//! `user.rs` = trading (orders, deposits, LP positions).
+//! `keeper.rs` = crank instructions (funding updates, PnL settlement, liquidations, fills).
+//! `admin.rs` = governance (~126 handlers: market init/update, oracle config, fees, insurance).
+//! `lp_pool.rs` / `lp_admin.rs` = LP pool management.
+//! `constraints.rs` = shared Anchor account constraint helpers.
+
 pub use admin::*;
 pub use constraints::*;
 pub use if_staker::*;

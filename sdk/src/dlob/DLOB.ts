@@ -1,3 +1,15 @@
+/**
+ * DLOB — Decentralized Limit Order Book.
+ *
+ * Maintains an in-memory order book built from on-chain `User` accounts.
+ * Used by keeper bots to identify the best maker orders to match against taker fills.
+ *
+ * Key types:
+ *   {@link DLOBNode}        — a single order node with price/size/user info (DLOBNode.ts)
+ *   {@link DLOBSubscriber}  — subscribes to on-chain accounts and keeps the DLOB live (DLOBSubscriber.ts)
+ *   {@link NodeList}        — sorted linked list of DLOBNodes per side/market (NodeList.ts)
+ *   `orderBookLevels.ts`    — aggregated L2/L3 book level construction for quoting
+ */
 import { getOrderSignature, NodeList } from './NodeList';
 import { BN } from '@coral-xyz/anchor';
 import {

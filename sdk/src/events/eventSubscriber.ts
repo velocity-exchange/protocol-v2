@@ -1,3 +1,11 @@
+/**
+ * EventSubscriber — streams and parses Drift program events from transaction logs.
+ *
+ * Decodes all program events (OrderActionRecord, DepositRecord, LiquidationRecord,
+ * FundingPaymentRecord, etc.) from `state/events.rs` into typed TypeScript objects.
+ * Supports WebSocket and polling log providers; events are surfaced via an EventEmitter.
+ * See `events/types.ts` for the full event type union and `events/parse.ts` for log parsing.
+ */
 import { Connection, PublicKey, TransactionSignature } from '@solana/web3.js';
 import { Program } from '@coral-xyz/anchor';
 import {

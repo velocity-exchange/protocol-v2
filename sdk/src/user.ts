@@ -1,3 +1,16 @@
+/**
+ * User — read-oriented abstraction over the on-chain `User` account.
+ *
+ * Responsibilities:
+ *   - Margin and free-collateral calculations (mirrors `programs/drift/src/math/margin.rs`).
+ *   - Position accessors: perp positions, spot positions, unrealized PnL, leverage.
+ *   - Open order queries and filtering.
+ *   - Health factor and liquidation threshold checks.
+ *   - Subscribes to and caches the latest `User` account state from chain.
+ *
+ * To send instructions (deposit, place order, etc.) use {@link DriftClient}.
+ * For referral/volume stats see {@link UserStats} (userStats.ts).
+ */
 import { PublicKey } from '@solana/web3.js';
 import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';

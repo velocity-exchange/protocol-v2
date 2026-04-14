@@ -1,3 +1,4 @@
+//! OpenBook V2 DEX stub — account type definitions for Drift spot fulfillment integration.
 #![allow(clippy::too_many_arguments)]
 
 use anchor_lang::prelude::{

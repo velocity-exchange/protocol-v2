@@ -1,3 +1,8 @@
+/**
+ * UserStats — abstraction over the on-chain `UserStats` account.
+ * Tracks referral links, 30-day maker/taker volume, fuel rewards, and IF staking stats.
+ * One `UserStats` account exists per authority (shared across all subaccounts).
+ */
 import { DriftClient } from './driftClient';
 import { PublicKey } from '@solana/web3.js';
 import { DataAndSlot, UserStatsAccountSubscriber } from './accounts/types';

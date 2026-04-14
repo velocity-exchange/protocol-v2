@@ -1,3 +1,4 @@
+//! Switchboard On-Demand oracle stub — account type definitions only, no program logic.
 use anchor_lang::declare_id;
 use anchor_lang::prelude::*;
 use anchor_lang::program;

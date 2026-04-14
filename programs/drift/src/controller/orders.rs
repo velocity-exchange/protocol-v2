@@ -1,3 +1,9 @@
+//! Order lifecycle: placement validation, cancellation, and fill matching (perp + spot).
+//! Margin math → `crate::math::margin`. Liquidation fills → `crate::controller::liquidation`.
+//! `fill_perp_order` / `fulfill_perp_order_with_match` = keeper fill dispatch and maker matching.
+//! `place_perp_order` / `place_spot_order` = user-facing placement with auction parameter derivation.
+//! `cancel_order` / `cancel_orders_by_*` = cancellation paths (user-initiated and expiry).
+
 use std::cell::RefMut;
 use std::collections::BTreeMap;
 use std::ops::{Deref, DerefMut};

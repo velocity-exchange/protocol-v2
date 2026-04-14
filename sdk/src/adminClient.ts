@@ -1,3 +1,11 @@
+/**
+ * AdminClient — governance and protocol administration instruction builders.
+ * Extends {@link DriftClient}; all trading/keeper methods are also available.
+ *
+ * Covers: perp/spot market initialization and updates, oracle guard rail config,
+ * fee structure updates, insurance fund operations, vault management, IF rebalancing,
+ * pause/unpause exchange, and all ~126 admin instruction handlers in `instructions/admin.rs`.
+ */
 import {
 	AddressLookupTableAccount,
 	Keypair,

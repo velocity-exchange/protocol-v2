@@ -1,3 +1,10 @@
+/**
+ * DriftClientConfig — configuration types for constructing a {@link DriftClient}.
+ *
+ * Key options: RPC connection, wallet/keypair, account subscription mode
+ * (WebSocket vs polling), oracle client selection, transaction sender config,
+ * and feature flags (activeSubAccountId, authority override).
+ */
 import {
 	Commitment,
 	ConfirmOptions,

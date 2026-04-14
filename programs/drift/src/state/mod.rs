@@ -1,3 +1,11 @@
+//! On-chain account structs and their accessor/mutation methods.
+//! Zero-copy types (`User`, `PerpMarket`, `SpotMarket`) use `AccountLoader` for efficient deserialization.
+//! `user.rs` = `User` account (positions, orders, subaccounts). `perp_market.rs` / `spot_market.rs` = market state.
+//! `oracle.rs` / `oracle_map.rs` = oracle source types and per-instruction oracle loading.
+//! `order_params.rs` = `OrderParams` and `ModifyOrderParams` (shared between SDK and on-chain).
+//! `events.rs` = all emitted program events (OrderRecord, FillRecord, LiquidationRecord, etc.).
+//! `margin_calculation.rs` = margin calculation context and result types.
+
 pub mod amm_cache;
 pub mod constituent_map;
 pub mod events;

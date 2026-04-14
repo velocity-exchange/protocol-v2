@@ -1,3 +1,8 @@
+/**
+ * Margin calculation helpers — TypeScript mirror of `programs/drift/src/math/margin.rs`.
+ * Computes initial/maintenance margin requirements, free collateral, and account health.
+ * Used by {@link User} for leverage queries and by keeper bots for liquidation eligibility checks.
+ */
 import { squareRootBN } from './utils';
 import {
 	SPOT_MARKET_WEIGHT_PRECISION,

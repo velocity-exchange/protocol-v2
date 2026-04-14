@@ -1,3 +1,4 @@
+//! Switchboard V2 oracle stub — account type definitions only, no program logic.
 use anchor_lang::prelude::*;
 
 declare_id!("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");

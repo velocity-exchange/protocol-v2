@@ -1,3 +1,15 @@
+/**
+ * @module @drift-labs/sdk
+ * Main package barrel — re-exports all public SDK types, classes, and utilities.
+ *
+ * Primary entry points:
+ *   {@link DriftClient}  — trading and keeper instruction builders (driftClient.ts)
+ *   {@link AdminClient}  — governance/admin instruction builders (adminClient.ts)
+ *   {@link User}         — user account abstraction: margin queries, position accessors (user.ts)
+ *   {@link DLOB}         — decentralized limit order book (dlob/DLOB.ts)
+ *
+ * Key re-exported namespaces: types, addresses/pda, accounts (subscribers), math, events, oracles, constants.
+ */
 import { BN } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 import pyth from '@pythnetwork/client';

@@ -1,0 +1,111 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+For execution flow maps, module responsibility matrix, account type locations, and SDK↔program mappings, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+## Package Manager
+
+Use `bun` (not yarn/npm) for JavaScript/TypeScript dependency management: `bun install`, `bun run <script>`.
+
+## Build
+
+**M1/Apple Silicon:** Always use an x86_64 cross-compile toolchain — never a native aarch64 toolchain. Native ARM toolchains break memory layout expectations for zero-copy accounts, which must match the on-chain (x86_64) representation.
+
+- Anchor 0.29.x branches: `rustup default 1.76.0-x86_64-apple-darwin`
+- Anchor 1.0 branches: `rustup default stable-x86_64-apple-darwin`
+
+**Solana programs (Rust/Anchor):**
+```bash
+anchor build
+# With anchor-test feature (required for TS integration tests):
+anchor build -- --features anchor-test
+```
+
+**SDK:**
+```bash
+cd sdk/ && bun install && bun run build
+```
+
+**Update IDL after program changes:**
+```bash
+anchor build -- --features anchor-test && cp target/idl/drift.json sdk/src/idl/drift.json
+```
+
+## Testing
+
+**Rust unit tests:**
+```bash
+cargo test -p drift                    # drift program only
+cargo test -p drift -- --show-output  # with stdout
+```
+
+**Single TypeScript integration test:**
+```bash
+ts-mocha -t 300000 ./tests/<test_file>.ts
+```
+
+**Full TypeScript integration test suite** (builds first, then runs all ~70 test files serially):
+```bash
+bash test-scripts/run-anchor-tests.sh
+# Skip rebuild if .so is already built:
+bash test-scripts/run-anchor-tests.sh --skip-build
+```
+
+**SDK unit tests:**
+```bash
+cd sdk/ && bun run test:dlob    # DLOB tests
+cd sdk/ && bun run test:ci      # CI subset
+```
+
+**Lint/format:**
+```bash
+cargo fmt                        # Rust
+cd sdk/ && yarn prettify:fix     # SDK (TypeScript)
+```
+
+## Architecture
+
+This is **Drift Protocol v2** — a Solana perpetuals and spot trading protocol.
+
+### Programs (`programs/`)
+- **`drift/`** — Core protocol (Anchor, ~500k+ lines of Rust). Entry point: `src/lib.rs`. Main instruction handlers in `src/instructions/`:
+  - `user.rs` — trading instructions (place/cancel/fill orders)
+  - `keeper.rs` — keeper/crank instructions (settle PnL, funding, liquidations)
+  - `admin.rs` — admin/governance instructions
+  - `lp_pool.rs`, `lp_admin.rs` — LP pool management
+- **`pyth/`, `pyth-lazer/`, `switchboard/`, `switchboard-on-demand/`** — Oracle stubs/integrations (minimal, mostly `no-entrypoint` wrappers)
+- **`openbook_v2/`, `token_faucet/`** — DEX integration and test utilities
+
+### SDK (`sdk/`)
+TypeScript library (`@drift-labs/sdk`). Key modules in `src/`:
+- `driftClient.ts` — main client class
+- `user.ts` — user account abstraction
+- `dlob/` — Decentralized Limit Order Book implementation
+- `math/` — pricing, margin, funding math
+- `idl/drift.json` — generated Anchor IDL (do not edit manually)
+
+### Tests (`tests/`)
+~70 TypeScript integration tests using ts-mocha + Anchor's local validator (bankrun for some). Each test spins up a local validator with the program deployed. Tests are run serially by `run-anchor-tests.sh`.
+
+### Program internals
+- `programs/drift/src/math/` — core math (funding, fees, margin, AMM)
+- `programs/drift/src/state/` — account structs (User, PerpMarket, SpotMarket, etc.)
+- `programs/drift/src/controller/` — stateful operations (position updates, fills, liquidations)
+- `programs/drift/src/validation/` — pre-instruction validation
+
+### Doc comments
+
+All modules have doc comments. When making feature or refactor changes, update any module-level doc comments that would be invalidated by the change.
+
+### Error enum stability
+
+The drift program's `Error` enum is ABI-stable — on-chain clients identify errors by numeric code. When modifying it:
+- **Add** new variants at the **bottom** only, never insert between existing ones.
+- **Remove** by marking the variant as deprecated (e.g., `/// @deprecated`) and leaving it in place — do not delete or reorder.
+
+### Key design patterns
+- Drift uses a custom native entrypoint (discriminator `[0xFF, 0xFF, 0xFF, 0xFF, opcode]`) for high-frequency keeper instructions that bypass Anchor overhead, alongside the standard Anchor `#[program]` entrypoint.
+- `remaining_accounts` is used extensively to pass variable numbers of oracle accounts, spot markets, and maker accounts to instructions.
+- Zero-copy account loading (`AccountLoader`) is used for large accounts (User, PerpMarket).
+- Feature flags: `mainnet-beta` (production gates), `anchor-test` (enables test helpers), `no-entrypoint`/`cpi` (for SDK dependencies).

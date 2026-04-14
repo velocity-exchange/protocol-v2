@@ -1,3 +1,15 @@
+/**
+ * Transaction building and sending infrastructure.
+ *
+ * `txHandler.ts`     — base class for building versioned/legacy transactions with ALT support.
+ * `retryTxSender.ts` — retry loop with confirmation polling (default for most clients).
+ * `fastSingleTxSender.ts` — fire-and-forget path for latency-sensitive keeper bots.
+ * `priorityFeeCalculator.ts` — computes dynamic priority fees from recent fee estimates.
+ * `txParamProcessor.ts` — resolves CU limits and priority fees before send.
+ *
+ * Transaction sender is injected via DriftClientConfig; swap implementations to tune
+ * confirmation strategy without changing instruction-building code.
+ */
 import {
 	AddressLookupTableAccount,
 	BlockhashWithExpiryBlockHeight,
