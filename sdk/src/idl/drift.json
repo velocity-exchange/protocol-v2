@@ -15269,7 +15269,7 @@
             "name": "Pyth"
           },
           {
-            "name": "Switchboard"
+            "name": "DeprecatedSwitchboard"
           },
           {
             "name": "QuoteAsset"
@@ -15299,7 +15299,7 @@
             "name": "PythStableCoinPull"
           },
           {
-            "name": "SwitchboardOnDemand"
+            "name": "DeprecatedSwitchboardOnDemand"
           },
           {
             "name": "PythLazer"

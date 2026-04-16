@@ -3232,7 +3232,7 @@ mod calculate_max_perp_order_size {
         let mut decoded_bytes = base64::decode(oracle_market_str).unwrap();
         let oracle_market_bytes = decoded_bytes.as_mut_slice();
         let mut lamports = 0;
-        let lazer_program = crate::ids::drift_oracle_receiver_program::id();
+        let lazer_program = crate::id();
         let usdc_oracle_info = create_account_info(
             &usdc_oracle_price_key,
             true,
@@ -3249,7 +3249,7 @@ mod calculate_max_perp_order_size {
         let mut decoded_bytes = base64::decode(oracle_market_str).unwrap();
         let oracle_market_bytes = decoded_bytes.as_mut_slice();
         let mut lamports = 0;
-        let lazer_program = crate::ids::drift_oracle_receiver_program::id();
+        let lazer_program = crate::id();
         let sol_oracle_info = create_account_info(
             &sol_oracle_price_key,
             true,
@@ -3265,7 +3265,7 @@ mod calculate_max_perp_order_size {
         let mut decoded_bytes = base64::decode(oracle_market_str).unwrap();
         let oracle_market_bytes = decoded_bytes.as_mut_slice();
         let mut lamports = 0;
-        let lazer_program = crate::ids::drift_oracle_receiver_program::id();
+        let lazer_program = crate::id();
         let eth_oracle_info = create_account_info(
             &eth_oracle_price_key,
             true,
@@ -3282,7 +3282,7 @@ mod calculate_max_perp_order_size {
         let mut decoded_bytes = base64::decode(oracle_market_str).unwrap();
         let oracle_market_bytes = decoded_bytes.as_mut_slice();
         let mut lamports = 0;
-        let lazer_program = crate::ids::drift_oracle_receiver_program::id();
+        let lazer_program = crate::id();
         let wbtc_oracle_info = create_account_info(
             &wbtc_oracle_price_key,
             true,
@@ -3299,7 +3299,7 @@ mod calculate_max_perp_order_size {
         let mut decoded_bytes = base64::decode(oracle_market_str).unwrap();
         let oracle_market_bytes = decoded_bytes.as_mut_slice();
         let mut lamports = 0;
-        let lazer_program = crate::ids::drift_oracle_receiver_program::id();
+        let lazer_program = crate::id();
         let jup_oracle_info = create_account_info(
             &jup_oracle_price_key,
             true,
@@ -3316,7 +3316,7 @@ mod calculate_max_perp_order_size {
         let mut decoded_bytes = base64::decode(oracle_market_str).unwrap();
         let oracle_market_bytes = decoded_bytes.as_mut_slice();
         let mut lamports = 0;
-        let lazer_program = crate::ids::drift_oracle_receiver_program::id();
+        let lazer_program = crate::id();
         let btc_oracle_info = create_account_info(
             &btc_oracle_price_key,
             true,

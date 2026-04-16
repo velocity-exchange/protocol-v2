@@ -87,7 +87,6 @@ test_files=(
   stopLimits.ts
   subaccounts.ts
   surgePricing.ts
-  switchboardTxCus.ts
   switchOracle.ts
   triggerOrders.ts
   # triggerSpotOrder.ts # spot DLOB disabled

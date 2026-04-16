@@ -54,11 +54,9 @@ use crate::state::if_rebalance_config::{IfRebalanceConfig, IfRebalanceConfigPara
 use crate::state::insurance_fund_stake::InsuranceFundStake;
 use crate::state::insurance_fund_stake::ProtocolIfSharesTransferConfig;
 use crate::state::market_status::MarketStatus;
-use crate::state::oracle::get_sb_on_demand_price;
 use crate::state::oracle::{
-    get_oracle_price, get_prelaunch_price, get_pyth_price, get_switchboard_price,
-    HistoricalIndexData, HistoricalOracleData, OraclePriceData, OracleSource, PrelaunchOracle,
-    PrelaunchOracleParams,
+    get_oracle_price, get_prelaunch_price, get_pyth_price, HistoricalIndexData,
+    HistoricalOracleData, OraclePriceData, OracleSource, PrelaunchOracle, PrelaunchOracleParams,
 };
 use crate::state::oracle_map::OracleMap;
 use crate::state::paused_operations::{InsuranceFundOperation, PerpOperation, SpotOperation};
@@ -90,6 +88,20 @@ use anchor_spl::token_2022::spl_token_2022::extension::{
     BaseStateWithExtensions, StateWithExtensions,
 };
 use anchor_spl::token_2022::spl_token_2022::state::Mint as MintInner;
+
+fn validate_supported_market_oracle_source(oracle_source: OracleSource) -> Result<()> {
+    if matches!(
+        oracle_source,
+        OracleSource::PythPull
+            | OracleSource::Pyth1KPull
+            | OracleSource::Pyth1MPull
+            | OracleSource::PythStableCoinPull
+    ) {
+        return Err(ErrorCode::InvalidOracle.into());
+    }
+
+    Ok(())
+}
 
 pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
     let (drift_signer, drift_signer_nonce) =
@@ -152,6 +164,8 @@ pub fn handle_initialize_spot_market(
 ) -> Result<()> {
     let state = &mut ctx.accounts.state;
     let spot_market_pubkey = ctx.accounts.spot_market.key();
+
+    validate_supported_market_oracle_source(oracle_source)?;
 
     let is_token_2022 = *ctx.accounts.spot_market_mint.to_account_info().owner == Token2022::id();
     if is_token_2022 {
@@ -727,6 +741,8 @@ pub fn handle_initialize_perp_market(
     let now = clock.unix_timestamp;
     let clock_slot = clock.slot;
 
+    validate_supported_market_oracle_source(oracle_source)?;
+
     if amm_base_asset_reserve != amm_quote_asset_reserve {
         return Err(ErrorCode::InvalidInitialPeg.into());
     }
@@ -809,14 +825,8 @@ pub fn handle_initialize_perp_market(
             )?;
             (oracle_price, oracle_delay, QUOTE_PRECISION_I64)
         }
-        OracleSource::Switchboard => {
-            let OraclePriceData {
-                price: oracle_price,
-                delay: oracle_delay,
-                ..
-            } = get_switchboard_price(&ctx.accounts.oracle, clock_slot)?;
-
-            (oracle_price, oracle_delay, oracle_price)
+        OracleSource::DeprecatedSwitchboard | OracleSource::DeprecatedSwitchboardOnDemand => {
+            return Err(ErrorCode::InvalidOracle.into());
         }
         OracleSource::QuoteAsset => {
             msg!("Quote asset oracle cant be used for perp market");
@@ -830,59 +840,11 @@ pub fn handle_initialize_perp_market(
             } = get_prelaunch_price(&ctx.accounts.oracle, clock_slot)?;
             (oracle_price, oracle_delay, oracle_price)
         }
-        OracleSource::PythPull => {
-            let OraclePriceData {
-                price: oracle_price,
-                delay: oracle_delay,
-                ..
-            } = get_pyth_price(&ctx.accounts.oracle, clock_slot, &OracleSource::PythPull)?;
-            let last_oracle_price_twap = perp_market
-                .amm
-                .get_pyth_twap(&ctx.accounts.oracle, &OracleSource::PythPull)?;
-            (oracle_price, oracle_delay, last_oracle_price_twap)
-        }
-        OracleSource::Pyth1KPull => {
-            let OraclePriceData {
-                price: oracle_price,
-                delay: oracle_delay,
-                ..
-            } = get_pyth_price(&ctx.accounts.oracle, clock_slot, &OracleSource::Pyth1KPull)?;
-            let last_oracle_price_twap = perp_market
-                .amm
-                .get_pyth_twap(&ctx.accounts.oracle, &OracleSource::Pyth1KPull)?;
-            (oracle_price, oracle_delay, last_oracle_price_twap)
-        }
-        OracleSource::Pyth1MPull => {
-            let OraclePriceData {
-                price: oracle_price,
-                delay: oracle_delay,
-                ..
-            } = get_pyth_price(&ctx.accounts.oracle, clock_slot, &OracleSource::Pyth1MPull)?;
-            let last_oracle_price_twap = perp_market
-                .amm
-                .get_pyth_twap(&ctx.accounts.oracle, &OracleSource::Pyth1MPull)?;
-            (oracle_price, oracle_delay, last_oracle_price_twap)
-        }
-        OracleSource::PythStableCoinPull => {
-            let OraclePriceData {
-                price: oracle_price,
-                delay: oracle_delay,
-                ..
-            } = get_pyth_price(
-                &ctx.accounts.oracle,
-                clock_slot,
-                &OracleSource::PythStableCoinPull,
-            )?;
-            (oracle_price, oracle_delay, QUOTE_PRECISION_I64)
-        }
-        OracleSource::SwitchboardOnDemand => {
-            let OraclePriceData {
-                price: oracle_price,
-                delay: oracle_delay,
-                ..
-            } = get_sb_on_demand_price(&ctx.accounts.oracle, clock_slot)?;
-
-            (oracle_price, oracle_delay, oracle_price)
+        OracleSource::PythPull
+        | OracleSource::Pyth1KPull
+        | OracleSource::Pyth1MPull
+        | OracleSource::PythStableCoinPull => {
+            return Err(ErrorCode::InvalidOracle.into());
         }
         OracleSource::PythLazer => {
             let OraclePriceData {
@@ -1298,6 +1260,8 @@ pub fn handle_update_spot_market_oracle(
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
     msg!("updating spot market {} oracle", spot_market.market_index);
     let clock = Clock::get()?;
+
+    validate_supported_market_oracle_source(oracle_source)?;
 
     OracleMap::validate_oracle_account_info(&ctx.accounts.oracle)?;
 
@@ -3647,6 +3611,8 @@ pub fn handle_update_perp_market_oracle(
     msg!("perp market {}", perp_market.market_index);
 
     let clock = Clock::get()?;
+
+    validate_supported_market_oracle_source(oracle_source)?;
 
     OracleMap::validate_oracle_account_info(&ctx.accounts.oracle)?;
 

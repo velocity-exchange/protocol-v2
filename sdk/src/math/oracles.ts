@@ -109,12 +109,7 @@ export function getOracleValidity(
 	let isStaleForMargin = oracleDelay.gt(
 		new BN(oracleGuardRails.validity.slotsBeforeStaleForMargin)
 	);
-	if (
-		isOneOfVariant(market.amm.oracleSource, [
-			'pythStableCoinPull',
-			'pythLazerStableCoin',
-		])
-	) {
+	if (isVariant(market.amm.oracleSource, 'pythLazerStableCoin')) {
 		isStaleForMargin = oracleDelay.gt(
 			new BN(oracleGuardRails.validity.slotsBeforeStaleForMargin).muln(3)
 		);
@@ -324,31 +319,20 @@ export function getMultipleBetweenOracleSources(
 	secondOracleSource: OracleSource
 ): { numerator: BN; denominator: BN } {
 	if (
-		isVariant(firstOracleSource, 'pythPull') &&
-		isVariant(secondOracleSource, 'pyth1MPull')
+		isOneOfVariant(firstOracleSource, [
+			'pythPull',
+			'pyth1KPull',
+			'pyth1MPull',
+			'pythStableCoinPull',
+		]) ||
+		isOneOfVariant(secondOracleSource, [
+			'pythPull',
+			'pyth1KPull',
+			'pyth1MPull',
+			'pythStableCoinPull',
+		])
 	) {
-		return { numerator: new BN(1000000), denominator: new BN(1) };
-	}
-
-	if (
-		isVariant(firstOracleSource, 'pythPull') &&
-		isVariant(secondOracleSource, 'pyth1KPull')
-	) {
-		return { numerator: new BN(1000), denominator: new BN(1) };
-	}
-
-	if (
-		isVariant(firstOracleSource, 'pyth1MPull') &&
-		isVariant(secondOracleSource, 'pythPull')
-	) {
-		return { numerator: new BN(1), denominator: new BN(1000000) };
-	}
-
-	if (
-		isVariant(firstOracleSource, 'pyth1KPull') &&
-		isVariant(secondOracleSource, 'pythPull')
-	) {
-		return { numerator: new BN(1), denominator: new BN(1000) };
+		throw new Error('Pyth pull oracle support has been removed from the SDK');
 	}
 
 	if (

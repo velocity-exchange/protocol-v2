@@ -353,10 +353,7 @@ pub fn oracle_validity(
         oracle_delay.gt(&valid_oracle_guard_rails.slots_before_stale_for_amm)
     };
 
-    let is_stale_for_margin = if matches!(
-        oracle_source,
-        OracleSource::PythStableCoinPull | OracleSource::PythLazerStableCoin
-    ) {
+    let is_stale_for_margin = if matches!(oracle_source, OracleSource::PythLazerStableCoin) {
         oracle_delay.gt(&(valid_oracle_guard_rails
             .slots_before_stale_for_margin
             .saturating_mul(3)))

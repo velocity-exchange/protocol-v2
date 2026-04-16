@@ -18,10 +18,9 @@ use crate::math::constants::{
     AMM_TO_QUOTE_PRECISION_RATIO, BID_ASK_SPREAD_PRECISION, BID_ASK_SPREAD_PRECISION_I128,
     BID_ASK_SPREAD_PRECISION_U128, DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT,
     FUNDING_RATE_BUFFER_I128, FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
-    MARGIN_PRECISION, MARGIN_PRECISION_U128, MAX_LIQUIDATION_MULTIPLIER, PEG_PRECISION,
-    PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_I64,
-    PERCENTAGE_PRECISION_U64, PRICE_PRECISION, PRICE_PRECISION_I128, SPOT_WEIGHT_PRECISION,
-    TWENTY_FOUR_HOUR,
+    MARGIN_PRECISION, MARGIN_PRECISION_U128, MAX_LIQUIDATION_MULTIPLIER, PERCENTAGE_PRECISION,
+    PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_I64, PERCENTAGE_PRECISION_U64, PRICE_PRECISION,
+    PRICE_PRECISION_I128, SPOT_WEIGHT_PRECISION, TWENTY_FOUR_HOUR,
 };
 use crate::math::margin::{
     calculate_size_discount_asset_weight, calculate_size_premium_liability_weight,
@@ -29,11 +28,9 @@ use crate::math::margin::{
 };
 use crate::math::safe_math::SafeMath;
 use crate::math::stats;
-use num_integer::Roots;
 
 use crate::state::oracle::{
-    get_prelaunch_price, get_sb_on_demand_price, get_switchboard_price, HistoricalOracleData,
-    MMOraclePriceData, OraclePriceData, OracleSource,
+    get_prelaunch_price, HistoricalOracleData, MMOraclePriceData, OraclePriceData, OracleSource,
 };
 use crate::state::spot_market::{AssetTier, SpotBalance, SpotBalanceType};
 use crate::state::traits::{MarketIndexOffset, Size};
@@ -1483,24 +1480,18 @@ impl AMM {
             OracleSource::Pyth1M => Ok(Some(
                 self.get_pyth_twap(price_oracle, &OracleSource::Pyth1M)?,
             )),
-            OracleSource::Switchboard => Ok(Some(get_switchboard_price(price_oracle, slot)?.price)),
-            OracleSource::SwitchboardOnDemand => {
-                Ok(Some(get_sb_on_demand_price(price_oracle, slot)?.price))
+            OracleSource::DeprecatedSwitchboard | OracleSource::DeprecatedSwitchboardOnDemand => {
+                Err(ErrorCode::InvalidOracle)
             }
             OracleSource::QuoteAsset => {
                 msg!("Can't get oracle twap for quote asset");
                 Err(ErrorCode::DefaultError)
             }
             OracleSource::Prelaunch => Ok(Some(get_prelaunch_price(price_oracle, slot)?.price)),
-            OracleSource::PythPull | OracleSource::PythStableCoinPull => Ok(Some(
-                self.get_pyth_twap(price_oracle, &OracleSource::PythPull)?,
-            )),
-            OracleSource::Pyth1KPull => Ok(Some(
-                self.get_pyth_twap(price_oracle, &OracleSource::Pyth1KPull)?,
-            )),
-            OracleSource::Pyth1MPull => Ok(Some(
-                self.get_pyth_twap(price_oracle, &OracleSource::Pyth1MPull)?,
-            )),
+            OracleSource::PythPull
+            | OracleSource::Pyth1KPull
+            | OracleSource::Pyth1MPull
+            | OracleSource::PythStableCoinPull => Err(ErrorCode::InvalidOracle),
             OracleSource::PythLazer => Ok(Some(
                 self.get_pyth_twap(price_oracle, &OracleSource::PythLazer)?,
             )),
@@ -1530,26 +1521,25 @@ impl AMM {
         let oracle_twap: i64;
         let oracle_exponent: i32;
 
-        if oracle_source.is_pyth_pull_oracle() {
-            let price_message =
-                pyth_solana_receiver_sdk::price_update::PriceUpdateV2::try_deserialize(
-                    &mut pyth_price_data,
-                )
-                .or(Err(crate::error::ErrorCode::UnableToLoadOracle))?;
-            oracle_price = price_message.price_message.price;
-            oracle_twap = price_message.price_message.ema_price;
-            oracle_exponent = price_message.price_message.exponent;
-        } else if oracle_source.is_pyth_push_oracle() {
+        if oracle_source.is_pyth_push_oracle() {
             let price_data = pyth_client::cast::<pyth_client::Price>(pyth_price_data);
             oracle_price = price_data.agg.price;
             oracle_twap = price_data.twap.val;
             oracle_exponent = price_data.expo;
-        } else {
+        } else if matches!(
+            oracle_source,
+            OracleSource::PythLazer
+                | OracleSource::PythLazer1K
+                | OracleSource::PythLazer1M
+                | OracleSource::PythLazerStableCoin
+        ) {
             let price_data = PythLazerOracle::try_deserialize(&mut pyth_price_data)
                 .or(Err(ErrorCode::UnableToLoadOracle))?;
             oracle_price = price_data.price;
             oracle_twap = price_data.price;
             oracle_exponent = price_data.exponent;
+        } else {
+            return Err(ErrorCode::InvalidOracle);
         }
 
         assert!(oracle_twap > oracle_price / 10);

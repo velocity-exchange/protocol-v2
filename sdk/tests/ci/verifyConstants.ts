@@ -26,6 +26,13 @@ describe('Verify Constants', function () {
 	}
 
 	const wallet = new Wallet(Keypair.generate());
+	const isPullOracleSource = (oracleSource: unknown) =>
+		isOneOfVariant(oracleSource, [
+			'pythPull',
+			'pyth1KPull',
+			'pyth1MPull',
+			'pythStableCoinPull',
+		]);
 
 	const devnetConnection = new Connection(DEVNET_RPC_ENDPOINT);
 	const mainnetConnection = new Connection(MAINNET_RPC_ENDPOINT);
@@ -92,6 +99,10 @@ describe('Verify Constants', function () {
 		spotMarkets.sort((a, b) => a.marketIndex - b.marketIndex);
 
 		for (const market of spotMarkets) {
+			if (isPullOracleSource(market.oracleSource)) {
+				continue;
+			}
+
 			const correspondingConfigMarket = MainnetSpotMarkets.find(
 				(configMarket) => configMarket.marketIndex === market.marketIndex
 			);
@@ -158,24 +169,16 @@ describe('Verify Constants', function () {
 				});
 			}
 
-			if (
-				isOneOfVariant(market.oracleSource, [
-					'pythPull',
-					'pyth1KPull',
-					'pyth1MPull',
-					'pythStableCoinPull',
-				])
-			) {
-				if (!correspondingConfigMarket.pythFeedId) {
-					errors.push(`spot market ${market.marketIndex} missing feed id`);
-				}
-			}
 		}
 
 		const perpMarkets = mainnetDriftClient.getPerpMarketAccounts();
 		perpMarkets.sort((a, b) => a.marketIndex - b.marketIndex);
 
 		for (const market of perpMarkets) {
+			if (isPullOracleSource(market.amm.oracleSource)) {
+				continue;
+			}
+
 			const correspondingConfigMarket = MainnetPerpMarkets.find(
 				(configMarket) => configMarket.marketIndex === market.marketIndex
 			);
@@ -235,18 +238,6 @@ describe('Verify Constants', function () {
 				});
 			}
 
-			if (
-				isOneOfVariant(market.amm.oracleSource, [
-					'pythPull',
-					'pyth1KPull',
-					'pyth1MPull',
-					'pythStableCoinPull',
-				])
-			) {
-				if (!correspondingConfigMarket.pythFeedId) {
-					errors.push(`perp market ${market.marketIndex} missing feed id`);
-				}
-			}
 		}
 
 		// Print all missing LUT addresses
@@ -290,6 +281,10 @@ describe('Verify Constants', function () {
 		spotMarkets.sort((a, b) => a.marketIndex - b.marketIndex);
 
 		for (const market of spotMarkets) {
+			if (isPullOracleSource(market.oracleSource)) {
+				continue;
+			}
+
 			const correspondingConfigMarket = DevnetSpotMarkets.find(
 				(configMarket) => configMarket.marketIndex === market.marketIndex
 			);
@@ -341,6 +336,10 @@ describe('Verify Constants', function () {
 		perpMarkets.sort((a, b) => a.marketIndex - b.marketIndex);
 
 		for (const market of perpMarkets) {
+			if (isPullOracleSource(market.amm.oracleSource)) {
+				continue;
+			}
+
 			const correspondingConfigMarket = DevnetPerpMarkets.find(
 				(configMarket) => configMarket.marketIndex === market.marketIndex
 			);

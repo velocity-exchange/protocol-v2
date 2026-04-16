@@ -8,8 +8,6 @@ use crate::math::constants::{
     PERCENTAGE_PRECISION, PRICE_PRECISION, PRICE_PRECISION_I64, PRICE_PRECISION_U64,
 };
 use crate::math::safe_math::SafeMath;
-use switchboard::{AggregatorAccountData, SwitchboardDecimal};
-use switchboard_on_demand::{PullFeedAccountData, SB_ON_DEMAND_PRECISION};
 
 use crate::error::ErrorCode::{InvalidOracle, UnableToLoadOracle};
 use crate::math::oracle::{is_oracle_valid_for_action, DriftAction, OracleValidity};
@@ -118,17 +116,23 @@ impl HistoricalIndexData {
 pub enum OracleSource {
     #[default]
     Pyth,
-    Switchboard,
+    /// @deprecated Preserves the legacy switchboard discriminant.
+    DeprecatedSwitchboard,
     QuoteAsset,
     Pyth1K,
     Pyth1M,
     PythStableCoin,
     Prelaunch,
+    /// @deprecated Preserves the legacy Pyth pull discriminant.
     PythPull,
+    /// @deprecated Preserves the legacy Pyth 1K pull discriminant.
     Pyth1KPull,
+    /// @deprecated Preserves the legacy Pyth 1M pull discriminant.
     Pyth1MPull,
+    /// @deprecated Preserves the legacy Pyth stablecoin pull discriminant.
     PythStableCoinPull,
-    SwitchboardOnDemand,
+    /// @deprecated Preserves the legacy switchboard-on-demand discriminant.
+    DeprecatedSwitchboardOnDemand,
     PythLazer,
     PythLazer1K,
     PythLazer1M,
@@ -136,14 +140,26 @@ pub enum OracleSource {
 }
 
 impl OracleSource {
-    pub fn is_pyth_pull_oracle(&self) -> bool {
-        matches!(
-            self,
-            OracleSource::PythPull
-                | OracleSource::Pyth1KPull
-                | OracleSource::Pyth1MPull
-                | OracleSource::PythStableCoinPull
-        )
+    pub fn from_u8(v: u8) -> Option<Self> {
+        match v {
+            0 => Some(OracleSource::Pyth),
+            1 => None,
+            2 => Some(OracleSource::QuoteAsset),
+            3 => Some(OracleSource::Pyth1K),
+            4 => Some(OracleSource::Pyth1M),
+            5 => Some(OracleSource::PythStableCoin),
+            6 => Some(OracleSource::Prelaunch),
+            7 => None,
+            8 => None,
+            9 => None,
+            10 => None,
+            11 => None,
+            12 => Some(OracleSource::PythLazer),
+            13 => Some(OracleSource::PythLazer1K),
+            14 => Some(OracleSource::PythLazer1M),
+            15 => Some(OracleSource::PythLazerStableCoin),
+            _ => None,
+        }
     }
 
     pub fn is_pyth_push_oracle(&self) -> bool {
@@ -159,13 +175,11 @@ impl OracleSource {
     pub fn get_pyth_multiple(&self) -> u128 {
         match self {
             OracleSource::Pyth
-            | OracleSource::PythPull
             | OracleSource::PythLazer
             | OracleSource::PythStableCoin
-            | OracleSource::PythStableCoinPull
             | OracleSource::PythLazerStableCoin => 1,
-            OracleSource::Pyth1K | OracleSource::Pyth1KPull | OracleSource::PythLazer1K => 1000,
-            OracleSource::Pyth1M | OracleSource::Pyth1MPull | OracleSource::PythLazer1M => 1000000,
+            OracleSource::Pyth1K | OracleSource::PythLazer1K => 1000,
+            OracleSource::Pyth1M | OracleSource::PythLazer1M => 1000000,
             _ => {
                 panic!("Calling get_pyth_multiple on non-pyth oracle source");
             }
@@ -177,25 +191,7 @@ impl TryFrom<u8> for OracleSource {
     type Error = ErrorCode;
 
     fn try_from(v: u8) -> DriftResult<Self> {
-        match v {
-            0 => Ok(OracleSource::Pyth),
-            1 => Ok(OracleSource::Switchboard),
-            2 => Ok(OracleSource::QuoteAsset),
-            3 => Ok(OracleSource::Pyth1K),
-            4 => Ok(OracleSource::Pyth1M),
-            5 => Ok(OracleSource::PythStableCoin),
-            6 => Ok(OracleSource::Prelaunch),
-            7 => Ok(OracleSource::PythPull),
-            8 => Ok(OracleSource::Pyth1KPull),
-            9 => Ok(OracleSource::Pyth1MPull),
-            10 => Ok(OracleSource::PythStableCoinPull),
-            11 => Ok(OracleSource::SwitchboardOnDemand),
-            12 => Ok(OracleSource::PythLazer),
-            13 => Ok(OracleSource::PythLazer1K),
-            14 => Ok(OracleSource::PythLazer1M),
-            15 => Ok(OracleSource::PythLazerStableCoin),
-            _ => Err(ErrorCode::InvalidOracle),
-        }
+        OracleSource::from_u8(v).ok_or(ErrorCode::InvalidOracle)
     }
 }
 
@@ -203,7 +199,7 @@ impl From<OracleSource> for u8 {
     fn from(src: OracleSource) -> u8 {
         match src {
             OracleSource::Pyth => 0,
-            OracleSource::Switchboard => 1,
+            OracleSource::DeprecatedSwitchboard => 1,
             OracleSource::QuoteAsset => 2,
             OracleSource::Pyth1K => 3,
             OracleSource::Pyth1M => 4,
@@ -213,7 +209,7 @@ impl From<OracleSource> for u8 {
             OracleSource::Pyth1KPull => 8,
             OracleSource::Pyth1MPull => 9,
             OracleSource::PythStableCoinPull => 10,
-            OracleSource::SwitchboardOnDemand => 11,
+            OracleSource::DeprecatedSwitchboardOnDemand => 11,
             OracleSource::PythLazer => 12,
             OracleSource::PythLazer1K => 13,
             OracleSource::PythLazer1M => 14,
@@ -373,8 +369,9 @@ pub fn get_oracle_price(
         OracleSource::PythStableCoin => {
             get_pyth_stable_coin_price(price_oracle, clock_slot, oracle_source)
         }
-        OracleSource::Switchboard => get_switchboard_price(price_oracle, clock_slot),
-        OracleSource::SwitchboardOnDemand => get_sb_on_demand_price(price_oracle, clock_slot),
+        OracleSource::DeprecatedSwitchboard | OracleSource::DeprecatedSwitchboardOnDemand => {
+            Err(ErrorCode::InvalidOracle)
+        }
         OracleSource::QuoteAsset => Ok(OraclePriceData {
             price: PRICE_PRECISION_I64,
             confidence: 1,
@@ -383,12 +380,10 @@ pub fn get_oracle_price(
             sequence_id: None,
         }),
         OracleSource::Prelaunch => get_prelaunch_price(price_oracle, clock_slot),
-        OracleSource::PythPull => get_pyth_price(price_oracle, clock_slot, oracle_source),
-        OracleSource::Pyth1KPull => get_pyth_price(price_oracle, clock_slot, oracle_source),
-        OracleSource::Pyth1MPull => get_pyth_price(price_oracle, clock_slot, oracle_source),
-        OracleSource::PythStableCoinPull => {
-            get_pyth_stable_coin_price(price_oracle, clock_slot, oracle_source)
-        }
+        OracleSource::PythPull
+        | OracleSource::Pyth1KPull
+        | OracleSource::Pyth1MPull
+        | OracleSource::PythStableCoinPull => Err(ErrorCode::InvalidOracle),
         OracleSource::PythLazer => get_pyth_price(price_oracle, clock_slot, oracle_source),
         OracleSource::PythLazer1K => get_pyth_price(price_oracle, clock_slot, oracle_source),
         OracleSource::PythLazer1M => get_pyth_price(price_oracle, clock_slot, oracle_source),
@@ -415,24 +410,7 @@ pub fn get_pyth_price(
     let published_slot: u64;
     let sequence_id: Option<u64>;
 
-    // TODO: remove these branches for pull and push once we can
-    if oracle_source.is_pyth_pull_oracle() {
-        let price_message = pyth_solana_receiver_sdk::price_update::PriceUpdateV2::try_deserialize(
-            &mut pyth_price_data,
-        )
-        .unwrap();
-        oracle_price = price_message.price_message.price;
-        oracle_conf = price_message.price_message.conf;
-        oracle_precision = 10_u128.pow(price_message.price_message.exponent.unsigned_abs());
-        published_slot = price_message.posted_slot;
-        sequence_id = Some(
-            price_message
-                .price_message
-                .publish_time
-                .max(0)
-                .cast::<u64>()?,
-        );
-    } else if oracle_source.is_pyth_push_oracle() {
+    if oracle_source.is_pyth_push_oracle() {
         let price_data = pyth_client::cast::<pyth_client::Price>(pyth_price_data);
         oracle_price = price_data.agg.price;
         oracle_conf = price_data.agg.conf;
@@ -451,13 +429,21 @@ pub fn get_pyth_price(
         oracle_precision = 10_u128.pow(price_data.expo.unsigned_abs());
         published_slot = price_data.valid_slot;
         sequence_id = None;
-    } else {
+    } else if matches!(
+        oracle_source,
+        OracleSource::PythLazer
+            | OracleSource::PythLazer1K
+            | OracleSource::PythLazer1M
+            | OracleSource::PythLazerStableCoin
+    ) {
         let price_data = PythLazerOracle::try_deserialize(&mut pyth_price_data).unwrap();
         oracle_price = price_data.price;
         oracle_conf = price_data.conf;
         oracle_precision = 10_u128.pow(price_data.exponent.unsigned_abs());
         published_slot = price_data.posted_slot;
         sequence_id = Some(price_data.publish_time.max(0).cast::<u64>()?);
+    } else {
+        return Err(ErrorCode::InvalidOracle);
     }
 
     if oracle_precision <= multiple {
@@ -514,114 +500,6 @@ pub fn get_pyth_stable_coin_price(
     }
 
     Ok(oracle_price_data)
-}
-
-pub fn get_switchboard_price(
-    price_oracle: &AccountInfo,
-    clock_slot: u64,
-) -> DriftResult<OraclePriceData> {
-    let aggregator_data: Ref<AggregatorAccountData> =
-        load_ref(price_oracle).or(Err(ErrorCode::UnableToLoadOracle))?;
-
-    let price = convert_switchboard_decimal(&aggregator_data.latest_confirmed_round.result)?
-        .cast::<i64>()?;
-    let confidence =
-        convert_switchboard_decimal(&aggregator_data.latest_confirmed_round.std_deviation)?
-            .cast::<i64>()?;
-
-    // std deviation should always be positive, if we get a negative make it u128::MAX so it's flagged as bad value
-    let confidence = if confidence < 0 {
-        u64::MAX
-    } else {
-        let price_10bps = price.unsigned_abs().safe_div(1000)?;
-        confidence.unsigned_abs().max(price_10bps)
-    };
-
-    let delay = clock_slot.cast::<i64>()?.safe_sub(
-        aggregator_data
-            .latest_confirmed_round
-            .round_open_slot
-            .cast()?,
-    )?;
-
-    let has_sufficient_number_of_data_points =
-        aggregator_data.latest_confirmed_round.num_success >= aggregator_data.min_oracle_results;
-
-    Ok(OraclePriceData {
-        price,
-        confidence,
-        delay,
-        has_sufficient_number_of_data_points,
-        sequence_id: None,
-    })
-}
-
-pub fn get_sb_on_demand_price(
-    price_oracle: &AccountInfo,
-    clock_slot: u64,
-) -> DriftResult<OraclePriceData> {
-    let pull_feed_account_info: Ref<PullFeedAccountData> =
-        load_ref(price_oracle).or(Err(ErrorCode::UnableToLoadOracle))?;
-
-    let latest_oracle_submssions: Vec<switchboard_on_demand::OracleSubmission> =
-        pull_feed_account_info.latest_submissions();
-    let average_price = latest_oracle_submssions
-        .iter()
-        .map(|submission| submission.value)
-        .sum::<i128>()
-        / latest_oracle_submssions.len() as i128;
-
-    let price = convert_sb_i128(&average_price)?.cast::<i64>()?;
-
-    let confidence = convert_sb_i128(
-        &pull_feed_account_info
-            .range()
-            .ok_or(ErrorCode::UnableToLoadOracle)?,
-    )?
-    .cast::<i64>()?
-    .unsigned_abs();
-
-    let delay = clock_slot
-        .cast::<i64>()?
-        .safe_sub(latest_oracle_submssions[0].landed_at.cast()?)?;
-
-    let has_sufficient_number_of_data_points = true;
-
-    Ok(OraclePriceData {
-        price,
-        confidence,
-        delay,
-        has_sufficient_number_of_data_points,
-        sequence_id: None,
-    })
-}
-
-/// Given a decimal number represented as a mantissa (the digits) plus an
-/// original_precision (10.pow(some number of decimals)), scale the
-/// mantissa/digits to make sense with a new_precision.
-fn convert_switchboard_decimal(switchboard_decimal: &SwitchboardDecimal) -> DriftResult<i128> {
-    let switchboard_precision = 10_u128.pow(switchboard_decimal.scale);
-    if switchboard_precision > PRICE_PRECISION {
-        switchboard_decimal
-            .mantissa
-            .safe_div((switchboard_precision / PRICE_PRECISION) as i128)
-    } else {
-        switchboard_decimal
-            .mantissa
-            .safe_mul((PRICE_PRECISION / switchboard_precision) as i128)
-    }
-}
-
-/// Given a decimal number represented as a mantissa (the digits) plus an
-/// original_precision (10.pow(some number of decimals)), scale the
-/// mantissa/digits to make sense with a new_precision.
-fn convert_sb_i128(switchboard_i128: &i128) -> DriftResult<i128> {
-    let switchboard_precision = 10_u128.pow(SB_ON_DEMAND_PRECISION);
-    if switchboard_precision > PRICE_PRECISION {
-        switchboard_i128.safe_div((switchboard_precision / PRICE_PRECISION) as i128)
-    } else {
-        switchboard_i128.safe_mul((PRICE_PRECISION / switchboard_precision) as i128)
-    }
 }
 
 pub fn get_prelaunch_price(price_oracle: &AccountInfo, slot: u64) -> DriftResult<OraclePriceData> {

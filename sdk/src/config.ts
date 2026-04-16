@@ -14,10 +14,6 @@ import {
 } from './constants/spotMarkets';
 import { OracleInfo } from './oracles/types';
 import { Program, ProgramAccount } from '@coral-xyz/anchor';
-import {
-	ON_DEMAND_DEVNET_PID,
-	ON_DEMAND_MAINNET_PID,
-} from '@switchboard-xyz/on-demand';
 import { getOracleId } from './oracles/oracleId';
 
 type DriftConfig = {
@@ -37,7 +33,6 @@ type DriftConfig = {
 	MARKET_LOOKUP_TABLE: string;
 	MARKET_LOOKUP_TABLES: string[];
 	SERUM_LOOKUP_TABLE?: string;
-	PYTH_PULL_ORACLE_LOOKUP_TABLE?: string;
 	SB_ON_DEMAND_PID: PublicKey;
 };
 
@@ -48,6 +43,12 @@ export const DRIFT_ORACLE_RECEIVER_ID =
 	'G6EoTTTgpkNBtVXo96EQp2m6uwwVh2Kt6YidjkmQqoha';
 export const PTYH_LAZER_PROGRAM_ID =
 	'pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt';
+export const SB_ON_DEMAND_DEVNET_PID = new PublicKey(
+	'Aio4gaXjXzJNVLtzwtNVmSqGKpANtXhybbkhtAC94ji2'
+);
+export const SB_ON_DEMAND_MAINNET_PID = new PublicKey(
+	'SBondMDrcV3K4kxZR1HNVT7osZxAHVHgYXL5Ze1oMUv'
+);
 export const PYTH_LAZER_STORAGE_ACCOUNT_KEY = new PublicKey(
 	'3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL'
 );
@@ -75,7 +76,7 @@ export const configs: { [key in DriftEnv]: DriftConfig } = {
 		MARKET_LOOKUP_TABLE: 'FaMS3U4uBojvGn5FSDEPimddcXsCfwkKsFgMVVnDdxGb',
 		MARKET_LOOKUP_TABLES: ['FaMS3U4uBojvGn5FSDEPimddcXsCfwkKsFgMVVnDdxGb'],
 		DRIFT_ORACLE_RECEIVER_ID,
-		SB_ON_DEMAND_PID: ON_DEMAND_DEVNET_PID,
+		SB_ON_DEMAND_PID: SB_ON_DEMAND_DEVNET_PID,
 	},
 	'mainnet-beta': {
 		ENV: 'mainnet-beta',
@@ -98,7 +99,7 @@ export const configs: { [key in DriftEnv]: DriftConfig } = {
 		],
 		SERUM_LOOKUP_TABLE: 'GPZkp76cJtNL2mphCvT6FXkJCVPpouidnacckR6rzKDN',
 		DRIFT_ORACLE_RECEIVER_ID,
-		SB_ON_DEMAND_PID: ON_DEMAND_MAINNET_PID,
+		SB_ON_DEMAND_PID: SB_ON_DEMAND_MAINNET_PID,
 	},
 };
 

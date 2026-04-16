@@ -8723,12 +8723,15 @@ pub mod liquidate_spot_with_swap {
 mod liquidate_dust_spot_market {
 
     use crate::controller::liquidation::liquidate_spot;
+    use crate::create_anchor_account_info;
+    use crate::state::oracle::OracleSource;
+    use crate::state::pyth_lazer_oracle::PythLazerOracle;
 
     use crate::state::oracle_map::OracleMap;
     use crate::state::perp_market_map::PerpMarketMap;
     use crate::state::state::State;
     use crate::state::user::{SpotPosition, User, UserStats};
-    use crate::test_utils::{create_account_info, get_spot_positions};
+    use crate::test_utils::{create_account_info, get_pyth_price, get_spot_positions};
     use crate::{MARGIN_PRECISION, SPOT_BALANCE_PRECISION_U64};
 
     use crate::state::spot_market_map::SpotMarketMap;
@@ -8782,41 +8785,43 @@ mod liquidate_dust_spot_market {
             true,
         )
         .unwrap();
-        let usdc_oracle_str = String::from("IvEjY51+9M3Mt8aVjwPz6dRn5EI8Gsat6wewXzwVooLo4DMVwF9WdwAC6qAgxhzEeXEoE0Yc4VOJSpamwAsh7Qz8J5jR+anpyUrj3/UFAAAAAEV0AQAAAAAA+P///9a/ZWcAAAAA1b9lZwAAAACf5vUFAAAAAO80AQAAAAAALNNmEgAAAAA=");
-
-        let mut decoded_bytes = base64::decode(usdc_oracle_str).unwrap();
-        let usdc_oracle_bytes = decoded_bytes.as_mut_slice();
-
-        let key = Pubkey::from_str("En8hkHLkRe9d9DraYmBTrus518BvmVH448YcvmrFM6Ce").unwrap();
-        let owner = Pubkey::from_str("G6EoTTTgpkNBtVXo96EQp2m6uwwVh2Kt6YidjkmQqoha").unwrap();
-        let mut lamports = 0;
-        let usdc_oracle_account_info =
-            create_account_info(&key, true, &mut lamports, usdc_oracle_bytes, &owner);
-
-        let sol_oracle_str = String::from("IvEjY51+9M2XHQyryJjMHoB2Eq6pUa+Jj5v4KkT1g/vJZQFqePw+CgAC7w2Lb9os66QdoV1AldHaOSoNL47Qxse8D0z6yMKAtW1YlG5yBAAAAIhF5QAAAAAA+P///+K/ZWcAAAAA4b9lZwAAAABA7ldwBAAAAHvY2gAAAAAASNNmEgAAAAA=");
-
-        let mut decoded_bytes = base64::decode(sol_oracle_str).unwrap();
-        let sol_oracle_bytes = decoded_bytes.as_mut_slice();
-
-        let key = Pubkey::from_str("BAtFj4kQttZRVep3UZS2aZRDixkGYgWsbqTBVDbnSsPF").unwrap();
-        let owner = Pubkey::from_str("G6EoTTTgpkNBtVXo96EQp2m6uwwVh2Kt6YidjkmQqoha").unwrap();
-        let mut lamports = 0;
-        let sol_oracle_account_info =
-            create_account_info(&key, true, &mut lamports, sol_oracle_bytes, &owner);
-
-        let btc_oracle_str = String::from("IvEjY51+9M19vQVFMU5v4s68Qpr5hO9UIqbeADAk9IEJzLirLbCAigACydiwdaXGkwM2WuI2M9TghRmb9cUgo7kP7RMioDQv/DMSlHTczAgAANezVQgDAAAA+P///9a/ZWcAAAAA1b9lZwAAAACg990jzAgAAJQ+EgkDAAAALNNmEgAAAAA=");
-
-        let mut decoded_bytes = base64::decode(btc_oracle_str).unwrap();
-        let btc_oracle_bytes = decoded_bytes.as_mut_slice();
-
-        let key = Pubkey::from_str("9Tq8iN5WnMX2PcZGj4iSFEAgHCi8cM6x8LsDUbuzq8uw").unwrap();
-        let owner = Pubkey::from_str("G6EoTTTgpkNBtVXo96EQp2m6uwwVh2Kt6YidjkmQqoha").unwrap();
-        let mut lamports = 0;
-        let btc_oracle_account_info =
-            create_account_info(&key, true, &mut lamports, btc_oracle_bytes, &owner);
-
+        spot_market_map.get_ref_mut(&1).unwrap().oracle_source = OracleSource::PythLazer;
+        spot_market_map.get_ref_mut(&3).unwrap().oracle_source = OracleSource::PythLazer;
         let now = 1734721516;
         let clock_slot = 308728664;
+
+        let key = Pubkey::from_str("En8hkHLkRe9d9DraYmBTrus518BvmVH448YcvmrFM6Ce").unwrap();
+        let mut usdc_oracle_price = get_pyth_price(1, 6);
+        usdc_oracle_price.publish_time = now as u64;
+        usdc_oracle_price.posted_slot = clock_slot;
+        create_anchor_account_info!(
+            usdc_oracle_price,
+            &key,
+            PythLazerOracle,
+            usdc_oracle_account_info
+        );
+
+        let key = Pubkey::from_str("BAtFj4kQttZRVep3UZS2aZRDixkGYgWsbqTBVDbnSsPF").unwrap();
+        let mut sol_oracle_price = get_pyth_price(220, 6);
+        sol_oracle_price.publish_time = now as u64;
+        sol_oracle_price.posted_slot = clock_slot;
+        create_anchor_account_info!(
+            sol_oracle_price,
+            &key,
+            PythLazerOracle,
+            sol_oracle_account_info
+        );
+
+        let key = Pubkey::from_str("9Tq8iN5WnMX2PcZGj4iSFEAgHCi8cM6x8LsDUbuzq8uw").unwrap();
+        let mut btc_oracle_price = get_pyth_price(97000, 6);
+        btc_oracle_price.publish_time = now as u64;
+        btc_oracle_price.posted_slot = clock_slot;
+        create_anchor_account_info!(
+            btc_oracle_price,
+            &key,
+            PythLazerOracle,
+            btc_oracle_account_info
+        );
 
         let account_infos = vec![
             btc_oracle_account_info,
