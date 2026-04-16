@@ -1,7 +1,7 @@
 # LEARNING STATE
 
 ## Current Position
-- Ring: 1 of 24
+- Ring: 1 of 26
 - Active Concept: 1-4 (The real world: trading, futures, perpetual, exchange)
 - Status: Not Started
 
@@ -13,7 +13,7 @@
 
 ### PHASE 2 - THE ENGINE
 - [ ] Ring 3: AMM, constant product, price from reserves, peg
-- [ ] Ring 4: Solana accounts, three pillars, precision, safe math
+- [ ] Ring 4: Solana accounts, four pillars, precision, safe math
 
 ### PHASE 3 - THE TRADE
 - [ ] Ring 5: PerpPosition struct, base/quote, direction
@@ -24,28 +24,30 @@
 ### PHASE 4 - THE PRICING ENGINE
 - [ ] Ring 9: AMM internals: reserves, sqrt_k, exposure, OI, bounds
 - [ ] Ring 10: Oracles, price feeds, TWAP, strict pricing
-- [ ] Ring 11: Spreads, dynamic spread, inventory/volatility, revenue retreat
+- [ ] Ring 11: Spreads: what they are, bid/ask, asymmetry
+- [ ] Ring 12: Living spreads: inventory, volatility, revenue retreat
 
 ### PHASE 5 - ONGOING COSTS
-- [ ] Ring 12: Fee flow, accumulation, pools, total_fee_minus_distributions
-- [ ] Ring 13: Funding rate, mark vs oracle, asymmetry, capping
+- [ ] Ring 13: Fee flow, accumulation, pools, total_fee_minus_distributions
+- [ ] Ring 14: Funding rate, mark vs oracle, asymmetry, capping
 
 ### PHASE 6 - RISK
-- [ ] Ring 14: Spot as collateral: SpotPosition, scaled_balance, get_token_value
-- [ ] Ring 15: PnL calculation: exit - entry, AMM and oracle valuation
-- [ ] Ring 16: Margin system: types, ratios, IMF, PnL weights, total collateral
-- [ ] Ring 17: PnL settlement: pool, +/-, imbalance, margin check
-- [ ] Ring 18: Liquidation: triggers, partial, fees, statuses
-- [ ] Ring 19: Bankruptcy, social loss, insurance fund, contract tiers
+- [ ] Ring 15: Spot as collateral: SpotPosition, scaled_balance, get_token_value
+- [ ] Ring 16: PnL calculation: exit - entry, AMM and oracle valuation
+- [ ] Ring 17: Per-position margin: types, ratios, IMF, size premium
+- [ ] Ring 18: Portfolio margin: PnL weights, aggregation, total collateral
+- [ ] Ring 19: PnL settlement: pool, +/-, imbalance, margin check
+- [ ] Ring 20: Liquidation: triggers, partial, fees, statuses
+- [ ] Ring 21: Bankruptcy, social loss, insurance fund, contract tiers
 
 ### PHASE 7 - AMM HEALTH
-- [ ] Ring 20: Repeg, K updates, AMM JIT
-- [ ] Ring 21: Matching engine, fulfillment methods, crossing
+- [ ] Ring 22: Repeg, K updates, AMM JIT
+- [ ] Ring 23: Matching engine, fulfillment methods, crossing
 
 ### PHASE 8 - ADVANCED
-- [ ] Ring 22: LP system: shares, sqrt_k, settlement, rebase
-- [ ] Ring 23: Market lifecycle: statuses, pauses, expiry, delisting
-- [ ] Ring 24: Special modes & infrastructure: high leverage, isolated, prediction, guard rails, events, full spot deep dive, DEX
+- [ ] Ring 24: LP system: shares, sqrt_k, settlement, rebase
+- [ ] Ring 25: Market lifecycle: statuses, pauses, expiry, delisting
+- [ ] Ring 26: Special modes & infrastructure: high leverage, isolated, prediction, guard rails, events, full spot deep dive, DEX
 
 ## Mastery Notes
 (none yet)

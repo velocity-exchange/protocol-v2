@@ -35,7 +35,7 @@
     → BRIDGE: "The AMM is a formula. But formulas need to live somewhere, store state, execute on commands."
 
 15. Solana accounts - where all data lives on the blockchain
-16. The four pillars: State, PerpMarket, CollateralMarket, User accounts (the collateral market account holds token config — we'll call it by its code name and explore it fully in Ring 14)
+16. The four pillars: State, PerpMarket, CollateralMarket, User accounts (the collateral market account holds token config — we'll call it by its code name and explore it fully in Ring 15)
 17. Fixed-point precision - why there are no decimals on-chain
 18. Precision constants (PRICE_PRECISION, BASE_PRECISION, QUOTE_PRECISION)
 19. Safe math - checked arithmetic to prevent overflow/underflow
@@ -55,7 +55,7 @@
 27. OrderParams - what the user submits to place an order
 28. Order lifecycle - Open -> Filled/Canceled/Expired
 29. Reduce-only orders - can only shrink a position
-30. Post-only orders - must be maker (add liquidity)
+30. Post-only orders - your order must wait to be matched, not execute immediately (the full maker/taker distinction plays out in Ring 23)
 31. Immediate-or-cancel orders
     → BRIDGE: "You placed an order. Who fills it, at what price? Market orders need a price NOW."
 
@@ -64,7 +64,7 @@
 34. auction_duration - how many slots the auction lasts
 35. Fillers/Keepers - off-chain bots that trigger on-chain fills
 36. The fill flow: place_order -> fill_order orchestration (controller/orders.rs). NOTE: fill_order loads a reference price as its first step — WHERE this price comes from is fully explained in Ring 10. For now, treat it as "the real-world price fed into the system."
-37. Fees charged on fill - taker fee, maker rebate, filler reward (WHERE these fees accumulate → Ring 12)
+37. Fees charged on fill - taker fee, maker rebate, filler reward (WHERE these fees accumulate → Ring 13)
     → BRIDGE: "A fill happened. What changes on the position?"
 
 38. Opening, increasing, decreasing, closing a position (controller/position.rs)
@@ -81,7 +81,7 @@
 45. base_asset_amount_with_amm - net exposure the AMM holds (sum of all positions from Ring 5)
 46. base_asset_amount_long / _short - total market open interest tracking
 47. Concentration coefficient - tightening liquidity without adding depth
-48. min/max_base_asset_reserve - AMM availability bounds (what sets these bounds → Ring 11)
+48. min/max_base_asset_reserve - AMM availability bounds (what sets these bounds → Ring 12)
     → BRIDGE: "The AMM computes prices from reserves. But how does it know if its price is RIGHT? It needs truth from outside."
 
 49. Why external price feeds are needed (the AMM's peg from Ring 3 needs a source of truth)
@@ -95,36 +95,38 @@
 55. Bid/ask spread - the AMM's profit margin on each trade (the AMM's protection during fills from Ring 7)
 56. base_spread and max_spread - the range
 57. long_spread and short_spread - asymmetric spreads
+    → BRIDGE: "You know the AMM quotes a bid and an ask with a spread. But this spread isn't fixed — it reacts to what's happening in the market."
+
 58. Dynamic spread from inventory - wider when AMM is imbalanced (uses base_asset_amount_with_amm from Ring 9)
 59. Dynamic spread from volatility (mark_std, oracle_std - uses oracle from Ring 10)
 60. ask/bid_base_asset_reserve and ask/bid_quote_asset_reserve - transformed reserves
-61. Revenue-based spread retreat - calculate_spread() takes the AMM's cumulative revenue and recent revenue tracking fields as direct inputs. When AMM is losing money, spreads widen to protect it. These fields are fully explained in Ring 12; here we learn THAT revenue affects spreads and the DIRECTION (losing money → wider spread).
+61. Revenue-based spread retreat - calculate_spread() takes the AMM's cumulative revenue and recent revenue tracking fields as direct inputs. When AMM is losing money, spreads widen to protect it. These fields are fully explained in Ring 13; here we learn THAT revenue affects spreads and the DIRECTION (losing money → wider spread).
     → BRIDGE: "Spreads widen when the AMM loses money. Fees were charged on fill (Ring 7). Where does all this money actually go, and how does the AMM track whether it's profitable?"
 
 ### PHASE 5 - ONGOING COSTS (what does holding a position cost?)
 
 62. Fee flow & accumulation - total_fee, total_exchange_fee, total_mm_fee
 63. total_fee_minus_distributions - the protocol's running balance
-64. Fee pool (PoolBalance) - partition of fees reserved for specific protocol needs (you'll see exactly which needs in Rings 13 and 17)
+64. Fee pool (PoolBalance) - partition of fees reserved for specific protocol needs (you'll see exactly which needs in Rings 14 and 19)
 65. Fee tiers - volume-based discounts
 66. fee_adjustment per market - custom fee scaling
     → BRIDGE: "Fees accumulate in pools. One critical use: funding. What if the AMM's price drifts from oracle? There must be a force pulling them together."
 
-67. Why funding rates exist - anchoring perp price to oracle (mark TWAP from spreads Ring 11, oracle TWAP from Ring 10)
+67. Why funding rates exist - anchoring perp price to oracle (mark TWAP from spreads Rings 11-12, oracle TWAP from Ring 10)
 68. Mark price TWAP vs Oracle price TWAP - the divergence signal
 69. Funding rate calculation - payment from one side to the other
 70. Long/short funding rate asymmetry - protocol pays/receives the gap
-71. Capped funding rate - protecting total_fee_minus_distributions (from Ring 12, now the cap makes sense)
+71. Capped funding rate - protecting total_fee_minus_distributions (from Ring 13, now the cap makes sense)
 72. Cumulative funding rate tracking (per-market, per-position — reveals PerpPosition.last_cumulative_funding_rate field not covered in Ring 5)
 73. Funding period and update cadence
-74. net_revenue_since_last_funding - AMM P&L tracking per funding epoch (this is the field that feeds back into spread retreat from Ring 11)
+74. net_revenue_since_last_funding - AMM P&L tracking per funding epoch (this is the field that feeds back into spread retreat from Ring 12)
     → BRIDGE: "You hold a position and pay ongoing costs. But what IS your collateral in code? Where does your deposited money actually live on-chain?"
 
 ### PHASE 6 - RISK (are you safe?)
 
 75. Your collateral in code - SpotPosition on the User account (state/user.rs). User.spot_positions[0] is always the quote asset (USDC). Your deposit lives here.
 76. scaled_balance and SpotBalanceType (Deposit vs Borrow) - how balances are stored
-77. get_token_amount - converts scaled_balance to real token amount using the collateral market's interest multipliers (the collateral market account was introduced as a pillar in Ring 4, concept 16; the full interest math is in Ring 24)
+77. get_token_amount - converts scaled_balance to real token amount using the collateral market's interest multipliers (the collateral market account was introduced as a pillar in Ring 4, concept 16; the full interest math is in Ring 26)
 78. get_token_value / get_strict_token_value - dollar value of a spot position using oracle price
 79. When fees are charged or funding is paid → your spot balance changes via update_spot_balances (controller/spot_balance.rs). This is the single pipe connecting all money flow to your account (more flows use this same pipe in later rings).
     → BRIDGE: "Now you know what collateral IS in code. How much profit or loss is your perp position sitting on?"
@@ -139,27 +141,29 @@
 85. How margin requirement is calculated for a position
 86. IMF factor - Initial Margin Fraction for size-based premium
 87. calculate_size_premium_liability_weight - bigger position = more margin
-88. Unrealized PnL asset weights - discounting positive PnL (uses PnL calc from Ring 15)
-89. unrealized_pnl_imf_factor and a cap on how much positive PnL counts toward margin (why this cap exists → Ring 17)
-90. MarginCalculation struct - aggregating across all positions and spot positions. For each perp position, calls calculate_funding_payment (Ring 13) to include unsettled funding in unrealized PnL
-91. Total collateral (sum of spot position values from Ring 14) vs total margin requirement
-92. MarginMode - the system supports different ways of calculating margin (details in Ring 24)
+    → BRIDGE: "You know how much margin one position needs. But traders hold multiple positions with spot collateral. How does the system add it all up?"
+
+88. Unrealized PnL asset weights - discounting positive PnL (uses PnL calc from Ring 16)
+89. unrealized_pnl_imf_factor and a cap on how much positive PnL counts toward margin (why this cap exists → Ring 19)
+90. MarginCalculation struct - aggregating across all positions and spot positions. For each perp position, calls calculate_funding_payment (Ring 14) to include unsettled funding in unrealized PnL
+91. Total collateral (sum of spot position values from Ring 15) vs total margin requirement
+92. MarginMode - the system supports different ways of calculating margin (details in Ring 26)
     → BRIDGE: "Margin is calculated. Now positive PnL can be cashed out, negative PnL must be paid - but settlement needs margin checks."
 
 93. PnL pool (PoolBalance on PerpMarket) - where settled PnL flows
-94. Settling positive PnL - withdrawing from pool, increasing user's spot balance (Ring 14)
-95. Settling negative PnL - depositing into pool, decreasing user's spot balance (Ring 14)
+94. Settling positive PnL - withdrawing from pool, increasing user's spot balance (Ring 15)
+95. Settling negative PnL - depositing into pool, decreasing user's spot balance (Ring 15)
 96. PnL imbalance - when net user PnL exceeds pool capacity
 97. Price divergence checks for safe PnL settlement
-98. settle_pnl calls meets_settle_pnl_maintenance_margin_requirement (uses margin from Ring 16)
+98. settle_pnl calls meets_settle_pnl_maintenance_margin_requirement (uses margin from Rings 17-18)
     → BRIDGE: "What happens when your losses grow so large that your collateral can't cover maintenance margin?"
 
-99. When liquidation triggers - total collateral < maintenance margin requirement (margin from Ring 16)
+99. When liquidation triggers - total collateral < maintenance margin requirement (margin from Rings 17-18)
 100. Liquidation flow (controller/liquidation.rs) - the full process
 101. Partial liquidation - initial_pct_to_liquidate, liquidation over time
-102. Liquidator fee and a second fee that goes to a safety fund (that fund is explained in Ring 19)
+102. Liquidator fee and a second fee that goes to a safety fund (that fund is explained in Ring 21)
 103. Max liquidation fee - bounded by maintenance margin
-104. BeingLiquidated status and a second terminal status (what that status means → Ring 19)
+104. BeingLiquidated status and a second terminal status (what that status means → Ring 21)
 105. liquidation_margin_freed - tracking partial liquidation progress
     → BRIDGE: "Liquidation usually recovers enough. But what if the market moves so fast that even liquidation leaves a hole?"
 
@@ -173,10 +177,10 @@
 ### PHASE 7 - AMM HEALTH (keeping the engine running)
 
 111. Repeg - adjusting peg_multiplier to track oracle price (peg from Ring 3, oracle from Ring 10)
-112. Repeg cost calculation (math/repeg.rs) - paid from fee pool (Ring 12)
+112. Repeg cost calculation (math/repeg.rs) - paid from fee pool (Ring 13)
 113. Formulaic K updates - auto-scaling liquidity depth (sqrt_k from Ring 9)
 114. curve_update_intensity - how aggressively K adjusts
-115. Budgeted K scale - bounded by fee pool (Ring 12)
+115. Budgeted K scale - bounded by fee pool (Ring 13)
 116. AMM JIT - protocol filling as maker alongside user orders (extends fill flow from Ring 7)
 117. amm_jit_intensity - participation level
     → BRIDGE: "The AMM isn't the only way orders get filled. Two users' orders can match directly."
@@ -202,23 +206,23 @@
 130. PausedOperations (PerpOperation bitflags) - granular pause controls
 131. ExchangeStatus bitflags - global pause controls on State
 132. Market expiry (expiry_ts, expiry_price) - winding down a market
-133. Delisting PnL settlement (controller/pnl/delisting.rs) - extends PnL settlement (Ring 17)
+133. Delisting PnL settlement (controller/pnl/delisting.rs) - extends PnL settlement (Ring 19)
     → BRIDGE: "A market can launch, run, pause, and delist. But the system we've built assumes one margin mode, one fill source, and trusted price data. What if traders need different margin rules, or price feeds go stale, or orders can route through external venues?"
 
-134. High leverage mode - reduced margin for smaller positions (extends margin from Ring 16)
+134. High leverage mode - reduced margin for smaller positions (extends margin from Rings 17-18)
 135. high_leverage_margin_ratio_initial/maintenance
-136. Isolated margin positions - per-position collateral (extends MarginMode from Ring 16)
+136. Isolated margin positions - per-position collateral (extends MarginMode from Ring 18)
 137. isolated_position_scaled_balance on PerpPosition
-138. Protected maker orders - maker-side protection (extends matching from Ring 21)
+138. Protected maker orders - maker-side protection (extends matching from Ring 23)
 139. Prediction markets (ContractType::Prediction) - binary outcomes
 140. Oracle guard rails - staleness, confidence, volatility checks (extends oracle from Ring 10)
 141. OracleValidity enum and validation logic
 142. Account maps (PerpMarketMap, SpotMarketMap, OracleMap) - efficient loading
 143. MarketSet - tracking which markets need writable access
 144. Events (state/events.rs) - OrderActionRecord, OrderRecord emission
-145. Full SpotMarket deep dive - borrowing, interest rates, cumulative interest (extends spot basics from Ring 14)
+145. Full SpotMarket deep dive - borrowing, interest rates, cumulative interest (extends spot basics from Ring 15)
 146. Spot balance math for cross-collateral valuation
-147. Revenue pool and fee withdrawal mechanics (extends fee flow from Ring 12)
+147. Revenue pool and fee withdrawal mechanics (extends fee flow from Ring 13)
 148. External DEX fulfillment params (Phoenix, OpenBook v2, Serum)
 
 ---
@@ -232,22 +236,24 @@ Each ring's concepts require ONLY concepts from prior rings. No circular depende
 - Concepts 15-19 require: 10-14 (need AMM concept to motivate on-chain storage)
 - Concepts 20-24 require: 12-13, 15-19 (base/quote come from x*y=k, stored in accounts)
 - Concepts 25-31 require: 20-24 (need position to understand orders that create them)
-- Concepts 32-37 require: 25-31 (orders need to be filled, auctions give fill prices; oracle price used as input → forward ref to Ring 10)
+- Concepts 32-37 require: 25-31 (orders need to be filled, auctions give fill prices; reference price used as input → forward ref to Ring 10)
 - Concepts 38-40 require: 20-24, 32-37 (fills mutate positions; AMM-side mutations → forward ref to Ring 9)
 - Concepts 41-48 require: 12-14, 38-40 (AMM internals explain what happened in that fill, AMM tracks aggregate positions from Ring 5)
 - Concepts 49-54 require: 14, 41-48 (oracle gives AMM its peg source of truth)
-- Concepts 55-61 require: 41-48, 49-54 (spreads use AMM inventory + oracle volatility; revenue retreat uses fee fields → forward ref to Ring 12, direction explained here)
-- Concepts 62-66 require: 37, 55-61 (fee flow extends fees-on-fill, explains fields that feed back into spread retreat)
-- Concepts 67-74 require: 55-61, 62-66 (funding uses mark TWAP from spreads, capped by fee pool)
+- Concepts 55-57 require: 41-48 (basic spreads are parameters on the AMM struct)
+- Concepts 58-61 require: 55-57, 49-54 (dynamic factors use oracle data + AMM inventory; revenue retreat uses fee fields → forward ref to Ring 13)
+- Concepts 62-66 require: 37, 55-61 (fee flow extends fees-on-fill, explains fields that feed into spread retreat from Ring 12)
+- Concepts 67-74 require: 55-61, 62-66 (funding uses mark TWAP from spreads Rings 11-12, capped by fee pool Ring 13)
 - Concepts 75-79 require: 15-19, 49-54 (spot position uses accounts + oracle for valuation)
 - Concepts 80-82 require: 41-48, 49-54, 75-79 (PnL uses AMM + oracle valuation, result lands in spot balance)
-- Concepts 83-92 require: 67-74, 80-82, 75-79 (margin calls calculate_funding_payment for unsettled funding as part of unrealized PnL, uses PnL calc for weights, spot values for collateral)
-- Concepts 93-98 require: 62-66, 83-92 (PnL settlement uses fee pool + margin checks + spot balance updates)
+- Concepts 83-87 require: 80-82 (per-position margin needs position valuation from Ring 16)
+- Concepts 88-92 require: 83-87, 67-74, 80-82, 75-79 (portfolio margin aggregates per-position margin + unsettled funding from Ring 14 + PnL weights from Ring 16 + spot collateral from Ring 15)
+- Concepts 93-98 require: 62-66, 83-92 (PnL settlement uses fee pool Ring 13 + margin checks Rings 17-18 + spot balance updates Ring 15)
 - Concepts 99-105 require: 83-92 (liquidation triggers on margin breach)
 - Concepts 106-110 require: 99-105 (bankruptcy when liquidation isn't enough)
 - Concepts 111-117 require: 14, 41-48, 49-54, 62-66 (repeg uses peg+oracle+fee pool, JIT extends fills)
 - Concepts 118-122 require: 32-37, 55-61 (matching is alternative to AMM fills, uses spreads)
-- Concepts 123-128 require: 41-48, 93-98, 111-117 (LP extends AMM, settlement extends PnL, rebase uses update_k from Ring 20)
+- Concepts 123-128 require: 41-48, 93-98, 111-117 (LP extends AMM, settlement extends PnL, rebase uses update_k from Ring 22)
 - Concepts 129-133 require: 93-98, 99-105 (lifecycle includes settlement and delisting PnL)
 - Concepts 134-148 require: all prior (advanced modes extend margin, oracle, matching, fees, full spot deep dive)
 
@@ -272,28 +278,30 @@ Each ring's concepts require ONLY concepts from prior rings. No circular depende
 ### PHASE 4 - THE PRICING ENGINE (what happened inside that fill)
 - **Ring 9**: Concepts 41-48 -- AMM internals: reserves, sqrt_k, exposure, OI, bounds
 - **Ring 10**: Concepts 49-54 -- Truth from outside: oracles, price feeds, TWAP, strict pricing
-- **Ring 11**: Concepts 55-61 -- The AMM's edge: spreads, dynamic spread, inventory/volatility, revenue retreat
+- **Ring 11**: Concepts 55-57 -- The AMM's edge: what spreads are, bid/ask, asymmetry
+- **Ring 12**: Concepts 58-61 -- Living spreads: inventory, volatility, transformed reserves, revenue retreat
 
 ### PHASE 5 - ONGOING COSTS
-- **Ring 12**: Concepts 62-66 -- Where money flows: fee accumulation, pools, total_fee_minus_distributions
-- **Ring 13**: Concepts 67-74 -- Staying anchored: funding rate, mark vs oracle, asymmetry, capping
+- **Ring 13**: Concepts 62-66 -- Where money flows: fee accumulation, pools, total_fee_minus_distributions
+- **Ring 14**: Concepts 67-74 -- Staying anchored: funding rate, mark vs oracle, asymmetry, capping
 
 ### PHASE 6 - RISK (the safety cascade)
-- **Ring 14**: Concepts 75-79 -- Your collateral in code: SpotPosition, scaled_balance, get_token_value, spot balance updates
-- **Ring 15**: Concepts 80-82 -- PnL calculation: exit - entry, AMM-based and oracle-based valuation
-- **Ring 16**: Concepts 83-92 -- Margin system: types, ratios, IMF, PnL weights, spot collateral, MarginCalculation
-- **Ring 17**: Concepts 93-98 -- PnL settlement: pool, settling +/-, imbalance, margin requirement
-- **Ring 18**: Concepts 99-105 -- Liquidation: triggers, partial flow, fees, statuses
-- **Ring 19**: Concepts 106-110 -- Bankruptcy & insurance: social loss, insurance fund, contract tiers
+- **Ring 15**: Concepts 75-79 -- Your collateral in code: SpotPosition, scaled_balance, get_token_value, spot balance updates
+- **Ring 16**: Concepts 80-82 -- PnL calculation: exit - entry, AMM-based and oracle-based valuation
+- **Ring 17**: Concepts 83-87 -- Per-position margin: types, ratios, IMF, size premium
+- **Ring 18**: Concepts 88-92 -- Portfolio margin: PnL weights, aggregation, total collateral
+- **Ring 19**: Concepts 93-98 -- PnL settlement: pool, settling +/-, imbalance, margin requirement
+- **Ring 20**: Concepts 99-105 -- Liquidation: triggers, partial flow, fees, statuses
+- **Ring 21**: Concepts 106-110 -- Bankruptcy & insurance: social loss, insurance fund, contract tiers
 
 ### PHASE 7 - AMM HEALTH
-- **Ring 20**: Concepts 111-117 -- AMM maintenance: repeg, K updates, AMM JIT
-- **Ring 21**: Concepts 118-122 -- Matching engine: fulfillment methods, crossing, matched fills
+- **Ring 22**: Concepts 111-117 -- AMM maintenance: repeg, K updates, AMM JIT
+- **Ring 23**: Concepts 118-122 -- Matching engine: fulfillment methods, crossing, matched fills
 
 ### PHASE 8 - ADVANCED
-- **Ring 22**: Concepts 123-128 -- LP system: shares, sqrt_k, settlement, rebase
-- **Ring 23**: Concepts 129-133 -- Market lifecycle: statuses, pauses, expiry, delisting
-- **Ring 24**: Concepts 134-148 -- Special modes & infrastructure: high leverage, isolated, prediction, guard rails, account maps, events, full spot deep dive, DEX
+- **Ring 24**: Concepts 123-128 -- LP system: shares, sqrt_k, settlement, rebase
+- **Ring 25**: Concepts 129-133 -- Market lifecycle: statuses, pauses, expiry, delisting
+- **Ring 26**: Concepts 134-148 -- Special modes & infrastructure: high leverage, isolated, prediction, guard rails, account maps, events, full spot deep dive, DEX
 
 ---
 
@@ -309,20 +317,22 @@ Each ring's concepts require ONLY concepts from prior rings. No circular depende
 - **Ring 8**: Can introduce: position delta, open/increase/decrease/close
 - **Ring 9**: Can introduce: sqrt_k, concentration, open interest, net exposure, terminal reserves
 - **Ring 10**: Can introduce: oracle, price feed, TWAP, confidence interval, staleness
-- **Ring 11**: Can introduce: spread, bid, ask, inventory, volatility, mark price, revenue retreat
-- **Ring 12**: Can introduce: fee pool, total_fee_minus_distributions, fee tier, revenue pool
-- **Ring 13**: Can introduce: funding rate, funding payment, cumulative funding, capping
-- **Ring 14**: Can introduce: spot position, scaled balance, token amount, token value, deposit, borrow
-- **Ring 15**: Can introduce: PnL, exit value, entry value, base asset value
-- **Ring 16**: Can introduce: initial margin, maintenance margin, fill margin, IMF, asset weight, liability weight, total collateral
-- **Ring 17**: Can introduce: PnL settlement, PnL pool, imbalance, divergence
-- **Ring 18**: Can introduce: liquidation, liquidator, partial liquidation, margin freed
-- **Ring 19**: Can introduce: bankruptcy, social loss, insurance fund, contract tier
-- **Ring 20**: Can introduce: repeg, K update, formulaic, curve intensity, AMM JIT
-- **Ring 21**: Can introduce: fulfillment method, maker/taker matching, crossing
-- **Ring 22**: Can introduce: LP shares, liquidity provider, LP settlement, rebase
-- **Ring 23**: Can introduce: market status, paused operations, expiry, delisting
-- **Ring 24**: Can introduce: high leverage mode, isolated margin, protected maker, prediction market, oracle guard rails, account map, events, cumulative interest, external DEX
+- **Ring 11**: Can introduce: spread, bid, ask, mark price
+- **Ring 12**: Can introduce: inventory, volatility, revenue retreat, transformed reserves
+- **Ring 13**: Can introduce: fee pool, total_fee_minus_distributions, fee tier, revenue pool
+- **Ring 14**: Can introduce: funding rate, funding payment, cumulative funding, capping
+- **Ring 15**: Can introduce: spot position, scaled balance, token amount, token value, deposit, borrow
+- **Ring 16**: Can introduce: PnL, exit value, entry value, base asset value
+- **Ring 17**: Can introduce: initial margin, maintenance margin, fill margin, IMF, liability weight
+- **Ring 18**: Can introduce: asset weight, total collateral, margin calculation, margin mode
+- **Ring 19**: Can introduce: PnL settlement, PnL pool, imbalance, divergence
+- **Ring 20**: Can introduce: liquidation, liquidator, partial liquidation, margin freed
+- **Ring 21**: Can introduce: bankruptcy, social loss, insurance fund, contract tier
+- **Ring 22**: Can introduce: repeg, K update, formulaic, curve intensity, AMM JIT
+- **Ring 23**: Can introduce: fulfillment method, maker/taker matching, crossing
+- **Ring 24**: Can introduce: LP shares, liquidity provider, LP settlement, rebase
+- **Ring 25**: Can introduce: market status, paused operations, expiry, delisting
+- **Ring 26**: Can introduce: high leverage mode, isolated margin, protected maker, prediction market, oracle guard rails, account map, events, cumulative interest, external DEX
 
 ---
 
@@ -334,17 +344,19 @@ Each ring's concepts require ONLY concepts from prior rings. No circular depende
 - **Ring 8**: `controller/position.rs`, `math/orders.rs`
 - **Ring 9**: `state/perp_market.rs` (AMM struct), `math/amm.rs`
 - **Ring 10**: `state/oracle.rs`, `state/oracle_map.rs`
-- **Ring 11**: `math/amm_spread.rs`, `state/perp_market.rs` (spread fields)
-- **Ring 12**: `state/state.rs` (FeeStructure), `state/perp_market.rs` (PoolBalance, fee fields)
-- **Ring 13**: `math/funding.rs`, `controller/funding.rs`
-- **Ring 14**: `state/user.rs` (SpotPosition), `state/spot_market.rs` (SpotBalanceType), `math/spot_balance.rs`, `controller/spot_balance.rs`
-- **Ring 15**: `math/pnl.rs`, `math/position.rs`
-- **Ring 16**: `math/margin.rs`, `state/margin_calculation.rs`
-- **Ring 17**: `controller/pnl.rs`
-- **Ring 18**: `math/liquidation.rs`, `controller/liquidation.rs`
-- **Ring 19**: `math/bankruptcy.rs`, `state/perp_market.rs` (InsuranceClaim, ContractTier)
-- **Ring 20**: `math/repeg.rs`, `math/cp_curve.rs`, `math/amm_jit.rs`, `controller/repeg.rs`
-- **Ring 21**: `math/matching.rs`, `math/fulfillment.rs`
-- **Ring 22**: `controller/lp.rs`
-- **Ring 23**: `state/perp_market.rs` (MarketStatus), `state/paused_operations.rs`
-- **Ring 24**: `state/high_leverage_mode_config.rs`, `controller/isolated_position.rs`, `math/oracle.rs`, `state/perp_market_map.rs`, `state/events.rs`, `state/spot_market.rs` (full), `state/fulfillment_params/`
+- **Ring 11**: `math/amm_spread.rs` (base spread params), `state/perp_market.rs` (spread fields)
+- **Ring 12**: `math/amm_spread.rs` (dynamic spread calculations)
+- **Ring 13**: `state/state.rs` (FeeStructure), `state/perp_market.rs` (PoolBalance, fee fields)
+- **Ring 14**: `math/funding.rs`, `controller/funding.rs`
+- **Ring 15**: `state/user.rs` (SpotPosition), `state/spot_market.rs` (SpotBalanceType), `math/spot_balance.rs`, `controller/spot_balance.rs`
+- **Ring 16**: `math/pnl.rs`, `math/position.rs`
+- **Ring 17**: `math/margin.rs` (per-position margin requirement)
+- **Ring 18**: `math/margin.rs` (aggregation, weights), `state/margin_calculation.rs`
+- **Ring 19**: `controller/pnl.rs`
+- **Ring 20**: `math/liquidation.rs`, `controller/liquidation.rs`
+- **Ring 21**: `math/bankruptcy.rs`, `state/perp_market.rs` (InsuranceClaim, ContractTier)
+- **Ring 22**: `math/repeg.rs`, `math/cp_curve.rs`, `math/amm_jit.rs`, `controller/repeg.rs`
+- **Ring 23**: `math/matching.rs`, `math/fulfillment.rs`
+- **Ring 24**: `controller/lp.rs`
+- **Ring 25**: `state/perp_market.rs` (MarketStatus), `state/paused_operations.rs`
+- **Ring 26**: `state/high_leverage_mode_config.rs`, `controller/isolated_position.rs`, `math/oracle.rs`, `state/perp_market_map.rs`, `state/events.rs`, `state/spot_market.rs` (full), `state/fulfillment_params/`
