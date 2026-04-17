@@ -1238,7 +1238,7 @@ export async function overWritePerpMarket(
 		owner: driftClient.program.programId,
 		lamports: LAMPORTS_PER_SOL,
 		data: await driftClient.program.account.perpMarket.coder.accounts.encode(
-			'PerpMarket',
+			'perpMarket',
 			perpMarket
 		),
 	});
@@ -1255,7 +1255,7 @@ export async function overWriteSpotMarket(
 		owner: driftClient.program.programId,
 		lamports: LAMPORTS_PER_SOL,
 		data: await driftClient.program.account.spotMarket.coder.accounts.encode(
-			'SpotMarket',
+			'spotMarket',
 			spotMarket
 		),
 	});
@@ -1270,7 +1270,7 @@ export async function getPerpMarketDecoded(
 		perpMarketPublicKey
 	);
 	const perpMarketAccount: PerpMarketAccount =
-		driftClient.program.coder.accounts.decode('PerpMarket', accountInfo!.data);
+		driftClient.program.coder.accounts.decode('perpMarket', accountInfo!.data);
 	return perpMarketAccount;
 }
 
@@ -1436,7 +1436,7 @@ export async function overwriteConstituentAccount(
 		owner: program.programId,
 		lamports: LAMPORTS_PER_SOL,
 		data: await program.account.constituent.coder.accounts.encode(
-			'Constituent',
+			'constituent',
 			acc
 		),
 	});

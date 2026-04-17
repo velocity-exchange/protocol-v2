@@ -4,17 +4,17 @@ import {
 	TokenAccountEvents,
 	TokenAccountSubscriber,
 } from './types';
-import { Program } from '@coral-xyz/anchor';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
 import { PublicKey } from '@solana/web3.js';
 import { BulkAccountLoader } from './bulkAccountLoader';
 import { Account } from '@solana/spl-token';
 import { parseTokenAccount } from '../token';
+import { DriftProgram } from '../config';
 
 export class PollingTokenAccountSubscriber implements TokenAccountSubscriber {
 	isSubscribed: boolean;
-	program: Program;
+	program: DriftProgram;
 	eventEmitter: StrictEventEmitter<EventEmitter, TokenAccountEvents>;
 	publicKey: PublicKey;
 

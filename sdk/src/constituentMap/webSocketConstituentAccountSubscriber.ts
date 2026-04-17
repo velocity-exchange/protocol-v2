@@ -3,7 +3,7 @@ import {
 	ConstituentAccountEvents,
 	ConstituentAccountSubscriber,
 } from '../accounts/types';
-import { Program } from '@coral-xyz/anchor';
+import { DriftProgram } from '../config';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
 import { Commitment, Context, MemcmpFilter, PublicKey } from '@solana/web3.js';
@@ -18,7 +18,7 @@ export class WebSocketConstituentAccountSubscriber
 	isSubscribed: boolean;
 	resubTimeoutMs?: number;
 	commitment?: Commitment;
-	program: Program;
+	program: DriftProgram;
 	eventEmitter: StrictEventEmitter<EventEmitter, ConstituentAccountEvents>;
 
 	constituentDataAccountSubscriber: WebSocketProgramAccountSubscriber<ConstituentAccount>;
@@ -27,7 +27,7 @@ export class WebSocketConstituentAccountSubscriber
 
 	public constructor(
 		constituentMap: ConstituentMap,
-		program: Program,
+		program: DriftProgram,
 		resubTimeoutMs?: number,
 		commitment?: Commitment,
 		additionalFilters?: MemcmpFilter[]
@@ -48,10 +48,10 @@ export class WebSocketConstituentAccountSubscriber
 		this.constituentDataAccountSubscriber =
 			new WebSocketProgramAccountSubscriber<ConstituentAccount>(
 				'LpPoolConstituent',
-				'Constituent',
+				'constituent',
 				this.program,
-				this.program.account.constituent.coder.accounts.decode.bind(
-					this.program.account.constituent.coder.accounts
+				(this.program.account as any).constituent.coder.accounts.decode.bind(
+					(this.program.account as any).constituent.coder.accounts
 				),
 				{
 					filters: [getConstituentFilter(), ...(this.additionalFilters || [])],

@@ -82,7 +82,7 @@ pub fn handle_initialize_lp_pool(
         target_oracle_delay_fee_bps_per_10_slots: 0,
         target_position_delay_fee_bps_per_10_slots: 0,
         lp_pool_id,
-        padding: [0u8; 174],
+        padding: [0u8; 182],
         whitelist_mint,
     };
 
@@ -112,7 +112,7 @@ pub fn handle_initialize_lp_pool(
 }
 
 pub fn handle_initialize_constituent<'info>(
-    ctx: Context<'_, '_, '_, 'info, InitializeConstituent<'info>>,
+    ctx: Context<'info, InitializeConstituent<'info>>,
     spot_market_index: u16,
     decimals: u8,
     max_weight_deviation: i64,
@@ -622,7 +622,7 @@ pub fn handle_update_constituent_correlation_data<'info>(
 }
 
 pub fn handle_begin_lp_swap<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, LPTakerSwap<'info>>,
+    ctx: Context<'info, LPTakerSwap<'info>>,
     in_market_index: u16,
     out_market_index: u16,
     amount_in: u64,
@@ -728,9 +728,9 @@ pub fn handle_begin_lp_swap<'c: 'info, 'info>(
             found_end = true;
 
             // must be the SwapEnd instruction
-            let discriminator = crate::instruction::EndLpSwap::discriminator();
+            let discriminator = crate::instruction::EndLpSwap::DISCRIMINATOR;
             validate!(
-                ix.data[0..8] == discriminator,
+                &ix.data[0..8] == discriminator,
                 ErrorCode::InvalidSwap,
                 "last drift ix must be end of swap"
             )?;
@@ -824,9 +824,7 @@ pub fn handle_begin_lp_swap<'c: 'info, 'info>(
     Ok(())
 }
 
-pub fn handle_end_lp_swap<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, LPTakerSwap<'info>>,
-) -> Result<()> {
+pub fn handle_end_lp_swap<'c: 'info, 'info>(ctx: Context<'info, LPTakerSwap<'info>>) -> Result<()> {
     let signer_in_token_account = &ctx.accounts.signer_in_token_account;
     let signer_out_token_account = &ctx.accounts.signer_out_token_account;
 
@@ -917,7 +915,7 @@ pub fn handle_update_perp_market_lp_pool_status(
 }
 
 pub fn handle_update_initial_amm_cache_info<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, UpdateInitialAmmCacheInfo<'info>>,
+    ctx: Context<'info, UpdateInitialAmmCacheInfo<'info>>,
 ) -> Result<()> {
     let amm_cache = &mut ctx.accounts.amm_cache;
     let slot = Clock::get()?.slot;
@@ -968,7 +966,7 @@ pub struct OverrideAmmCacheParams {
 }
 
 pub fn handle_override_amm_cache_info<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, UpdateInitialAmmCacheInfo<'info>>,
+    ctx: Context<'info, UpdateInitialAmmCacheInfo<'info>>,
     market_index: u16,
     override_params: OverrideAmmCacheParams,
 ) -> Result<()> {
@@ -1045,7 +1043,7 @@ pub struct InitializeLpPool<'info> {
 
     #[account(
         init,
-        seeds = [AMM_MAP_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [AMM_MAP_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
         space = AmmConstituentMapping::space(0 as usize),
         payer = admin,
@@ -1054,7 +1052,7 @@ pub struct InitializeLpPool<'info> {
 
     #[account(
         init,
-        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
         space = ConstituentTargetBase::space(0 as usize),
         payer = admin,
@@ -1063,7 +1061,7 @@ pub struct InitializeLpPool<'info> {
 
     #[account(
         init,
-        seeds = [CONSTITUENT_CORRELATIONS_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_CORRELATIONS_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
         space = ConstituentCorrelations::space(0 as usize),
         payer = admin,
@@ -1094,7 +1092,7 @@ pub struct InitializeConstituent<'info> {
 
     #[account(
         mut,
-        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump = constituent_target_base.bump,
         realloc = ConstituentTargetBase::space(constituent_target_base.targets.len() + 1_usize),
         realloc::payer = admin,
@@ -1104,7 +1102,7 @@ pub struct InitializeConstituent<'info> {
 
     #[account(
         mut,
-        seeds = [CONSTITUENT_CORRELATIONS_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_CORRELATIONS_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump = constituent_correlations.bump,
         realloc = ConstituentCorrelations::space(constituent_target_base.targets.len() + 1_usize),
         realloc::payer = admin,
@@ -1114,7 +1112,7 @@ pub struct InitializeConstituent<'info> {
 
     #[account(
         init,
-        seeds = [CONSTITUENT_PDA_SEED.as_ref(), lp_pool.key().as_ref(), spot_market_index.to_le_bytes().as_ref()],
+        seeds = [CONSTITUENT_PDA_SEED.as_bytes(), lp_pool.key().as_ref(), spot_market_index.to_le_bytes().as_ref()],
         bump,
         space = Constituent::SIZE,
         payer = admin,
@@ -1131,7 +1129,7 @@ pub struct InitializeConstituent<'info> {
     pub spot_market_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         init,
-        seeds = [CONSTITUENT_VAULT_PDA_SEED.as_ref(), lp_pool.key().as_ref(), spot_market_index.to_le_bytes().as_ref()],
+        seeds = [CONSTITUENT_VAULT_PDA_SEED.as_bytes(), lp_pool.key().as_ref(), spot_market_index.to_le_bytes().as_ref()],
         bump,
         payer = admin,
         token::mint = spot_market_mint,
@@ -1148,7 +1146,7 @@ pub struct UpdateConstituentParams<'info> {
     pub lp_pool: AccountLoader<'info, LPPool>,
     #[account(
         mut,
-        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump = constituent_target_base.bump,
         constraint = constituent.load()?.lp_pool == lp_pool.key()
     )]
@@ -1220,7 +1218,7 @@ pub struct AddAmmConstituentMappingData<'info> {
 
     #[account(
         mut,
-        seeds = [AMM_MAP_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [AMM_MAP_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
         realloc = AmmConstituentMapping::space(amm_constituent_mapping.weights.len() + amm_constituent_mapping_data.len()),
         realloc::payer = admin,
@@ -1229,7 +1227,7 @@ pub struct AddAmmConstituentMappingData<'info> {
     pub amm_constituent_mapping: Box<Account<'info, AmmConstituentMapping>>,
     #[account(
         mut,
-        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_TARGET_BASE_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
         realloc = ConstituentTargetBase::space(constituent_target_base.targets.len() + 1_usize),
         realloc::payer = admin,
@@ -1254,7 +1252,7 @@ pub struct UpdateAmmConstituentMappingData<'info> {
 
     #[account(
         mut,
-        seeds = [AMM_MAP_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [AMM_MAP_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
     )]
     pub amm_constituent_mapping: Box<Account<'info, AmmConstituentMapping>>,
@@ -1273,7 +1271,7 @@ pub struct RemoveAmmConstituentMappingData<'info> {
 
     #[account(
         mut,
-        seeds = [AMM_MAP_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [AMM_MAP_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump,
         realloc = AmmConstituentMapping::space(amm_constituent_mapping.weights.len() - 1),
         realloc::payer = admin,
@@ -1295,7 +1293,7 @@ pub struct UpdateConstituentCorrelation<'info> {
 
     #[account(
         mut,
-        seeds = [CONSTITUENT_CORRELATIONS_PDA_SEED.as_ref(), lp_pool.key().as_ref()],
+        seeds = [CONSTITUENT_CORRELATIONS_PDA_SEED.as_bytes(), lp_pool.key().as_ref()],
         bump = constituent_correlations.bump,
     )]
     pub constituent_correlations: Box<Account<'info, ConstituentCorrelations>>,
@@ -1354,13 +1352,13 @@ pub struct LPTakerSwap<'info> {
     /// Constituents
     #[account(
         mut,
-        seeds = [CONSTITUENT_PDA_SEED.as_ref(), lp_pool.key().as_ref(), out_market_index.to_le_bytes().as_ref()],
+        seeds = [CONSTITUENT_PDA_SEED.as_bytes(), lp_pool.key().as_ref(), out_market_index.to_le_bytes().as_ref()],
         bump = out_constituent.load()?.bump,
     )]
     pub out_constituent: AccountLoader<'info, Constituent>,
     #[account(
         mut,
-        seeds = [CONSTITUENT_PDA_SEED.as_ref(), lp_pool.key().as_ref(), in_market_index.to_le_bytes().as_ref()],
+        seeds = [CONSTITUENT_PDA_SEED.as_bytes(), lp_pool.key().as_ref(), in_market_index.to_le_bytes().as_ref()],
         bump = in_constituent.load()?.bump,
     )]
     pub in_constituent: AccountLoader<'info, Constituent>,
@@ -1382,7 +1380,7 @@ pub struct UpdatePerpMarketLpPoolStatus<'info> {
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
-    #[account(mut,  seeds = [AMM_POSITIONS_CACHE.as_ref()],
+    #[account(mut,  seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump = amm_cache.bump,)]
     pub amm_cache: Box<Account<'info, AmmCache>>,
 }
@@ -1397,7 +1395,7 @@ pub struct UpdateInitialAmmCacheInfo<'info> {
     pub admin: Signer<'info>,
     #[account(
         mut,
-        seeds = [AMM_POSITIONS_CACHE.as_ref()],
+        seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump = amm_cache.bump,
     )]
     pub amm_cache: Box<Account<'info, AmmCache>>,
@@ -1413,7 +1411,7 @@ pub struct ResetAmmCache<'info> {
     pub state: Box<Account<'info, State>>,
     #[account(
         mut,
-        seeds = [AMM_POSITIONS_CACHE.as_ref()],
+        seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump = amm_cache.bump,
         realloc = AmmCache::space(state.number_of_markets as usize),
         realloc::payer = admin,

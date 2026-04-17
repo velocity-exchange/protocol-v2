@@ -1,6 +1,6 @@
 use crate::msg;
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
 
 use crate::controller;
 use crate::controller::amm::SwapDirection;
@@ -24,7 +24,7 @@ use crate::validate;
 #[cfg(test)]
 mod tests;
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum PositionDirection {
     #[default]
     Long,

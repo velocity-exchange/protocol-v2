@@ -65,7 +65,7 @@ pub struct VerifiedMessage {
 }
 
 fn slice_eq(a: &[u8], b: &[u8]) -> bool {
-    a.len() == b.len() && sol_memcmp(a, b, a.len()) == 0
+    a.len() == b.len() && unsafe { sol_memcmp(a, b, a.len()) } == 0
 }
 
 pub fn deserialize_into_verified_message(
@@ -312,31 +312,76 @@ pub fn verify_and_decode_ed25519_msg(
     deserialize_into_verified_message(payload, signature, is_delegate_signer)
 }
 
-#[error_code]
-#[derive(PartialEq, Eq)]
+// NOTE: Not `#[error_code]`. Anchor 1.0 only allows one `#[error_code]` enum
+// per program in the IDL builder, and that slot is taken by `error::ErrorCode`.
+// The impls below mirror what `#[error_code]` generated on anchor 0.32,
+// preserving the same error_code_number offset (ERROR_CODE_OFFSET = 6000).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SignatureVerificationError {
-    #[msg("invalid ed25519 instruction program")]
     InvalidEd25519InstructionProgramId,
-    #[msg("invalid ed25519 instruction data length")]
     InvalidEd25519InstructionDataLength,
-    #[msg("invalid signature index")]
     InvalidSignatureIndex,
-    #[msg("invalid signature offset")]
     InvalidSignatureOffset,
-    #[msg("invalid public key offset")]
     InvalidPublicKeyOffset,
-    #[msg("invalid message offset")]
     InvalidMessageOffset,
-    #[msg("invalid message data size")]
     InvalidMessageDataSize,
-    #[msg("invalid instruction index")]
     InvalidInstructionIndex,
-    #[msg("message offset overflow")]
     MessageOffsetOverflow,
-    #[msg("invalid message hex")]
     InvalidMessageHex,
-    #[msg("invalid message data")]
     InvalidMessageData,
-    #[msg("loading custom ix at index failed")]
     LoadInstructionAtFailed,
+}
+
+impl SignatureVerificationError {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::InvalidEd25519InstructionProgramId => "InvalidEd25519InstructionProgramId",
+            Self::InvalidEd25519InstructionDataLength => "InvalidEd25519InstructionDataLength",
+            Self::InvalidSignatureIndex => "InvalidSignatureIndex",
+            Self::InvalidSignatureOffset => "InvalidSignatureOffset",
+            Self::InvalidPublicKeyOffset => "InvalidPublicKeyOffset",
+            Self::InvalidMessageOffset => "InvalidMessageOffset",
+            Self::InvalidMessageDataSize => "InvalidMessageDataSize",
+            Self::InvalidInstructionIndex => "InvalidInstructionIndex",
+            Self::MessageOffsetOverflow => "MessageOffsetOverflow",
+            Self::InvalidMessageHex => "InvalidMessageHex",
+            Self::InvalidMessageData => "InvalidMessageData",
+            Self::LoadInstructionAtFailed => "LoadInstructionAtFailed",
+        }
+    }
+
+    pub fn msg(&self) -> &'static str {
+        match self {
+            Self::InvalidEd25519InstructionProgramId => "invalid ed25519 instruction program",
+            Self::InvalidEd25519InstructionDataLength => "invalid ed25519 instruction data length",
+            Self::InvalidSignatureIndex => "invalid signature index",
+            Self::InvalidSignatureOffset => "invalid signature offset",
+            Self::InvalidPublicKeyOffset => "invalid public key offset",
+            Self::InvalidMessageOffset => "invalid message offset",
+            Self::InvalidMessageDataSize => "invalid message data size",
+            Self::InvalidInstructionIndex => "invalid instruction index",
+            Self::MessageOffsetOverflow => "message offset overflow",
+            Self::InvalidMessageHex => "invalid message hex",
+            Self::InvalidMessageData => "invalid message data",
+            Self::LoadInstructionAtFailed => "loading custom ix at index failed",
+        }
+    }
+}
+
+impl From<SignatureVerificationError> for u32 {
+    fn from(e: SignatureVerificationError) -> u32 {
+        e as u32 + anchor_lang::error::ERROR_CODE_OFFSET
+    }
+}
+
+impl From<SignatureVerificationError> for anchor_lang::error::Error {
+    fn from(e: SignatureVerificationError) -> Self {
+        anchor_lang::error::Error::from(anchor_lang::error::AnchorError {
+            error_name: e.name().to_string(),
+            error_code_number: e.into(),
+            error_msg: e.msg().to_string(),
+            error_origin: None,
+            compared_values: None,
+        })
+    }
 }

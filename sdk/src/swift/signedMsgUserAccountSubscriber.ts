@@ -64,8 +64,11 @@ export class SignedMsgUserOrdersAccountSubscriber {
 		this.driftClient = driftClient;
 		this.decodeFn =
 			decodeFn ??
-			this.driftClient.program.account.signedMsgUserOrders.coder.accounts.decodeUnchecked.bind(
-				this.driftClient.program.account.signedMsgUserOrders.coder.accounts
+			(
+				this.driftClient.program.account as any
+			).signedMsgUserOrders.coder.accounts.decodeUnchecked.bind(
+				(this.driftClient.program.account as any).signedMsgUserOrders.coder
+					.accounts
 			);
 		this.resyncIntervalMs = resyncIntervalMs;
 		this.eventEmitter = new EventEmitter();
@@ -78,7 +81,7 @@ export class SignedMsgUserOrdersAccountSubscriber {
 			this.subscriber =
 				new WebSocketProgramAccountSubscriber<SignedMsgUserOrdersAccount>(
 					'SingedMsgUserOrdersAccountMap',
-					'SignedMsgUserOrders',
+					'signedMsgUserOrders',
 					this.driftClient.program,
 					this.decodeFn,
 					{
@@ -177,7 +180,7 @@ export class SignedMsgUserOrdersAccountSubscriber {
 
 		const signedMsgUserOrdersAccount =
 			dataType === 'buffer'
-				? this.decodeFn('SignedMsgUserOrders', data as Buffer)
+				? this.decodeFn('signedMsgUserOrders', data as Buffer)
 				: (data as SignedMsgUserOrdersAccount);
 
 		const key = signedMsgUserOrdersAccount.authorityPubkey.toBase58();

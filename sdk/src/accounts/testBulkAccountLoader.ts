@@ -6,28 +6,26 @@ export class TestBulkAccountLoader extends BulkAccountLoader {
 			return;
 		}
 
-		const accounts = [];
 		for (const accountsToLoadChunk of accountsToLoadChunks) {
 			for (const accountToLoad of accountsToLoadChunk) {
 				const account = await this.connection.getAccountInfoAndContext(
 					accountToLoad.publicKey,
 					this.commitment
 				);
-				accounts.push(account);
 				const newSlot = account.context.slot;
 				if (newSlot > this.mostRecentSlot) {
 					this.mostRecentSlot = newSlot;
 				}
 
 				if (accountToLoad.callbacks.size === 0) {
-					return;
+					continue;
 				}
 
 				const key = accountToLoad.publicKey.toBase58();
 				const prev = this.bufferAndSlotMap.get(key);
 
 				if (prev && newSlot < prev.slot) {
-					return;
+					continue;
 				}
 
 				let newBuffer: Buffer | undefined = undefined;
@@ -39,7 +37,7 @@ export class TestBulkAccountLoader extends BulkAccountLoader {
 				if (!prev) {
 					this.bufferAndSlotMap.set(key, { slot: newSlot, buffer: newBuffer });
 					this.handleAccountCallbacks(accountToLoad, newBuffer, newSlot);
-					return;
+					continue;
 				}
 
 				const oldBuffer = prev.buffer;

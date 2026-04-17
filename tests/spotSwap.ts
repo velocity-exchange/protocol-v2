@@ -410,7 +410,7 @@ describe('spot swap', () => {
 
 		const userStatsAccount = accountInfo
 			? (takerDriftClient.program.account.user.coder.accounts.decodeUnchecked(
-					'UserStats',
+					'userStats',
 					accountInfo.data
 			  ) as UserStatsAccount)
 			: undefined;
@@ -428,7 +428,7 @@ describe('spot swap', () => {
 		);
 		const _userStatsAccount2 = accountInfo2
 			? (takerDriftClient.program.account.user.coder.accounts.decodeUnchecked(
-					'UserStats',
+					'userStats',
 					accountInfo2.data
 			  ) as UserStatsAccount)
 			: undefined;
@@ -448,7 +448,7 @@ describe('spot swap', () => {
 		);
 		const _userStatsAccount3 = accountInfo3
 			? (takerDriftClient.program.account.user.coder.accounts.decodeUnchecked(
-					'UserStats',
+					'userStats',
 					accountInfo3.data
 			  ) as UserStatsAccount)
 			: undefined;

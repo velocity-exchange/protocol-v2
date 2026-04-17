@@ -154,8 +154,10 @@ export class User {
 				config.driftClient.connection,
 				config.userAccountPublicKey,
 				config.accountSubscription.accountLoader,
-				this.driftClient.program.account.user.coder.accounts.decodeUnchecked.bind(
-					this.driftClient.program.account.user.coder.accounts
+				(
+					this.driftClient.program.account as any
+				).user.coder.accounts.decodeUnchecked.bind(
+					(this.driftClient.program.account as any).user.coder.accounts
 				)
 			);
 		} else if (config.accountSubscription?.type === 'custom') {
@@ -360,7 +362,6 @@ export class User {
 			settledPnl: ZERO,
 			lpShares: ZERO,
 			lastQuoteAssetAmountPerLp: ZERO,
-			perLpBase: 0,
 			maxMarginRatio: 0,
 			isolatedPositionScaledBalance: ZERO,
 			positionFlag: 0,

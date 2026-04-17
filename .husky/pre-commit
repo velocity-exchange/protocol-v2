@@ -3,7 +3,7 @@
 
 yarn prettify
 yarn lint
-cd sdk && yarn run test
+(cd sdk && yarn run test)
 yarn build
 
 if [ -z "$TS_PRECOMMIT_ONLY" ] || [ "$TS_PRECOMMIT_ONLY" = "false" ]; then

@@ -37,10 +37,12 @@ export class AuctionSubscriberGrpc {
 			this.subscriber = await grpcProgramAccountSubscriber.create<UserAccount>(
 				this.grpcConfigs,
 				'AuctionSubscriber',
-				'User',
+				'user',
 				this.driftClient.program,
-				this.driftClient.program.account.user.coder.accounts.decode.bind(
-					this.driftClient.program.account.user.coder.accounts
+				(
+					this.driftClient.program.account as any
+				).user.coder.accounts.decode.bind(
+					(this.driftClient.program.account as any).user.coder.accounts
 				),
 				{
 					filters: [getUserFilter(), getUserWithAuctionFilter()],

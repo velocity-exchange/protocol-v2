@@ -1,6 +1,6 @@
 import { ResubOpts, GrpcConfigs } from './types';
-import { Program } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
+import { DriftProgram } from '../config';
 import * as Buffer from 'buffer';
 
 import { WebSocketAccountSubscriber } from './webSocketAccountSubscriber';
@@ -23,7 +23,7 @@ export class grpcAccountSubscriber<T> extends WebSocketAccountSubscriber<T> {
 		client: Client,
 		commitmentLevel: CommitmentLevel,
 		accountName: string,
-		program: Program,
+		program: DriftProgram,
 		accountPublicKey: PublicKey,
 		decodeBuffer?: (buffer: Buffer) => T,
 		resubOpts?: ResubOpts
@@ -36,7 +36,7 @@ export class grpcAccountSubscriber<T> extends WebSocketAccountSubscriber<T> {
 	public static async create<U>(
 		grpcConfigs: GrpcConfigs,
 		accountName: string,
-		program: Program,
+		program: DriftProgram,
 		accountPublicKey: PublicKey,
 		decodeBuffer?: (buffer: Buffer) => U,
 		resubOpts?: ResubOpts,

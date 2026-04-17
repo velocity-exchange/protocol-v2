@@ -47,7 +47,7 @@ export class WebsocketSubscription {
 
 		this.subscriber = new WebSocketProgramAccountSubscriber<UserAccount>(
 			'OrderSubscriber',
-			'User',
+			'user',
 			this.orderSubscriber.driftClient.program,
 			this.orderSubscriber.decodeFn,
 			{

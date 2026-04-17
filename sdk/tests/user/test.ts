@@ -8,6 +8,7 @@ import {
 	SpotMarketAccount,
 	PRICE_PRECISION,
 	OraclePriceData,
+	MMOraclePriceData,
 	BASE_PRECISION,
 	QUOTE_PRECISION,
 	calculatePositionPNL,
@@ -96,12 +97,21 @@ async function makeMockUser(
 		return getMockOracle(oracle).data;
 	}
 
+	function getMMOracleDataForPerpMarket(
+		marketIndex: number
+	): MMOraclePriceData {
+		const oracle = getMockPerpMarket(marketIndex).amm.oracle;
+		return getMockOracle(oracle).data as unknown as MMOraclePriceData;
+	}
+
 	mockUser.getUserAccount = getMockUserAccount;
 	mockUser.driftClient.getPerpMarketAccount = getMockPerpMarket;
 	mockUser.driftClient.getSpotMarketAccount = getMockSpotMarket;
 	mockUser.driftClient.getOraclePriceDataAndSlot = getMockOracle;
 	mockUser.driftClient.getOracleDataForPerpMarket = getOracleDataForPerpMarket;
 	mockUser.driftClient.getOracleDataForSpotMarket = getOracleDataForSpotMarket;
+	mockUser.driftClient.getMMOracleDataForPerpMarket =
+		getMMOracleDataForPerpMarket;
 	return mockUser;
 }
 
@@ -306,10 +316,10 @@ describe('User Tests', () => {
 			'getMaxLeverageForPerp:',
 			mockUser.getMaxLeverageForPerp(0).toString()
 		);
-		assert(mockUser.getMaxLeverageForPerp(0).eq(new BN('50000'))); // 5x
+		assert(mockUser.getMaxLeverageForPerp(0).eq(new BN('37358'))); // ~3.7x
 		assert(
-			mockUser.getMaxLeverageForPerp(0, 'Maintenance').eq(new BN('100000'))
-		); // 10x
+			mockUser.getMaxLeverageForPerp(0, 'Maintenance').eq(new BN('37358'))
+		); // same (marginCategory unused)
 	});
 
 	it('worst case token amount', async () => {
@@ -548,7 +558,7 @@ describe('User Tests', () => {
 		let mLev = mockUser.getMaxLeverageForPerp(0, 'Maintenance').toNumber();
 		console.log(iLev, mLev);
 		assert(iLev == 5000);
-		assert(mLev == 10000);
+		assert(mLev == 5000);
 
 		myMockUserAccount.maxMarginRatio = MARGIN_PRECISION.div(
 			new BN(2)
@@ -566,7 +576,7 @@ describe('User Tests', () => {
 		console.log(iLev, mLev);
 
 		assert(iLev == 2000);
-		assert(mLev == 10000);
+		assert(mLev == 2000);
 	});
 
 	it('getTotalIsolatedPositionDeposits sums isolated USDC deposits', async () => {

@@ -4,7 +4,7 @@ import {
 	UserStatsAccountSubscriber,
 	UserStatsAccountEvents,
 } from './types';
-import { Program } from '@coral-xyz/anchor';
+import { DriftProgram } from '../config';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
 import { PublicKey } from '@solana/web3.js';
@@ -15,7 +15,7 @@ export class PollingUserStatsAccountSubscriber
 	implements UserStatsAccountSubscriber
 {
 	isSubscribed: boolean;
-	program: Program;
+	program: DriftProgram;
 	eventEmitter: StrictEventEmitter<EventEmitter, UserStatsAccountEvents>;
 	userStatsAccountPublicKey: PublicKey;
 
@@ -26,7 +26,7 @@ export class PollingUserStatsAccountSubscriber
 	userStats?: DataAndSlot<UserStatsAccount>;
 
 	public constructor(
-		program: Program,
+		program: DriftProgram,
 		userStatsAccountPublicKey: PublicKey,
 		accountLoader: BulkAccountLoader
 	) {
@@ -74,11 +74,10 @@ export class PollingUserStatsAccountSubscriber
 					return;
 				}
 
-				const account =
-					this.program.account.userStats.coder.accounts.decodeUnchecked(
-						'UserStats',
-						buffer
-					);
+				const account = this.program.coder.accounts.decodeUnchecked(
+					'userStats',
+					buffer
+				);
 				this.userStats = { data: account, slot };
 				this.eventEmitter.emit('userStatsAccountUpdate', account);
 				this.eventEmitter.emit('update');
@@ -98,14 +97,15 @@ export class PollingUserStatsAccountSubscriber
 
 	async fetch(): Promise<void> {
 		try {
-			const dataAndContext =
-				await this.program.account.userStats.fetchAndContext(
-					this.userStatsAccountPublicKey,
-					this.accountLoader.commitment
-				);
+			const dataAndContext = await (
+				this.program.account as any
+			).userStats.fetchAndContext(
+				this.userStatsAccountPublicKey,
+				this.accountLoader.commitment
+			);
 			if (dataAndContext.context.slot > (this.userStats?.slot ?? 0)) {
 				this.userStats = {
-					data: dataAndContext.data as UserStatsAccount,
+					data: dataAndContext.data as unknown as UserStatsAccount,
 					slot: dataAndContext.context.slot,
 				};
 			}

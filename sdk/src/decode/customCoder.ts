@@ -1,21 +1,16 @@
 import { Buffer } from 'buffer';
-import camelcase from 'camelcase';
-import { Idl, IdlTypeDef } from '@coral-xyz/anchor/dist/cjs/idl';
 import {
-	AccountsCoder,
+	Idl,
 	BorshAccountsCoder,
 	BorshEventCoder,
 	BorshInstructionCoder,
-	Coder,
-} from '@coral-xyz/anchor/dist/cjs/coder';
-import { BorshTypesCoder } from '@coral-xyz/anchor/dist/cjs/coder/borsh/types';
-import { discriminator } from '@coral-xyz/anchor/dist/cjs/coder/borsh/discriminator';
+	BorshCoder,
+} from '@coral-xyz/anchor';
 
 export class CustomBorshCoder<
 	A extends string = string,
-	T extends string = string,
-> implements Coder
-{
+	_T extends string = string,
+> {
 	readonly idl: Idl;
 
 	/**
@@ -36,13 +31,14 @@ export class CustomBorshCoder<
 	/**
 	 * Coder for user-defined types.
 	 */
-	readonly types: BorshTypesCoder<T>;
+	readonly types: any;
 
 	constructor(idl: Idl) {
-		this.instruction = new BorshInstructionCoder(idl);
+		const baseCoder = new BorshCoder(idl);
+		this.instruction = baseCoder.instruction as BorshInstructionCoder;
 		this.accounts = new CustomBorshAccountsCoder(idl);
-		this.events = new BorshEventCoder(idl);
-		this.types = new BorshTypesCoder(idl);
+		this.events = baseCoder.events as BorshEventCoder;
+		this.types = baseCoder.types;
 		this.idl = idl;
 	}
 }
@@ -50,9 +46,7 @@ export class CustomBorshCoder<
 /**
  * Custom accounts coder that wraps BorshAccountsCoder to fix encode buffer sizing.
  */
-export class CustomBorshAccountsCoder<A extends string = string>
-	implements AccountsCoder
-{
+export class CustomBorshAccountsCoder<A extends string = string> {
 	private baseCoder: BorshAccountsCoder<A>;
 	private idl: Idl;
 
@@ -62,19 +56,17 @@ export class CustomBorshAccountsCoder<A extends string = string>
 	}
 
 	public async encode<T = any>(accountName: A, account: T): Promise<Buffer> {
-		const idlAcc = this.idl.accounts?.find((acc) => acc.name === accountName);
-		if (!idlAcc) {
-			throw new Error(`Unknown account not found in idl: ${accountName}`);
-		}
-
-		const buffer = Buffer.alloc(this.size(idlAcc)); // fix encode issue - use proper size instead of fixed 1000
-		const layout = this.baseCoder['accountLayouts'].get(accountName);
+		const layout = (this.baseCoder as any)['accountLayouts'].get(accountName);
 		if (!layout) {
 			throw new Error(`Unknown account: ${accountName}`);
 		}
-		const len = layout.encode(account, buffer);
+
+		// Fix: compute proper buffer size instead of the hardcoded 1000 bytes
+		const size = this.baseCoder.size(accountName);
+		const buffer = Buffer.alloc(Math.max(size, 1000));
+		const len = layout.layout.encode(account, buffer);
 		const accountData = buffer.slice(0, len);
-		const discriminator = BorshAccountsCoder.accountDiscriminator(accountName);
+		const discriminator = Buffer.from(layout.discriminator);
 		return Buffer.concat([discriminator, accountData]);
 	}
 
@@ -95,20 +87,19 @@ export class CustomBorshAccountsCoder<A extends string = string>
 		return this.baseCoder.memcmp(accountName, appendData);
 	}
 
-	public size(idlAccount: IdlTypeDef): number {
-		return this.baseCoder.size(idlAccount);
+	public size(accountName: A | string): number {
+		return this.baseCoder.size(accountName as A);
 	}
 
 	/**
 	 * Calculates and returns a unique 8 byte discriminator prepended to all anchor accounts.
 	 *
-	 * @param name The name of the account to calculate the discriminator.
+	 * @param name The name of the account to get the discriminator of.
 	 */
-	public static accountDiscriminator(name: string): Buffer {
-		const discriminatorPreimage = `account:${camelcase(name, {
-			pascalCase: true,
-			preserveConsecutiveUppercase: true,
-		})}`;
-		return discriminator(discriminatorPreimage);
+	public static accountDiscriminator(_name: string): Buffer {
+		// Delegate to an instance method since anchor 0.32 uses IDL discriminators
+		throw new Error(
+			'accountDiscriminator requires an instance; use coder.accountDiscriminator(name)'
+		);
 	}
 }

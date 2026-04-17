@@ -1,70 +1,109 @@
 {
-  "version": "0.1.0",
-  "name": "token_faucet",
+  "address": "V4v1mQiAdLz4qwckEb45WqHYceYizoib39cDBHSWfaB",
+  "metadata": {
+    "name": "token_faucet",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
   "instructions": [
     {
       "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
       "accounts": [
         {
-          "name": "faucetConfig",
-          "isMut": true,
-          "isSigner": false
+          "name": "faucet_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  97,
+                  117,
+                  99,
+                  101,
+                  116,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint_account"
+              }
+            ]
+          }
         },
         {
           "name": "admin",
-          "isMut": true,
-          "isSigner": true
+          "writable": true,
+          "signer": true
         },
         {
-          "name": "mintAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "mint_account",
+          "writable": true
         },
         {
           "name": "rent",
-          "isMut": false,
-          "isSigner": false
+          "address": "SysvarRent111111111111111111111111111111111"
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "mintToUser",
+      "name": "mint_to_user",
+      "discriminator": [
+        75,
+        194,
+        44,
+        77,
+        10,
+        65,
+        232,
+        85
+      ],
       "accounts": [
         {
-          "name": "faucetConfig",
-          "isMut": false,
-          "isSigner": false
+          "name": "faucet_config"
         },
         {
-          "name": "mintAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "mint_account",
+          "writable": true
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "user_token_account",
+          "writable": true
         },
         {
-          "name": "mintAuthority",
-          "isMut": false,
-          "isSigner": false
+          "name": "mint_authority"
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
@@ -75,32 +114,65 @@
       ]
     },
     {
-      "name": "transferMintAuthority",
+      "name": "transfer_mint_authority",
+      "discriminator": [
+        87,
+        237,
+        187,
+        84,
+        168,
+        175,
+        241,
+        75
+      ],
       "accounts": [
         {
-          "name": "faucetConfig",
-          "isMut": false,
-          "isSigner": false
+          "name": "faucet_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  97,
+                  117,
+                  99,
+                  101,
+                  116,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint_account"
+              }
+            ]
+          }
         },
         {
           "name": "admin",
-          "isMut": true,
-          "isSigner": true
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "faucet_config"
+          ]
         },
         {
-          "name": "mintAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "mint_account",
+          "writable": true
         },
         {
-          "name": "mintAuthority",
-          "isMut": false,
-          "isSigner": false
+          "name": "mint_authority"
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
@@ -109,27 +181,16 @@
   "accounts": [
     {
       "name": "FaucetConfig",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "admin",
-            "type": "publicKey"
-          },
-          {
-            "name": "mint",
-            "type": "publicKey"
-          },
-          {
-            "name": "mintAuthority",
-            "type": "publicKey"
-          },
-          {
-            "name": "mintAuthorityNonce",
-            "type": "u8"
-          }
-        ]
-      }
+      "discriminator": [
+        216,
+        31,
+        49,
+        154,
+        106,
+        125,
+        143,
+        142
+      ]
     }
   ],
   "errors": [
@@ -137,6 +198,32 @@
       "code": 6000,
       "name": "InvalidMintAccountAuthority",
       "msg": "Program not mint authority"
+    }
+  ],
+  "types": [
+    {
+      "name": "FaucetConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint_authority_nonce",
+            "type": "u8"
+          }
+        ]
+      }
     }
   ]
 }

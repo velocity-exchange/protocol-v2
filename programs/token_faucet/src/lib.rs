@@ -26,7 +26,7 @@ pub mod token_faucet {
             account_or_mint: ctx.accounts.mint_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
+        let cpi_context = CpiContext::new(cpi_program.key(), cpi_accounts);
         token::set_authority(cpi_context, AuthorityType::MintTokens, Some(mint_authority)).unwrap();
 
         **ctx.accounts.faucet_config = FaucetConfig {
@@ -52,7 +52,7 @@ pub mod token_faucet {
             authority: ctx.accounts.mint_authority.clone(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
+        let cpi_context = CpiContext::new_with_signer(cpi_program.key(), cpi_accounts, signers);
         token::mint_to(cpi_context, amount).unwrap();
         Ok(())
     }
@@ -69,7 +69,7 @@ pub mod token_faucet {
             account_or_mint: ctx.accounts.mint_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
+        let cpi_context = CpiContext::new_with_signer(cpi_program.key(), cpi_accounts, signers);
         token::set_authority(
             cpi_context,
             AuthorityType::MintTokens,

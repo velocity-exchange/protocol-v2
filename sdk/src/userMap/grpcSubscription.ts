@@ -55,7 +55,7 @@ export class grpcSubscription {
 			this.subscriber = await grpcProgramAccountSubscriber.create<UserAccount>(
 				this.grpcConfigs,
 				'UserMap',
-				'User',
+				'user',
 				this.userMap.driftClient.program,
 				this.decodeFn,
 				{

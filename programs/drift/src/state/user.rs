@@ -28,8 +28,8 @@ use crate::state::spot_market::{SpotBalance, SpotBalanceType, SpotMarket};
 use crate::state::traits::Size;
 use crate::validate;
 use crate::{get_then_update_id, ID};
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
 use bytemuck::{Pod, Zeroable};
 use std::cmp::max;
 use std::fmt;
@@ -51,6 +51,7 @@ mod isolated_transfer_tests;
 mod tests;
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 pub enum UserStatus {
     // Active = 0
     BeingLiquidated = 0b00000001,
@@ -1444,8 +1445,8 @@ impl PerpPosition {
 }
 
 #[zero_copy(unsafe)]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
 #[repr(C)]
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq)]
 pub struct Order {
     /// The slot the order was placed
     pub slot: u64,
@@ -1512,7 +1513,7 @@ pub struct Order {
     pub padding: [u8; 1],
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug)]
 pub enum AssetType {
     Base,
     Quote,
@@ -1833,7 +1834,7 @@ impl Default for Order {
     }
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug)]
 pub enum OrderStatus {
     /// The order is not in use
     Init,
@@ -1845,7 +1846,7 @@ pub enum OrderStatus {
     Canceled,
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum OrderType {
     Market,
     #[default]
@@ -1856,7 +1857,7 @@ pub enum OrderType {
     Oracle,
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum OrderTriggerCondition {
     #[default]
     Above,
@@ -1865,7 +1866,7 @@ pub enum OrderTriggerCondition {
     TriggeredBelow, // below condition has been triggered
 }
 
-#[derive(Default, Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[derive(Default, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq)]
 pub enum MarketType {
     #[default]
     Spot,
@@ -1885,6 +1886,7 @@ unsafe impl Zeroable for MarketType {}
 unsafe impl Pod for MarketType {}
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 pub enum OrderBitFlag {
     SignedMessage = 0b00000001,
     OracleTriggerMarket = 0b00000010,
@@ -1895,6 +1897,7 @@ pub enum OrderBitFlag {
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 pub enum PositionFlag {
     IsolatedPosition = 0b00000001,
     BeingLiquidated = 0b00000010,
@@ -1902,9 +1905,8 @@ pub enum PositionFlag {
 }
 
 #[account(zero_copy(unsafe))]
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Default)]
 #[repr(C)]
-#[derive(Default)]
 pub struct UserStats {
     /// The authority for all of a users sub accounts
     pub authority: Pubkey,
@@ -1971,6 +1973,7 @@ pub struct UserStats {
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 #[repr(u8)]
 pub enum ReferrerStatus {
     IsReferrer = 0b00000001,
@@ -2309,15 +2312,13 @@ pub trait FuelOverflowProvider<'a> {
     fn fuel_overflow(&self) -> Option<AccountLoader<'a, FuelOverflow>>;
 }
 
-impl<'a: 'info, 'info, T: anchor_lang::Bumps> FuelOverflowProvider<'a>
-    for Context<'_, '_, 'a, 'info, T>
-{
-    fn fuel_overflow(&self) -> Option<AccountLoader<'a, FuelOverflow>> {
+impl<'info, T: anchor_lang::Bumps> FuelOverflowProvider<'info> for Context<'info, T> {
+    fn fuel_overflow(&self) -> Option<AccountLoader<'info, FuelOverflow>> {
         let acct = match self.remaining_accounts.get(0) {
             Some(acct) => acct,
             None => return None,
         };
-        AccountLoader::<'a, FuelOverflow>::try_from(acct).ok()
+        AccountLoader::<'info, FuelOverflow>::try_from(acct).ok()
     }
 }
 
@@ -2336,6 +2337,7 @@ impl Size for ReferrerName {
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 #[repr(u8)]
 pub enum FuelOverflowStatus {
     Exists = 0b00000001,
@@ -2410,6 +2412,7 @@ impl FuelOverflow {
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 #[repr(u8)]
 pub enum UserStatsPausedOperations {
     UpdateBidAskTwap = 0b00000001,

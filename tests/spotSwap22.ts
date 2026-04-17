@@ -236,7 +236,7 @@ describe('spot swap 22', () => {
 
 		const userStatsAccount = accountInfo
 			? (takerDriftClient.program.account.user.coder.accounts.decodeUnchecked(
-					'UserStats',
+					'userStats',
 					accountInfo.data
 			  ) as UserStatsAccount)
 			: undefined;

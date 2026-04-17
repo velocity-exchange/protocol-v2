@@ -15,6 +15,8 @@ Use `bun` (not yarn/npm) for JavaScript/TypeScript dependency management: `bun i
 - Anchor 0.29.x branches: `rustup default 1.76.0-x86_64-apple-darwin`
 - Anchor 1.0 branches: `rustup default stable-x86_64-apple-darwin`
 
+**Rust version and zero-copy struct alignment:** Rust ≥ 1.77 corrected `align_of::<u128>()` to 16 bytes on x86_64; the on-chain SBF target has always kept it at 8 bytes. All zero-copy structs in this repo are explicitly padded so `(SIZE - 8) % 16 == 0` and u128/i128 fields are ordered before any `PoolBalance` fields — this makes `sizeof` identical on all targets regardless of Rust version. You must still develop and test with Rust ≥ 1.77 so that x86_64 exercises real 16-byte u128 alignment and any future struct change that breaks the invariant is caught locally (the `const_assert_eq!` guards fire) rather than silently diverging on-chain. The minimum for Anchor 1.0 branches is Rust ≥ 1.89 (Anchor 1.0 MSRV). See [`docs/alignment-and-native-offsets.md`](./docs/alignment-and-native-offsets.md) for the full invariant rules and guidance on adding fields to zero-copy structs.
+
 **Solana programs (Rust/Anchor):**
 ```bash
 anchor build

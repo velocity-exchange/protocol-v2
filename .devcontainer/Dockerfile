@@ -5,8 +5,8 @@
 FROM --platform=linux/amd64 ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG SOLANA_CLI="1.16.27"
-ARG ANCHOR_CLI="0.29.0"
+ARG SOLANA_CLI="2.3.11"
+ARG ANCHOR_CLI="1.0.0"
 ARG NODE_VERSION="24.0.0"
 
 ENV HOME="/root"
@@ -21,10 +21,9 @@ RUN mkdir -p /workdir /tmp \
     libssl-dev libudev-dev bash software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.70.0 \
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.91.1 \
     && . "$HOME/.cargo/env" \
-    && rustup install 1.78.0 \
-    && rustup component add rustfmt clippy --toolchain 1.78.0
+    && rustup component add rustfmt clippy --toolchain 1.91.1
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
@@ -35,14 +34,16 @@ RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-l
     && npm install -g ts-mocha typescript mocha \
     && node -v && npm -v && yarn -v
 
-# Solana CLI (x86_64 build)
-RUN curl -sSfL "https://github.com/solana-labs/solana/releases/download/v${SOLANA_CLI}/solana-release-x86_64-unknown-linux-gnu.tar.bz2" \
+# Solana CLI (x86_64 build, from anza-xyz/agave for 2.x+)
+RUN curl -sSfL "https://github.com/anza-xyz/agave/releases/download/v${SOLANA_CLI}/solana-release-x86_64-unknown-linux-gnu.tar.bz2" \
     | tar -xjC /tmp \
     && mv /tmp/solana-release/bin/* /usr/local/bin/ \
     && rm -rf /tmp/solana-release
 
-# Anchor CLI
-RUN cargo install --git https://github.com/coral-xyz/anchor --tag "v${ANCHOR_CLI}" anchor-cli --locked
+# Anchor CLI (via avm)
+RUN cargo install --git https://github.com/coral-xyz/anchor avm --force \
+    && avm install ${ANCHOR_CLI} \
+    && avm use ${ANCHOR_CLI}
 
 # Set up Solana key + config for root
 RUN solana-keygen new --no-bip39-passphrase --force \

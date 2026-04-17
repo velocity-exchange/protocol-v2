@@ -304,7 +304,7 @@ async function getUserStatsDecoded(
 	);
 	const userStatsBefore: UserStatsAccount =
 		driftClient.program.account.userStats.coder.accounts.decode(
-			'UserStats',
+			'userStats',
 			accountInfo.data
 		);
 
@@ -325,7 +325,7 @@ async function overWriteUserStats(
 		owner: userStats.owner,
 		lamports: userStats.lamports,
 		data: await driftClient.program.account.userStats.coder.accounts.encode(
-			'UserStats',
+			'userStats',
 			userStats.data
 		),
 		rentEpoch: userStats.rentEpoch,

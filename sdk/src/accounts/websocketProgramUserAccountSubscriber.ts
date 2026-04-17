@@ -4,7 +4,7 @@ import {
 	UserAccountEvents,
 	UserAccountSubscriber,
 } from './types';
-import { Program } from '@coral-xyz/anchor';
+import { DriftProgram } from '../config';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
 import { Context, PublicKey } from '@solana/web3.js';
@@ -18,12 +18,12 @@ export class WebSocketProgramUserAccountSubscriber
 	eventEmitter: StrictEventEmitter<EventEmitter, UserAccountEvents>;
 
 	private userAccountPublicKey: PublicKey;
-	private program: Program;
+	private program: DriftProgram;
 	private programSubscriber: WebSocketProgramAccountSubscriber<UserAccount>;
 	private userAccountAndSlot?: DataAndSlot<UserAccount>;
 
 	public constructor(
-		program: Program,
+		program: DriftProgram,
 		userAccountPublicKey: PublicKey,
 		programSubscriber: WebSocketProgramAccountSubscriber<UserAccount>
 	) {
@@ -66,7 +66,7 @@ export class WebSocketProgramUserAccountSubscriber
 			);
 		}
 
-		const account = await this.program.account.user.fetch(
+		const account = await (this.program.account as any).user.fetch(
 			this.userAccountPublicKey
 		);
 		this.updateData(account as UserAccount, 0);

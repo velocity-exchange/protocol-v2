@@ -576,7 +576,7 @@ mod calculate_cumulative_deposit_interest_delta_to_resolve_bankruptcy {
 mod validate_transfer_satisfies_limit_price {
     use crate::math::constants::{PRICE_PRECISION_U64, QUOTE_PRECISION};
     use crate::math::liquidation::validate_transfer_satisfies_limit_price;
-    use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
+    const LAMPORTS_PER_SOL: u64 = 1_000_000_000;
 
     #[test]
     fn sol_asset_usdc_liability() {

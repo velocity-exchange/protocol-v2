@@ -2,13 +2,12 @@ use {
     crate::storage::Storage,
     anchor_lang::{
         prelude::{borsh, AccountInfo, Clock, ProgramError, Pubkey, SolanaSysvar},
-        solana_program::{
-            ed25519_program, program_memory::sol_memcmp, pubkey::PUBKEY_BYTES, sysvar,
-        },
+        solana_program::{program_memory::sol_memcmp, pubkey::PUBKEY_BYTES, sysvar},
         AnchorDeserialize, AnchorSerialize,
     },
     bytemuck::{cast_slice, checked::try_cast_slice, Pod, Zeroable},
     byteorder::{ByteOrder, LE},
+    solana_program::{ed25519_program, sysvar::instructions as sysvar_instructions},
     thiserror::Error,
 };
 
@@ -153,7 +152,7 @@ impl From<SignatureVerificationError> for anchor_lang::error::Error {
 }
 
 fn slice_eq(a: &[u8], b: &[u8]) -> bool {
-    a.len() == b.len() && sol_memcmp(a, b, a.len()) == 0
+    a.len() == b.len() && unsafe { sol_memcmp(a, b, a.len()) } == 0
 }
 
 /// Verifies a ed25519 signature on Solana by checking that the transaction contains
@@ -175,14 +174,14 @@ pub fn verify_message(
     const SOLANA_FORMAT_MAGIC_LE: u32 = 2182742457;
 
     let self_instruction_index =
-        sysvar::instructions::load_current_index_checked(instructions_sysvar)
+        sysvar_instructions::load_current_index_checked(instructions_sysvar)
             .map_err(SignatureVerificationError::LoadCurrentIndexFailed)?;
 
     if ed25519_instruction_index >= self_instruction_index {
         return Err(SignatureVerificationError::Ed25519InstructionMustPrecedeCurrentInstruction);
     }
 
-    let ed25519_instruction = sysvar::instructions::load_instruction_at_checked(
+    let ed25519_instruction = sysvar_instructions::load_instruction_at_checked(
         ed25519_instruction_index.into(),
         instructions_sysvar,
     )
@@ -217,7 +216,7 @@ pub fn verify_message(
         .checked_sub(MAGIC_LEN)
         .ok_or(SignatureVerificationError::MessageOffsetOverflow)?;
 
-    let self_instruction = sysvar::instructions::load_instruction_at_checked(
+    let self_instruction = sysvar_instructions::load_instruction_at_checked(
         self_instruction_index.into(),
         instructions_sysvar,
     )

@@ -4,7 +4,7 @@ use crate::*;
 use bytemuck::Zeroable;
 
 #[zero_copy]
-#[derive(AnchorDeserialize, AnchorSerialize, Debug)]
+#[derive(AnchorDeserialize, Debug)]
 pub struct OracleConfig {
     pub conf_filter: f64,
     pub max_staleness_slots: i64,
@@ -207,7 +207,6 @@ impl BookSide {
 }
 
 #[zero_copy]
-#[derive(AnchorSerialize)]
 pub struct AnyNode {
     pub tag: u8,
     pub data: [u8; 79],
@@ -335,7 +334,7 @@ impl LeafNode {
 }
 
 #[zero_copy]
-#[derive(AnchorSerialize, AnchorDeserialize, Debug, Default, PartialEq)]
+#[derive(AnchorDeserialize, Debug, Default, PartialEq)]
 pub struct NonZeroPubkeyOption {
     key: Pubkey,
 }
@@ -394,20 +393,20 @@ impl NonZeroPubkeyOption {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(AnchorDeserialize, Debug, AnchorSerialize)]
 pub enum Side {
     Bid,
     Ask,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(AnchorDeserialize, Debug, AnchorSerialize)]
 pub enum SelfTradeBehavior {
     DecrementTake,
     CancelProvide,
     AbortTransaction,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(AnchorDeserialize, Debug, AnchorSerialize)]
 pub enum PlaceOrderType {
     Limit,
     ImmediateOrCancel,

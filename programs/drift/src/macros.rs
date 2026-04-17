@@ -93,7 +93,7 @@ macro_rules! safe_decrement {
 #[macro_export]
 macro_rules! digest_struct {
     ($struct:expr) => {
-        solana_program::hash::hash(&$struct.try_to_vec().unwrap()).to_bytes()
+        solana_program::hash::hash(&borsh::to_vec(&$struct).unwrap()).to_bytes()
     };
 }
 
@@ -110,11 +110,11 @@ macro_rules! digest_struct_hex {
 macro_rules! msg {
     ($msg:expr) => {
         #[cfg(not(feature = "drift-rs"))]
-        solana_program::msg!($msg)
+        ::solana_program::msg!($msg)
     };
     ($($arg:tt)*) => {
         #[cfg(not(feature = "drift-rs"))]
-        (solana_program::msg!(&format!($($arg)*)));
+        (::solana_program::msg!(&format!($($arg)*)));
     }
 }
 

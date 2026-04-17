@@ -14,7 +14,7 @@ use pyth_lazer::storage::Storage;
 use solana_program::sysvar::instructions::load_current_index_checked;
 
 pub fn handle_update_pyth_lazer_oracle<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, UpdatePythLazerOracle>,
+    ctx: Context<'info, UpdatePythLazerOracle>,
     pyth_message: Vec<u8>,
 ) -> Result<()> {
     // Verify the Pyth lazer message

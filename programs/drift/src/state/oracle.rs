@@ -1,6 +1,34 @@
 use anchor_lang::prelude::*;
+use borsh::{BorshDeserialize, BorshSerialize};
 use std::cell::Ref;
 use std::convert::TryFrom;
+
+/// Inlined from pyth-solana-receiver-sdk to avoid borsh version conflicts
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
+pub struct InlinePriceUpdateV2 {
+    pub write_authority: Pubkey,
+    pub verification_level: InlineVerificationLevel,
+    pub price_message: InlinePriceFeedMessage,
+    pub posted_slot: u64,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Copy, Clone)]
+pub enum InlineVerificationLevel {
+    Partial { num_signatures: u8 },
+    Full,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Copy, Clone)]
+pub struct InlinePriceFeedMessage {
+    pub feed_id: [u8; 32],
+    pub price: i64,
+    pub conf: u64,
+    pub exponent: i32,
+    pub publish_time: i64,
+    pub prev_publish_time: i64,
+    pub ema_price: i64,
+    pub ema_conf: u64,
+}
 
 use crate::error::{DriftResult, ErrorCode};
 use crate::math::casting::Cast;

@@ -4,7 +4,7 @@ import {
 	InsuranceFundStakeAccountEvents,
 	InsuranceFundStakeAccountSubscriber,
 } from './types';
-import { Program } from '@coral-xyz/anchor';
+import { DriftProgram } from '../config';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
 import { PublicKey } from '@solana/web3.js';
@@ -15,7 +15,7 @@ export class PollingInsuranceFundStakeAccountSubscriber
 	implements InsuranceFundStakeAccountSubscriber
 {
 	isSubscribed: boolean;
-	program: Program;
+	program: DriftProgram;
 	eventEmitter: StrictEventEmitter<
 		EventEmitter,
 		InsuranceFundStakeAccountEvents
@@ -29,7 +29,7 @@ export class PollingInsuranceFundStakeAccountSubscriber
 	insuranceFundStakeAccountAndSlot?: DataAndSlot<InsuranceFundStake>;
 
 	public constructor(
-		program: Program,
+		program: DriftProgram,
 		publicKey: PublicKey,
 		accountLoader: BulkAccountLoader
 	) {
@@ -81,8 +81,8 @@ export class PollingInsuranceFundStakeAccountSubscriber
 					return;
 				}
 
-				const account = this.program.account.user.coder.accounts.decode(
-					'InsuranceFundStake',
+				const account = this.program.coder.accounts.decode(
+					'insuranceFundStake',
 					buffer
 				);
 				this.insuranceFundStakeAccountAndSlot = { data: account, slot };
@@ -104,11 +104,12 @@ export class PollingInsuranceFundStakeAccountSubscriber
 
 	async fetch(): Promise<void> {
 		try {
-			const dataAndContext =
-				await this.program.account.insuranceFundStake.fetchAndContext(
-					this.insuranceFundStakeAccountPublicKey,
-					this.accountLoader.commitment
-				);
+			const dataAndContext = await (
+				this.program.account as any
+			).insuranceFundStake.fetchAndContext(
+				this.insuranceFundStakeAccountPublicKey,
+				this.accountLoader.commitment
+			);
 			if (
 				dataAndContext.context.slot >
 				(this.insuranceFundStakeAccountAndSlot?.slot ?? 0)

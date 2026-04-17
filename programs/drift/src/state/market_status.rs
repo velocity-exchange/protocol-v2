@@ -1,6 +1,6 @@
-use borsh::{BorshDeserialize, BorshSerialize};
+use anchor_lang::prelude::*;
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum MarketStatus {
     /// warm up period for initialization, fills are paused
     #[default]

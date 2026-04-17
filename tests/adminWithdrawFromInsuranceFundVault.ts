@@ -103,13 +103,23 @@ describe('admin withdraw from insurance fund vault', () => {
 
 		// Decode production spot market and graft its insuranceFund onto the test spot market,
 		// replacing the vault pubkey with the test-derived address so SDK lookups stay consistent.
+		//
+		// NOTE: The production snapshot uses the old SBF layout (768-byte account, PoolBalance=24B).
+		// After the struct reorder + padding fix, the new layout is 808 bytes with PoolBalance=32B.
+		// We cannot decode the full account with the new coder, so we extract the InsuranceFund
+		// struct directly from the raw bytes at its known offset in the OLD SBF layout:
+		//   8 disc + 32 pubkey + 32 oracle + 32 mint + 32 vault + 32 name
+		//   + 48 historical_oracle_data + 40 historical_index_data
+		//   + 24 revenue_pool (SBF PoolBalance) + 24 spot_fee_pool (SBF PoolBalance) = 304
+		const IF_OFFSET_OLD = 304;
+		const IF_SIZE = 112; // InsuranceFund is 112 bytes on both platforms
 		const prodSpotMarketData = Buffer.from(
 			prodUsdcIfAccounts.spotMarket.data,
 			'base64'
 		);
-		const prodSpotMarket = chProgram.coder.accounts.decode(
-			'SpotMarket',
-			prodSpotMarketData
+		const ifBytes = prodSpotMarketData.slice(
+			IF_OFFSET_OLD,
+			IF_OFFSET_OLD + IF_SIZE
 		);
 
 		await driftClient.fetchAccounts();
@@ -118,8 +128,15 @@ describe('admin withdraw from insurance fund vault', () => {
 		);
 
 		testSpotMarket.insuranceFund = {
-			...prodSpotMarket.insuranceFund,
 			vault: ifVaultPk,
+			totalShares: new BN(ifBytes.slice(32, 48), 'le'),
+			userShares: new BN(ifBytes.slice(48, 64), 'le'),
+			sharesBase: new BN(ifBytes.slice(64, 80), 'le'),
+			unstakingPeriod: new BN(ifBytes.slice(80, 88), 'le'),
+			lastRevenueSettleTs: new BN(ifBytes.slice(88, 96), 'le'),
+			revenueSettlePeriod: new BN(ifBytes.slice(96, 104), 'le'),
+			totalFactor: ifBytes.readUInt32LE(104),
+			userFactor: ifBytes.readUInt32LE(108),
 		};
 		await overWriteSpotMarket(
 			driftClient,

@@ -420,6 +420,7 @@ describe('admin', () => {
 		const oracleTS = new BN(Date.now());
 		await driftClient.updateFeatureBitFlagsMMOracle(true);
 		await driftClient.updateMmOracleNative(0, oraclePrice, oracleTS);
+		await driftClient.fetchAccounts();
 
 		let perpMarket = driftClient.getPerpMarketAccount(0);
 		assert(perpMarket.amm.mmOraclePrice.eq(oraclePrice));
@@ -460,6 +461,7 @@ describe('admin', () => {
 			oraclePrice.addn(2),
 			oracleTS.addn(1)
 		);
+		await driftClient.fetchAccounts();
 		perpMarket = driftClient.getPerpMarketAccount(0);
 		assert(perpMarket.amm.mmOraclePrice.eq(oraclePrice.addn(2)));
 		assert(perpMarket.amm.mmOracleSequenceId.eq(oracleTS.addn(1)));
@@ -468,6 +470,7 @@ describe('admin', () => {
 	it('update amm adjustment oracle native', async () => {
 		const ammSpreadAdjustment = 5;
 		await driftClient.updateAmmSpreadAdjustmentNative(0, ammSpreadAdjustment);
+		await driftClient.fetchAccounts();
 		const perpMarket = driftClient.getPerpMarketAccount(0);
 		assert(perpMarket.amm.ammSpreadAdjustment == ammSpreadAdjustment);
 	});

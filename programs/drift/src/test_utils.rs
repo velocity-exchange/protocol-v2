@@ -1,5 +1,6 @@
 use anchor_lang::prelude::{AccountInfo, Pubkey};
 use anchor_lang::{Owner, ZeroCopy};
+use base64;
 use bytes::BytesMut;
 
 use crate::state::pyth_lazer_oracle::PythLazerOracle;
@@ -51,12 +52,89 @@ pub fn get_account_bytes<T: bytemuck::Pod>(account: &mut T) -> BytesMut {
     bytes
 }
 
-pub fn get_anchor_account_bytes<T: ZeroCopy + Owner>(account: &mut T) -> BytesMut {
-    let mut bytes = BytesMut::new();
-    bytes.extend_from_slice(&T::discriminator());
-    let data = bytemuck::bytes_of_mut(account);
-    bytes.extend_from_slice(data);
-    bytes
+/// Serializes `account` into a buffer where `bytes[disc_len..]` is aligned to `align_of::<T>()`,
+/// satisfying `AccountLoader::try_from`'s alignment requirement on Rust ≥ 1.77.
+pub fn get_anchor_account_bytes<T: ZeroCopy + Owner>(account: &mut T) -> AlignedAccountBytes {
+    let disc = T::DISCRIMINATOR;
+    let struct_bytes = bytemuck::bytes_of_mut(account);
+    let struct_align = std::mem::align_of::<T>();
+    let disc_len = disc.len();
+    let data_len = disc_len + struct_bytes.len();
+
+    let alloc_align = struct_align.max(16);
+    let alloc_size = data_len + alloc_align;
+    let layout = std::alloc::Layout::from_size_align(alloc_size, alloc_align).unwrap();
+    let base = unsafe { std::alloc::alloc_zeroed(layout) };
+    assert!(!base.is_null());
+
+    let base_addr = base as usize;
+    let remainder = (base_addr + disc_len) % struct_align;
+    let offset = if remainder == 0 {
+        0
+    } else {
+        struct_align - remainder
+    };
+    let data_ptr = unsafe { base.add(offset) };
+
+    unsafe {
+        std::ptr::copy_nonoverlapping(disc.as_ptr(), data_ptr, disc_len);
+        std::ptr::copy_nonoverlapping(
+            struct_bytes.as_ptr(),
+            data_ptr.add(disc_len),
+            struct_bytes.len(),
+        );
+    }
+
+    AlignedAccountBytes {
+        base,
+        data_ptr,
+        data_len,
+        layout,
+    }
+}
+
+pub struct AlignedAccountBytes {
+    base: *mut u8,
+    data_ptr: *mut u8,
+    data_len: usize,
+    layout: std::alloc::Layout,
+}
+
+impl std::ops::Deref for AlignedAccountBytes {
+    type Target = [u8];
+    fn deref(&self) -> &[u8] {
+        unsafe { std::slice::from_raw_parts(self.data_ptr, self.data_len) }
+    }
+}
+
+impl std::ops::DerefMut for AlignedAccountBytes {
+    fn deref_mut(&mut self) -> &mut [u8] {
+        unsafe { std::slice::from_raw_parts_mut(self.data_ptr, self.data_len) }
+    }
+}
+
+impl Drop for AlignedAccountBytes {
+    fn drop(&mut self) {
+        unsafe { std::alloc::dealloc(self.base, self.layout) }
+    }
+}
+
+/// Decodes a base64 Anchor account blob into an aligned buffer ready for `AccountLoader::try_from`.
+///
+/// # Safety
+/// Decoded bytes must be a valid `T` preceded by an 8-byte discriminator.
+pub unsafe fn aligned_account_bytes_from_b64<T: ZeroCopy + Owner>(
+    b64: &str,
+) -> AlignedAccountBytes {
+    let decoded = base64::decode(b64).unwrap();
+    let disc_len = 8;
+    assert!(
+        decoded.len() >= disc_len + std::mem::size_of::<T>(),
+        "decoded b64 blob too short for {}",
+        std::any::type_name::<T>()
+    );
+    let mut account: T = std::ptr::read_unaligned(decoded[disc_len..].as_ptr() as *const T);
+    get_anchor_account_bytes(&mut account)
 }
 
 pub fn create_account_info<'a>(
@@ -66,7 +144,7 @@ pub fn create_account_info<'a>(
     bytes: &'a mut [u8],
     owner: &'a Pubkey,
 ) -> AccountInfo<'a> {
-    AccountInfo::new(key, false, is_writable, lamports, bytes, owner, false, 0)
+    AccountInfo::new(key, false, is_writable, lamports, bytes, owner, false)
 }
 
 pub fn get_pyth_price(price: i64, expo: i32) -> PythLazerOracle {

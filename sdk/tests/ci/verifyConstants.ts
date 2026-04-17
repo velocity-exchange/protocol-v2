@@ -168,7 +168,6 @@ describe('Verify Constants', function () {
 					description: 'oracle',
 				});
 			}
-
 		}
 
 		const perpMarkets = mainnetDriftClient.getPerpMarketAccounts();
@@ -237,7 +236,6 @@ describe('Verify Constants', function () {
 					description: 'oracle',
 				});
 			}
-
 		}
 
 		// Print all missing LUT addresses

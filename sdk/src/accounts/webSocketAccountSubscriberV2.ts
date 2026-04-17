@@ -4,7 +4,8 @@ import {
 	ResubOpts,
 	BufferAndSlot,
 } from './types';
-import { AnchorProvider, Program } from '@coral-xyz/anchor';
+import { AnchorProvider } from '@coral-xyz/anchor';
+import { DriftProgram } from '../config';
 import { capitalize } from './utils';
 import {
 	AccountInfoBase,
@@ -74,7 +75,7 @@ export class WebSocketAccountSubscriberV2<T> implements AccountSubscriber<T> {
 	bufferAndSlot?: BufferAndSlot;
 	accountName: string;
 	logAccountName: string;
-	program: Program;
+	program: DriftProgram;
 	accountPublicKey: PublicKey;
 	decodeBufferFn: (buffer: Buffer) => T;
 	onChange: (data: T) => void;
@@ -112,7 +113,7 @@ export class WebSocketAccountSubscriberV2<T> implements AccountSubscriber<T> {
 	 */
 	public constructor(
 		accountName: string,
-		program: Program,
+		program: DriftProgram,
 		accountPublicKey: PublicKey,
 		decodeBuffer?: (buffer: Buffer) => T,
 		resubOpts?: ResubOpts,

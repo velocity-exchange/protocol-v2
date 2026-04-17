@@ -15,6 +15,9 @@ import {
 import { OracleInfo } from './oracles/types';
 import { Program, ProgramAccount } from '@coral-xyz/anchor';
 import { getOracleId } from './oracles/oracleId';
+import { Drift } from './idl/drift';
+
+export type DriftProgram = Program<Drift>;
 
 type DriftConfig = {
 	ENV: DriftEnv;
@@ -168,7 +171,7 @@ export function getMarketsAndOraclesForSubscription(
 	};
 }
 
-export async function findAllMarketAndOracles(program: Program): Promise<{
+export async function findAllMarketAndOracles(program: DriftProgram): Promise<{
 	perpMarketIndexes: number[];
 	perpMarketAccounts: PerpMarketAccount[];
 	spotMarketIndexes: number[];
@@ -179,10 +182,12 @@ export async function findAllMarketAndOracles(program: Program): Promise<{
 	const spotMarketIndexes = [];
 	const oracleInfos = new Map<string, OracleInfo>();
 
-	const perpMarketProgramAccounts =
-		(await program.account.perpMarket.all()) as ProgramAccount<PerpMarketAccount>[];
-	const spotMarketProgramAccounts =
-		(await program.account.spotMarket.all()) as ProgramAccount<SpotMarketAccount>[];
+	const perpMarketProgramAccounts = (await (
+		program.account as any
+	).perpMarket.all()) as ProgramAccount<PerpMarketAccount>[];
+	const spotMarketProgramAccounts = (await (
+		program.account as any
+	).spotMarket.all()) as ProgramAccount<SpotMarketAccount>[];
 
 	for (const perpMarketProgramAccount of perpMarketProgramAccounts) {
 		const perpMarket = perpMarketProgramAccount.account as PerpMarketAccount;

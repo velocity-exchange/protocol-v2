@@ -26,7 +26,7 @@
         "rust-analyzer.check.command": "clippy",
         "rust-analyzer.server.extraEnv": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
-          "RUSTUP_TOOLCHAIN": "1.78.0-x86_64-unknown-linux-gnu"
+          "RUSTUP_TOOLCHAIN": "1.91.1-x86_64-unknown-linux-gnu"
         },
         "editor.formatOnSave": true,
         "git.ignoreLimitWarning": true

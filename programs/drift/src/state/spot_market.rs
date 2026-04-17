@@ -1,10 +1,10 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::*;
 use anchor_spl::token::spl_token;
 use anchor_spl::token_2022::spl_token_2022;
-use borsh::{BorshDeserialize, BorshSerialize};
 
 use crate::error::{DriftResult, ErrorCode};
 use crate::math::casting::Cast;
@@ -21,6 +21,7 @@ use crate::math::margin::{
 use crate::math::safe_math::SafeMath;
 use crate::math::spot_balance::{calculate_utilization, get_token_amount, get_token_value};
 
+use super::oracle_map::OracleIdentifier;
 use crate::math::stats::calculate_new_twap;
 use crate::state::market_status::MarketStatus;
 use crate::state::oracle::{HistoricalIndexData, HistoricalOracleData, OracleSource};
@@ -28,8 +29,6 @@ use crate::state::paused_operations::{InsuranceFundOperation, SpotOperation};
 use crate::state::perp_market::PoolBalance;
 use crate::state::traits::{MarketIndexOffset, Size};
 use crate::validate;
-
-use super::oracle_map::OracleIdentifier;
 
 #[account(zero_copy(unsafe))]
 #[derive(PartialEq, Eq, Debug)]
@@ -46,14 +45,6 @@ pub struct SpotMarket {
     pub vault: Pubkey,
     /// The encoded display name for the market e.g. SOL
     pub name: [u8; 32],
-    pub historical_oracle_data: HistoricalOracleData,
-    pub historical_index_data: HistoricalIndexData,
-    /// Revenue the protocol has collected in this markets token
-    /// e.g. for SOL-PERP, funds can be settled in usdc and will flow into the USDC revenue pool
-    pub revenue_pool: PoolBalance, // in base asset
-    /// The fees collected from swaps between this market and the quote market
-    /// Is settled to the quote markets revenue pool
-    pub spot_fee_pool: PoolBalance,
     /// Details on the insurance fund covering bankruptcies in this markets token
     /// Covers bankruptcies for borrows with this markets token and perps settling in this markets token
     pub insurance_fund: InsuranceFund,
@@ -82,6 +73,14 @@ pub struct SpotMarket {
     /// The total socialized loss from borrows, in the quote market's token
     /// preicision: QUOTE_PRECISION
     pub total_quote_social_loss: u128,
+    /// Revenue the protocol has collected in this markets token
+    /// e.g. for SOL-PERP, funds can be settled in usdc and will flow into the USDC revenue pool
+    pub revenue_pool: PoolBalance, // in base asset
+    /// The fees collected from swaps between this market and the quote market
+    /// Is settled to the quote markets revenue pool
+    pub spot_fee_pool: PoolBalance,
+    pub historical_oracle_data: HistoricalOracleData,
+    pub historical_index_data: HistoricalIndexData,
     /// no withdraw limits/guards when deposits below this threshold
     /// precision: token mint precision
     pub withdraw_guard_threshold: u64,
@@ -208,7 +207,7 @@ pub struct SpotMarket {
     pub fuel_boost_insurance: u8,
     pub token_program_flag: u8,
     pub pool_id: u8,
-    pub padding: [u8; 40],
+    pub padding: [u8; 56],
 }
 
 impl Default for SpotMarket {
@@ -219,10 +218,6 @@ impl Default for SpotMarket {
             mint: Pubkey::default(),
             vault: Pubkey::default(),
             name: [0; 32],
-            historical_oracle_data: HistoricalOracleData::default(),
-            historical_index_data: HistoricalIndexData::default(),
-            revenue_pool: PoolBalance::default(),
-            spot_fee_pool: PoolBalance::default(),
             insurance_fund: InsuranceFund::default(),
             total_spot_fee: 0,
             deposit_balance: 0,
@@ -231,6 +226,10 @@ impl Default for SpotMarket {
             cumulative_borrow_interest: 0,
             total_social_loss: 0,
             total_quote_social_loss: 0,
+            revenue_pool: PoolBalance::default(),
+            spot_fee_pool: PoolBalance::default(),
+            historical_oracle_data: HistoricalOracleData::default(),
+            historical_index_data: HistoricalIndexData::default(),
             withdraw_guard_threshold: 0,
             max_token_deposits: 0,
             deposit_token_twap: 0,
@@ -277,17 +276,25 @@ impl Default for SpotMarket {
             fuel_boost_insurance: 0,
             token_program_flag: 0,
             pool_id: 0,
-            padding: [0; 40],
+            padding: [0; 56],
         }
     }
 }
 
 impl Size for SpotMarket {
-    const SIZE: usize = 776;
+    const SIZE: usize = 808;
 }
 
 impl MarketIndexOffset for SpotMarket {
-    const MARKET_INDEX_OFFSET: usize = 684;
+    // Fields were reordered so that all u128-containing types (insurance_fund and
+    // the seven direct u128 fields) appear before revenue_pool and spot_fee_pool.
+    // This ensures revenue_pool is at a 16-byte-aligned offset (384), eliminating
+    // the implicit 8-byte gap that #[repr(C)] inserted on x86_64.  Combined with
+    // PoolBalance padding widened to [u8;14] (sizeof == 32 on both platforms) and
+    // SpotMarket padding widened to [u8;56] (total content == 800, a multiple of
+    // 16), sizeof(SpotMarket) is 800 on both architectures.  market_index is at
+    // struct byte 692, account byte 700 on both.
+    const MARKET_INDEX_OFFSET: usize = 700;
 }
 
 impl SpotMarket {
@@ -633,7 +640,7 @@ impl SpotMarket {
     }
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Default)]
 pub enum SpotBalanceType {
     #[default]
     Deposit,
@@ -663,7 +670,7 @@ pub trait SpotBalance {
     fn update_balance_type(&mut self, balance_type: SpotBalanceType) -> DriftResult;
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum SpotFulfillmentConfigStatus {
     #[default]
     Enabled,
@@ -671,7 +678,7 @@ pub enum SpotFulfillmentConfigStatus {
 }
 
 #[derive(
-    Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, PartialOrd, Ord, Default,
+    Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, PartialOrd, Ord, Default,
 )]
 pub enum AssetTier {
     /// full priviledge
@@ -709,6 +716,7 @@ impl InsuranceFund {
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 pub enum TokenProgramFlag {
     Token2022 = 0b00000001,
     TransferHook = 0b00000010,

@@ -55,7 +55,7 @@ export class grpcSubscription {
 				await LaserstreamProgramAccountSubscriber.create<UserAccount>(
 					this.grpcConfigs,
 					'OrderSubscriber',
-					'User',
+					'user',
 					this.orderSubscriber.driftClient.program,
 					this.orderSubscriber.decodeFn,
 					{
@@ -67,7 +67,7 @@ export class grpcSubscription {
 			this.subscriber = await grpcProgramAccountSubscriber.create<UserAccount>(
 				this.grpcConfigs,
 				'OrderSubscriber',
-				'User',
+				'user',
 				this.orderSubscriber.driftClient.program,
 				this.orderSubscriber.decodeFn,
 				{

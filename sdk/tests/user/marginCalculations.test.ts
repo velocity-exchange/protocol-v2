@@ -227,8 +227,8 @@ describe('User margin calculations', () => {
 				DEFAULT_ORACLES
 			);
 
-			assert(mockUser.getFreeCollateral('Initial', false, 0).gt(ZERO));
-			assert(mockUser.getFreeCollateral('Initial', false, 5).eq(ZERO));
+			assert(mockUser.getFreeCollateral('Initial', 0).gt(ZERO));
+			assert(mockUser.getFreeCollateral('Initial', 5).eq(ZERO));
 		});
 	});
 
@@ -312,7 +312,6 @@ describe('User margin calculations', () => {
 				'Maintenance',
 				false,
 				ZERO,
-				false,
 				'Isolated'
 			);
 			assert(liqPrice.gte(ZERO));

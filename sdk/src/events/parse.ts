@@ -154,8 +154,8 @@ class ExecutionContext {
 export function parseLogsForCuUsage(
 	logs: string[],
 	programId = driftProgramId
-): Event<CuUsageEvent>[] {
-	const cuUsageEvents: Event<CuUsageEvent>[] = [];
+): Event<any, CuUsageEvent>[] {
+	const cuUsageEvents: Event<any, CuUsageEvent>[] = [];
 
 	const execution = new ExecutionContext();
 	for (const log of logs) {

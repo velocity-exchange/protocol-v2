@@ -73,10 +73,11 @@ export class OrderSubscriber {
 		if (config.fastDecode ?? true) {
 			this.decodeFn = (name, data) => decodeUser(data);
 		} else {
-			this.decodeFn =
-				this.driftClient.program.account.user.coder.accounts.decodeUnchecked.bind(
-					this.driftClient.program.account.user.coder.accounts
-				);
+			this.decodeFn = (
+				this.driftClient.program.account as any
+			).user.coder.accounts.decodeUnchecked.bind(
+				(this.driftClient.program.account as any).user.coder.accounts
+			);
 		}
 		this.eventEmitter = new EventEmitter();
 		this.fetchAllNonIdleUsers = config.fetchAllNonIdleUsers;
@@ -184,7 +185,7 @@ export class OrderSubscriber {
 					return;
 				}
 
-				userAccount = this.decodeFn('User', buffer) as UserAccount;
+				userAccount = this.decodeFn('user', buffer) as UserAccount;
 			} else if (dataType === 'buffer') {
 				const buffer: Buffer = data as Buffer;
 				const newLastActiveSlot = new BN(
@@ -199,7 +200,7 @@ export class OrderSubscriber {
 					return;
 				}
 
-				userAccount = this.decodeFn('User', data as Buffer) as UserAccount;
+				userAccount = this.decodeFn('user', data as Buffer) as UserAccount;
 			} else {
 				userAccount = data as UserAccount;
 			}

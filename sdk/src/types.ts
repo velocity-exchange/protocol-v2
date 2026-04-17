@@ -1150,7 +1150,6 @@ export type PerpPosition = {
 	remainderBaseAssetAmount: number;
 	maxMarginRatio: number;
 	lastQuoteAssetAmountPerLp: BN;
-	perLpBase: number;
 	positionFlag: number;
 	isolatedPositionScaledBalance: BN;
 };

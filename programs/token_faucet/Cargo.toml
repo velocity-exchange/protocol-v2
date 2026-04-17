@@ -14,7 +14,9 @@ cpi = ["no-entrypoint"]
 mainnet-beta=[]
 anchor-test= []
 
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
 [dependencies]
-anchor-lang = "0.29.0"
-anchor-spl = "0.29.0"
+anchor-lang = "1.0.0"
+anchor-spl = "1.0.0"
 bytemuck = { version = "1.4.0" }

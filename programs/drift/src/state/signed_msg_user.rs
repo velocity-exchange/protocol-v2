@@ -4,10 +4,10 @@ use crate::error::{DriftResult, ErrorCode};
 use crate::math::safe_unwrap::SafeUnwrap;
 use crate::msg;
 use crate::{validate, ID};
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::Pubkey;
 use anchor_lang::*;
 use anchor_lang::{account, zero_copy};
-use borsh::{BorshDeserialize, BorshSerialize};
 use prelude::AccountInfo;
 
 use crate::state::traits::Size;
@@ -18,14 +18,18 @@ pub const SIGNED_MSG_SLOT_EVICTION_BUFFER: u64 = 10;
 
 mod tests;
 
-#[zero_copy]
+#[zero_copy(unsafe)]
 #[derive(Default, Eq, PartialEq, Debug, BorshDeserialize, BorshSerialize)]
+#[repr(C)]
 pub struct SignedMsgOrderId {
     pub uuid: [u8; 8],
     pub max_slot: u64,
     pub order_id: u32,
     pub padding: u32,
 }
+
+unsafe impl bytemuck::Pod for SignedMsgOrderId {}
+unsafe impl bytemuck::Zeroable for SignedMsgOrderId {}
 
 impl SignedMsgOrderId {
     pub fn new(uuid: [u8; 8], max_slot: u64, order_id: u32) -> Self {
@@ -49,7 +53,6 @@ impl Size for SignedMsgUserOrders {
  */
 #[account]
 #[derive(Default, Eq, PartialEq, Debug)]
-#[repr(C)]
 pub struct SignedMsgUserOrders {
     pub authority_pubkey: Pubkey,
     pub padding: u32,
@@ -75,13 +78,17 @@ impl SignedMsgUserOrders {
     }
 }
 
-#[zero_copy]
+#[zero_copy(unsafe)]
 #[derive(Default, Eq, PartialEq, Debug)]
+#[repr(C)]
 pub struct SignedMsgUserOrdersFixed {
     pub user_pubkey: Pubkey,
     pub padding: u32,
     pub len: u32,
 }
+
+unsafe impl bytemuck::Pod for SignedMsgUserOrdersFixed {}
+unsafe impl bytemuck::Zeroable for SignedMsgUserOrdersFixed {}
 
 pub struct SignedMsgUserOrdersZeroCopy<'a> {
     pub fixed: Ref<'a, SignedMsgUserOrdersFixed>,
@@ -187,7 +194,7 @@ impl<'a> SignedMsgUserOrdersLoader<'a> for AccountInfo<'a> {
 
         let (discriminator, data) = Ref::map_split(data, |d| d.split_at(8));
         validate!(
-            *discriminator == SignedMsgUserOrders::discriminator(),
+            discriminator.as_ref() == SignedMsgUserOrders::DISCRIMINATOR,
             ErrorCode::DefaultError,
             "invalid signed_msg user orders discriminator",
         )?;
@@ -212,7 +219,7 @@ impl<'a> SignedMsgUserOrdersLoader<'a> for AccountInfo<'a> {
 
         let (discriminator, data) = RefMut::map_split(data, |d| d.split_at_mut(8));
         validate!(
-            *discriminator == SignedMsgUserOrders::discriminator(),
+            discriminator.as_ref() == SignedMsgUserOrders::DISCRIMINATOR,
             ErrorCode::DefaultError,
             "invalid signed_msg user orders discriminator",
         )?;

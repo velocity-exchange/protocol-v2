@@ -13,13 +13,7 @@
  * Instruction → on-chain handler mapping: see ARCHITECTURE.md § SDK↔Instruction Mapping.
  */
 import * as anchor from '@coral-xyz/anchor';
-import {
-	AnchorProvider,
-	BN,
-	Idl,
-	Program,
-	ProgramAccount,
-} from '@coral-xyz/anchor';
+import { AnchorProvider, BN, Program, ProgramAccount } from '@coral-xyz/anchor';
 import bs58 from 'bs58';
 import {
 	ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -179,10 +173,11 @@ import { UserSubscriptionConfig } from './userConfig';
 import {
 	configs,
 	DEFAULT_CONFIRMATION_OPTS,
-	DRIFT_PROGRAM_ID,
 	DriftEnv,
+	DriftProgram,
 	PYTH_LAZER_STORAGE_ACCOUNT_KEY,
 } from './config';
+import { Drift } from './idl/drift';
 import { WRAPPED_SOL_MINT } from './constants/spotMarkets';
 import { UserStats } from './userStats';
 import { isSpotPositionAvailable } from './math/spotPosition';
@@ -244,7 +239,7 @@ type RemainingAccountParams = {
 export class DriftClient {
 	connection: Connection;
 	wallet: IWallet;
-	public program: Program;
+	public program: DriftProgram;
 	provider: AnchorProvider;
 	env: DriftEnv;
 	opts?: ConfirmOptions;
@@ -352,9 +347,8 @@ export class DriftClient {
 			config.wallet,
 			this.opts
 		);
-		this.program = new Program(
-			driftIDL as Idl,
-			config.programID ?? new PublicKey(DRIFT_PROGRAM_ID),
+		this.program = new Program<Drift>(
+			driftIDL as Drift,
 			this.provider,
 			config.coder
 		);
@@ -493,12 +487,12 @@ export class DriftClient {
 				delistedMarketSetting
 			);
 		} else if (config.accountSubscription?.type === 'grpc') {
-			const accountSubscriberClass =
+			const accountSubscriberClass: any =
 				config.accountSubscription?.driftClientAccountSubscriber ??
 				grpcDriftClientAccountSubscriber;
 			this.accountSubscriber = new accountSubscriberClass(
 				config.accountSubscription.grpcConfigs,
-				this.program,
+				this.program as any,
 				config.perpMarketIndexes ?? [],
 				config.spotMarketIndexes ?? [],
 				config.oracleInfos ?? [],
@@ -510,11 +504,11 @@ export class DriftClient {
 				}
 			);
 		} else {
-			const accountSubscriberClass =
+			const accountSubscriberClass: any =
 				config.accountSubscription?.driftClientAccountSubscriber ??
 				WebSocketDriftClientAccountSubscriber;
 			this.accountSubscriber = new accountSubscriberClass(
-				this.program,
+				this.program as any,
 				config.perpMarketIndexes ?? [],
 				config.spotMarketIndexes ?? [],
 				config.oracleInfos ?? [],
@@ -726,7 +720,7 @@ export class DriftClient {
 			this.program.programId,
 			serumMarket
 		);
-		return (await this.program.account.serumV3FulfillmentConfig.fetch(
+		return (await (this.program.account as any).serumV3FulfillmentConfig.fetch(
 			address
 		)) as SerumV3FulfillmentConfigAccount;
 	}
@@ -734,7 +728,9 @@ export class DriftClient {
 	public async getSerumV3FulfillmentConfigs(): Promise<
 		SerumV3FulfillmentConfigAccount[]
 	> {
-		const accounts = await this.program.account.serumV3FulfillmentConfig.all();
+		const accounts = await (
+			this.program.account as any
+		).serumV3FulfillmentConfig.all();
 		return accounts.map(
 			(account) => account.account
 		) as SerumV3FulfillmentConfigAccount[];
@@ -747,7 +743,9 @@ export class DriftClient {
 			this.program.programId,
 			phoenixMarket
 		);
-		return (await this.program.account.phoenixV1FulfillmentConfig.fetch(
+		return (await (
+			this.program.account as any
+		).phoenixV1FulfillmentConfig.fetch(
 			address
 		)) as PhoenixV1FulfillmentConfigAccount;
 	}
@@ -755,8 +753,9 @@ export class DriftClient {
 	public async getPhoenixV1FulfillmentConfigs(): Promise<
 		PhoenixV1FulfillmentConfigAccount[]
 	> {
-		const accounts =
-			await this.program.account.phoenixV1FulfillmentConfig.all();
+		const accounts = await (
+			this.program.account as any
+		).phoenixV1FulfillmentConfig.all();
 		return accounts.map(
 			(account) => account.account
 		) as PhoenixV1FulfillmentConfigAccount[];
@@ -769,7 +768,9 @@ export class DriftClient {
 			this.program.programId,
 			openbookMarket
 		);
-		return (await this.program.account.openbookV2FulfillmentConfig.fetch(
+		return (await (
+			this.program.account as any
+		).openbookV2FulfillmentConfig.fetch(
 			address
 		)) as OpenbookV2FulfillmentConfigAccount;
 	}
@@ -777,8 +778,9 @@ export class DriftClient {
 	public async getOpenbookV2FulfillmentConfigs(): Promise<
 		OpenbookV2FulfillmentConfigAccount[]
 	> {
-		const accounts =
-			await this.program.account.openbookV2FulfillmentConfig.all();
+		const accounts = await (
+			this.program.account as any
+		).openbookV2FulfillmentConfig.all();
 		return accounts.map(
 			(account) => account.account
 		) as OpenbookV2FulfillmentConfigAccount[];
@@ -857,11 +859,7 @@ export class DriftClient {
 			newWallet,
 			this.opts
 		);
-		const newProgram = new Program(
-			driftIDL as Idl,
-			this.program.programId,
-			newProvider
-		);
+		const newProgram = new Program<Drift>(driftIDL as Drift, newProvider);
 
 		this.skipLoadUsers = false;
 		// Update provider for txSender with new wallet details
@@ -1406,7 +1404,7 @@ export class DriftClient {
 			this.program.programId,
 			authority
 		);
-		return this.program.instruction.migrateReferrer({
+		return (this.program.instruction as any).migrateReferrer({
 			accounts: {
 				escrow,
 				authority,
@@ -2001,7 +1999,7 @@ export class DriftClient {
 		advancedLp: boolean,
 		subAccountId: number
 	) {
-		const ix = await this.program.instruction.updateUserAdvancedLp(
+		const ix = await (this.program.instruction as any).updateUserAdvancedLp(
 			subAccountId,
 			advancedLp,
 			{
@@ -2097,7 +2095,7 @@ export class DriftClient {
 		if (!includeIdle) {
 			filters = [getNonIdleUserFilter()];
 		}
-		return (await this.program.account.user.all(
+		return (await (this.program.account as any).user.all(
 			filters
 		)) as ProgramAccount<UserAccount>[];
 	}
@@ -2105,7 +2103,7 @@ export class DriftClient {
 	public async getUserAccountsForDelegate(
 		delegate: PublicKey
 	): Promise<UserAccount[]> {
-		const programAccounts = await this.program.account.user.all([
+		const programAccounts = await (this.program.account as any).user.all([
 			{
 				memcmp: {
 					offset: 40,
@@ -2123,7 +2121,7 @@ export class DriftClient {
 	public async getUserAccountsAndAddressesForAuthority(
 		authority: PublicKey
 	): Promise<ProgramAccount<UserAccount>[]> {
-		const programAccounts = await this.program.account.user.all([
+		const programAccounts = await (this.program.account as any).user.all([
 			{
 				memcmp: {
 					offset: 8,
@@ -2141,7 +2139,7 @@ export class DriftClient {
 	public async getUserAccountsForAuthority(
 		authority: PublicKey
 	): Promise<UserAccount[]> {
-		const programAccounts = await this.program.account.user.all([
+		const programAccounts = await (this.program.account as any).user.all([
 			{
 				memcmp: {
 					offset: 8,
@@ -2159,7 +2157,7 @@ export class DriftClient {
 	public async getReferredUserStatsAccountsByReferrer(
 		referrer: PublicKey
 	): Promise<UserStatsAccount[]> {
-		const programAccounts = await this.program.account.userStats.all([
+		const programAccounts = await (this.program.account as any).userStats.all([
 			{
 				memcmp: {
 					offset: 40,
@@ -2170,14 +2168,16 @@ export class DriftClient {
 		]);
 
 		return programAccounts.map(
-			(programAccount) => programAccount.account as UserStatsAccount
+			(programAccount) => programAccount.account as unknown as UserStatsAccount
 		);
 	}
 
 	public async getReferrerNameAccountsForAuthority(
 		authority: PublicKey
 	): Promise<ReferrerNameAccount[]> {
-		const programAccounts = await this.program.account.referrerName.all([
+		const programAccounts = await (
+			this.program.account as any
+		).referrerName.all([
 			{
 				memcmp: {
 					offset: 8,
@@ -2346,7 +2346,9 @@ export class DriftClient {
 	}
 
 	public async getSignedMsgUserOrdersDeletionIx(authority: PublicKey) {
-		const ix = await this.program.instruction.deleteSignedMsgUserOrders({
+		const ix = await (
+			this.program.instruction as any
+		).deleteSignedMsgUserOrders({
 			accounts: {
 				user: authority,
 				signedMsgUserOrders: getSignedMsgUserAccountPublicKey(
@@ -2455,7 +2457,7 @@ export class DriftClient {
 			this.program.programId,
 			nameBuffer
 		);
-		return (await this.program.account.referrerName.fetch(
+		return (await (this.program.account as any).referrerName.fetch(
 			referrerNameAccountPublicKey
 		)) as ReferrerNameAccount;
 	}
@@ -3171,7 +3173,7 @@ export class DriftClient {
 
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 		const tokenProgram = this.getTokenProgramForSpotMarket(spotMarketAccount);
-		return await this.program.instruction.deposit(
+		return await (this.program.instruction as any).deposit(
 			marketIndex,
 			amount,
 			reduceOnly,
@@ -3874,7 +3876,7 @@ export class DriftClient {
 
 		const tokenProgram = this.getTokenProgramForSpotMarket(spotMarketAccount);
 
-		return await this.program.instruction.withdraw(
+		return await (this.program.instruction as any).withdraw(
 			marketIndex,
 			amount,
 			reduceOnly,
@@ -3968,7 +3970,7 @@ export class DriftClient {
 				fromSubAccountId
 			);
 
-			const fromUserAccount = (await this.program.account.user.fetch(
+			const fromUserAccount = (await (this.program.account as any).user.fetch(
 				userAccountPublicKey
 			)) as UserAccount;
 			remainingAccounts = this.getRemainingAccounts({
@@ -4518,7 +4520,7 @@ export class DriftClient {
 		settleeUserAccountPublicKey: PublicKey,
 		marketIndex: number
 	): Promise<TransactionInstruction> {
-		const settleeUserAccount = (await this.program.account.user.fetch(
+		const settleeUserAccount = (await (this.program.account as any).user.fetch(
 			settleeUserAccountPublicKey
 		)) as UserAccount;
 
@@ -4527,7 +4529,7 @@ export class DriftClient {
 			writablePerpMarketIndexes: [marketIndex],
 		});
 
-		return this.program.instruction.settleLp(marketIndex, {
+		return (this.program.instruction as any).settleLp(marketIndex, {
 			accounts: {
 				state: await this.getStatePublicKey(),
 				user: settleeUserAccountPublicKey,
@@ -4583,7 +4585,7 @@ export class DriftClient {
 		userAccountPublicKey: PublicKey,
 		sharesToBurn?: BN
 	): Promise<TransactionInstruction> {
-		const userAccount = (await this.program.account.user.fetch(
+		const userAccount = (await (this.program.account as any).user.fetch(
 			userAccountPublicKey
 		)) as UserAccount;
 
@@ -4600,7 +4602,7 @@ export class DriftClient {
 			console.log('burning lp shares:', sharesToBurn.toString());
 		}
 
-		return this.program.instruction.removePerpLpSharesInExpiringMarket(
+		return (this.program.instruction as any).removePerpLpSharesInExpiringMarket(
 			sharesToBurn,
 			marketIndex,
 			{
@@ -4634,7 +4636,7 @@ export class DriftClient {
 			console.log('burning lp shares:', sharesToBurn.toString());
 		}
 
-		return this.program.instruction.removePerpLpShares(
+		return (this.program.instruction as any).removePerpLpShares(
 			sharesToBurn,
 			marketIndex,
 			{
@@ -4678,14 +4680,18 @@ export class DriftClient {
 			writablePerpMarketIndexes: [marketIndex],
 		});
 
-		return this.program.instruction.addPerpLpShares(amount, marketIndex, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user,
-				authority: this.wallet.publicKey,
-			},
-			remainingAccounts: remainingAccounts,
-		});
+		return (this.program.instruction as any).addPerpLpShares(
+			amount,
+			marketIndex,
+			{
+				accounts: {
+					state: await this.getStatePublicKey(),
+					user,
+					authority: this.wallet.publicKey,
+				},
+				remainingAccounts: remainingAccounts,
+			}
+		);
 	}
 
 	public getQuoteValuePerLpShare(marketIndex: number): BN {
@@ -4998,7 +5004,7 @@ export class DriftClient {
 				: undefined,
 		});
 
-		return await this.program.instruction.placePerpOrder(orderParams, {
+		return await (this.program.instruction as any).placePerpOrder(orderParams, {
 			accounts: {
 				state: await this.getStatePublicKey(),
 				user,
@@ -5220,15 +5226,18 @@ export class DriftClient {
 			useMarketLastSlotCache: true,
 		});
 
-		return await this.program.instruction.cancelOrderByUserId(userOrderId, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user,
-				authority: this.wallet.publicKey,
-				oracle,
-			},
-			remainingAccounts,
-		});
+		return await (this.program.instruction as any).cancelOrderByUserId(
+			userOrderId,
+			{
+				accounts: {
+					state: await this.getStatePublicKey(),
+					user,
+					authority: this.wallet.publicKey,
+					oracle,
+				},
+				remainingAccounts,
+			}
+		);
 	}
 
 	/**
@@ -5489,15 +5498,18 @@ export class DriftClient {
 		const formattedParams = params.map((item) => getOrderParams(item));
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 
-		return await this.program.instruction.placeOrders(formattedParams, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user,
-				userStats: this.getUserStatsAccountPublicKey(),
-				authority,
-			},
-			remainingAccounts,
-		});
+		return await (this.program.instruction as any).placeOrders(
+			formattedParams,
+			{
+				accounts: {
+					state: await this.getStatePublicKey(),
+					user,
+					userStats: this.getUserStatsAccountPublicKey(),
+					authority,
+				},
+				remainingAccounts,
+			}
+		);
 	}
 
 	public async getPlaceOrdersAndSetPositionMaxLevIx(
@@ -5529,7 +5541,7 @@ export class DriftClient {
 
 		const formattedParams = params.map((item) => getOrderParams(item));
 
-		const placeOrdersIxs = await this.program.instruction.placeOrders(
+		const placeOrdersIxs = await (this.program.instruction as any).placeOrders(
 			formattedParams,
 			{
 				accounts: {
@@ -5627,15 +5639,18 @@ export class DriftClient {
 			maxTs: params.maxTs,
 		};
 
-		return await this.program.instruction.placeScaleOrders(formattedParams, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user,
-				userStats: this.getUserStatsAccountPublicKey(),
-				authority: this.wallet.publicKey,
-			},
-			remainingAccounts,
-		});
+		return await (this.program.instruction as any).placeScaleOrders(
+			formattedParams,
+			{
+				accounts: {
+					state: await this.getStatePublicKey(),
+					user,
+					userStats: this.getUserStatsAccountPublicKey(),
+					authority: this.wallet.publicKey,
+				},
+				remainingAccounts,
+			}
+		);
 	}
 
 	public async fillPerpOrder(
@@ -7063,7 +7078,7 @@ export class DriftClient {
 	public async getLogUserBalancesIx(
 		userAccountPublicKey: PublicKey
 	): Promise<TransactionInstruction> {
-		const userAccount = (await this.program.account.user.fetch(
+		const userAccount = (await (this.program.account as any).user.fetch(
 			userAccountPublicKey
 		)) as UserAccount;
 		const remainingAccounts = this.getRemainingAccounts({
@@ -7117,7 +7132,7 @@ export class DriftClient {
 			userAccounts: [userAccount],
 		});
 
-		return await this.program.instruction.updateUserFuelBonus({
+		return await (this.program.instruction as any).updateUserFuelBonus({
 			accounts: {
 				state: await this.getStatePublicKey(),
 				user: userAccountPublicKey,
@@ -7192,7 +7207,7 @@ export class DriftClient {
 			userAccounts: [userAccount],
 		});
 
-		return await this.program.instruction.updateUserOpenOrdersCount({
+		return await (this.program.instruction as any).updateUserOpenOrdersCount({
 			accounts: {
 				state: await this.getStatePublicKey(),
 				filler,
@@ -7743,11 +7758,11 @@ export class DriftClient {
 			prefix,
 			delegateSigner
 				? this.program.coder.types.encode(
-						'SignedMsgOrderParamsDelegateMessage',
+						'signedMsgOrderParamsDelegateMessage',
 						withBuilderDefaults as SignedMsgOrderParamsDelegateMessage
 				  )
 				: this.program.coder.types.encode(
-						'SignedMsgOrderParamsMessage',
+						'signedMsgOrderParamsMessage',
 						withBuilderDefaults as SignedMsgOrderParamsMessage
 				  ),
 		]);
@@ -7765,8 +7780,8 @@ export class DriftClient {
 		delegateSigner?: boolean
 	): SignedMsgOrderParamsMessage | SignedMsgOrderParamsDelegateMessage {
 		const decodeStr = delegateSigner
-			? 'SignedMsgOrderParamsDelegateMessage'
-			: 'SignedMsgOrderParamsMessage';
+			? 'signedMsgOrderParamsDelegateMessage'
+			: 'signedMsgOrderParamsMessage';
 		return this.program.coder.types.decode(
 			decodeStr,
 			Buffer.concat([
@@ -8304,15 +8319,19 @@ export class DriftClient {
 			overrides?.authority ??
 			overrides?.user?.getUserAccount().authority ??
 			this.wallet.publicKey;
-		return await this.program.instruction.modifyOrder(orderId, orderParams, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user: userPubKey,
-				userStats: this.getUserStatsAccountPublicKey(),
-				authority,
-			},
-			remainingAccounts,
-		});
+		return await (this.program.instruction as any).modifyOrder(
+			orderId,
+			orderParams,
+			{
+				accounts: {
+					state: await this.getStatePublicKey(),
+					user: userPubKey,
+					userStats: this.getUserStatsAccountPublicKey(),
+					authority,
+				},
+				remainingAccounts,
+			}
+		);
 	}
 
 	/**
@@ -8425,7 +8444,7 @@ export class DriftClient {
 			maxTs: maxTs || null,
 		};
 
-		return await this.program.instruction.modifyOrderByUserId(
+		return await (this.program.instruction as any).modifyOrderByUserId(
 			userOrderId,
 			orderParams,
 			{
@@ -9917,7 +9936,7 @@ export class DriftClient {
 	public async getSettleFundingPaymentIx(
 		userAccountPublicKey: PublicKey
 	): Promise<TransactionInstruction> {
-		const userAccount = (await this.program.account.user.fetch(
+		const userAccount = (await (this.program.account as any).user.fetch(
 			userAccountPublicKey
 		)) as UserAccount;
 
@@ -10300,23 +10319,21 @@ export class DriftClient {
 			marketIndex
 		);
 
-		const ix = await this.program.instruction.requestRemoveInsuranceFundStake(
-			marketIndex,
-			amount,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					spotMarket: spotMarketAccount.pubkey,
-					insuranceFundStake: ifStakeAccountPublicKey,
-					userStats: getUserStatsAccountPublicKey(
-						this.program.programId,
-						this.wallet.publicKey // only allow payer to request remove own insurance fund stake account
-					),
-					authority: this.wallet.publicKey,
-					insuranceFundVault: spotMarketAccount.insuranceFund.vault,
-				},
-			}
-		);
+		const ix = await (
+			this.program.instruction as any
+		).requestRemoveInsuranceFundStake(marketIndex, amount, {
+			accounts: {
+				state: await this.getStatePublicKey(),
+				spotMarket: spotMarketAccount.pubkey,
+				insuranceFundStake: ifStakeAccountPublicKey,
+				userStats: getUserStatsAccountPublicKey(
+					this.program.programId,
+					this.wallet.publicKey // only allow payer to request remove own insurance fund stake account
+				),
+				authority: this.wallet.publicKey,
+				insuranceFundVault: spotMarketAccount.insuranceFund.vault,
+			},
+		});
 
 		const tx = await this.buildTransaction(ix, txParams);
 
@@ -10335,23 +10352,21 @@ export class DriftClient {
 			marketIndex
 		);
 
-		const ix =
-			await this.program.instruction.cancelRequestRemoveInsuranceFundStake(
-				marketIndex,
-				{
-					accounts: {
-						state: await this.getStatePublicKey(),
-						spotMarket: spotMarketAccount.pubkey,
-						insuranceFundStake: ifStakeAccountPublicKey,
-						userStats: getUserStatsAccountPublicKey(
-							this.program.programId,
-							this.wallet.publicKey // only allow payer to request remove own insurance fund stake account
-						),
-						authority: this.wallet.publicKey,
-						insuranceFundVault: spotMarketAccount.insuranceFund.vault,
-					},
-				}
-			);
+		const ix = await (
+			this.program.instruction as any
+		).cancelRequestRemoveInsuranceFundStake(marketIndex, {
+			accounts: {
+				state: await this.getStatePublicKey(),
+				spotMarket: spotMarketAccount.pubkey,
+				insuranceFundStake: ifStakeAccountPublicKey,
+				userStats: getUserStatsAccountPublicKey(
+					this.program.programId,
+					this.wallet.publicKey // only allow payer to request remove own insurance fund stake account
+				),
+				authority: this.wallet.publicKey,
+				insuranceFundVault: spotMarketAccount.insuranceFund.vault,
+			},
+		});
 
 		const tx = await this.buildTransaction(ix, txParams);
 
@@ -10835,10 +10850,12 @@ export class DriftClient {
 	}
 
 	public async fetchProtectedMakerModeConfig(): Promise<ProtectedMakerModeConfig> {
-		const config = await this.program.account.protectedMakerModeConfig.fetch(
+		const config = await (
+			this.program.account as any
+		).protectedMakerModeConfig.fetch(
 			getProtectedMakerModeConfigPublicKey(this.program.programId)
 		);
-		return config as ProtectedMakerModeConfig;
+		return config as unknown as ProtectedMakerModeConfig;
 	}
 	public async updateUserProtectedMakerOrders(
 		subAccountId: number,
@@ -11024,15 +11041,15 @@ export class DriftClient {
 	}
 
 	public async getLpPoolAccount(lpPoolId: number): Promise<LPPoolAccount> {
-		return (await this.program.account.lpPool.fetch(
+		return (await (this.program.account as any).lpPool.fetch(
 			getLpPoolPublicKey(this.program.programId, lpPoolId)
-		)) as LPPoolAccount;
+		)) as unknown as LPPoolAccount;
 	}
 
 	public async getConstituentTargetBaseAccount(
 		lpPoolId: number
 	): Promise<ConstituentTargetBaseAccount> {
-		return (await this.program.account.constituentTargetBase.fetch(
+		return (await (this.program.account as any).constituentTargetBase.fetch(
 			getConstituentTargetBasePublicKey(
 				this.program.programId,
 				getLpPoolPublicKey(this.program.programId, lpPoolId)
@@ -11041,7 +11058,7 @@ export class DriftClient {
 	}
 
 	public async getAmmCache(): Promise<AmmCache> {
-		return (await this.program.account.ammCache.fetch(
+		return (await (this.program.account as any).ammCache.fetch(
 			getAmmCachePublicKey(this.program.programId)
 		)) as AmmCache;
 	}

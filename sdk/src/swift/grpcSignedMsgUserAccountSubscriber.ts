@@ -41,7 +41,7 @@ export class grpcSignedMsgUserOrdersAccountSubscriber extends SignedMsgUserOrder
 				await grpcProgramAccountSubscriber.create<SignedMsgUserOrdersAccount>(
 					this.grpcConfigs,
 					'SingedMsgUserOrdersAccountMap',
-					'SignedMsgUserOrders',
+					'signedMsgUserOrders',
 					this.driftClient.program,
 					this.decodeFn,
 					{

@@ -119,7 +119,7 @@ pub struct PhoenixMarketContext<'a, 'b> {
 impl<'a, 'b> PhoenixMarketContext<'a, 'b> {
     pub fn new(info: &'a AccountInfo<'b>) -> DriftResult<PhoenixMarketContext<'a, 'b>> {
         validate!(
-            info.owner == &phoenix::id(),
+            info.owner.to_bytes() == phoenix::id().to_bytes(),
             ErrorCode::InvalidPhoenixProgram,
             "Market must be owned by the Phoenix program",
         )?;
@@ -147,11 +147,17 @@ impl<'a, 'b> PhoenixMarketContext<'a, 'b> {
     ) -> PhoenixV1FulfillmentConfig {
         PhoenixV1FulfillmentConfig {
             pubkey: *config_key,
-            phoenix_program_id: phoenix::id(),
-            phoenix_log_authority: phoenix::phoenix_log_authority::id(),
+            phoenix_program_id: Pubkey::new_from_array(phoenix::id().to_bytes()),
+            phoenix_log_authority: Pubkey::new_from_array(
+                phoenix::phoenix_log_authority::id().to_bytes(),
+            ),
             phoenix_market: *self.phoenix_market.key,
-            phoenix_base_vault: self.header.base_params.vault_key,
-            phoenix_quote_vault: self.header.quote_params.vault_key,
+            phoenix_base_vault: Pubkey::new_from_array(
+                self.header.base_params.vault_key.to_bytes(),
+            ),
+            phoenix_quote_vault: Pubkey::new_from_array(
+                self.header.quote_params.vault_key.to_bytes(),
+            ),
             market_index,
             fulfillment_type: SpotFulfillmentType::PhoenixV1,
             status: SpotFulfillmentConfigStatus::Enabled,
@@ -209,7 +215,7 @@ impl<'a, 'b> PhoenixFulfillmentParams<'a, 'b> {
         )?;
 
         validate!(
-            phoenix_log_authority.key == &phoenix::phoenix_log_authority::id(),
+            phoenix_log_authority.key.to_bytes() == phoenix::phoenix_log_authority::id().to_bytes(),
             ErrorCode::InvalidFulfillmentConfig
         )?;
 
@@ -312,15 +318,26 @@ impl<'a, 'b> PhoenixFulfillmentParams<'a, 'b> {
         let base_mint = self.phoenix_market.header.base_params.mint_key;
         let quote_mint = self.phoenix_market.header.quote_params.mint_key;
 
+        // phoenix crate uses an older solana Pubkey type (solana-pubkey 2.x);
+        // anchor/drift uses solana-pubkey 3.x. Both are #[repr(transparent)] [u8; 32],
+        // so transmuting references between versions is safe.
+        let base_vault_key = self.base_market_vault.key();
+        let quote_vault_key = self.quote_market_vault.key();
+
         let new_order_instruction = create_new_order_instruction_with_custom_token_accounts(
-            self.phoenix_market.key,
-            self.drift_signer.key,
-            &self.base_market_vault.key(),
-            &self.quote_market_vault.key(),
+            unsafe { std::mem::transmute(self.phoenix_market.key) },
+            unsafe { std::mem::transmute(self.drift_signer.key) },
+            unsafe { std::mem::transmute(&base_vault_key) },
+            unsafe { std::mem::transmute(&quote_vault_key) },
             &base_mint,
             &quote_mint,
             &order_packet,
         );
+
+        // The returned Instruction uses old solana_program types; transmute to new.
+        // Both Instruction types have identical layout: { program_id: Pubkey, accounts: Vec<AccountMeta>, data: Vec<u8> }
+        let new_order_instruction: solana_program::instruction::Instruction =
+            unsafe { std::mem::transmute(new_order_instruction) };
 
         let signer_seeds = get_signer_seeds(&self.signer_nonce);
         let signers_seeds = &[&signer_seeds[..]];
@@ -585,6 +602,14 @@ mod test {
         taker_price_to_phoenix_price_in_ticks_rounded_up,
     };
 
+    /// Transmute an anchor Pubkey (solana-pubkey 3.x) into the older solana
+    /// Pubkey type used by the phoenix crate (solana-pubkey 2.x).
+    /// Both are #[repr(transparent)] [u8; 32], so transmute is safe.
+    fn transmute_pubkey<T: Sized>(pk: Pubkey) -> T {
+        assert_eq!(std::mem::size_of::<Pubkey>(), std::mem::size_of::<T>());
+        unsafe { std::mem::transmute_copy(&pk) }
+    }
+
     fn setup() -> MarketHeader {
         // Creates a market header with a similar configuration to the SOL/USDC mainnet-beta Phoenix market
         MarketHeader::new(
@@ -596,21 +621,21 @@ mod test {
             TokenParams {
                 decimals: 9,
                 vault_bump: 255,
-                mint_key: Pubkey::new_unique(),
-                vault_key: Pubkey::new_unique(),
+                mint_key: transmute_pubkey(Pubkey::new_unique()),
+                vault_key: transmute_pubkey(Pubkey::new_unique()),
             },
             BaseAtomsPerBaseLot::new(1_000_000),
             TokenParams {
                 decimals: 6,
                 vault_bump: 255,
-                mint_key: Pubkey::new_unique(),
-                vault_key: Pubkey::new_unique(),
+                mint_key: transmute_pubkey(Pubkey::new_unique()),
+                vault_key: transmute_pubkey(Pubkey::new_unique()),
             },
             QuoteAtomsPerQuoteLot::new(1),
             QuoteAtomsPerBaseUnitPerTick::new(1000),
-            Pubkey::new_unique(),
-            Pubkey::new_unique(),
-            Pubkey::new_unique(),
+            transmute_pubkey(Pubkey::new_unique()),
+            transmute_pubkey(Pubkey::new_unique()),
+            transmute_pubkey(Pubkey::new_unique()),
             1,
         )
     }

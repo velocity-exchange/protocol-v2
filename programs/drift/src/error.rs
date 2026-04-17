@@ -1,9 +1,23 @@
 use anchor_lang::prelude::*;
 pub type DriftResult<T = ()> = std::result::Result<T, ErrorCode>;
 
+/// Anchor encodes custom errors as: `error_code = 6000 + discriminant`
+/// where `discriminant` is the 0-based index of the variant in this enum.
+///
+/// To decode a hex error from logs (e.g. `custom program error: 0x18b6`):
+///   1. Convert hex → decimal:  0x18b6 = 6326
+///   2. Subtract 6000:          6326 - 6000 = 326
+///   3. Count down to index 326 in this enum (use the `// --- index N` markers below)
+///
+/// To encode a known variant → hex:
+///   error_code = 6000 + index,  then format as hex
+///
+/// Index markers are placed every 50 variants to speed up counting.
+/// Example: `SlippageOutsideLimit` is at index 15  → 6000+15 = 6015 = 0x177F
 #[error_code]
 #[derive(PartialEq, Eq)]
 pub enum ErrorCode {
+    // --- index 0 (error 0x1770 / 6000) ---
     #[msg("Invalid Spot Market Authority")]
     InvalidSpotMarketAuthority,
     #[msg("Clearing house not insurance fund authority")]
@@ -104,6 +118,7 @@ pub enum ErrorCode {
     InvalidOrderNotStepSizeMultiple,
     #[msg("InvalidOrderBaseQuoteAsset")]
     InvalidOrderBaseQuoteAsset,
+    // --- index 50 (error 0x17D2 / 6050) ---
     #[msg("InvalidOrderIOC")]
     InvalidOrderIOC,
     #[msg("InvalidOrderPostOnly")]
@@ -204,6 +219,7 @@ pub enum ErrorCode {
     MakerNotFound,
     #[msg("MakerNotFound")]
     MakerStatsNotFound,
+    // --- index 100 (error 0x1834 / 6100) ---
     #[msg("MakerMustBeWritable")]
     MakerMustBeWritable,
     #[msg("MakerMustBeWritable")]
@@ -304,6 +320,7 @@ pub enum ErrorCode {
     MarketFillOrderPaused,
     #[msg("the Market status doesnt allow withdraws")]
     MarketWithdrawPaused,
+    // --- index 150 (error 0x1866 / 6150) ---
     #[msg("Action violates the Protected Asset Tier rules")]
     ProtectedAssetTierViolation,
     #[msg("Action violates the Isolated Asset Tier rules")]
@@ -404,6 +421,7 @@ pub enum ErrorCode {
     IFWithdrawRequestInProgress,
     #[msg("NoIFWithdrawRequestInProgress")]
     NoIFWithdrawRequestInProgress,
+    // --- index 200 (error 0x1898 / 6200) ---
     #[msg("IFWithdrawRequestTooSmall")]
     IFWithdrawRequestTooSmall,
     #[msg("IncorrectSpotMarketAccountPassed")]
@@ -504,6 +522,7 @@ pub enum ErrorCode {
     InvalidSwap,
     #[msg("SwapLimitPriceBreached")]
     SwapLimitPriceBreached,
+    // --- index 250 (error 0x18CA / 6250) ---
     #[msg("SpotMarketReduceOnly")]
     SpotMarketReduceOnly,
     #[msg("FundingWasNotUpdated")]
@@ -606,6 +625,7 @@ pub enum ErrorCode {
     SignedMsgUserAccountWrongMutability,
     #[msg("SignedMsgUserAccount has too many active orders")]
     SignedMsgUserOrdersAccountFull,
+    // --- index 300 (error 0x18FC / 6300) ---
     #[msg("Order with SignedMsg uuid does not exist")]
     SignedMsgOrderDoesNotExist,
     #[msg("SignedMsg order id cannot be 0s")]
@@ -705,6 +725,7 @@ pub enum ErrorCode {
     InvalidOrderScalePriceRange,
     #[msg("Invalid perp market config")]
     InvalidPerpMarketConfig,
+    // --- index 349 (error 0x192D / 6349) --- last variant
     #[msg("Insurance fund withdrawal recipient must be the designated treasury address")]
     InvalidInsuranceFundWithdrawalRecipient,
     #[msg("Spot DLOB trading is disabled")]

@@ -75,7 +75,7 @@ pub fn send_from_program_vault_with_signature_seeds<'info>(
                 authority: authority.to_account_info(),
             };
 
-            let cpi_program = token_program.to_account_info();
+            let cpi_program = token_program.key();
             let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
             token_interface::transfer_checked(cpi_context, amount, mint.decimals)
         }
@@ -86,7 +86,7 @@ pub fn send_from_program_vault_with_signature_seeds<'info>(
             authority: authority.to_account_info(),
         };
 
-        let cpi_program = token_program.to_account_info();
+        let cpi_program = token_program.key();
         let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
         #[allow(deprecated)]
         token_interface::transfer(cpi_context, amount)
@@ -125,7 +125,7 @@ pub fn receive<'info>(
                 mint: mint_account_info,
                 authority: authority.to_account_info(),
             };
-            let cpi_program = token_program.to_account_info();
+            let cpi_program = token_program.key();
             let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
             token_interface::transfer_checked(cpi_context, amount, mint.decimals)
         }
@@ -135,7 +135,7 @@ pub fn receive<'info>(
             to: to.to_account_info(),
             authority: authority.to_account_info(),
         };
-        let cpi_program = token_program.to_account_info();
+        let cpi_program = token_program.key();
         let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
         #[allow(deprecated)]
         token_interface::transfer(cpi_context, amount)
@@ -156,7 +156,7 @@ pub fn close_vault<'info>(
         destination: destination.clone(),
         authority: authority.to_account_info(),
     };
-    let cpi_program = token_program.to_account_info();
+    let cpi_program = token_program.key();
     let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
     token_interface::close_account(cpi_context)
 }
@@ -181,7 +181,7 @@ pub fn mint_tokens<'info>(
         authority: authority.to_account_info(),
     };
 
-    let cpi_program = token_program.to_account_info();
+    let cpi_program = token_program.key();
     let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
     token_interface::mint_to(cpi_context, amount)
 }
@@ -206,7 +206,7 @@ pub fn burn_tokens<'info>(
         authority: authority.to_account_info(),
     };
 
-    let cpi_program = token_program.to_account_info();
+    let cpi_program = token_program.key();
     let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signers);
     token_interface::burn(cpi_context, amount)
 }
@@ -280,7 +280,7 @@ pub fn initialize_token_account<'info>(
     owner: &AccountInfo<'info>,
     mint: &InterfaceAccount<'info, Mint>,
 ) -> Result<()> {
-    let cpi_program = token_program.to_account_info();
+    let cpi_program = token_program.key();
     let accounts = ::anchor_spl::token_interface::InitializeAccount3 {
         account: account.to_account_info(),
         mint: mint.to_account_info(),
@@ -299,7 +299,7 @@ pub fn initialize_immutable_owner<'info>(
     let accounts = ::anchor_spl::token_interface::InitializeImmutableOwner {
         account: account.to_account_info(),
     };
-    let cpi_ctx = anchor_lang::context::CpiContext::new(token_program.to_account_info(), accounts);
+    let cpi_ctx = anchor_lang::context::CpiContext::new(token_program.key(), accounts);
     ::anchor_spl::token_interface::initialize_immutable_owner(cpi_ctx)?;
 
     Ok(())

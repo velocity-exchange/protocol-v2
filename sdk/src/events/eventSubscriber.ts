@@ -323,12 +323,16 @@ export class EventSubscriber {
 		const events = parseLogs(this.program, logs);
 		let runningEventIndex = 0;
 		for (const event of events) {
+			// @coral-xyz/anchor 0.32+ converts IDL names to camelCase; normalize
+			// back to PascalCase so EventType keys remain consistent.
+			const pascalName =
+				event.name.charAt(0).toUpperCase() + event.name.slice(1);
 			// @ts-ignore
-			const expectRecordType = this.eventListMap.has(event.name);
+			const expectRecordType = this.eventListMap.has(pascalName);
 			if (expectRecordType) {
 				event.data.txSig = txSig;
 				event.data.slot = slot;
-				event.data.eventType = event.name;
+				event.data.eventType = pascalName;
 				event.data.txSigIndex =
 					txSigIndex !== undefined ? txSigIndex : runningEventIndex;
 				records.push(event.data);

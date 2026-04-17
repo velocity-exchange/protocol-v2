@@ -681,7 +681,7 @@ describe('place and make signedMsg order', () => {
 		);
 		const userStats: UserStatsAccount =
 			chProgram.account.userStats.coder.accounts.decodeUnchecked(
-				'UserStats',
+				'userStats',
 				userStatsData.data
 			);
 

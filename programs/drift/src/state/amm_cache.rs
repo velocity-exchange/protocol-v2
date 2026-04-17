@@ -16,6 +16,7 @@ use crate::state::zero_copy::{AccountZeroCopy, AccountZeroCopyMut};
 use crate::OracleSource;
 use crate::{impl_zero_copy_loader, OracleGuardRails};
 
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::*;
 
 use super::user::MarketType;
@@ -24,7 +25,6 @@ pub const AMM_POSITIONS_CACHE: &str = "amm_cache_seed";
 
 #[account]
 #[derive(Debug)]
-#[repr(C)]
 pub struct AmmCache {
     pub bump: u8,
     _padding: [u8; 3],
@@ -32,7 +32,7 @@ pub struct AmmCache {
 }
 
 #[zero_copy]
-#[derive(AnchorSerialize, AnchorDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
 #[repr(C)]
 pub struct CacheInfo {
     pub oracle: Pubkey,

@@ -133,9 +133,9 @@ pub fn get_referrer_and_referrer_stats<'a>(
         return Ok((None, None));
     }
 
-    let user_discriminator: [u8; 8] = User::discriminator();
-    let account_discriminator = array_ref![data, 0, 8];
-    if account_discriminator != &user_discriminator {
+    let user_discriminator: &[u8] = User::DISCRIMINATOR;
+    let account_discriminator = &data[..8];
+    if account_discriminator != user_discriminator {
         return Ok((None, None));
     }
 
@@ -164,9 +164,9 @@ pub fn get_referrer_and_referrer_stats<'a>(
         return Ok((None, None));
     }
 
-    let user_stats_discriminator: [u8; 8] = UserStats::discriminator();
-    let account_discriminator = array_ref![data, 0, 8];
-    if account_discriminator != &user_stats_discriminator {
+    let user_stats_discriminator: &[u8] = UserStats::DISCRIMINATOR;
+    let account_discriminator = &data[..8];
+    if account_discriminator != user_stats_discriminator {
         return Ok((None, None));
     }
 
@@ -255,10 +255,10 @@ pub fn get_revenue_share_escrow_account<'a>(
         return Ok(None);
     }
 
-    let discriminator: [u8; 8] = RevenueShareEscrow::discriminator();
+    let discriminator: &[u8] = RevenueShareEscrow::DISCRIMINATOR;
     let borrowed_data = account_info.data.borrow();
     let account_discriminator = array_ref![&borrowed_data, 0, 8];
-    if account_discriminator != &discriminator {
+    if account_discriminator != discriminator {
         return Ok(None);
     }
 

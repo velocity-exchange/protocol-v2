@@ -2,8 +2,8 @@
 mod signed_msg_order_id_eviction {
     use std::cell::RefCell;
 
+    use anchor_lang::prelude::borsh::BorshSerialize;
     use anchor_lang::prelude::Pubkey;
-    use borsh::BorshSerialize;
 
     use crate::{
         error::ErrorCode,
@@ -69,7 +69,7 @@ mod signed_msg_order_id_eviction {
         for (i, order) in signed_msg_order_data.iter().enumerate() {
             let start = i * 24;
             let end = start + 24;
-            byte_array[start..end].copy_from_slice(&order.try_to_vec().unwrap());
+            byte_array[start..end].copy_from_slice(&borsh::to_vec(&order).unwrap());
         }
 
         let data = RefCell::new(byte_array);
@@ -102,7 +102,7 @@ mod signed_msg_order_id_eviction {
         for (i, order) in signed_msg_order_data.iter().enumerate() {
             let start = i * 24;
             let end = start + 24;
-            byte_array[start..end].copy_from_slice(&order.try_to_vec().unwrap());
+            byte_array[start..end].copy_from_slice(&borsh::to_vec(&order).unwrap());
         }
 
         let data = RefCell::new(byte_array);
@@ -142,8 +142,8 @@ mod zero_copy {
     use crate::test_utils::create_account_info;
     use crate::ID;
 
+    use anchor_lang::prelude::borsh::BorshSerialize;
     use anchor_lang::{prelude::Pubkey, Discriminator};
-    use borsh::BorshSerialize;
 
     use crate::{
         error::ErrorCode,
@@ -169,9 +169,9 @@ mod zero_copy {
             });
         }
 
-        let mut bytes = Vec::with_capacity(8 + orders.try_to_vec().unwrap().len());
-        bytes.extend_from_slice(&SignedMsgUserOrders::discriminator());
-        bytes.extend_from_slice(&orders.try_to_vec().unwrap());
+        let mut bytes = Vec::with_capacity(8 + borsh::to_vec(&orders).unwrap().len());
+        bytes.extend_from_slice(&SignedMsgUserOrders::DISCRIMINATOR);
+        bytes.extend_from_slice(&borsh::to_vec(&orders).unwrap());
 
         let pubkey = Pubkey::default();
         let mut lamports = 0;
@@ -209,9 +209,9 @@ mod zero_copy {
         assert_eq!(result.err().unwrap(), ErrorCode::DefaultError);
 
         // invalid discriminator
-        let mut bytes = Vec::with_capacity(8 + orders.try_to_vec().unwrap().len());
-        bytes.extend_from_slice(&orders.try_to_vec().unwrap());
-        bytes.extend_from_slice(&SignedMsgUserOrders::discriminator());
+        let mut bytes = Vec::with_capacity(8 + borsh::to_vec(&orders).unwrap().len());
+        bytes.extend_from_slice(&borsh::to_vec(&orders).unwrap());
+        bytes.extend_from_slice(&SignedMsgUserOrders::DISCRIMINATOR);
         let orders_account_info =
             create_account_info(&random_pubkey, false, &mut lamports, &mut bytes, &ID);
         let result = orders_account_info.load();
@@ -236,9 +236,9 @@ mod zero_copy {
             });
         }
 
-        let mut bytes = Vec::with_capacity(8 + orders.try_to_vec().unwrap().len());
-        bytes.extend_from_slice(&SignedMsgUserOrders::discriminator());
-        bytes.extend_from_slice(&orders.try_to_vec().unwrap());
+        let mut bytes = Vec::with_capacity(8 + borsh::to_vec(&orders).unwrap().len());
+        bytes.extend_from_slice(&SignedMsgUserOrders::DISCRIMINATOR);
+        bytes.extend_from_slice(&borsh::to_vec(&orders).unwrap());
 
         let pubkey = Pubkey::default();
         let mut lamports = 0;
@@ -277,9 +277,9 @@ mod zero_copy {
         assert_eq!(result.err().unwrap(), ErrorCode::DefaultError);
 
         // invalid discriminator
-        let mut bytes = Vec::with_capacity(8 + orders.try_to_vec().unwrap().len());
-        bytes.extend_from_slice(&orders.try_to_vec().unwrap());
-        bytes.extend_from_slice(&SignedMsgUserOrders::discriminator());
+        let mut bytes = Vec::with_capacity(8 + borsh::to_vec(&orders).unwrap().len());
+        bytes.extend_from_slice(&borsh::to_vec(&orders).unwrap());
+        bytes.extend_from_slice(&SignedMsgUserOrders::DISCRIMINATOR);
         let orders_account_info =
             create_account_info(&random_pubkey, true, &mut lamports, &mut bytes, &ID);
         let result = orders_account_info.load_mut();

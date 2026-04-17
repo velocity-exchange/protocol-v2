@@ -1,9 +1,9 @@
 use std::cell::{Ref, RefMut};
 
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::Pubkey;
 use anchor_lang::*;
 use anchor_lang::{account, zero_copy};
-use borsh::{BorshDeserialize, BorshSerialize};
 use prelude::AccountInfo;
 
 use crate::error::{DriftResult, ErrorCode};
@@ -17,6 +17,7 @@ pub const REVENUE_SHARE_PDA_SEED: &str = "REV_SHARE";
 pub const REVENUE_SHARE_ESCROW_PDA_SEED: &str = "REV_ESCROW";
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[borsh(use_discriminant = true)]
 pub enum RevenueShareOrderBitFlag {
     #[default]
     Init = 0b00000000,
@@ -27,22 +28,24 @@ pub enum RevenueShareOrderBitFlag {
 
 #[account(zero_copy(unsafe))]
 #[derive(Eq, PartialEq, Debug, Default)]
+#[repr(C)]
 pub struct RevenueShare {
     /// the owner of this account, a builder or referrer
     pub authority: Pubkey,
     pub total_referrer_rewards: u64,
     pub total_builder_rewards: u64,
-    pub padding: [u8; 18],
+    pub padding: [u8; 24],
 }
 
 impl RevenueShare {
     pub fn space() -> usize {
-        8 + 32 + 8 + 8 + 18
+        8 + std::mem::size_of::<RevenueShare>()
     }
 }
 
-#[zero_copy]
+#[zero_copy(unsafe)]
 #[derive(Default, Eq, PartialEq, Debug, BorshDeserialize, BorshSerialize)]
+#[repr(C)]
 pub struct RevenueShareOrder {
     /// fees accrued so far for this order slot. This is not exclusively fees from this order_id
     /// and may include fees from other orders in the same market. This may be swept to the
@@ -71,6 +74,9 @@ pub struct RevenueShareOrder {
     pub market_type: MarketType,
     pub padding: [u8; 10],
 }
+
+unsafe impl bytemuck::Pod for RevenueShareOrder {}
+unsafe impl bytemuck::Zeroable for RevenueShareOrder {}
 
 impl RevenueShareOrder {
     pub fn new(
@@ -155,7 +161,7 @@ impl RevenueShareOrder {
     }
 }
 
-#[zero_copy]
+#[zero_copy(unsafe)]
 #[derive(Default, Eq, PartialEq, Debug, BorshDeserialize, BorshSerialize)]
 #[repr(C)]
 pub struct BuilderInfo {
@@ -163,6 +169,9 @@ pub struct BuilderInfo {
     pub max_fee_tenth_bps: u16,
     pub padding: [u8; 6],
 }
+
+unsafe impl bytemuck::Pod for BuilderInfo {}
+unsafe impl bytemuck::Zeroable for BuilderInfo {}
 
 impl BuilderInfo {
     pub fn space() -> usize {
@@ -176,7 +185,6 @@ impl BuilderInfo {
 
 #[account]
 #[derive(Eq, PartialEq, Debug)]
-#[repr(C)]
 pub struct RevenueShareEscrow {
     /// the owner of this account, a user
     pub authority: Pubkey,
@@ -214,7 +222,7 @@ impl RevenueShareEscrow {
     }
 }
 
-#[zero_copy]
+#[zero_copy(unsafe)]
 #[derive(Eq, PartialEq, Debug, BorshDeserialize, BorshSerialize)]
 #[repr(C)]
 pub struct RevenueShareEscrowFixed {
@@ -226,6 +234,9 @@ pub struct RevenueShareEscrowFixed {
     pub referrer_boost_numerator: i8,
     pub reserved_fixed: [u8; 17],
 }
+
+unsafe impl bytemuck::Pod for RevenueShareEscrowFixed {}
+unsafe impl bytemuck::Zeroable for RevenueShareEscrowFixed {}
 
 impl Default for RevenueShareEscrowFixed {
     fn default() -> Self {
@@ -531,7 +542,7 @@ impl<'a> RevenueShareEscrowLoader<'a> for AccountInfo<'a> {
 
         let (discriminator, data) = Ref::map_split(data, |d| d.split_at(8));
         validate!(
-            *discriminator == RevenueShareEscrow::discriminator(),
+            discriminator.as_ref() == RevenueShareEscrow::DISCRIMINATOR,
             ErrorCode::DefaultError,
             "invalid signed_msg user orders discriminator",
         )?;
@@ -557,7 +568,7 @@ impl<'a> RevenueShareEscrowLoader<'a> for AccountInfo<'a> {
 
         let (discriminator, data) = RefMut::map_split(data, |d| d.split_at_mut(8));
         validate!(
-            *discriminator == RevenueShareEscrow::discriminator(),
+            discriminator.as_ref() == RevenueShareEscrow::DISCRIMINATOR,
             ErrorCode::DefaultError,
             "invalid signed_msg user orders discriminator",
         )?;

@@ -76,11 +76,12 @@ export class RevenueShareEscrowMap {
 			);
 
 			if (accountInfo && accountInfo.data) {
-				const escrow =
-					this.driftClient.program.account.revenueShareEscrow.coder.accounts.decode(
-						'RevenueShareEscrow',
-						accountInfo.data
-					) as RevenueShareEscrowAccount;
+				const escrow = (
+					this.driftClient.program.account as any
+				).revenueShareEscrow.coder.accounts.decode(
+					'revenueShareEscrow',
+					accountInfo.data
+				) as RevenueShareEscrowAccount;
 
 				this.authorityEscrowMap.set(authority, escrow);
 			}
@@ -129,11 +130,12 @@ export class RevenueShareEscrowMap {
 				),
 				'confirmed'
 			);
-			const escrowNew =
-				this.driftClient.program.account.revenueShareEscrow.coder.accounts.decode(
-					'RevenueShareEscrow',
-					accountInfo.data
-				) as RevenueShareEscrowAccount;
+			const escrowNew = (
+				this.driftClient.program.account as any
+			).revenueShareEscrow.coder.accounts.decode(
+				'revenueShareEscrow',
+				accountInfo.data
+			) as RevenueShareEscrowAccount;
 			this.authorityEscrowMap.set(authority, escrowNew);
 		}
 	}
@@ -179,11 +181,12 @@ export class RevenueShareEscrowMap {
 								programAccount.account.data[1]
 							);
 
-							const escrow =
-								this.driftClient.program.account.revenueShareEscrow.coder.accounts.decode(
-									'RevenueShareEscrow',
-									buffer
-								) as RevenueShareEscrowAccount;
+							const escrow = (
+								this.driftClient.program.account as any
+							).revenueShareEscrow.coder.accounts.decode(
+								'revenueShareEscrow',
+								buffer
+							) as RevenueShareEscrowAccount;
 
 							// Extract authority from the account data
 							const authorityKey = escrow.authority.toBase58();
@@ -205,11 +208,12 @@ export class RevenueShareEscrowMap {
 							programAccount.account.data[1]
 						);
 
-						const escrow =
-							this.driftClient.program.account.revenueShareEscrow.coder.accounts.decode(
-								'RevenueShareEscrow',
-								buffer
-							) as RevenueShareEscrowAccount;
+						const escrow = (
+							this.driftClient.program.account as any
+						).revenueShareEscrow.coder.accounts.decode(
+							'revenueShareEscrow',
+							buffer
+						) as RevenueShareEscrowAccount;
 
 						// Extract authority from the account data
 						const authorityKey = escrow.authority.toBase58();

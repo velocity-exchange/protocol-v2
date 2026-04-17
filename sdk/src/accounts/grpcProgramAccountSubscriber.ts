@@ -1,6 +1,6 @@
 import { ResubOpts, GrpcConfigs } from './types';
-import { Program } from '@coral-xyz/anchor';
 import { Context, MemcmpFilter, PublicKey } from '@solana/web3.js';
+import { DriftProgram } from '../config';
 import * as Buffer from 'buffer';
 import { WebSocketProgramAccountSubscriber } from './webSocketProgramAccountSubscriber';
 import {
@@ -24,7 +24,7 @@ export class grpcProgramAccountSubscriber<
 		commitmentLevel: CommitmentLevel,
 		subscriptionName: string,
 		accountDiscriminator: string,
-		program: Program,
+		program: DriftProgram,
 		decodeBufferFn: (accountName: string, ix: Buffer) => T,
 		options: { filters: MemcmpFilter[] } = {
 			filters: [],
@@ -47,7 +47,7 @@ export class grpcProgramAccountSubscriber<
 		grpcConfigs: GrpcConfigs,
 		subscriptionName: string,
 		accountDiscriminator: string,
-		program: Program,
+		program: DriftProgram,
 		decodeBufferFn: (accountName: string, ix: Buffer) => U,
 		options: { filters: MemcmpFilter[] } = {
 			filters: [],

@@ -66,7 +66,14 @@ pub struct SerumContext<'a, 'b> {
 
 impl<'a, 'b> SerumContext<'a, 'b> {
     pub fn load_serum_market(&self) -> DriftResult<Market> {
-        Market::load(self.serum_market, self.serum_program.key, false).map_err(|e| {
+        // serum_dex uses an older solana Pubkey/AccountInfo type (solana-program 1.x).
+        // Both old and new types have identical memory layout, so transmute is safe.
+        Market::load(
+            unsafe { std::mem::transmute(self.serum_market) },
+            unsafe { std::mem::transmute(self.serum_program.key) },
+            false,
+        )
+        .map_err(|e| {
             msg!("{:?}", e);
             ErrorCode::InvalidSerumMarket
         })
@@ -471,15 +478,21 @@ impl<'a, 'b> SpotFulfillmentParams for SerumFulfillmentParams<'a, 'b> {
     fn get_best_bid_and_ask(&self) -> DriftResult<(Option<u64>, Option<u64>)> {
         let mut market = self.load_serum_market()?;
 
-        let mut bids = market.load_bids_mut(self.serum_bids).map_err(|e| {
-            msg!("{:?}", e);
-            ErrorCode::InvalidSerumBids
-        })?;
+        // serum_dex uses older solana AccountInfo types; transmute is safe as
+        // both old and new AccountInfo have identical memory layout.
+        let mut bids = market
+            .load_bids_mut(unsafe { std::mem::transmute(self.serum_bids) })
+            .map_err(|e| {
+                msg!("{:?}", e);
+                ErrorCode::InvalidSerumBids
+            })?;
 
-        let mut asks = market.load_asks_mut(self.serum_asks).map_err(|e| {
-            msg!("{:?}", e);
-            ErrorCode::InvalidSerumAsks
-        })?;
+        let mut asks = market
+            .load_asks_mut(unsafe { std::mem::transmute(self.serum_asks) })
+            .map_err(|e| {
+                msg!("{:?}", e);
+                ErrorCode::InvalidSerumAsks
+            })?;
 
         let order_book_state = OrderBookState {
             bids: bids.deref_mut(),

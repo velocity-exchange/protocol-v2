@@ -10,8 +10,8 @@ use crate::math::safe_unwrap::SafeUnwrap;
 use crate::state::events::OrderActionExplanation;
 use crate::state::perp_market::{ContractTier, PerpMarket};
 use crate::state::user::{MarketType, OrderTriggerCondition, OrderType};
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
 use std::ops::Div;
 
 #[cfg(test)]
@@ -39,6 +39,7 @@ pub struct OrderParams {
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
 pub enum OrderParamsBitFlag {
     ImmediateOrCancel = 0b00000001,
 }
@@ -903,7 +904,7 @@ fn get_auction_duration(
         .clamp(1, 180) as u8) // 180 slots max
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq, Default)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
 pub enum PostOnlyParam {
     #[default]
     None,

@@ -1007,6 +1007,8 @@ describe('LP Pool', () => {
 		// Make sure the amount recorded goes into the cache and that the quote amount owed is adjusted
 		// for new influx in fees
 		const ammCacheBeforeAdjust = ammCache;
+		// Check that deposits actually landed
+		await adminClient.fetchAccounts();
 		// Test pausing tracking for market 0
 		await adminClient.updatePerpMarketLpPoolPausedOperations(0, 1);
 		await adminClient.updateAmmCache([0, 1, 2]);

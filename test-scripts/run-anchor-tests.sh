@@ -4,8 +4,8 @@ set -e
 trap 'echo -e "\nStopped by signal $? (SIGINT)"; exit 0' INT
 
 if [ "$1" != "--skip-build" ]; then
-  anchor build -- --features anchor-test && anchor test --skip-build &&
-    cp target/idl/drift.json sdk/src/idl/
+  anchor build --ignore-keys -- --features anchor-test && anchor test --skip-build &&
+    cp target/idl/drift.json sdk/src/idl/ && cp target/types/drift.ts sdk/src/idl/
 fi
 
 export ANCHOR_WALLET=~/.config/solana/id.json

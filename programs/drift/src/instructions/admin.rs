@@ -370,7 +370,7 @@ pub fn handle_initialize_spot_market(
         fuel_boost_insurance: 0,
         token_program_flag: token_program,
         pool_id: 0,
-        padding: [0; 40],
+        padding: [0; 56],
         insurance_fund: InsuranceFund {
             vault: ctx.accounts.insurance_fund_vault.key(),
             unstaking_period: THIRTEEN_DAY,
@@ -439,13 +439,15 @@ pub fn handle_initialize_serum_fulfillment_config(
     let market_state = serum_context.load_serum_market()?;
 
     validate!(
-        identity(market_state.coin_mint) == base_spot_market.mint.to_aligned_bytes(),
+        identity(market_state.coin_mint)
+            == bytemuck::cast::<[u8; 32], [u64; 4]>(base_spot_market.mint.to_bytes()),
         ErrorCode::InvalidSerumMarket,
         "Invalid base mint"
     )?;
 
     validate!(
-        identity(market_state.pc_mint) == quote_spot_market.mint.to_aligned_bytes(),
+        identity(market_state.pc_mint)
+            == bytemuck::cast::<[u8; 32], [u64; 4]>(quote_spot_market.mint.to_bytes()),
         ErrorCode::InvalidSerumMarket,
         "Invalid quote mint"
     )?;
@@ -654,20 +656,30 @@ pub fn handle_initialize_phoenix_fulfillment_config(
     let phoenix_program_id = phoenix::id();
 
     validate!(
-        ctx.accounts.phoenix_program.key() == phoenix_program_id,
+        ctx.accounts.phoenix_program.key().to_bytes() == phoenix_program_id.to_bytes(),
         ErrorCode::InvalidPhoenixProgram
     )?;
 
     let phoenix_market_context = PhoenixMarketContext::new(&ctx.accounts.phoenix_market)?;
 
     validate!(
-        phoenix_market_context.header.base_params.mint_key == base_spot_market.mint,
+        phoenix_market_context
+            .header
+            .base_params
+            .mint_key
+            .to_bytes()
+            == base_spot_market.mint.to_bytes(),
         ErrorCode::InvalidPhoenixMarket,
         "Invalid base mint"
     )?;
 
     validate!(
-        phoenix_market_context.header.quote_params.mint_key == quote_spot_market.mint,
+        phoenix_market_context
+            .header
+            .quote_params
+            .mint_key
+            .to_bytes()
+            == quote_spot_market.mint.to_bytes(),
         ErrorCode::InvalidPhoenixMarket,
         "Invalid quote mint"
     )?;
@@ -967,7 +979,7 @@ pub fn handle_initialize_perp_market(
         last_fill_price: 0,
         lp_pool_id,
         market_config: 0,
-        padding: [0; 22],
+        padding: [0; 30],
         amm: AMM {
             oracle: *ctx.accounts.oracle.key,
             oracle_source,
@@ -1933,7 +1945,7 @@ pub fn handle_settle_expired_market_pools_to_revenue_pool(
     perp_market_valid(&ctx.accounts.perp_market)
 )]
 pub fn handle_deposit_into_perp_market_fee_pool<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, DepositIntoMarketFeePool<'info>>,
+    ctx: Context<'info, DepositIntoMarketFeePool<'info>>,
     amount: u64,
 ) -> Result<()> {
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
@@ -1999,7 +2011,7 @@ pub fn handle_deposit_into_perp_market_fee_pool<'c: 'info, 'info>(
     perp_market_valid(&ctx.accounts.perp_market)
 )]
 pub fn handle_update_perp_market_pnl_pool<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, UpdatePerpMarketPnlPool<'info>>,
+    ctx: Context<'info, UpdatePerpMarketPnlPool<'info>>,
     amount: u64,
 ) -> Result<()> {
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
@@ -2030,7 +2042,7 @@ pub fn handle_update_perp_market_pnl_pool<'c: 'info, 'info>(
     spot_market_valid(&ctx.accounts.spot_market)
 )]
 pub fn handle_deposit_into_spot_market_vault<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, DepositIntoSpotMarketVault<'info>>,
+    ctx: Context<'info, DepositIntoSpotMarketVault<'info>>,
     amount: u64,
 ) -> Result<()> {
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
@@ -4540,7 +4552,7 @@ pub fn handle_initialize_pyth_lazer_oracle(
 }
 
 pub fn handle_settle_expired_market<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, AdminUpdatePerpMarket<'info>>,
+    ctx: Context<'info, AdminUpdatePerpMarket<'info>>,
     market_index: u16,
 ) -> Result<()> {
     let clock = Clock::get()?;
@@ -4613,7 +4625,7 @@ pub fn handle_update_protected_maker_mode_config(
     deposit_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_admin_deposit<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, AdminDeposit<'info>>,
+    ctx: Context<'info, AdminDeposit<'info>>,
     market_index: u16,
     amount: u64,
 ) -> Result<()> {
@@ -4829,7 +4841,8 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
     );
 
     let mut perp_market = accounts[0].data.borrow_mut();
-    let perp_market_sequence_id = u64::from_le_bytes(perp_market[936..944].try_into().unwrap());
+    // Account offsets verified via offset_of!(AMM, field) + 8 discriminator bytes.
+    let perp_market_sequence_id = u64::from_le_bytes(perp_market[944..952].try_into().unwrap());
     let incoming_sequence_id = u64::from_le_bytes(data[8..16].try_into().unwrap());
 
     if &data[0..8] == &[0u8; 8] {
@@ -4841,9 +4854,9 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
         let clock_account = &accounts[2];
         let clock_data = clock_account.data.borrow();
 
-        perp_market[832..840].copy_from_slice(&clock_data[0..8]);
-        perp_market[912..920].copy_from_slice(&data[0..8]);
-        perp_market[936..944].copy_from_slice(&data[8..16]);
+        perp_market[840..848].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
+        perp_market[920..928].copy_from_slice(&data[0..8]); // mm_oracle_price
+        perp_market[944..952].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
     }
 
     Ok(())
@@ -4862,7 +4875,7 @@ pub fn handle_update_amm_spread_adjustment_native(
         amm_spread_adjust_wallet::id()
     );
     let mut perp_market = accounts[0].data.borrow_mut();
-    perp_market[934..935].copy_from_slice(&[data[0]]);
+    perp_market[942..943].copy_from_slice(&[data[0]]); // amm_spread_adjustment
 
     Ok(())
 }
@@ -5101,7 +5114,7 @@ pub fn handle_update_perp_market_config(
     perp_market_valid(&ctx.accounts.perp_market_with_pnl_pool)
 )]
 pub fn handle_transfer_fee_and_pnl_pool<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, TransferFeeAndPnlPool<'info>>,
+    ctx: Context<'info, TransferFeeAndPnlPool<'info>>,
     amount: u64,
     direction: TransferFeeAndPnlPoolDirection,
 ) -> Result<()> {
@@ -5471,7 +5484,7 @@ pub struct InitializeAmmCache<'info> {
     pub state: Box<Account<'info, State>>,
     #[account(
         init,
-        seeds = [AMM_POSITIONS_CACHE.as_ref()],
+        seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         space = AmmCache::init_space(),
         bump,
         payer = admin
@@ -5491,7 +5504,7 @@ pub struct AddMarketToAmmCache<'info> {
     pub state: Box<Account<'info, State>>,
     #[account(
         mut,
-        seeds = [AMM_POSITIONS_CACHE.as_ref()],
+        seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump,
         realloc = AmmCache::space(amm_cache.cache.len() + 1),
         realloc::payer = admin,
@@ -5513,7 +5526,7 @@ pub struct DeleteAmmCache<'info> {
     pub state: Box<Account<'info, State>>,
     #[account(
         mut,
-        seeds = [AMM_POSITIONS_CACHE.as_ref()],
+        seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump,
         close = admin,
     )]
@@ -5768,7 +5781,7 @@ pub struct AdminUpdatePerpMarketOracle<'info> {
     pub old_oracle: AccountInfo<'info>,
     #[account(
         mut,
-        seeds = [AMM_POSITIONS_CACHE.as_ref()],
+        seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump = amm_cache.bump,
     )]
     pub amm_cache: Box<Account<'info, AmmCache>>,

@@ -1,13 +1,14 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { OracleClient, OraclePriceData } from './types';
-import { AnchorProvider, BN, Idl, Program } from '@coral-xyz/anchor';
+import { AnchorProvider, BN, Program } from '@coral-xyz/anchor';
+import { Drift } from '../idl/drift';
+import { DriftProgram } from '../config';
 import {
 	ONE,
 	PRICE_PRECISION,
 	QUOTE_PRECISION,
 	TEN,
 } from '../constants/numericConstants';
-import { DRIFT_PROGRAM_ID } from '../config';
 import { Wallet } from '../wallet';
 import driftIDL from '../idl/drift.json';
 
@@ -15,7 +16,7 @@ export class PythLazerClient implements OracleClient {
 	private connection: Connection;
 	private multiple: BN;
 	private stableCoin: boolean;
-	private program: Program;
+	private program: DriftProgram;
 	readonly decodeFunc: (name: string, data: Buffer) => any;
 
 	public constructor(
@@ -34,15 +35,12 @@ export class PythLazerClient implements OracleClient {
 				commitment: connection.commitment,
 			}
 		);
-		this.program = new Program(
-			driftIDL as Idl,
-			new PublicKey(DRIFT_PROGRAM_ID),
-			provider
+		this.program = new Program<Drift>(driftIDL as Drift, provider);
+		this.decodeFunc = (
+			this.program.account as any
+		).pythLazerOracle.coder.accounts.decodeUnchecked.bind(
+			(this.program.account as any).pythLazerOracle.coder.accounts
 		);
-		this.decodeFunc =
-			this.program.account.pythLazerOracle.coder.accounts.decodeUnchecked.bind(
-				this.program.account.pythLazerOracle.coder.accounts
-			);
 	}
 
 	public async getOraclePriceData(
@@ -53,7 +51,7 @@ export class PythLazerClient implements OracleClient {
 	}
 
 	public getOraclePriceDataFromBuffer(buffer: Buffer): OraclePriceData {
-		const priceData = this.decodeFunc('PythLazerOracle', buffer);
+		const priceData = this.decodeFunc('pythLazerOracle', buffer);
 		const confidence = convertPythPrice(
 			priceData.conf,
 			priceData.exponent,

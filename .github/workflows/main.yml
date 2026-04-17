@@ -13,15 +13,21 @@ defaults:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_TOOLCHAIN: 1.70.0
-  SOLANA_VERSION: "1.16.27"
+  RUST_TOOLCHAIN: 1.91.1
+  SOLANA_VERSION: 2.3.11
+  ANCHOR_VERSION: 1.0.0
+  NODE_VERSION: "24.x.x"
+  # solanafoundation/solana-verifiable-build tags lag behind agave releases;
+  # check https://hub.docker.com/r/solanafoundation/solana-verifiable-build/tags
+  # for the latest available tag before bumping SOLANA_VERSION above.
+  VERIFIABLE_BUILD_IMAGE: solanafoundation/solana-verifiable-build:v2.3.11
 
 jobs:
   fmt-clippy:
     name: fmt & clippy
     runs-on: ubicloud
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Rust nightly
         uses: actions-rs/toolchain@v1
         with:
@@ -39,7 +45,7 @@ jobs:
     name: Unit tests
     runs-on: ubicloud
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -57,7 +63,7 @@ jobs:
 #    name: Cargo audit
 #    runs-on: ubicloud
 #    steps:
-#      - uses: actions/checkout@v2
+#      - uses: actions/checkout@v4
 #      - name: Cache cargo-audit version
 #        uses: Swatinem/rust-cache@v1
 #      - name: Download cargo-audit
@@ -70,11 +76,11 @@ jobs:
   yarn-prettier:
     runs-on: ubicloud
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: "24.x.x"
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
       - name: Install yarn
         run: yarn
@@ -85,11 +91,11 @@ jobs:
   yarn-lint:
     runs-on: ubicloud
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: "24.x.x"
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
       - name: Install yarn
         run: yarn
@@ -100,7 +106,7 @@ jobs:
     runs-on: ubicloud
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -119,17 +125,21 @@ jobs:
         id: cache-anchor
         uses: actions/cache@v4
         with:
-          path: ~/.cargo/bin/anchor
-          key: ${{ runner.os }}-anchor-cli-0.29.0
+          path: ~/.avm
+          key: ${{ runner.os }}-anchor-cli-${{ env.ANCHOR_VERSION }}
 
       - name: Install Anchor CLI
-        if: steps.cache-anchor.outputs.cache-hit != 'true'
-        run: cargo install --git https://github.com/coral-xyz/anchor --tag v0.29.0 anchor-cli --locked
+        # if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: |
+          sudo apt update -y && sudo apt install libudev-dev
+          cargo install --git https://github.com/coral-xyz/anchor avm --force
+          avm install ${{ env.ANCHOR_VERSION }}
+          avm use ${{ env.ANCHOR_VERSION }}
 
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: "24.x.x"
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
 
       - name: Setup yarn
@@ -158,12 +168,12 @@ jobs:
     if: ${{ false }}
     runs-on: ubicloud
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "24.x.x"
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
@@ -197,7 +207,7 @@ jobs:
       sdk: ${{ steps.filter.outputs.sdk }}
     steps:
       # For pull requests it's not necessary to checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -222,11 +232,11 @@ jobs:
     outputs:
       version: ${{ steps.git-commit.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: "24.x.x"
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
       - name: Build sdk
         run: yarn
@@ -304,7 +314,7 @@ jobs:
           ]
     steps:
       - name: Checkout code with new updated version
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Emit dispatch event
         run: |
           curl -X POST \
@@ -326,7 +336,7 @@ jobs:
       program: ${{ steps.filter.outputs.program }}
     steps:
       # For pull requests it's not necessary to checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -343,16 +353,16 @@ jobs:
     if: ${{ needs.check-for-program-version-changes.outputs.program == 'true' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Solana Verify
+      - name: Install Solana Verify CLI
         run: |
-          cargo install --version 0.2.13 solana-verify
-          solana-verify --version
+          sudo apt update -y && sudo apt install libudev-dev
+          cargo install solana-verify --version 0.4.11
 
       - name: Verifiable Build
         run: |
-          solana-verify build --library-name drift --base-image ellipsislabs/solana:1.16.6
+          solana-verify build --library-name drift -b ${{ env.VERIFIABLE_BUILD_IMAGE }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

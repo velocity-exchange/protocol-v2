@@ -60,10 +60,11 @@ export class UserStatsMap {
 			type: 'default',
 		};
 
-		this.decode =
-			this.driftClient.program.account.userStats.coder.accounts.decodeUnchecked.bind(
-				this.driftClient.program.account.userStats.coder.accounts
-			);
+		this.decode = (
+			this.driftClient.program.account as any
+		).userStats.coder.accounts.decodeUnchecked.bind(
+			(this.driftClient.program.account as any).userStats.coder.accounts
+		);
 	}
 
 	public async subscribe(authorities: PublicKey[]) {
@@ -317,7 +318,7 @@ export class UserStatsMap {
 						if (!this.has(publicKeyString)) {
 							const buffer = Buffer.from(accountInfo.data);
 							const decodedUserStats = this.decode(
-								'UserStats',
+								'userStats',
 								buffer
 							) as UserStatsAccount;
 							programAccountBufferMap.add(

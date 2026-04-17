@@ -1,5 +1,5 @@
-import * as anchor from '@coral-xyz/anchor';
-import { AnchorProvider, Idl, Program } from '@coral-xyz/anchor';
+import * as anchor from '@coral-xyz/anchor-29';
+import { AnchorProvider, Idl, Program } from '@coral-xyz/anchor-29';
 import {
 	TOKEN_PROGRAM_ID,
 	Account,
@@ -51,7 +51,11 @@ export class TokenFaucet {
 			this.opts
 		);
 		this.provider = provider;
-		this.program = new Program(tokenFaucet as Idl, programId, provider);
+		this.program = new Program(
+			tokenFaucet as unknown as Idl,
+			programId,
+			provider
+		);
 		this.mint = mint;
 	}
 
@@ -102,7 +106,7 @@ export class TokenFaucet {
 	}
 
 	public async fetchState(): Promise<any> {
-		return await this.program.account.faucetConfig.fetch(
+		return await (this.program.account as any).faucetConfig.fetch(
 			await this.getFaucetConfigPublicKey()
 		);
 	}

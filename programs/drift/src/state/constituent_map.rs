@@ -94,7 +94,7 @@ impl<'a> ConstituentMap<'a> {
     ) -> DriftResult<ConstituentMap<'a>> {
         let mut constituent_map: ConstituentMap = ConstituentMap(BTreeMap::new());
 
-        let constituent_discriminator: [u8; 8] = Constituent::discriminator();
+        let constituent_discriminator: &[u8] = Constituent::DISCRIMINATOR;
         while let Some(account_info) = account_info_iter.peek() {
             if account_info.owner != &crate::ID {
                 break;
@@ -114,8 +114,8 @@ impl<'a> ConstituentMap<'a> {
                 break;
             }
 
-            let account_discriminator = array_ref![data, 0, 8];
-            if account_discriminator != &constituent_discriminator {
+            let account_discriminator = &data[..8];
+            if account_discriminator != constituent_discriminator {
                 msg!(
                     "didnt match account discriminator {:?}, {:?}",
                     account_discriminator,
@@ -176,9 +176,9 @@ impl<'a> ConstituentMap<'a> {
             return Err(ErrorCode::ConstituentCouldNotLoad);
         }
 
-        let constituent_discriminator: [u8; 8] = Constituent::discriminator();
-        let account_discriminator = array_ref![data, 0, 8];
-        if account_discriminator != &constituent_discriminator {
+        let constituent_discriminator: &[u8] = Constituent::DISCRIMINATOR;
+        let account_discriminator = &data[..8];
+        if account_discriminator != constituent_discriminator {
             return Err(ErrorCode::ConstituentCouldNotLoad);
         }
 
@@ -206,7 +206,7 @@ impl<'a> ConstituentMap<'a> {
 
         let account_info_iter = account_info.into_iter();
         for account_info in account_info_iter {
-            let constituent_discriminator: [u8; 8] = Constituent::discriminator();
+            let constituent_discriminator: &[u8] = Constituent::DISCRIMINATOR;
             let data = account_info
                 .try_borrow_data()
                 .or(Err(ErrorCode::ConstituentCouldNotLoad))?;
@@ -216,8 +216,8 @@ impl<'a> ConstituentMap<'a> {
                 return Err(ErrorCode::ConstituentCouldNotLoad);
             }
 
-            let account_discriminator = array_ref![data, 0, 8];
-            if account_discriminator != &constituent_discriminator {
+            let account_discriminator = &data[..8];
+            if account_discriminator != constituent_discriminator {
                 return Err(ErrorCode::ConstituentCouldNotLoad);
             }
 

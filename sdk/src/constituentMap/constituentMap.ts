@@ -119,10 +119,9 @@ export class ConstituentMap implements ConstituentMapInterface {
 	}
 
 	private decode(name: string, buffer: Buffer): ConstituentAccount {
-		return this.driftClient.program.account.constituent.coder.accounts.decodeUnchecked(
-			name,
-			buffer
-		);
+		return (
+			this.driftClient.program.account as any
+		).constituent.coder.accounts.decodeUnchecked(name, buffer);
 	}
 
 	public async sync(): Promise<void> {
@@ -170,11 +169,11 @@ export class ConstituentMap implements ConstituentMapInterface {
 
 					if (currAccountWithSlot) {
 						if (slot >= currAccountWithSlot.slot) {
-							const constituentAcc = this.decode('Constituent', buffer);
+							const constituentAcc = this.decode('constituent', buffer);
 							this.updateConstituentAccount(key, constituentAcc, slot);
 						}
 					} else {
-						const constituentAcc = this.decode('Constituent', buffer);
+						const constituentAcc = this.decode('constituent', buffer);
 						this.updateConstituentAccount(key, constituentAcc, slot);
 					}
 				}

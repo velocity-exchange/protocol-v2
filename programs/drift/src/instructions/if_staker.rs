@@ -25,7 +25,7 @@ use crate::{
         spot_market_map::get_writable_spot_market_set_from_many,
     },
 };
-use anchor_lang::solana_program::sysvar::instructions;
+use solana_program::sysvar::instructions;
 
 use super::optional_accounts::get_token_interface;
 use crate::math::safe_math::SafeMath;
@@ -57,7 +57,7 @@ pub fn handle_initialize_insurance_fund_stake(
 }
 
 pub fn handle_add_insurance_fund_stake<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, AddInsuranceFundStake<'info>>,
+    ctx: Context<'info, AddInsuranceFundStake<'info>>,
     market_index: u16,
     amount: u64,
 ) -> Result<()> {
@@ -256,7 +256,7 @@ pub fn handle_cancel_request_remove_insurance_fund_stake(
     withdraw_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_remove_insurance_fund_stake<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, RemoveInsuranceFundStake<'info>>,
+    ctx: Context<'info, RemoveInsuranceFundStake<'info>>,
     market_index: u16,
 ) -> Result<()> {
     let clock = Clock::get()?;
@@ -366,7 +366,7 @@ pub fn handle_transfer_protocol_if_shares(
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_begin_insurance_fund_swap<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InsuranceFundSwap<'info>>,
+    ctx: Context<'info, InsuranceFundSwap<'info>>,
     in_market_index: u16,
     out_market_index: u16,
     amount_in: u64,
@@ -504,9 +504,9 @@ pub fn handle_begin_insurance_fund_swap<'c: 'info, 'info>(
             found_end = true;
 
             // must be the SwapEnd instruction
-            let discriminator = crate::instruction::EndInsuranceFundSwap::discriminator();
+            let discriminator = crate::instruction::EndInsuranceFundSwap::DISCRIMINATOR;
             validate!(
-                ix.data[0..8] == discriminator,
+                &ix.data[0..8] == discriminator,
                 ErrorCode::InvalidSwap,
                 "last drift ix must be end of swap"
             )?;
@@ -596,7 +596,7 @@ pub fn handle_begin_insurance_fund_swap<'c: 'info, 'info>(
 }
 
 pub fn handle_end_insurance_fund_swap<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InsuranceFundSwap<'info>>,
+    ctx: Context<'info, InsuranceFundSwap<'info>>,
     in_market_index: u16,
     out_market_index: u16,
 ) -> Result<()> {
@@ -764,7 +764,7 @@ pub fn handle_end_insurance_fund_swap<'c: 'info, 'info>(
 }
 
 pub fn handle_transfer_protocol_if_shares_to_revenue_pool<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, TransferProtocolIfSharesToRevenuePool<'info>>,
+    ctx: Context<'info, TransferProtocolIfSharesToRevenuePool<'info>>,
     market_index: u16,
     amount: u64,
 ) -> Result<()> {
@@ -824,7 +824,7 @@ pub fn handle_transfer_protocol_if_shares_to_revenue_pool<'c: 'info, 'info>(
 }
 
 pub fn handle_deposit_into_insurance_fund_stake<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, DepositIntoInsuranceFundStake<'info>>,
+    ctx: Context<'info, DepositIntoInsuranceFundStake<'info>>,
     market_index: u16,
     amount: u64,
 ) -> Result<()> {
@@ -1240,7 +1240,7 @@ pub struct DepositIntoInsuranceFundStake<'info> {
 }
 
 pub fn handle_admin_withdraw_from_insurance_fund_vault<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, AdminWithdrawFromInsuranceFundVault<'info>>,
+    ctx: Context<'info, AdminWithdrawFromInsuranceFundVault<'info>>,
     market_index: u16,
     amount: u64,
 ) -> Result<()> {

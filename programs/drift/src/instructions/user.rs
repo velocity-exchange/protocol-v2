@@ -2,6 +2,7 @@ use std::convert::TryFrom;
 use std::ops::DerefMut;
 
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::system_instruction::transfer;
 use anchor_lang::Discriminator;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::{
@@ -10,7 +11,6 @@ use anchor_spl::{
     token_interface::{TokenAccount, TokenInterface},
 };
 use solana_program::program::invoke;
-use solana_program::system_instruction::transfer;
 
 use crate::controller::funding::settle_funding_payment;
 use crate::controller::orders::{
@@ -111,12 +111,12 @@ use crate::validation::user::validate_user_deletion;
 use crate::validation::whitelist::validate_whitelist_token;
 use crate::{controller, math};
 use crate::{load_mut, ExchangeStatus};
-use anchor_lang::solana_program::sysvar::instructions;
-use borsh::{BorshDeserialize, BorshSerialize};
+use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::sysvar::instructions;
 use solana_program::sysvar::instructions::ID as IX_ID;
 
 pub fn handle_initialize_user<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeUser<'info>>,
+    ctx: Context<'info, InitializeUser<'info>>,
     sub_account_id: u16,
     name: [u8; 32],
 ) -> Result<()> {
@@ -245,7 +245,7 @@ pub fn handle_initialize_user<'c: 'info, 'info>(
 }
 
 pub fn handle_initialize_user_stats<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeUserStats>,
+    ctx: Context<'info, InitializeUserStats>,
 ) -> Result<()> {
     let clock = Clock::get()?;
 
@@ -325,7 +325,7 @@ pub fn handle_initialize_referrer_name(
 }
 
 pub fn handle_initialize_signed_msg_user_orders<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeSignedMsgUserOrders<'info>>,
+    ctx: Context<'info, InitializeSignedMsgUserOrders<'info>>,
     num_orders: u16,
 ) -> Result<()> {
     let signed_msg_user_orders = &mut ctx.accounts.signed_msg_user_orders;
@@ -338,7 +338,7 @@ pub fn handle_initialize_signed_msg_user_orders<'c: 'info, 'info>(
 }
 
 pub fn handle_resize_signed_msg_user_orders<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, ResizeSignedMsgUserOrders<'info>>,
+    ctx: Context<'info, ResizeSignedMsgUserOrders<'info>>,
     num_orders: u16,
 ) -> Result<()> {
     let signed_msg_user_orders = &mut ctx.accounts.signed_msg_user_orders;
@@ -361,7 +361,7 @@ pub fn handle_resize_signed_msg_user_orders<'c: 'info, 'info>(
 }
 
 pub fn handle_initialize_signed_msg_ws_delegates<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeSignedMsgWsDelegates<'info>>,
+    ctx: Context<'info, InitializeSignedMsgWsDelegates<'info>>,
     delegates: Vec<Pubkey>,
 ) -> Result<()> {
     ctx.accounts
@@ -372,7 +372,7 @@ pub fn handle_initialize_signed_msg_ws_delegates<'c: 'info, 'info>(
 }
 
 pub fn handle_change_signed_msg_ws_delegate_status<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, ChangeSignedMsgWsDelegateStatus<'info>>,
+    ctx: Context<'info, ChangeSignedMsgWsDelegateStatus<'info>>,
     delegate: Pubkey,
     add: bool,
 ) -> Result<()> {
@@ -392,7 +392,7 @@ pub fn handle_change_signed_msg_ws_delegate_status<'c: 'info, 'info>(
 }
 
 pub fn handle_initialize_fuel_overflow<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeFuelOverflow<'info>>,
+    ctx: Context<'info, InitializeFuelOverflow<'info>>,
 ) -> Result<()> {
     let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
     validate!(
@@ -417,7 +417,7 @@ pub fn handle_initialize_fuel_overflow<'c: 'info, 'info>(
 }
 
 pub fn handle_sweep_fuel<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, SweepFuel<'info>>,
+    ctx: Context<'info, SweepFuel<'info>>,
 ) -> anchor_lang::Result<()> {
     let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
     validate!(
@@ -453,7 +453,7 @@ pub fn handle_sweep_fuel<'c: 'info, 'info>(
 }
 
 pub fn handle_reset_fuel_season<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, ResetFuelSeason<'info>>,
+    ctx: Context<'info, ResetFuelSeason<'info>>,
 ) -> Result<()> {
     let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
 
@@ -514,7 +514,7 @@ pub fn handle_reset_fuel_season<'c: 'info, 'info>(
 }
 
 pub fn handle_initialize_revenue_share<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeRevenueShare<'info>>,
+    ctx: Context<'info, InitializeRevenueShare<'info>>,
 ) -> Result<()> {
     let mut revenue_share = ctx
         .accounts
@@ -528,7 +528,7 @@ pub fn handle_initialize_revenue_share<'c: 'info, 'info>(
 }
 
 pub fn handle_initialize_revenue_share_escrow<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, InitializeRevenueShareEscrow<'info>>,
+    ctx: Context<'info, InitializeRevenueShareEscrow<'info>>,
     num_orders: u16,
 ) -> Result<()> {
     let escrow = &mut ctx.accounts.escrow;
@@ -549,7 +549,7 @@ pub fn handle_initialize_revenue_share_escrow<'c: 'info, 'info>(
 }
 
 pub fn handle_migrate_referrer<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, MigrateReferrer<'info>>,
+    ctx: Context<'info, MigrateReferrer<'info>>,
 ) -> Result<()> {
     let state = &mut ctx.accounts.state;
     if !state.builder_referral_enabled() {
@@ -571,7 +571,7 @@ pub fn handle_migrate_referrer<'c: 'info, 'info>(
 }
 
 pub fn handle_resize_revenue_share_escrow_orders<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, ResizeRevenueShareEscrowOrders<'info>>,
+    ctx: Context<'info, ResizeRevenueShareEscrowOrders<'info>>,
     num_orders: u16,
 ) -> Result<()> {
     let escrow = &mut ctx.accounts.escrow;
@@ -589,7 +589,7 @@ pub fn handle_resize_revenue_share_escrow_orders<'c: 'info, 'info>(
 }
 
 pub fn handle_change_approved_builder<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, ChangeApprovedBuilder<'info>>,
+    ctx: Context<'info, ChangeApprovedBuilder<'info>>,
     builder: Pubkey,
     max_fee_tenth_bps: u16,
     add: bool,
@@ -657,7 +657,7 @@ pub fn handle_change_approved_builder<'c: 'info, 'info>(
     deposit_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_deposit<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, Deposit<'info>>,
+    ctx: Context<'info, Deposit<'info>>,
     market_index: u16,
     amount: u64,
     reduce_only: bool,
@@ -858,7 +858,7 @@ pub fn handle_deposit<'c: 'info, 'info>(
     withdraw_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_withdraw<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, Withdraw<'info>>,
+    ctx: Context<'info, Withdraw<'info>>,
     market_index: u16,
     amount: u64,
     reduce_only: bool,
@@ -1038,7 +1038,7 @@ pub fn handle_withdraw<'c: 'info, 'info>(
     withdraw_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_transfer_deposit<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, TransferDeposit<'info>>,
+    ctx: Context<'info, TransferDeposit<'info>>,
     market_index: u16,
     amount: u64,
 ) -> anchor_lang::Result<()> {
@@ -1265,7 +1265,7 @@ pub fn handle_transfer_deposit<'c: 'info, 'info>(
     withdraw_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_transfer_pools<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, TransferPools<'info>>,
+    ctx: Context<'info, TransferPools<'info>>,
     deposit_from_market_index: u16,
     deposit_to_market_index: u16,
     borrow_from_market_index: u16,
@@ -1751,7 +1751,7 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_transfer_perp_position<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, TransferPerpPosition<'info>>,
+    ctx: Context<'info, TransferPerpPosition<'info>>,
     market_index: u16,
     amount: Option<i64>,
 ) -> anchor_lang::Result<()> {
@@ -2103,7 +2103,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
     deposit_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_deposit_into_isolated_perp_position<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, DepositIsolatedPerpPosition<'info>>,
+    ctx: Context<'info, DepositIsolatedPerpPosition<'info>>,
     spot_market_index: u16,
     perp_market_index: u16,
     amount: u64,
@@ -2178,7 +2178,7 @@ pub fn handle_deposit_into_isolated_perp_position<'c: 'info, 'info>(
     withdraw_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, TransferIsolatedPerpPositionDeposit<'info>>,
+    ctx: Context<'info, TransferIsolatedPerpPositionDeposit<'info>>,
     spot_market_index: u16,
     perp_market_index: u16,
     amount: i64,
@@ -2237,7 +2237,7 @@ pub fn handle_transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
     withdraw_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_withdraw_from_isolated_perp_position<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, WithdrawIsolatedPerpPosition<'info>>,
+    ctx: Context<'info, WithdrawIsolatedPerpPosition<'info>>,
     spot_market_index: u16,
     perp_market_index: u16,
     amount: u64,
@@ -2312,7 +2312,7 @@ pub fn handle_withdraw_from_isolated_perp_position<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_place_perp_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
+    ctx: Context<'info, PlaceOrder>,
     params: OrderParams,
 ) -> Result<()> {
     let clock = &Clock::get()?;
@@ -2359,7 +2359,7 @@ pub fn handle_place_perp_order<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_cancel_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, CancelOrder>,
+    ctx: Context<'info, CancelOrder>,
     order_id: Option<u32>,
 ) -> Result<()> {
     let clock = &Clock::get()?;
@@ -2398,7 +2398,7 @@ pub fn handle_cancel_order<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_cancel_order_by_user_id<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, CancelOrder>,
+    ctx: Context<'info, CancelOrder>,
     user_order_id: u8,
 ) -> Result<()> {
     let clock = &Clock::get()?;
@@ -2432,7 +2432,7 @@ pub fn handle_cancel_order_by_user_id<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_cancel_orders_by_ids<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, CancelOrder>,
+    ctx: Context<'info, CancelOrder>,
     order_ids: Vec<u32>,
 ) -> Result<()> {
     let clock = &Clock::get()?;
@@ -2468,7 +2468,7 @@ pub fn handle_cancel_orders_by_ids<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_cancel_orders<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, CancelOrder<'info>>,
+    ctx: Context<'info, CancelOrder<'info>>,
     market_type: Option<MarketType>,
     market_index: Option<u16>,
     direction: Option<PositionDirection>,
@@ -2514,7 +2514,7 @@ pub fn handle_cancel_orders<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_modify_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, CancelOrder<'info>>,
+    ctx: Context<'info, CancelOrder<'info>>,
     order_id: Option<u32>,
     modify_order_params: ModifyOrderParams,
 ) -> Result<()> {
@@ -2556,7 +2556,7 @@ pub fn handle_modify_order<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_modify_order_by_user_order_id<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, CancelOrder<'info>>,
+    ctx: Context<'info, CancelOrder<'info>>,
     user_order_id: u8,
     modify_order_params: ModifyOrderParams,
 ) -> Result<()> {
@@ -2593,7 +2593,7 @@ pub fn handle_modify_order_by_user_order_id<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_place_orders<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
+    ctx: Context<'info, PlaceOrder>,
     params: Vec<OrderParams>,
 ) -> Result<()> {
     place_orders(&ctx, PlaceOrdersInput::Orders(params))
@@ -2603,7 +2603,7 @@ pub fn handle_place_orders<'c: 'info, 'info>(
     exchange_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_place_scale_orders<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceOrder>,
+    ctx: Context<'info, PlaceOrder>,
     params: ScaleOrderParams,
 ) -> Result<()> {
     place_orders(&ctx, PlaceOrdersInput::ScaleOrders(params))
@@ -2618,7 +2618,7 @@ enum PlaceOrdersInput {
 /// Internal implementation for placing multiple orders.
 /// Used by both handle_place_orders and handle_place_scale_orders.
 fn place_orders<'c: 'info, 'info>(
-    ctx: &Context<'_, '_, 'c, 'info, PlaceOrder>,
+    ctx: &Context<'info, PlaceOrder>,
     input: PlaceOrdersInput,
 ) -> Result<()> {
     let clock = &Clock::get()?;
@@ -2713,7 +2713,7 @@ fn place_orders<'c: 'info, 'info>(
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceAndTake<'info>>,
+    ctx: Context<'info, PlaceAndTake<'info>>,
     params: OrderParams,
     optional_params: Option<u32>, // u32 for backwards compatibility
 ) -> Result<()> {
@@ -2842,7 +2842,7 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceAndMake<'info>>,
+    ctx: Context<'info, PlaceAndMake<'info>>,
     params: OrderParams,
     taker_order_id: u32,
 ) -> Result<()> {
@@ -2956,7 +2956,7 @@ pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, PlaceAndMakeSignedMsg<'info>>,
+    ctx: Context<'info, PlaceAndMakeSignedMsg<'info>>,
     params: OrderParams,
     signed_msg_order_uuid: [u8; 8],
 ) -> Result<()> {
@@ -3107,7 +3107,7 @@ pub fn handle_update_user_perp_position_custom_margin_ratio(
 }
 
 pub fn handle_update_user_margin_trading_enabled<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, UpdateUser<'info>>,
+    ctx: Context<'info, UpdateUser<'info>>,
     _sub_account_id: u16,
     margin_trading_enabled: bool,
 ) -> Result<()> {
@@ -3135,7 +3135,7 @@ pub fn handle_update_user_margin_trading_enabled<'c: 'info, 'info>(
 }
 
 pub fn handle_update_user_pool_id<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, UpdateUser<'info>>,
+    ctx: Context<'info, UpdateUser<'info>>,
     _sub_account_id: u16,
     pool_id: u8,
 ) -> Result<()> {
@@ -3308,7 +3308,7 @@ pub fn handle_reclaim_rent(ctx: Context<ReclaimRent>) -> Result<()> {
     deposit_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_deposit_into_spot_market_revenue_pool<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, RevenuePoolDeposit<'info>>,
+    ctx: Context<'info, RevenuePoolDeposit<'info>>,
     amount: u64,
 ) -> Result<()> {
     if amount == 0 {
@@ -3390,7 +3390,7 @@ fn is_token_close_account_for_swap_ix(
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_begin_swap<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, Swap<'info>>,
+    ctx: Context<'info, Swap<'info>>,
     in_market_index: u16,
     out_market_index: u16,
     amount_in: u64,
@@ -3553,9 +3553,9 @@ pub fn handle_begin_swap<'c: 'info, 'info>(
             found_end = true;
 
             // must be the SwapEnd instruction
-            let discriminator = crate::instruction::EndSwap::discriminator();
+            let discriminator = crate::instruction::EndSwap::DISCRIMINATOR;
             validate!(
-                ix.data[0..8] == discriminator,
+                &ix.data[0..8] == discriminator,
                 ErrorCode::InvalidSwap,
                 "last drift ix must be end of swap"
             )?;
@@ -3670,7 +3670,7 @@ pub fn handle_begin_swap<'c: 'info, 'info>(
     Ok(())
 }
 
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq)]
 pub enum SwapReduceOnly {
     In,
     Out,
@@ -3680,7 +3680,7 @@ pub enum SwapReduceOnly {
     fill_not_paused(&ctx.accounts.state)
 )]
 pub fn handle_end_swap<'c: 'info, 'info>(
-    ctx: Context<'_, '_, 'c, 'info, Swap<'info>>,
+    ctx: Context<'info, Swap<'info>>,
     in_market_index: u16,
     out_market_index: u16,
     limit_price: Option<u64>,
@@ -4124,7 +4124,7 @@ pub struct InitializeUserStats<'info> {
 pub struct InitializeSignedMsgUserOrders<'info> {
     #[account(
         init,
-        seeds = [SIGNED_MSG_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [SIGNED_MSG_PDA_SEED.as_bytes(), authority.key().as_ref()],
         space = SignedMsgUserOrders::space(num_orders as usize),
         bump,
         payer = payer
@@ -4143,7 +4143,7 @@ pub struct InitializeSignedMsgUserOrders<'info> {
 pub struct ResizeSignedMsgUserOrders<'info> {
     #[account(
         mut,
-        seeds = [SIGNED_MSG_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [SIGNED_MSG_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
         realloc = SignedMsgUserOrders::space(num_orders as usize),
         realloc::payer = payer,
@@ -4165,7 +4165,7 @@ pub struct ResizeSignedMsgUserOrders<'info> {
 #[instruction(delegates: Vec<Pubkey>)]
 pub struct InitializeSignedMsgWsDelegates<'info> {
     #[account(
-        seeds = [SIGNED_MSG_WS_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [SIGNED_MSG_WS_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
         init,
         space = 8 + 4 + delegates.len() * 32,
@@ -4183,7 +4183,7 @@ pub struct InitializeSignedMsgWsDelegates<'info> {
 pub struct ChangeSignedMsgWsDelegateStatus<'info> {
     #[account(
         mut,
-        seeds = [SIGNED_MSG_WS_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [SIGNED_MSG_WS_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
         realloc = SignedMsgWsDelegates::space(&signed_msg_ws_delegates, add),
         realloc::payer = authority,
@@ -4633,7 +4633,7 @@ pub struct PlaceAndMakeSignedMsg<'info> {
     )]
     pub taker_stats: AccountLoader<'info, UserStats>,
     #[account(
-        seeds = [SIGNED_MSG_PDA_SEED.as_ref(), taker.load()?.authority.as_ref()],
+        seeds = [SIGNED_MSG_PDA_SEED.as_bytes(), taker.load()?.authority.as_ref()],
         bump,
     )]
     /// CHECK: checked in SignedMsgUserOrdersZeroCopy checks
@@ -4708,7 +4708,7 @@ pub struct DeleteSignedMsgUserOrders<'info> {
     #[account(
         mut,
         close = authority,
-        seeds = [SIGNED_MSG_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [SIGNED_MSG_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
     )]
     pub signed_msg_user_orders: Box<Account<'info, SignedMsgUserOrders>>,
@@ -4803,7 +4803,7 @@ pub struct UpdateUserProtectedMakerMode<'info> {
 pub struct InitializeRevenueShare<'info> {
     #[account(
         init,
-        seeds = [REVENUE_SHARE_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [REVENUE_SHARE_PDA_SEED.as_bytes(), authority.key().as_ref()],
         space = RevenueShare::space(),
         bump,
         payer = payer
@@ -4822,7 +4822,7 @@ pub struct InitializeRevenueShare<'info> {
 pub struct InitializeRevenueShareEscrow<'info> {
     #[account(
         init,
-        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_bytes(), authority.key().as_ref()],
         space = RevenueShareEscrow::space(num_orders as usize, 1),
         bump,
         payer = payer
@@ -4846,7 +4846,7 @@ pub struct InitializeRevenueShareEscrow<'info> {
 pub struct MigrateReferrer<'info> {
     #[account(
         mut,
-        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
     )]
     pub escrow: Box<Account<'info, RevenueShareEscrow>>,
@@ -4866,7 +4866,7 @@ pub struct MigrateReferrer<'info> {
 pub struct ResizeRevenueShareEscrowOrders<'info> {
     #[account(
         mut,
-        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
         realloc = RevenueShareEscrow::space(num_orders as usize, escrow.approved_builders.len()),
         realloc::payer = payer,
@@ -4886,7 +4886,7 @@ pub struct ResizeRevenueShareEscrowOrders<'info> {
 pub struct ChangeApprovedBuilder<'info> {
     #[account(
         mut,
-        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_ref(), authority.key().as_ref()],
+        seeds = [REVENUE_SHARE_ESCROW_PDA_SEED.as_bytes(), authority.key().as_ref()],
         bump,
         // revoking a builder does not remove the slot to avoid unintended reuse
         realloc = RevenueShareEscrow::space(escrow.orders.len(), if add { escrow.approved_builders.len() + 1 } else { escrow.approved_builders.len() }),

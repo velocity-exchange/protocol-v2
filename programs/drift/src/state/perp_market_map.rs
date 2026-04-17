@@ -95,7 +95,7 @@ impl<'a> PerpMarketMap<'a> {
     ) -> DriftResult<PerpMarketMap<'a>> {
         let mut perp_market_map: PerpMarketMap = PerpMarketMap(BTreeMap::new());
 
-        let market_discriminator: [u8; 8] = PerpMarket::discriminator();
+        let market_discriminator: &[u8] = PerpMarket::DISCRIMINATOR;
         while let Some(account_info) = account_info_iter.peek() {
             let data = account_info
                 .try_borrow_data()
@@ -106,13 +106,13 @@ impl<'a> PerpMarketMap<'a> {
                 break;
             }
 
-            let account_discriminator = array_ref![data, 0, 8];
-            if account_discriminator != &market_discriminator {
+            let account_discriminator = &data[..8];
+            if account_discriminator != market_discriminator {
                 break;
             }
 
-            // market index 1160 bytes from front of account
-            let market_index = u16::from_le_bytes(*array_ref![data, 1160, 2]);
+            // market index 1176 bytes from front of account
+            let market_index = u16::from_le_bytes(*array_ref![data, 1176, 2]);
 
             if perp_market_map.0.contains_key(&market_index) {
                 msg!("Can not include same market index twice {}", market_index);
@@ -154,14 +154,14 @@ impl<'a> PerpMarketMap<'a> {
             return Err(ErrorCode::CouldNotLoadMarketData);
         }
 
-        let market_discriminator: [u8; 8] = PerpMarket::discriminator();
-        let account_discriminator = array_ref![data, 0, 8];
-        if account_discriminator != &market_discriminator {
+        let market_discriminator: &[u8] = PerpMarket::DISCRIMINATOR;
+        let account_discriminator = &data[..8];
+        if account_discriminator != market_discriminator {
             return Err(ErrorCode::CouldNotLoadMarketData);
         }
 
         // market index 1160 bytes from front of account
-        let market_index = u16::from_le_bytes(*array_ref![data, 1160, 2]);
+        let market_index = u16::from_le_bytes(*array_ref![data, 1176, 2]);
 
         let is_writable = account_info.is_writable;
         let account_loader: AccountLoader<PerpMarket> =
@@ -197,14 +197,14 @@ impl<'a> PerpMarketMap<'a> {
                 return Err(ErrorCode::CouldNotLoadMarketData);
             }
 
-            let market_discriminator: [u8; 8] = PerpMarket::discriminator();
-            let account_discriminator = array_ref![data, 0, 8];
-            if account_discriminator != &market_discriminator {
+            let market_discriminator: &[u8] = PerpMarket::DISCRIMINATOR;
+            let account_discriminator = &data[..8];
+            if account_discriminator != market_discriminator {
                 return Err(ErrorCode::CouldNotLoadMarketData);
             }
 
-            // market index 1160 bytes from front of account
-            let market_index = u16::from_le_bytes(*array_ref![data, 1160, 2]);
+            // market index 1176 bytes from front of account
+            let market_index = u16::from_le_bytes(*array_ref![data, 1176, 2]);
 
             let is_writable = account_info.is_writable;
             let account_loader: AccountLoader<PerpMarket> =

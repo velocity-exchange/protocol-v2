@@ -12,12 +12,11 @@ path = "src/lib.rs"
 [features]
 default = ["cpi"]
 no-entrypoint = []
-no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
-
+idl-build = ["anchor-lang/idl-build"]
 
 [dependencies]
-anchor-lang = {  version = "0.29.0", features = ["derive"] }
-borsh = {version = "0.10.3", features = ["const-generics", "default"]}
+anchor-lang = { version = "1.0.0", features = ["derive"] }
+borsh = { version = "1", features = ["unstable__schema", "derive"] }
 bytemuck = {  version = "1.4.0" , features = ["derive",  "min_const_generics"]}
