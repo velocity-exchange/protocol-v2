@@ -1,9 +1,9 @@
 # LEARNING STATE
 
 ## Current Position
-- Ring: 3 of 26
-- Active Concept: 10-14 (The robot trader: counterparty problem, AMM, constant product, reserves, peg)
-- Status: In Progress
+- Ring: 4 of 26
+- Active Concept: 15-19 (Going on-chain: Solana accounts, four pillars, precision, safe math)
+- Status: Not Started (Ring 3 just closed)
 
 ## Progress Overview
 
@@ -12,8 +12,8 @@
 - [x] Ring 2: Long, short, PnL, collateral, margin, leverage -- COMPLETED
 
 ### PHASE 2 - THE ENGINE
-- [ ] Ring 3: AMM, constant product, price from reserves, peg -- IN PROGRESS
-- [ ] Ring 4: Solana accounts, four pillars, precision, safe math
+- [x] Ring 3: AMM, constant product, price from reserves, peg -- COMPLETED
+- [ ] Ring 4: Solana accounts, four pillars, precision, safe math -- NEXT
 
 ### PHASE 3 - THE TRADE
 - [ ] Ring 5: PerpPosition struct, base/quote, direction
@@ -66,6 +66,15 @@
 - User asked to skip the collateral/margin check question ("i understand, let's move") but passed the follow-up leverage-math verification cleanly. They're pacing themselves; trust it but still verify at ring boundaries.
 - STYLE PREFERENCE (explicit, mid-Ring-3): user wants pure atomic Socratic -- one variable per question, no multi-part questions, no explanation dumps, no recapping lists of ideas. Ask, wait, push one layer deeper. Don't spoon-feed answers. If they use jargon, make them define it first. Keep the ring framework (required by CLAUDE.md) but tighten style sharply within it.
 
+### Ring 3
+- User independently derived FOUR major concepts: (1) x*y=k with y/x = price, correctly mapping y=USDC, x=BTC; (2) virtual reserves insight -- "AMM does not actually have any BTC reserve, just collateral" -- caught this on their own, usually a taught concept not a derived one; (3) arbitrage as a gap-closer -- "won't traders long to capture the 50k vs 55k gap?"; (4) peg-induced instant PnL redistribution -- "if peg moves, longs win instantly and shorts lose instantly."
+- Teaching pattern that worked: stress-test the user's "simple oracle-only AMM" hypothesis with a concrete pile-in scenario ($100 long x 1M traders x 20% move = $20M owed). Made them FEEL why a curve is needed. They derived the mechanism from the pain.
+- CONFUSION MODE: user shuts down with "no idea what you are telling" when a scenario has too many variables at once (1M traders + $5M + oracle ticks in one question). Fix: one variable at a time. One trader, one move. Scale up in separate turns.
+- Self-aware: user explicitly flagged "partially understand, not solid" and later "what if there are hidden parts I don't know" -- honor this, do audits at ring close. They prefer honesty over false completion.
+- Mini-callbacks landed well: when user asked "is this x*y?" mid-derivation, parking the formula for one more atomic step ("price moves which direction?") forced them to verbalize the mechanism BEFORE seeing the formula name. Do this again.
+- Vocabulary introduced at Ring 3 close: `mark_price` (the AMM's quoted price = (y/x) * peg_multiplier), `slippage` (teaser -- own trade moves price; full math Ring 9).
+- Forward refs planted for Rings 9 (price impact), 10 (oracles), 11 (bid/ask spread), 14 (funding rate), 22 (repeg cost/triggers), 24 (where virtual reserves come from / LPs). Don't let these become vapor -- resurface each when its ring opens.
+
 ## Vocabulary Unlocked
 - trading, buying, selling
 - future (a bet on what a price WILL be)
@@ -79,8 +88,18 @@
 - margin / margin requirement (required collateral-to-size ratio, enforced before a bet can open; stored as margin_ratio_initial per market)
 - leverage (bet size / collateral ratio; inverse of margin; e.g. 5% margin = up to 20x leverage)
 - liquidation (teaser only: forcible bet closure before collateral hits zero; full topic in Ring 20)
+- AMM (automated market maker -- always-available robot counterparty)
+- reserves / virtual reserves (x = base, y = quote; purely accounting numbers on a perp AMM, no actual BTC anywhere)
+- constant product / x*y=k (the curve: as one reserve drops, the other must rise to keep product constant; price never runs out, just gets arbitrarily expensive)
+- liquidity (implicitly: the size of the reserves; thicker reserves = less price impact per trade)
+- peg / peg_multiplier (scalar knob in the price formula: mark_price = (y/x) * peg_multiplier; aligns AMM baseline to real-world oracle price)
+- mark price (the AMM's quoted price from its formula)
+- slippage (teaser only: own trade moves the price against you; full math Ring 9)
+- arbitrage (user-derived: traders capture the AMM-oracle gap, which also closes the gap)
+- funding rate (teaser only: indirect ongoing gap-closer; full topic Ring 14)
+- repeg / repeg cost (teaser only: peg updates cost the AMM when net-exposed, paid from fee pool; full mechanics Ring 22)
 
 ## Next Up
-- Current ring (Ring 3) covers: the counterparty problem (already derived by user in Ring 1), AMM, constant product (x*y=k), how an AMM prices from reserves, peg multiplier.
-- This is the ring the user has been hungry for since their Ring 1 breakthrough. Open Ring 3 by explicitly calling back their question -- they earned this payoff.
-- Teaser for Ring 4: once AMM concepts click, we go on-chain: Solana accounts, the four pillars (State/PerpMarket/CollateralMarket/User), fixed-point precision, safe math.
+- Ring 4: going on-chain. The conceptual AMM now needs a home. Introduce Solana accounts (where data lives), the four pillars (State, PerpMarket, CollateralMarket placeholder, User), fixed-point precision (why no decimals on-chain, PRICE_PRECISION / BASE_PRECISION / QUOTE_PRECISION), safe math (checked arithmetic, overflow prevention).
+- Opening move for Ring 4: user has been pricing everything in clean dollar math. Break that. Ask: "on-chain, there are no decimals. How would you store $50,123.45 as an integer?" Let them derive fixed-point.
+- Forward refs to resurface when their ring opens: Ring 9 (price impact formula, sqrt_k, open interest), Ring 10 (oracle mechanics), Ring 11 (bid/ask spread), Ring 14 (funding rate), Ring 22 (repeg), Ring 24 (LPs / virtual reserve origination).
