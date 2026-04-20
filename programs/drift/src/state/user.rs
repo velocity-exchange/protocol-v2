@@ -61,6 +61,13 @@ pub enum UserStatus {
     ProtectedMakerOrders = 0b00010000,
 }
 
+#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
+#[borsh(use_discriminant = true)]
+pub enum SpecialUserStatus {
+    // None = 0
+    VammHedger = 0b00000001,
+}
+
 // implement SIZE const for User
 impl Size for User {
     const SIZE: usize = 4376;
@@ -135,7 +142,9 @@ pub struct User {
     pub pool_id: u8,
     pub padding1: [u8; 3],
     pub last_fuel_bonus_update_ts: u32,
-    pub padding: [u8; 12],
+    /// Whether the user is a special user (vamm hedger, etc)
+    pub special_user_status: u8,
+    pub padding: [u8; 11],
 }
 
 impl User {

@@ -75,7 +75,7 @@ use crate::state::state::{
     ExchangeStatus, FeeStructure, LpPoolFeatureBitFlags, OracleGuardRails, State,
 };
 use crate::state::traits::Size;
-use crate::state::user::{User, UserStats};
+use crate::state::user::{SpecialUserStatus, User, UserStats};
 use crate::validate;
 use crate::validation::fee_structure::validate_fee_structure;
 use crate::validation::margin::{validate_margin, validate_margin_weights};
@@ -5212,6 +5212,41 @@ pub fn handle_transfer_fee_and_pnl_pool<'c: 'info, 'info>(
     Ok(())
 }
 
+pub fn handle_update_special_user_status(
+    ctx: Context<UpdateSpecialUserStatus>,
+    status: u8,
+) -> Result<()> {
+    let allowed_bits = SpecialUserStatus::VammHedger as u8;
+
+    validate!(
+        status & !allowed_bits == 0,
+        ErrorCode::DefaultError,
+        "unknown bits set in user's special_user_status: {:?}",
+        status
+    )?;
+
+    let user = &mut load_mut!(ctx.accounts.user)?;
+
+    if *ctx.accounts.admin.key != ctx.accounts.state.admin {
+        validate!(
+            status == 0,
+            ErrorCode::DefaultError,
+            "signer must be state admin to enable special user status flags",
+        )?;
+    }
+
+    msg!(
+        "special_user_status for {:?}: {:?} -> {:?}",
+        user.authority,
+        user.special_user_status,
+        status
+    );
+
+    user.special_user_status = status;
+
+    Ok(())
+}
+
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
@@ -6141,4 +6176,15 @@ pub struct TransferFeeAndPnlPool<'info> {
         bump,
     )]
     pub spot_market_vault: Box<InterfaceAccount<'info, TokenAccount>>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateSpecialUserStatus<'info> {
+    #[account(
+        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+    )]
+    pub admin: Signer<'info>,
+    pub state: Box<Account<'info, State>>,
+    #[account(mut)]
+    pub user: AccountLoader<'info, User>,
 }
