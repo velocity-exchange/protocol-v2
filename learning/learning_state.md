@@ -1,9 +1,9 @@
 # LEARNING STATE
 
 ## Current Position
-- Ring: 4 of 26
-- Active Concept: 15-19 (Going on-chain: Solana accounts, four pillars, precision, safe math)
-- Status: Not Started (Ring 3 just closed)
+- Ring: 5 of 26
+- Active Concept: 20-24 (PerpPosition struct, base/quote amounts, direction)
+- Status: In Progress (opening move asked)
 
 ## Progress Overview
 
@@ -13,10 +13,10 @@
 
 ### PHASE 2 - THE ENGINE
 - [x] Ring 3: AMM, constant product, price from reserves, peg -- COMPLETED
-- [ ] Ring 4: Solana accounts, four pillars, precision, safe math -- NEXT
+- [x] Ring 4: Solana accounts, four pillars, precision, safe math -- COMPLETED
 
 ### PHASE 3 - THE TRADE
-- [ ] Ring 5: PerpPosition struct, base/quote, direction
+- [ ] Ring 5: PerpPosition struct, base/quote, direction -- IN PROGRESS
 - [ ] Ring 6: Order struct, types, lifecycle, reduce-only, post-only
 - [ ] Ring 7: Dutch auctions, keepers, fill flow, fees-on-fill
 - [ ] Ring 8: Position updates: open/increase/decrease/close
@@ -75,6 +75,17 @@
 - Vocabulary introduced at Ring 3 close: `mark_price` (the AMM's quoted price = (y/x) * peg_multiplier), `slippage` (teaser -- own trade moves price; full math Ring 9).
 - Forward refs planted for Rings 9 (price impact), 10 (oracles), 11 (bid/ask spread), 14 (funding rate), 22 (repeg cost/triggers), 24 (where virtual reserves come from / LPs). Don't let these become vapor -- resurface each when its ring opens.
 
+### Ring 4
+- User entered with working Solana baseline: already knew PDAs, program ownership, lamports-as-SOL-atomic-unit. Did NOT need to teach these -- confirmed and leveraged directly.
+- Derived fixed-point representation unprompted: "multiply by a large scaler, store as big int, divide back on use." One atomic push was enough.
+- Also derived the tradeoff unprompted: "bigger scaler = more precision, more bytes" -- correct. Add overflow risk as my own overlay.
+- Nailed the scaler-matches-native-unit insight: "SOL = 10^9 lamports, can't split further, so BASE_PRECISION = 10^9." This is the real reason BASE ≠ QUOTE precision; they got it on first ask.
+- Caught the numerical guardrail: when I gave price × size ~ 10^15, they noted "this will not overflow" before I baited them into it. Track this -- they check magnitudes, don't just trust handed numbers.
+- Knew `checked_*` functions by name. Also independently proposed "don't calc everything in one line, break into 2-at-a-time intermediates" -- that's a real Drift pattern. Confirmed their instinct.
+- Minor calibration: they said `checked_mul` "throws error." Actual return is Option<T>; error conversion via `ok_or(ErrorCode)?`. Noted but did not belabor.
+- Pacing: Ring 4 moved fast (6-7 atomic beats total). Continue this tempo when user has existing adjacent knowledge; slow back down on genuinely new material (Ring 5 entry-vs-break-even, Ring 7 auctions, etc.).
+- Four pillars delivered as a table at the end -- user grouped fine. No confusion about State vs PerpMarket vs SpotMarket vs User. They correctly placed AMM reserves in PerpMarket on first ask.
+
 ## Vocabulary Unlocked
 - trading, buying, selling
 - future (a bet on what a price WILL be)
@@ -98,8 +109,22 @@
 - arbitrage (user-derived: traders capture the AMM-oracle gap, which also closes the gap)
 - funding rate (teaser only: indirect ongoing gap-closer; full topic Ring 14)
 - repeg / repeg cost (teaser only: peg updates cost the AMM when net-exposed, paid from fee pool; full mechanics Ring 22)
+- account (the universal Solana storage unit; everything -- wallets, tokens, program state -- is an account)
+- PDA (program-derived address; account owned by a program with no private key, program writes freely)
+- four pillars (Drift's top-level account layout: State singleton, PerpMarket per perp, SpotMarket per collateral token, User per trader subaccount)
+- State / PerpMarket / SpotMarket / User (the four account types; PerpMarket holds the AMM reserves + peg + sqrt_k for its market)
+- fixed-point / scaler (store decimal numbers as integers by multiplying by a fixed power of 10)
+- PRICE_PRECISION = 10^6 (Drift's standard multiplier for prices)
+- BASE_PRECISION = 10^9 (matches SOL's native 10^9 lamport granularity)
+- QUOTE_PRECISION = 10^6 (matches USDC's native 10^6 atomic granularity)
+- overflow / silent wrapping (u64 max ~1.8×10^19; Rust release-mode overflow wraps silently -- catastrophic for money math)
+- checked_mul / checked_add / checked_sub / checked_div (arithmetic that returns Option<T>; None on overflow)
+- ok_or(ErrorCode::MathError)? (Drift's idiom: convert Option → Result → bubble up)
+- u64 (the 64-bit unsigned integer type; holds up to ~1.8×10^19)
 
 ## Next Up
-- Ring 4: going on-chain. The conceptual AMM now needs a home. Introduce Solana accounts (where data lives), the four pillars (State, PerpMarket, CollateralMarket placeholder, User), fixed-point precision (why no decimals on-chain, PRICE_PRECISION / BASE_PRECISION / QUOTE_PRECISION), safe math (checked arithmetic, overflow prevention).
-- Opening move for Ring 4: user has been pricing everything in clean dollar math. Break that. Ask: "on-chain, there are no decimals. How would you store $50,123.45 as an integer?" Let them derive fixed-point.
-- Forward refs to resurface when their ring opens: Ring 9 (price impact formula, sqrt_k, open interest), Ring 10 (oracle mechanics), Ring 11 (bid/ask spread), Ring 14 (funding rate), Ring 22 (repeg), Ring 24 (LPs / virtual reserve origination).
+- Ring 5: what exactly gets stored in a User account when you open a position. Introduce PerpPosition struct: base_asset_amount (signed -- sign encodes direction), quote_asset_amount (signed -- cash flow), quote_entry_amount vs quote_break_even_amount (they differ because of fees -- forward ref to Ring 7), PositionDirection::Long/Short (explicit enum used in order flow, not stored on position).
+- Opening move for Ring 5: "you open a long SOL-PERP position. The protocol must write something to your User account to record this bet. What's the minimum information that needs to be stored to fully describe the position?" Let them enumerate: size, direction, entry price. Then show Drift collapses "size + direction" into one signed field.
+- Key atomic beats planned: (1) derive minimum fields -- size, direction, entry. (2) Drift stores size as SIGNED i64 where sign = direction; derive why one signed field is cleaner than size+bool. (3) entry isn't stored as a "price" -- it's stored as quote_asset_amount (how much cash flowed in to open). Ask why store cash-in instead of price. (4) break_even ≠ entry because of fees -- forward ref Ring 7 for the fee flow.
+- Source file when ready: `programs/drift/src/state/user.rs` (PerpPosition struct). User can read it AFTER they've derived the fields themselves.
+- Forward refs to resurface when their ring opens: Ring 7 (entry vs break-even via fees), Ring 9 (price impact, sqrt_k, open interest), Ring 10 (oracle mechanics), Ring 11 (bid/ask spread), Ring 14 (funding rate, last_cumulative_funding_rate on PerpPosition), Ring 22 (repeg), Ring 24 (LPs / virtual reserve origination).
