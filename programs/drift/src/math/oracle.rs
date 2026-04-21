@@ -1,4 +1,3 @@
-use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
 
 use crate::error::{DriftResult, ErrorCode};

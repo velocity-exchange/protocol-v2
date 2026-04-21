@@ -11,7 +11,7 @@ use crate::math::constants::{
 use crate::math::pnl::calculate_pnl;
 use crate::math::safe_math::SafeMath;
 
-use crate::state::perp_market::{ContractType, AMM};
+use crate::state::perp_market::AMM;
 use crate::state::user::PerpPosition;
 
 pub fn calculate_base_asset_value_and_pnl(

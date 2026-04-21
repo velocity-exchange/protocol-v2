@@ -6,8 +6,7 @@ use anchor_lang::prelude::*;
 use crate::controller::position::PositionDirection;
 use crate::controller::repeg::apply_cost_to_market;
 use crate::controller::spot_balance::{
-    transfer_revenue_pool_to_spot_balance, transfer_spot_balance_to_revenue_pool,
-    transfer_spot_balances, update_spot_balances,
+    transfer_spot_balance_to_revenue_pool, transfer_spot_balances, update_spot_balances,
 };
 use crate::error::{DriftResult, ErrorCode};
 use crate::get_then_update_id;

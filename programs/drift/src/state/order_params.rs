@@ -90,7 +90,7 @@ impl OrderParams {
 
         let auction_start_price_offset =
             OrderParams::get_perp_baseline_start_price_offset(perp_market, self.direction)?;
-        let mut new_auction_start_price = oracle_price.safe_add(auction_start_price_offset)?;
+        let new_auction_start_price = oracle_price.safe_add(auction_start_price_offset)?;
 
         if self.auction_duration.unwrap_or(0) == 0 {
             match self.direction {

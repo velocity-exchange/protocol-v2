@@ -37,7 +37,6 @@ use crate::state::traits::{MarketIndexOffset, Size};
 use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 
 use crate::state::paused_operations::PerpOperation;
-use static_assertions::const_assert_eq;
 
 use super::oracle_map::OracleIdentifier;
 use super::protected_maker_mode_config::ProtectedMakerParams;

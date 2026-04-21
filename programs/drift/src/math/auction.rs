@@ -176,7 +176,7 @@ fn calculate_auction_price_for_oracle_offset_auction(
     let auction_end_price_offset = order.auction_end_price;
 
     if delta_denominator == 0 {
-        let mut price = oracle_price
+        let price = oracle_price
             .safe_add(auction_end_price_offset)?
             .max(tick_size.cast()?)
             .cast::<u64>()?;
@@ -200,7 +200,7 @@ fn calculate_auction_price_for_oracle_offset_auction(
         PositionDirection::Short => auction_start_price_offset.safe_sub(price_offset_delta)?,
     };
 
-    let mut price = oracle_price
+    let price = oracle_price
         .safe_add(price_offset)?
         .max(tick_size.cast()?)
         .cast::<u64>()?;

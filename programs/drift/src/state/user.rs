@@ -23,7 +23,6 @@ use crate::math_error;
 use crate::msg;
 use crate::safe_increment;
 use crate::state::oracle::StrictOraclePrice;
-use crate::state::perp_market::ContractType;
 use crate::state::spot_market::{SpotBalance, SpotBalanceType, SpotMarket};
 use crate::state::traits::Size;
 use crate::validate;

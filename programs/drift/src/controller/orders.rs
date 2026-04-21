@@ -33,10 +33,8 @@ use crate::math::amm::calculate_amm_available_liquidity;
 use crate::math::amm_jit::calculate_amm_jit_liquidity;
 use crate::math::auction::{calculate_auction_params_for_trigger_order, calculate_auction_prices};
 use crate::math::casting::Cast;
-use crate::math::constants::{
-    BASE_PRECISION_U64, MARGIN_PRECISION, PERP_DECIMALS, QUOTE_SPOT_MARKET_INDEX,
-};
-use crate::math::fees::{determine_user_fee_tier, ExternalFillFees, FillFees};
+use crate::math::constants::{BASE_PRECISION_U64, MARGIN_PRECISION, PERP_DECIMALS};
+use crate::math::fees::{determine_user_fee_tier, FillFees};
 use crate::math::fulfillment::determine_perp_fulfillment_methods;
 use crate::math::liquidation::validate_user_not_being_liquidated;
 use crate::math::matching::{
@@ -48,22 +46,20 @@ use crate::math::oracle::{
 };
 use crate::math::safe_math::SafeMath;
 use crate::math::safe_unwrap::SafeUnwrap;
-use crate::math::spot_balance::{get_signed_token_amount, get_token_amount};
-use crate::math::spot_swap::select_margin_type_for_swap;
 use crate::math::{amm, fees, margin::*, orders::*};
 use crate::print_error;
 use crate::state::events::{emit_stack, get_order_action_record, OrderActionRecord, OrderRecord};
 use crate::state::events::{OrderAction, OrderActionExplanation};
 use crate::state::fill_mode::FillMode;
 use crate::state::fulfillment::PerpFulfillmentMethod;
-use crate::state::margin_calculation::{MarginCalculation, MarginContext, MarginTypeConfig};
+use crate::state::margin_calculation::{MarginContext, MarginTypeConfig};
 use crate::state::market_status::MarketStatus;
-use crate::state::oracle::{OraclePriceData, StrictOraclePrice};
+use crate::state::oracle::OraclePriceData;
 use crate::state::oracle_map::OracleMap;
 use crate::state::order_params::{
     ModifyOrderParams, OrderParams, PlaceOrderOptions, PostOnlyParam,
 };
-use crate::state::paused_operations::{PerpOperation, SpotOperation};
+use crate::state::paused_operations::PerpOperation;
 use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::PerpMarketMap;
 use crate::state::protected_maker_mode_config::ProtectedMakerParams;
@@ -72,10 +68,10 @@ use crate::state::spot_market_map::SpotMarketMap;
 use crate::state::state::FeeStructure;
 use crate::state::state::*;
 use crate::state::traits::Size;
-use crate::state::user::{
-    AssetType, Order, OrderBitFlag, OrderStatus, OrderTriggerCondition, OrderType, UserStats,
-};
 use crate::state::user::{MarketType, User};
+use crate::state::user::{
+    Order, OrderBitFlag, OrderStatus, OrderTriggerCondition, OrderType, UserStats,
+};
 use crate::state::user_map::{UserMap, UserStatsMap};
 use crate::validate;
 use crate::validation;

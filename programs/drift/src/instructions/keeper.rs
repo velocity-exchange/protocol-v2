@@ -24,7 +24,7 @@ use crate::controller::position::get_position_index;
 use crate::controller::position::PositionDirection;
 use crate::controller::spot_balance::update_spot_balances;
 use crate::controller::token::{receive, send_from_program_vault};
-use crate::error::{DriftResult, ErrorCode};
+use crate::error::ErrorCode;
 use crate::get_then_update_id;
 use crate::ids::admin_hot_wallet;
 use crate::ids::{
@@ -65,7 +65,7 @@ use crate::state::oracle_map::OracleMap;
 use crate::state::order_params::{OrderParams, PlaceOrderOptions};
 use crate::state::paused_operations::PerpLpOperation;
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
-use crate::state::perp_market::{ContractType, PerpMarket};
+use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::{
     get_market_set_for_spot_positions, get_market_set_for_user_positions, get_market_set_from_list,
     get_writable_perp_market_set, get_writable_perp_market_set_from_vec, MarketSet, PerpMarketMap,

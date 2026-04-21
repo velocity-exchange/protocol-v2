@@ -4,7 +4,6 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_2022::Token2022;
 use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 use phoenix::quantities::WrapperU64;
-use serum_dex::state::ToAlignedBytes;
 use std::convert::{identity, TryInto};
 use std::mem::size_of;
 

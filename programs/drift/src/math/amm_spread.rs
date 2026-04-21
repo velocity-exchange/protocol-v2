@@ -16,7 +16,7 @@ use crate::math::constants::{
     PRICE_PRECISION_I128, PRICE_PRECISION_I64,
 };
 use crate::math::safe_math::SafeMath;
-use crate::state::perp_market::{ContractType, PerpMarket, AMM};
+use crate::state::perp_market::{PerpMarket, AMM};
 use crate::validate;
 
 #[cfg(test)]
@@ -555,7 +555,7 @@ pub fn calculate_spread_reserves(
         0_i128
     };
 
-    let mut quote_asset_reserve = if quote_asset_reserve_delta > 0 {
+    let quote_asset_reserve = if quote_asset_reserve_delta > 0 {
         market
             .amm
             .quote_asset_reserve
