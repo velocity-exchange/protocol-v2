@@ -28,6 +28,7 @@ import {
 describe('special user account', () => {
 	const chProgram = anchor.workspace.Drift as Program;
 
+	let adminClient: TestClient;
 	let driftClient: TestClient;
 	let bulkAccountLoader: TestBulkAccountLoader;
 	let bankrunContextWrapper: BankrunContextWrapper;
@@ -108,6 +109,27 @@ describe('special user account', () => {
 			opts: {
 				commitment: 'confirmed',
 			},
+			txVersion: 'legacy',
+			activeSubAccountId: 0,
+			perpMarketIndexes: [0],
+			spotMarketIndexes: [0],
+			subAccountIds: [],
+			oracleInfos: [
+				{ publicKey: solUsdOracle, source: OracleSource.PYTH_LAZER },
+			],
+			accountSubscription: {
+				type: 'polling',
+				accountLoader: bulkAccountLoader,
+			},
+		});
+
+		adminClient = new TestClient({
+			connection: bankrunContextWrapper.connection.toConnection(),
+			wallet: bankrunContextWrapper.provider.wallet,
+			programID: chProgram.programId,
+			opts: {
+				commitment: 'confirmed',
+			},
 			activeSubAccountId: 0,
 			perpMarketIndexes: [0],
 			spotMarketIndexes: [0],
@@ -123,6 +145,7 @@ describe('special user account', () => {
 
 		await driftClient.initialize(usdcMint.publicKey, true);
 		await driftClient.subscribe();
+		await adminClient.subscribe();
 
 		await initializeQuoteSpotMarket(driftClient, usdcMint.publicKey);
 		await driftClient.updatePerpAuctionDuration(0);
@@ -165,6 +188,7 @@ describe('special user account', () => {
 	});
 
 	after(async () => {
+		await adminClient.unsubscribe();
 		await driftClient.unsubscribe();
 	});
 
@@ -175,7 +199,7 @@ describe('special user account', () => {
 	});
 
 	it('sets vamm hedger flag', async () => {
-		await driftClient.updateSpecialUserStatus(
+		await adminClient.updateSpecialUserStatus(
 			userAccountPublicKey,
 			SpecialUserStatus.VAMM_HEDGER
 		);
@@ -185,7 +209,7 @@ describe('special user account', () => {
 	});
 
 	it('clears special status back to zero', async () => {
-		await driftClient.updateSpecialUserStatus(userAccountPublicKey, 0);
+		await adminClient.updateSpecialUserStatus(userAccountPublicKey, 0);
 		await driftClient.fetchAccounts();
 		const userAccount = driftClient.getUserAccount();
 		assert(userAccount.specialUserStatus === 0);
@@ -194,7 +218,7 @@ describe('special user account', () => {
 	it('rejects unknown status bits', async () => {
 		let threw = false;
 		try {
-			await driftClient.updateSpecialUserStatus(userAccountPublicKey, 0xff);
+			await adminClient.updateSpecialUserStatus(userAccountPublicKey, 0xff);
 		} catch (e) {
 			threw = true;
 		}
@@ -202,7 +226,7 @@ describe('special user account', () => {
 	});
 
 	it('fails transfer when user is not flagged special', async () => {
-		await driftClient.updateSpecialUserStatus(userAccountPublicKey, 0);
+		await adminClient.updateSpecialUserStatus(userAccountPublicKey, 0);
 		await placePerpMarketOrder(PositionDirection.LONG, BASE_PRECISION);
 		await driftClient.fetchAccounts();
 
@@ -227,7 +251,7 @@ describe('special user account', () => {
 	});
 
 	it('fails transfer when position would increase vamm exposure', async () => {
-		await driftClient.updateSpecialUserStatus(
+		await adminClient.updateSpecialUserStatus(
 			userAccountPublicKey,
 			SpecialUserStatus.VAMM_HEDGER
 		);
@@ -246,7 +270,7 @@ describe('special user account', () => {
 		);
 
 		await driftClient.switchActiveUser(1);
-		await driftClient.updateSpecialUserStatus(
+		await adminClient.updateSpecialUserStatus(
 			userSubaccount1PublicKey,
 			SpecialUserStatus.VAMM_HEDGER
 		);
@@ -309,7 +333,7 @@ describe('special user account', () => {
 	});
 
 	it('transfers 50% of position when amount is provided', async () => {
-		await driftClient.updateSpecialUserStatus(
+		await adminClient.updateSpecialUserStatus(
 			userAccountPublicKey,
 			SpecialUserStatus.VAMM_HEDGER
 		);

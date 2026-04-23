@@ -4100,7 +4100,7 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
 
     let AccountMaps {
         perp_market_map,
-        spot_market_map: _,
+        spot_market_map,
         mut oracle_map,
     } = load_maps(
         &mut ctx.remaining_accounts.iter().peekable(),
@@ -4128,8 +4128,10 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
     let step_size;
     let tick_size;
     let oracle_price;
+    let oi_before;
     {
         let perp_market = perp_market_map.get_ref(&market_index)?;
+        oi_before = perp_market.get_open_interest();
 
         validate!(
             !perp_market.is_operation_paused(PerpOperation::Fill),
@@ -4245,6 +4247,34 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
 
         controller::amm::update_spread_reserves(&mut market)?;
     }
+
+    let user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance)
+        .fuel_perp_delta(market_index, transfer_amount);
+
+    let user_margin_calculation =
+        calculate_margin_requirement_and_total_collateral_and_liability_info(
+            &user,
+            &perp_market_map,
+            &spot_market_map,
+            &mut oracle_map,
+            user_margin_context,
+        )?;
+
+    validate!(
+        user_margin_calculation.meets_margin_requirement(),
+        ErrorCode::InsufficientCollateral,
+        "user margin requirement is greater than total collateral"
+    )?;
+
+    let oi_after = perp_market_map.get_ref(&market_index)?.get_open_interest();
+
+    validate!(
+        oi_after <= oi_before,
+        ErrorCode::InvalidTransferPerpPosition,
+        "open interest must not increase after special transfer. oi_before: {}, oi_after: {}",
+        oi_before,
+        oi_after
+    )?;
 
     user.update_last_active_slot(slot);
 
