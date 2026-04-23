@@ -87,6 +87,10 @@ export enum UserStatus {
 	PROTECTED_MAKER = 16,
 }
 
+export enum SpecialUserStatus {
+	VAMM_HEDGER = 1,
+}
+
 export enum UserStatsPausedOperation {
 	UPDATE_BID_ASK_TWAP = 1,
 	AMM_ATOMIC_FILL = 2,
@@ -1230,6 +1234,7 @@ export type UserAccount = {
 	hasOpenAuction: boolean;
 	lastFuelBonusUpdateTs: number;
 	poolId: number;
+	specialUserStatus: number;
 };
 
 export type SpotPosition = {

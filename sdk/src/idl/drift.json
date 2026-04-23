@@ -8894,6 +8894,44 @@
       ]
     },
     {
+      "name": "special_transfer_perp_position_to_vamm",
+      "discriminator": [
+        39,
+        111,
+        187,
+        243,
+        18,
+        139,
+        223,
+        1
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "state"
+        }
+      ],
+      "args": [
+        {
+          "name": "market_index",
+          "type": "u16"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "option": "i64"
+          }
+        }
+      ]
+    },
+    {
       "name": "sweep_fuel",
       "discriminator": [
         175,
@@ -12657,6 +12695,38 @@
               "name": "SpotFulfillmentConfigStatus"
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "update_special_user_status",
+      "discriminator": [
+        23,
+        237,
+        166,
+        194,
+        38,
+        7,
+        41,
+        45
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "state"
+        },
+        {
+          "name": "user",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "status",
+          "type": "u8"
         }
       ]
     },
@@ -25375,11 +25445,18 @@
             "type": "u32"
           },
           {
+            "name": "special_user_status",
+            "docs": [
+              "Whether the user is a special user (vamm hedger, etc)"
+            ],
+            "type": "u8"
+          },
+          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                12
+                11
               ]
             }
           }

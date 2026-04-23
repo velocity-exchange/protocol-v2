@@ -6552,4 +6552,73 @@ export class AdminClient extends DriftClient {
 			}
 		);
 	}
+
+	public async updateSpecialUserStatus(
+		userAccountPublicKey: PublicKey,
+		status: number,
+		txParams?: TxParams
+	): Promise<TransactionSignature> {
+		const ix = await this.getUpdateSpecialUserStatusIx(
+			userAccountPublicKey,
+			status
+		);
+		const tx = await this.buildTransaction(ix, txParams);
+		const { txSig } = await this.sendTransaction(tx, [], this.opts);
+		return txSig;
+	}
+
+	public async getUpdateSpecialUserStatusIx(
+		userAccountPublicKey: PublicKey,
+		status: number
+	): Promise<TransactionInstruction> {
+		return this.program.instruction.updateSpecialUserStatus(status, {
+			accounts: {
+				admin: this.useHotWalletAdmin
+					? this.wallet.publicKey
+					: this.getStateAccount().admin,
+				state: await this.getStatePublicKey(),
+				user: userAccountPublicKey,
+			},
+		});
+	}
+
+	public async specialTransferPerpPositionToVamm(
+		userAccountPublicKey: PublicKey,
+		marketIndex: number,
+		amount?: BN,
+		txParams?: TxParams
+	): Promise<TransactionSignature> {
+		const ix = await this.getSpecialTransferPerpPositionToVammIx(
+			userAccountPublicKey,
+			marketIndex,
+			amount
+		);
+		const tx = await this.buildTransaction(ix, txParams);
+		const { txSig } = await this.sendTransaction(tx, [], this.opts);
+		return txSig;
+	}
+
+	public async getSpecialTransferPerpPositionToVammIx(
+		userAccountPublicKey: PublicKey,
+		marketIndex: number,
+		amount?: BN
+	): Promise<TransactionInstruction> {
+		const remainingAccounts = this.getRemainingAccounts({
+			userAccounts: [],
+			writablePerpMarketIndexes: [marketIndex],
+		});
+
+		return this.program.instruction.specialTransferPerpPositionToVamm(
+			marketIndex,
+			amount ?? null,
+			{
+				accounts: {
+					state: await this.getStatePublicKey(),
+					user: userAccountPublicKey,
+					authority: this.wallet.publicKey,
+				},
+				remainingAccounts,
+			}
+		);
+	}
 }
