@@ -20,10 +20,10 @@ jobs:
     runs-on: ubicloud
     steps:
       - name: Checkout changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
 
       - name: Cache Solana Version
-        uses: actions/cache@v2
+        uses: actions/cache@8492260343ad570701412c2f464a5877dc76bace # v2
         id: solana-cache
         with:
           path: |
@@ -33,12 +33,12 @@ jobs:
           key: solana-v${{ env.SOLANA_VERSION }}
 
       - name: Cache Soteria Build
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@81d053bdb0871dcd3f10763c8cc60d0adc41762b # v1
         with:
           target-dir: ${{ env.PROGRAM_PATH }}.coderrect/build # Cache build files for performance
 
       - name: Install Rust nightly
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           profile: minimal

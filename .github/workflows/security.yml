@@ -13,9 +13,9 @@ jobs:
     name: Sync with snyk.io
     runs-on: ubicloud
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
       - name: Monitor on snyk.io
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -26,9 +26,9 @@ jobs:
     runs-on: ubicloud
     steps:
       - name: Checkout changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
 
-      - uses: snyk/actions/setup@master
+      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
       - name: Snyk Code Scan
         run: snyk code test --org=${{ secrets.SNYK_ORG }} --severity-threshold=medium --sarif-file-output=snyk-sast.json
         env:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload code report
         if: always()
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@231aa2c8a89117b126725a0e11897209b7118144 # v1
         with:
           sarif_file: snyk-sast.json
   sca:
@@ -45,10 +45,10 @@ jobs:
       runs-on: ubicloud
       steps:
         - name: Checkout changes
-          uses: actions/checkout@v2
+          uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
 
         - name: Snyk Dependency Scan
-          uses: snyk/actions/node@master
+          uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # master
           env:
             SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           with:
@@ -56,6 +56,6 @@ jobs:
 
         - name: Upload dependency report
           if: always()
-          uses: github/codeql-action/upload-sarif@v1
+          uses: github/codeql-action/upload-sarif@231aa2c8a89117b126725a0e11897209b7118144 # v1
           with:
             sarif_file: snyk-sca.sarif
