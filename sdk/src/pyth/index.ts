@@ -1,8 +1,8 @@
 export {
-	WormholeCoreBridgeSolana,
+	type WormholeCoreBridgeSolana,
 	WORMHOLE_CORE_BRIDGE_SOLANA_IDL,
-	PythSolanaReceiver,
-	PriceUpdateAccount,
+	type PythSolanaReceiver,
+	type PriceUpdateAccount,
 } from './types';
 export {
 	DEFAULT_WORMHOLE_PROGRAM_ID,
@@ -11,5 +11,5 @@ export {
 export { getGuardianSetPda } from './utils';
 export {
 	PythLazerSubscriber,
-	PythLazerPriceFeedArray,
+	type PythLazerPriceFeedArray,
 } from './pythLazerSubscriber';

@@ -164,8 +164,8 @@ const main = async () => {
 	);
 
 	// Misc. other things to set up
-	const usdcTokenAddress = await getTokenAddress(
-		sdkConfig.USDC_MINT_ADDRESS,
+	const quoteTokenAddress = await getTokenAddress(
+		sdkConfig.QUOTE_MINT_ADDRESS,
 		provider.wallet.publicKey.toString()
 	);
 

@@ -13,3 +13,7 @@ sdk/src/**/*.js.map
 migrations
 /**/*.env
 vendor
+
+# Devnet deploy artifacts — contain keypairs, never commit
+/devnet_program_admin.json
+/deploy-scripts/out/
