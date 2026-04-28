@@ -9,6 +9,7 @@
  *   A) global state + amm cache
  *   B) USDT spot market at index 0
  *   C) Pyth Lazer SOL/USD oracle
+ *   C2) SOL spot market at index 1 (uses same Pyth Lazer oracle as SOL-PERP)
  *   D) SOL-PERP at index 0
  *   E) ProtocolIfSharesTransferConfig
  *   F) LP pool + USDT constituent
@@ -122,6 +123,9 @@ type Receipt = {
 const TOKEN_FAUCET_DEFAULT_PROGRAM_ID =
 	'V4v1mQiAdLz4qwckEb45WqHYceYizoib39cDBHSWfaB';
 const USDT_DECIMALS = 6;
+const WRAPPED_SOL_MINT = new PublicKey(
+	'So11111111111111111111111111111111111111112'
+);
 
 function getFaucetConfigPda(
 	programId: PublicKey,
@@ -585,6 +589,54 @@ async function main() {
 			pubkey: lazerPk.toBase58(),
 			txSig,
 		};
+	}
+
+	const skipPhaseC2 = process.env.SKIP_PHASE_C2 === '1';
+	await confirm('Begin Phase C2 — SOL spot market at index 1?', [
+		`mint = ${WRAPPED_SOL_MINT.toBase58()} (wSOL, 9 decimals)`,
+		`oracle = ${lazerPk.toBase58()} (same PythLazerOracle PDA as SOL-PERP)`,
+		'oracleSource = PYTH_LAZER, assetTier = CROSS, name = "SOL"',
+		'weights: initAsset 80% / maintAsset 90% / initLiab 120% / maintLiab 110%',
+		skipPhaseC2 ? '*** SKIP_PHASE_C2=1 set — phase will be SKIPPED ***' : '',
+	]);
+	// === Phase C2: SOL spot market at index 1 ===
+	const spot1Pk = await getSpotMarketPublicKey(programId, 1);
+	if (skipPhaseC2) {
+		logStep(
+			'Spot market 1 (SOL) SKIPPED via SKIP_PHASE_C2=1',
+			spot1Pk.toBase58()
+		);
+	} else if (await pdaExists(connection, spot1Pk)) {
+		logStep('Spot market 1 (SOL) already initialized', spot1Pk.toBase58());
+		receipt.spotMarkets[1] = { pubkey: spot1Pk.toBase58() };
+	} else {
+		logStep('initializeSpotMarket SOL @ index 1 (Pyth Lazer)');
+		const txSig = await client.initializeSpotMarket(
+			WRAPPED_SOL_MINT,
+			SPOT_MARKET_RATE_PRECISION.divn(2).toNumber(), // optimalUtilization 50%
+			SPOT_MARKET_RATE_PRECISION.toNumber(), // optimalRate 100%
+			SPOT_MARKET_RATE_PRECISION.toNumber(), // maxRate 100%
+			lazerPk, // oracle = same PythLazerOracle PDA used by SOL-PERP
+			OracleSource.PYTH_LAZER,
+			SPOT_MARKET_WEIGHT_PRECISION.muln(8).divn(10).toNumber(), // initialAssetWeight 80%
+			SPOT_MARKET_WEIGHT_PRECISION.muln(9).divn(10).toNumber(), // maintenanceAssetWeight 90%
+			SPOT_MARKET_WEIGHT_PRECISION.muln(12).divn(10).toNumber(), // initialLiabilityWeight 120%
+			SPOT_MARKET_WEIGHT_PRECISION.muln(11).divn(10).toNumber(), // maintenanceLiabilityWeight 110%
+			0, // imfFactor
+			0, // liquidatorFee
+			0, // ifLiquidationFee
+			true, // activeStatus
+			AssetTier.CROSS as any,
+			ZERO,
+			ZERO,
+			new BN(100), // orderTickSize
+			new BN(1_000_000), // orderStepSize (0.001 SOL @ 9 decimals)
+			0, // ifTotalFactor
+			'SOL',
+			1 // marketIndex
+		);
+		receipt.spotMarkets[1] = { pubkey: spot1Pk.toBase58(), txSig };
+		await client.fetchAccounts();
 	}
 
 	const skipPhaseD = process.env.SKIP_PHASE_D === '1';

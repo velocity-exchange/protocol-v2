@@ -16,6 +16,8 @@ export type PerpMarketConfig = {
 	marketStatus?: MarketStatus;
 };
 
+// Reflects what is actually deployed on devnet (per on-chain enumeration of
+// State.numberOfMarkets). Update when devnet adds/changes a perp market.
 export const DevnetPerpMarkets: PerpMarketConfig[] = [
 	{
 		fullName: 'Solana',
@@ -26,104 +28,7 @@ export const DevnetPerpMarkets: PerpMarketConfig[] = [
 		oracle: new PublicKey('57ZE6W8mGWPQokUHjyfTAexvVLK8xuMbWn9HGg6fG7oW'),
 		launchTs: 1655751353000,
 		oracleSource: OracleSource.PYTH_LAZER,
-		pythFeedId:
-			'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
 		pythLazerId: 6,
-	},
-	{
-		fullName: 'Bitcoin',
-		category: ['L1', 'Payment'],
-		symbol: 'BTC-PERP',
-		baseAssetSymbol: 'BTC',
-		marketIndex: 1,
-		oracle: new PublicKey('35MbvS1Juz2wf7GsyHrkCw8yfKciRLxVpEhfZDZFrB4R'),
-		launchTs: 1655751353000,
-		oracleSource: OracleSource.PYTH_LAZER,
-		pythFeedId:
-			'0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
-		pythLazerId: 1,
-	},
-	{
-		fullName: 'Ethereum',
-		category: ['L1', 'Infra'],
-		symbol: 'ETH-PERP',
-		baseAssetSymbol: 'ETH',
-		marketIndex: 2,
-		oracle: new PublicKey('93FG52TzNKCnMiasV14Ba34BYcHDb9p4zK4GjZnLwqWR'),
-		launchTs: 1637691133472,
-		oracleSource: OracleSource.PYTH_LAZER,
-		pythFeedId:
-			'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
-		pythLazerId: 2,
-	},
-	{
-		fullName: 'Bonk',
-		category: ['Meme', 'Dog'],
-		symbol: '1MBONK-PERP',
-		baseAssetSymbol: '1MBONK',
-		marketIndex: 4,
-		oracle: new PublicKey('BERaNi6cpEresbq6HC1EQGaB1H1UjvEo4NGnmYSSJof4'),
-		launchTs: 1677068931000,
-		oracleSource: OracleSource.PYTH_LAZER_1M,
-		pythFeedId:
-			'0x72b021217ca3fe68922a19aaf990109cb9d84e9ad004b4d2025ad6f529314419',
-		pythLazerId: 9,
-	},
-	{
-		fullName: 'Wormhole',
-		category: ['Bridge'],
-		symbol: 'W-PERP',
-		baseAssetSymbol: 'W',
-		marketIndex: 23,
-		oracle: new PublicKey('J9nrFWjDUeDVZ4BhhxsbQXWgLcLEgQyNBrCbwSADmJdr'),
-		launchTs: 1709852537000,
-		oracleSource: OracleSource.SWITCHBOARD_ON_DEMAND,
-		pythFeedId:
-			'0xeff7446475e218517566ea99e72a4abec2e1bd8498b43b7d8331e29dcb059389',
-		pythLazerId: 102,
-	},
-	{
-		fullName: 'TRUMP-WIN-2024',
-		category: ['Prediction', 'Election'],
-		symbol: 'TRUMP-WIN-2024-PREDICT',
-		baseAssetSymbol: 'TRUMP-WIN-2024',
-		marketIndex: 26,
-		oracle: new PublicKey('3TVuLmEGBRfVgrmFRtYTheczXaaoRBwcHw1yibZHSeNA'),
-		launchTs: 1722214583000,
-		oracleSource: OracleSource.Prelaunch,
-	},
-	{
-		fullName: 'KAMALA-POPULAR-VOTE-2024',
-		category: ['Prediction', 'Election'],
-		symbol: 'KAMALA-POPULAR-VOTE-2024-PREDICT',
-		baseAssetSymbol: 'KAMALA-POPULAR-VOTE',
-		marketIndex: 27,
-		oracle: new PublicKey('GU6CA7a2KCyhpfqZNb36UAfc9uzKBM8jHjGdt245QhYX'),
-		launchTs: 1722214583000,
-		oracleSource: OracleSource.Prelaunch,
-	},
-	{
-		fullName: 'RANDOM-2024',
-		category: ['Prediction'],
-		symbol: 'RANDOM-2024-PREDICT',
-		baseAssetSymbol: 'RANDOM-2024',
-		marketIndex: 28,
-		oracle: new PublicKey('sDAQaZQJQ4RXAxH3x526mbEXyQZT15ktkL84d7hmk7M'),
-		launchTs: 1729622442000,
-		oracleSource: OracleSource.Prelaunch,
-	},
-	{
-		fullName: 'Nvidia',
-		category: ['Equity'],
-		symbol: 'NVDA-PERP',
-		baseAssetSymbol: 'NVDA',
-		marketIndex: 29,
-		oracle: new PublicKey('9LBDN399ErNzSzErinpnmeoZcsqNMSCyQ6WP4pynuQKz'),
-		launchTs: 1772563593000,
-		oracleSource: OracleSource.PYTH_LAZER,
-		pythFeedId:
-			'0xb1073854ed24cbc755dc527418f52b7d271f6cc967bbf8d8129112b18860a593',
-		pythLazerId: 1314,
 	},
 ];
 

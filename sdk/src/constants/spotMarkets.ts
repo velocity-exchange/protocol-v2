@@ -36,14 +36,15 @@ export const WRAPPED_SOL_MINT = new PublicKey(
 	'So11111111111111111111111111111111111111112'
 );
 
+// Reflects what is actually deployed on devnet (per on-chain enumeration of
+// State.numberOfSpotMarkets). Update when devnet adds/changes a spot market.
 export const DevnetSpotMarkets: SpotMarketConfig[] = [
 	{
-		symbol: 'USDT',
+		symbol: 'dUSDT',
 		marketIndex: 0,
 		poolId: 0,
-		// QUOTE_ASSET source — oracle is PublicKey.default; no Pyth feed.
-		oracle: PublicKey.default,
-		oracleSource: OracleSource.QUOTE_ASSET,
+		oracle: new PublicKey('Gkiwe1rmbnAMCAiBiaQWhqfDtb1tAefuQY8uJp2siVs'),
+		oracleSource: OracleSource.PYTH_LAZER_STABLE_COIN,
 		mint: new PublicKey('8FfvSRKMZRDHrCBy142XMUXrKEkXnxDQ4YmJv7xbAw8Q'),
 		precision: new BN(10).pow(SIX),
 		precisionExp: SIX,
@@ -52,42 +53,12 @@ export const DevnetSpotMarkets: SpotMarketConfig[] = [
 		symbol: 'SOL',
 		marketIndex: 1,
 		poolId: 0,
-		oracle: new PublicKey('3m6i4RFWEDw2Ft4tFHPJtYgmpPe21k56M3FHeWYrgGBz'),
+		oracle: new PublicKey('57ZE6W8mGWPQokUHjyfTAexvVLK8xuMbWn9HGg6fG7oW'),
 		oracleSource: OracleSource.PYTH_LAZER,
-		mint: new PublicKey(WRAPPED_SOL_MINT),
+		mint: WRAPPED_SOL_MINT,
 		precision: LAMPORTS_PRECISION,
 		precisionExp: LAMPORTS_EXP,
-		serumMarket: new PublicKey('8N37SsnTu8RYxtjrV9SStjkkwVhmU8aCWhLvwduAPEKW'),
-		phoenixMarket: new PublicKey(
-			'78ehDnHgbkFxqXZwdFxa8HK7saX58GymeX2wNGdkqYLp'
-		),
-		pythFeedId:
-			'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
 		pythLazerId: 6,
-	},
-	{
-		symbol: 'GLXY',
-		marketIndex: 7,
-		poolId: 2,
-		oracle: new PublicKey('4wFrjUQHzRBc6qjVtMDbt28aEVgn6GaNiWR6vEff4KxR'),
-		oracleSource: OracleSource.Prelaunch,
-		mint: new PublicKey('2vVfXmcWXEaFzp7iaTVnQ4y1gR41S6tJQQMo1S5asJyC'),
-		precision: new BN(10).pow(SIX),
-		precisionExp: SIX,
-		pythFeedId:
-			'0x67e031d1723e5c89e4a826d80b2f3b41a91b05ef6122d523b8829a02e0f563aa',
-	},
-	{
-		symbol: 'GLXY',
-		marketIndex: 8,
-		poolId: 2,
-		oracle: new PublicKey('4wFrjUQHzRBc6qjVtMDbt28aEVgn6GaNiWR6vEff4KxR'),
-		oracleSource: OracleSource.Prelaunch,
-		mint: new PublicKey('2vVfXmcWXEaFzp7iaTVnQ4y1gR41S6tJQQMo1S5asJyC'),
-		precision: new BN(10).pow(SIX),
-		precisionExp: SIX,
-		pythFeedId:
-			'0x67e031d1723e5c89e4a826d80b2f3b41a91b05ef6122d523b8829a02e0f563aa',
 	},
 ];
 

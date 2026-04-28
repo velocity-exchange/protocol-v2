@@ -34,6 +34,8 @@ pub mod ids;
 pub mod instructions;
 pub mod macros;
 pub mod math;
+#[cfg(feature = "drift-rs")]
+pub mod sdk;
 mod signer;
 pub mod state;
 #[cfg(test)]
