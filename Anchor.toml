@@ -17,6 +17,9 @@ watch_ts = 'find ./programs/clearing_house/src/* ./tests ./sdk/src | entr -c bas
 watch_build = 'find ./programs/clearing_house/src/* ./tests ./sdk/src | entr -c anchor build'
 watch_cargo = 'find ./programs/clearing_house/src/* ./tests ./sdk/src | entr -c cargo test -- --show-output'
 
+[programs.devnet]
+drift = "vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P"
+
 [programs.localnet]
 drift = "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH"
 pyth = "FsJ3A3u2vn5cTVofAjvy6y5kwABJAqYWpe4975bi2epH"

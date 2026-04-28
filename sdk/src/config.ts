@@ -43,7 +43,7 @@ export type DriftEnv = 'devnet' | 'mainnet-beta';
 
 export const DRIFT_PROGRAM_ID = 'dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH';
 export const DRIFT_DEVNET_PROGRAM_ID =
-	'FGXfSBCXqSTkBX6zTQyPo8JbC11pn5DGKYm9MSbLC7P2';
+	'vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P';
 export const DRIFT_ORACLE_RECEIVER_ID =
 	'G6EoTTTgpkNBtVXo96EQp2m6uwwVh2Kt6YidjkmQqoha';
 export const PTYH_LAZER_PROGRAM_ID =

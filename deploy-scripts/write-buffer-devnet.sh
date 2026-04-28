@@ -1,0 +1,68 @@
+#!/bin/sh
+# Upload drift.so into a staging buffer on devnet. Use a private RPC (set
+# SOLANA_RPC or RPC_URL) to avoid public devnet rate limits on large writes.
+#
+# Prerequisites: bash deploy-scripts/build-devnet.sh
+#
+# Env (see deploy-scripts/.env.example):
+#   DRIFT_DEVNET_PROGRAM_ID     must match programs/drift non-mainnet declare_id!
+#   DRIFT_DEVNET_UPGRADE_KEYPAIR  (or SOLANA_PATH + DEVNET_ADMIN) — buffer authority
+#   BUFFER_AUTHORITY   override (defaults to upgrade keypair path)
+#   FEE_PAYER          override (defaults to same)
+#   BUFFER_ACCOUNT_KEYPAIR  new file to create for this buffer account (default
+#                           deploy-scripts/out/drift-so-write-buffer-keypair.json)
+#   PROGRAM_SO         default target/deploy/drift.so
+#   SOLANA_RPC / RPC_URL   default https://api.devnet.solana.com
+
+set -eu
+
+DRIFT_DEVNET_PROGRAM_ID="${DRIFT_DEVNET_PROGRAM_ID:-vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P}"
+PROGRAM_SO="${PROGRAM_SO:-target/deploy/drift.so}"
+SOLANA_RPC="${SOLANA_RPC:-${RPC_URL:-https://api.devnet.solana.com}}"
+
+if [ -n "${DRIFT_DEVNET_UPGRADE_KEYPAIR:-}" ]; then
+	UPGRADE_KEYPAIR="$DRIFT_DEVNET_UPGRADE_KEYPAIR"
+elif [ -n "${SOLANA_PATH:-}" ] && [ -n "${DEVNET_ADMIN:-}" ]; then
+	UPGRADE_KEYPAIR="$SOLANA_PATH/$DEVNET_ADMIN"
+else
+	echo "Set DRIFT_DEVNET_UPGRADE_KEYPAIR, or both SOLANA_PATH and DEVNET_ADMIN" >&2
+	exit 1
+fi
+
+BUFFER_AUTHORITY="${BUFFER_AUTHORITY:-$UPGRADE_KEYPAIR}"
+FEE_PAYER="${FEE_PAYER:-$UPGRADE_KEYPAIR}"
+BUFFER_ACCOUNT_KEYPAIR="${BUFFER_ACCOUNT_KEYPAIR:-deploy-scripts/out/drift-so-write-buffer-keypair.json}"
+
+if [ ! -f "$PROGRAM_SO" ]; then
+	echo "Missing $PROGRAM_SO — run: bash deploy-scripts/build-devnet.sh" >&2
+	exit 1
+fi
+
+PROGRAM_KEYPAIR="${PROGRAM_KEYPAIR:-}"
+if [ -n "$PROGRAM_KEYPAIR" ] && [ -f "$PROGRAM_KEYPAIR" ]; then
+	KP=$(solana-keygen pubkey "$PROGRAM_KEYPAIR")
+	if [ "$KP" != "$DRIFT_DEVNET_PROGRAM_ID" ]; then
+		echo "PROGRAM_KEYPAIR pubkey $KP != DRIFT_DEVNET_PROGRAM_ID $DRIFT_DEVNET_PROGRAM_ID" >&2
+		exit 1
+	fi
+fi
+
+mkdir -p "$(dirname "$BUFFER_ACCOUNT_KEYPAIR")"
+if [ ! -f "$BUFFER_ACCOUNT_KEYPAIR" ]; then
+	solana-keygen new --no-bip39-passphrase -s -o "$BUFFER_ACCOUNT_KEYPAIR"
+fi
+
+solana program write-buffer "$PROGRAM_SO" \
+	-u "$SOLANA_RPC" \
+	--buffer "$BUFFER_ACCOUNT_KEYPAIR" \
+	--buffer-authority "$BUFFER_AUTHORITY" \
+	--fee-payer "$FEE_PAYER"
+
+BUFFER_PK=$(solana-keygen pubkey "$BUFFER_ACCOUNT_KEYPAIR")
+echo ""
+echo "Buffer keypair file: $BUFFER_ACCOUNT_KEYPAIR"
+echo "Buffer pubkey: $BUFFER_PK"
+echo ""
+echo "Initial deploy from this buffer:"
+echo "  BUFFER_ACCOUNT_KEYPAIR=$BUFFER_ACCOUNT_KEYPAIR PROGRAM_KEYPAIR=<your-$DRIFT_DEVNET_PROGRAM_ID.json> \\"
+echo "    bash deploy-scripts/deploy-from-buffer-devnet.sh"

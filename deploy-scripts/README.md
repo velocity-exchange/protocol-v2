@@ -9,7 +9,25 @@ Devnet deployment scripts for the drift program. The devnet quote token is **dUS
    bash deploy-scripts/build-devnet.sh
    ```
    Builds `drift` (no default features, no mainnet-beta gate) and `token_faucet` (used to distribute devnet dUSDT).
-2. **Deploy** (first time — fresh programs): use `anchor deploy --program-name drift` and `anchor deploy --program-name token_faucet` with the devnet cluster and your admin keypair; for subsequent upgrades use `bash deploy-scripts/deploy-devnet.sh`.
+2. **Deploy** (first time — fresh programs):
+   - **Vanity program id + buffer (recommended for large drift.so uploads):** Build (`bash deploy-scripts/build-devnet.sh`), save your **program keypair JSON** whose pubkey is `DRIFT_DEVNET_PROGRAM_ID` under `deploy-scripts/out/` (gitignored). If you only have a recovery phrase / seed words, recover once:
+     ```
+     solana-keygen recover ASK -o deploy-scripts/out/drift-program-devnet.json --skip-seed-phrase-validation
+     ```
+     …paste your phrase when prompted (pass `--skip-seed-phrase-validation` if the words are not on the BIP39 English list). Then create the on-chain buffer and deploy from it:
+     ```
+     export DRIFT_DEVNET_UPGRADE_KEYPAIR=/path/to/admin-or-buffer-authority.json
+     export PROGRAM_KEYPAIR=$PWD/deploy-scripts/out/drift-program-devnet.json
+     bash deploy-scripts/write-buffer-devnet.sh
+     BUFFER_ACCOUNT_KEYPAIR=$PWD/deploy-scripts/out/drift-so-write-buffer-keypair.json \
+       PROGRAM_KEYPAIR=$PROGRAM_KEYPAIR bash deploy-scripts/deploy-from-buffer-devnet.sh
+     ```
+     If your vanity run only printed a short “seed” (e.g. `6IPs6rIASB0S38TO`), treat it as the custom word or passphrase your tool uses with the rest of its output; the on-chain program id must be `vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P` — confirm with `solana-keygen pubkey` on the recovered JSON.
+     Prefer a **private devnet RPC** via `SOLANA_RPC` or `RPC_URL` so `write-buffer` does not hit rate limits.
+
+   - **Alternatively:** `anchor deploy --program-name drift` … `anchor deploy --program-name token_faucet` with devnet and `PROGRAM_KEYPAIR` / `--program-keypair`.
+
+   For **subsequent upgrades** (same program id): `bash deploy-scripts/deploy-devnet.sh`. Export `DRIFT_DEVNET_PROGRAM_ID` if it differs from the default in `deploy-scripts/deploy-devnet.sh`, and `DRIFT_DEVNET_UPGRADE_KEYPAIR` (path to the upgrade authority keypair), or legacy `SOLANA_PATH` + `DEVNET_ADMIN`.
 3. **Sync IDL** into the SDK so the init script sees current instruction shapes:
    ```
    anchor build -- --features anchor-test && cp target/idl/drift.json sdk/src/idl/drift.json
@@ -76,7 +94,7 @@ Skipped by design (left for later):
 After the script finishes, confirm:
 
 ```
-solana program show dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH --url devnet
+solana program show vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P --url devnet
 ```
 
 Then inspect the receipt for every PDA and cross-check with `solana account <pubkey> --url devnet`.
