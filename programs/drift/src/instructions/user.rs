@@ -23,7 +23,7 @@ use crate::controller::spot_position::{
     update_spot_balances_and_cumulative_deposits,
     update_spot_balances_and_cumulative_deposits_with_limits,
 };
-use crate::error::{DriftResult, ErrorCode};
+use crate::error::ErrorCode;
 use crate::get_then_update_id;
 use crate::ids::admin_hot_wallet;
 use crate::ids::{
@@ -111,7 +111,7 @@ use crate::validation::user::validate_user_deletion;
 use crate::validation::whitelist::validate_whitelist_token;
 use crate::{controller, math};
 use crate::{load_mut, ExchangeStatus};
-use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
+use anchor_lang::prelude::borsh::BorshDeserialize;
 use solana_program::sysvar::instructions;
 use solana_program::sysvar::instructions::ID as IX_ID;
 
@@ -4098,6 +4098,12 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
         "user bankrupt"
     )?;
 
+    validate!(
+        !user.is_being_liquidated(),
+        ErrorCode::UserIsBeingLiquidated,
+        "user is being liquidated"
+    )?;
+
     let AccountMaps {
         perp_market_map,
         spot_market_map,
@@ -4211,6 +4217,17 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
         } else {
             position.base_asset_amount
         };
+
+        validate!(
+            transfer_amount.unsigned_abs()
+                <= market
+                    .amm
+                    .base_asset_amount_with_amm
+                    .cast::<i64>()?
+                    .unsigned_abs(),
+            ErrorCode::InvalidTransferPerpPosition,
+            "transfer amount exceeds amm exposure"
+        )?;
 
         (transfer_amount, direction_to_close)
     };
