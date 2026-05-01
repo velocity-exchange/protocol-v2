@@ -344,17 +344,24 @@ describe('LP Pool', () => {
 		}
 	});
 
-	it('lp pool swap', async () => {
-		let spotOracle = adminClient.getOracleDataForSpotMarket(1);
-		const price1 = convertToNumber(spotOracle.price);
+		it('lp pool swap', async () => {
+			let spotOracle = adminClient.getOracleDataForSpotMarket(1);
+			const price1 = convertToNumber(spotOracle.price);
 
-		await setFeedPriceNoProgram(bankrunContextWrapper, 224.3, spotMarketOracle);
+			await setFeedPriceNoProgram(bankrunContextWrapper, 224.3, spotMarketOracle);
+			await bankrunContextWrapper.connection.updateSlotAndClock();
 
-		await adminClient.fetchAccounts();
-
-		spotOracle = adminClient.getOracleDataForSpotMarket(1);
-		const price2 = convertToNumber(spotOracle.price);
-		assert(price2 > price1);
+			let price2 = price1;
+			for (let i = 0; i < 20; i++) {
+				await adminClient.fetchAccounts();
+				spotOracle = adminClient.getOracleDataForSpotMarket(1);
+				price2 = convertToNumber(spotOracle.price);
+				if (price2 > price1) {
+					break;
+				}
+				await sleep(250);
+			}
+			assert(price2 > price1, `expected oracle price to increase: ${price1} -> ${price2}`);
 
 		const const0TokenAccount = getConstituentVaultPublicKey(
 			program.programId,
