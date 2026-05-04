@@ -1,5 +1,5 @@
 #!/bin/sh
-return 0 # skip husky for now
+exit 0 # skip husky for now
 . "$(dirname "$0")/_/husky.sh"
 
 yarn prettify

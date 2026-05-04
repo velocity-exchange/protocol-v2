@@ -1,0 +1,45 @@
+name: Claude Security Review
+
+# AI-powered security review of PR diffs covering programs/drift/ (Rust) and
+# sdk/src/ (TypeScript). Advisory only: posts findings as PR comments and
+# never blocks the merge.
+#
+# Prerequisite: repo or org secret CLAUDE_SECURITY_API_KEY must be set.
+
+on:
+  pull_request:
+    branches:
+      - master
+      - devnet
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: claude-security-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  security-review:
+    name: Claude Security Review
+    runs-on: ubicloud
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude security review
+        # Advisory mode — never fail the job on findings; reviewers triage PR comments.
+        continue-on-error: true
+        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda # main @ 2026-02-11
+        with:
+          claude-api-key: ${{ secrets.CLAUDE_SECURITY_API_KEY }}
+          claude-model: claude-opus-4-7
+          comment-pr: 'true'
+          false-positive-filtering-instructions: .github/claude-security-guidance.md
+          # Action only supports directory exclusions (not file globs). File-level
+          # exclusions (e.g. sdk/src/idl/drift.json, **/*.md) are handled in the
+          # guidance file above.
+          exclude-directories: tests,target,node_modules,sdk/lib,sdk/dist
