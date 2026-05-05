@@ -7215,6 +7215,35 @@ export type Drift = {
 			];
 		},
 		{
+			name: 'specialTransferPerpPositionToVamm';
+			discriminator: [39, 111, 187, 243, 18, 139, 223, 1];
+			accounts: [
+				{
+					name: 'user';
+					writable: true;
+				},
+				{
+					name: 'authority';
+					signer: true;
+				},
+				{
+					name: 'state';
+				},
+			];
+			args: [
+				{
+					name: 'marketIndex';
+					type: 'u16';
+				},
+				{
+					name: 'amount';
+					type: {
+						option: 'i64';
+					};
+				},
+			];
+		},
+		{
 			name: 'sweepFuel';
 			discriminator: [175, 107, 19, 56, 165, 241, 43, 69];
 			accounts: [
@@ -10055,6 +10084,29 @@ export type Drift = {
 							name: 'spotFulfillmentConfigStatus';
 						};
 					};
+				},
+			];
+		},
+		{
+			name: 'updateSpecialUserStatus';
+			discriminator: [23, 237, 166, 194, 38, 7, 41, 45];
+			accounts: [
+				{
+					name: 'admin';
+					signer: true;
+				},
+				{
+					name: 'state';
+				},
+				{
+					name: 'user';
+					writable: true;
+				},
+			];
+			args: [
+				{
+					name: 'status';
+					type: 'u8';
 				},
 			];
 		},
@@ -21124,9 +21176,14 @@ export type Drift = {
 						type: 'u32';
 					},
 					{
+						name: 'specialUserStatus';
+						docs: ['Whether the user is a special user (vamm hedger, etc)'];
+						type: 'u8';
+					},
+					{
 						name: 'padding';
 						type: {
-							array: ['u8', 12];
+							array: ['u8', 11];
 						};
 					},
 				];

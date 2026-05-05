@@ -28,6 +28,37 @@ import { startAnchor } from 'solana-bankrun';
 import { TestBulkAccountLoader } from '../sdk/src/accounts/testBulkAccountLoader';
 import { BankrunContextWrapper } from '../sdk/src/bankrun/bankrunConnection';
 
+async function waitForOraclePrice(
+	getOraclePrice: () => { price: BN },
+	expectedPrice: BN,
+	timeoutMs = 10000
+) {
+	const start = Date.now();
+	let lastPrice: BN | undefined;
+	let lastError: Error | undefined;
+
+	while (Date.now() - start < timeoutMs) {
+		try {
+			const oraclePrice = getOraclePrice();
+			lastPrice = oraclePrice.price;
+			if (lastPrice.eq(expectedPrice)) {
+				return oraclePrice;
+			}
+		} catch (e) {
+			lastError = e as Error;
+		}
+
+		await sleep(250);
+	}
+
+	assert(
+		false,
+		`Timed out waiting for oracle price ${expectedPrice.toString()}. Last price: ${
+			lastPrice?.toString() ?? 'none'
+		}. Last error: ${lastError?.message ?? 'none'}`
+	);
+}
+
 describe('switch oracles', () => {
 	const chProgram = anchor.workspace.Drift as Program;
 
@@ -221,6 +252,12 @@ describe('switch oracles', () => {
 
 		const newSolOracle = await mockOracleNoProgram(bankrunContextWrapper, 100);
 
+		const perpOraclePriceBefore = await driftClient.getOracleDataForPerpMarket(
+			0
+		);
+		console.log('oraclePriceBefore', perpOraclePriceBefore.price.toNumber());
+		assert(perpOraclePriceBefore.price.eq(PRICE_PRECISION.muln(30)));
+
 		await admin.updatePerpMarketOracle(
 			0,
 			newSolOracle,
@@ -228,18 +265,15 @@ describe('switch oracles', () => {
 			true
 		);
 
-		const perpOraclePriceBefore = await driftClient.getOracleDataForPerpMarket(
-			0
+		await waitForOraclePrice(
+			() => driftClient.getOracleDataForPerpMarket(0),
+			PRICE_PRECISION.muln(100)
 		);
-		console.log('oraclePriceBefore', perpOraclePriceBefore.price.toNumber());
-		assert(perpOraclePriceBefore.price.eq(PRICE_PRECISION.muln(30)));
 
-		await sleep(5000);
-
-		const perpOraclePriceAfter = await driftClient.getOracleDataForPerpMarket(
-			0
+		const spotOraclePriceBefore = await driftClient.getOracleDataForSpotMarket(
+			1
 		);
-		assert(perpOraclePriceAfter.price.eq(PRICE_PRECISION.muln(100)));
+		assert(spotOraclePriceBefore.price.eq(PRICE_PRECISION.muln(30)));
 
 		await admin.updateSpotMarketOracle(
 			1,
@@ -248,17 +282,10 @@ describe('switch oracles', () => {
 			true
 		);
 
-		const spotOraclePriceBefore = await driftClient.getOracleDataForSpotMarket(
-			1
+		await waitForOraclePrice(
+			() => driftClient.getOracleDataForSpotMarket(1),
+			PRICE_PRECISION.muln(100)
 		);
-		assert(spotOraclePriceBefore.price.eq(PRICE_PRECISION.muln(30)));
-
-		await sleep(1000);
-
-		const spotOraclePriceAfter = await driftClient.getOracleDataForSpotMarket(
-			1
-		);
-		assert(spotOraclePriceAfter.price.eq(PRICE_PRECISION.muln(100)));
 
 		await driftClient.unsubscribe();
 	});

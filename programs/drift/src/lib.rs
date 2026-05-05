@@ -2163,6 +2163,21 @@ pub mod drift {
     ) -> Result<()> {
         handle_transfer_fee_and_pnl_pool(ctx, amount, direction)
     }
+
+    pub fn update_special_user_status<'c: 'info, 'info>(
+        ctx: Context<UpdateSpecialUserStatus>,
+        status: u8,
+    ) -> Result<()> {
+        handle_update_special_user_status(ctx, status)
+    }
+
+    pub fn special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
+        ctx: Context<'info, SpecialTransferPerpPositionToVamm<'info>>,
+        market_index: u16,
+        amount: Option<i64>,
+    ) -> Result<()> {
+        handle_special_transfer_perp_position_to_vamm(ctx, market_index, amount)
+    }
 }
 
 #[cfg(not(feature = "no-entrypoint"))]

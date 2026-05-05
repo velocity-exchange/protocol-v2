@@ -4,7 +4,7 @@ set -e
 trap 'echo -e "\nStopped by signal $? (SIGINT)"; exit 0' INT
 
 if [ "$1" != "--skip-build" ]; then
-  anchor build --ignore-keys -- --features anchor-test && anchor test --skip-build &&
+  anchor build --ignore-keys -- --features anchor-test && anchor test --skip-build --skip-local-validator --skip-deploy &&
     cp target/idl/drift.json sdk/src/idl/ && cp target/types/drift.ts sdk/src/idl/
 fi
 
@@ -97,6 +97,7 @@ test_files=(
   perpMarketConfig.ts
   # whitelist.ts
   transferFeeAndPnlPool.ts
+  specialUserAccount.ts
 )
 
 

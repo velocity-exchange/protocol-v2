@@ -36,7 +36,7 @@ use crate::instructions::optional_accounts::{
 };
 use crate::load;
 use crate::math::casting::Cast;
-use crate::math::constants::THIRTEEN_DAY;
+use crate::math::constants::{MAX_BASE_ASSET_AMOUNT_WITH_AMM, THIRTEEN_DAY};
 use crate::math::liquidation::is_cross_margin_being_liquidated;
 use crate::math::margin::calculate_margin_requirement_and_total_collateral_and_liability_info;
 use crate::math::margin::meets_initial_margin_requirement;
@@ -98,12 +98,12 @@ use crate::state::spot_market_map::{
 };
 use crate::state::state::State;
 use crate::state::traits::Size;
-use crate::state::user::Order;
 use crate::state::user::OrderStatus;
 use crate::state::user::ReferrerStatus;
 use crate::state::user::{
     FuelOverflow, FuelOverflowProvider, MarketType, OrderType, ReferrerName, User, UserStats,
 };
+use crate::state::user::{Order, SpecialUserStatus};
 use crate::state::user_map::load_user_maps;
 use crate::validate;
 use crate::validation::position::validate_perp_position_with_perp_market;
@@ -4071,6 +4071,240 @@ pub fn handle_end_swap<'c: 'info, 'info>(
     Ok(())
 }
 
+#[access_control(
+    fill_not_paused(&ctx.accounts.state)
+)]
+pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
+    ctx: Context<'info, SpecialTransferPerpPositionToVamm<'info>>,
+    market_index: u16,
+    amount: Option<i64>,
+) -> Result<()> {
+    let user_key = ctx.accounts.user.key();
+    let state = &ctx.accounts.state;
+    let clock = Clock::get()?;
+    let slot = clock.slot;
+    let now = clock.unix_timestamp;
+    let mut user = load_mut!(ctx.accounts.user)?;
+
+    validate!(
+        user.special_user_status == SpecialUserStatus::VammHedger as u8,
+        ErrorCode::DefaultError,
+        "user is not a special account user (vamm hedger)"
+    )?;
+
+    validate!(
+        !user.is_bankrupt(),
+        ErrorCode::UserBankrupt,
+        "user bankrupt"
+    )?;
+
+    validate!(
+        !user.is_being_liquidated(),
+        ErrorCode::UserIsBeingLiquidated,
+        "user is being liquidated"
+    )?;
+
+    let AccountMaps {
+        perp_market_map,
+        spot_market_map,
+        mut oracle_map,
+    } = load_maps(
+        &mut ctx.remaining_accounts.iter().peekable(),
+        &get_writable_perp_market_set(market_index),
+        &MarketSet::new(),
+        clock.slot,
+        Some(state.oracle_guard_rails),
+    )?;
+
+    controller::repeg::update_amm(
+        market_index,
+        &perp_market_map,
+        &mut oracle_map,
+        &ctx.accounts.state,
+        &clock,
+    )?;
+
+    settle_funding_payment(
+        &mut user,
+        &user_key,
+        perp_market_map.get_ref_mut(&market_index)?.deref_mut(),
+        now,
+    )?;
+
+    let step_size;
+    let tick_size;
+    let oracle_price;
+    let oi_before;
+    {
+        let perp_market = perp_market_map.get_ref(&market_index)?;
+        oi_before = perp_market.get_open_interest();
+
+        validate!(
+            !perp_market.is_operation_paused(PerpOperation::Fill),
+            ErrorCode::InvalidTransferPerpPosition,
+            "perp market fills paused"
+        )?;
+
+        let (oracle_price_data, oracle_validity) = oracle_map.get_price_data_and_validity(
+            MarketType::Perp,
+            market_index,
+            &perp_market.oracle_id(),
+            perp_market
+                .amm
+                .historical_oracle_data
+                .last_oracle_price_twap,
+            perp_market.get_max_confidence_interval_multiplier()?,
+            perp_market.amm.oracle_slot_delay_override,
+            perp_market.amm.oracle_low_risk_slot_delay_override,
+            Some(LogMode::Margin),
+        )?;
+
+        validate!(
+            is_oracle_valid_for_action(oracle_validity, Some(DriftAction::MarginCalc))?,
+            ErrorCode::InvalidTransferPerpPosition,
+            "oracle is not valid for action"
+        )?;
+
+        step_size = perp_market.amm.order_step_size;
+        tick_size = perp_market.amm.order_tick_size;
+        oracle_price = oracle_price_data.price;
+    }
+
+    let (transfer_amount, direction_to_close) = {
+        let position = user.force_get_perp_position_mut(market_index)?;
+
+        validate!(
+            position.base_asset_amount != 0,
+            ErrorCode::InvalidTransferPerpPosition,
+            "user has no position in market"
+        )?;
+
+        let market = perp_market_map.get_ref(&market_index)?;
+
+        validate!(
+            position.base_asset_amount.signum()
+                == market
+                    .amm
+                    .base_asset_amount_with_amm
+                    .cast::<i64>()?
+                    .signum(),
+            ErrorCode::InvalidTransferPerpPosition,
+            "user position must be opposite of vamm's inventory"
+        )?;
+
+        let direction_to_close = position.get_direction_to_close();
+
+        let transfer_amount = if let Some(amount) = amount {
+            validate!(
+                amount.signum() == position.base_asset_amount.signum(),
+                ErrorCode::InvalidTransferPerpPosition,
+                "amount direction must match position direction"
+            )?;
+
+            validate!(
+                amount.abs() <= position.base_asset_amount.abs(),
+                ErrorCode::InvalidTransferPerpPosition,
+                "amount exceeds position size"
+            )?;
+
+            validate!(
+                is_multiple_of_step_size(amount.unsigned_abs(), step_size)?,
+                ErrorCode::InvalidTransferPerpPosition,
+                "amount is not a multiple of step size"
+            )?;
+
+            amount
+        } else {
+            position.base_asset_amount
+        };
+
+        validate!(
+            transfer_amount.unsigned_abs()
+                <= market
+                    .amm
+                    .base_asset_amount_with_amm
+                    .cast::<i64>()?
+                    .unsigned_abs(),
+            ErrorCode::InvalidTransferPerpPosition,
+            "transfer amount exceeds amm exposure"
+        )?;
+
+        (transfer_amount, direction_to_close)
+    };
+
+    let transfer_amount_abs = transfer_amount.unsigned_abs();
+    let transfer_price =
+        standardize_price_i64(oracle_price, tick_size.cast()?, direction_to_close)?;
+
+    let base_asset_value = calculate_base_asset_value_with_oracle_price(
+        transfer_amount.cast::<i128>()?,
+        transfer_price,
+    )?
+    .cast::<u64>()?;
+
+    let position_delta =
+        get_position_delta_for_fill(transfer_amount_abs, base_asset_value, direction_to_close)?;
+
+    {
+        let mut market = perp_market_map.get_ref_mut(&market_index)?;
+        let position = user.force_get_perp_position_mut(market_index)?;
+
+        update_position_and_market(position, &mut market, &position_delta)?;
+
+        market.amm.base_asset_amount_with_amm = market
+            .amm
+            .base_asset_amount_with_amm
+            .safe_add(position_delta.base_asset_amount.cast()?)?;
+
+        validate!(
+            market.amm.base_asset_amount_with_amm.unsigned_abs() <= MAX_BASE_ASSET_AMOUNT_WITH_AMM,
+            ErrorCode::InvalidAmmDetected,
+            "base_asset_amount_with_amm exceeds max"
+        )?;
+
+        controller::amm::update_spread_reserves(&mut market)?;
+    }
+
+    let user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance)
+        .fuel_perp_delta(market_index, transfer_amount);
+
+    let user_margin_calculation =
+        calculate_margin_requirement_and_total_collateral_and_liability_info(
+            &user,
+            &perp_market_map,
+            &spot_market_map,
+            &mut oracle_map,
+            user_margin_context,
+        )?;
+
+    validate!(
+        user_margin_calculation.meets_margin_requirement(),
+        ErrorCode::InsufficientCollateral,
+        "user margin requirement is greater than total collateral"
+    )?;
+
+    let oi_after = perp_market_map.get_ref(&market_index)?.get_open_interest();
+
+    validate!(
+        oi_after <= oi_before,
+        ErrorCode::InvalidTransferPerpPosition,
+        "open interest must not increase after special transfer. oi_before: {}, oi_after: {}",
+        oi_before,
+        oi_after
+    )?;
+
+    user.update_last_active_slot(slot);
+
+    msg!(
+        "user {:?} transferred {} base to vamm in market {}",
+        user.authority,
+        transfer_amount,
+        market_index
+    );
+
+    Ok(())
+}
+
 #[derive(Accounts)]
 #[instruction(
     sub_account_id: u16,
@@ -4899,4 +5133,15 @@ pub struct ChangeApprovedBuilder<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct SpecialTransferPerpPositionToVamm<'info> {
+    #[account(
+        mut,
+        constraint = can_sign_for_user(&user, &authority)?
+    )]
+    pub user: AccountLoader<'info, User>,
+    pub authority: Signer<'info>,
+    pub state: Box<Account<'info, State>>,
 }

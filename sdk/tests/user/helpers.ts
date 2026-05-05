@@ -96,6 +96,7 @@ export const mockUserAccount: UserAccount = {
 	hasOpenAuction: false,
 	lastFuelBonusUpdateTs: 0,
 	poolId: 0,
+	specialUserStatus: 0,
 };
 
 export async function makeMockUser(
