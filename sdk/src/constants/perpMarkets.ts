@@ -25,7 +25,7 @@ export const DevnetPerpMarkets: PerpMarketConfig[] = [
 		symbol: 'SOL-PERP',
 		baseAssetSymbol: 'SOL',
 		marketIndex: 0,
-		oracle: new PublicKey('57ZE6W8mGWPQokUHjyfTAexvVLK8xuMbWn9HGg6fG7oW'),
+		oracle: new PublicKey('2k3UHX6ehRFzx5fTVvbL6FwXhMjkucjJDL9MuVKLo8TV'),
 		launchTs: 1655751353000,
 		oracleSource: OracleSource.PYTH_LAZER,
 		pythLazerId: 6,

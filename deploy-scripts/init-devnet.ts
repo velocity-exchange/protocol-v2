@@ -2,30 +2,35 @@
  * Devnet initialization runbook for the drift program.
  *
  * Run AFTER `anchor deploy` has published the drift and token_faucet programs
- * to devnet. Executes phases 0 + A–G from
- * .claude/plans/drift-devnet-deployment.md:
+ * to devnet. Executes phases 0 + A–H:
  *
- *   0) create USDT SPL mint + initialize token_faucet for distribution
- *   A) global state + amm cache
- *   B) USDT spot market at index 0
- *   C) Pyth Lazer SOL/USD oracle
- *   C2) SOL spot market at index 1 (uses same Pyth Lazer oracle as SOL-PERP)
- *   D) SOL-PERP at index 0
- *   E) ProtocolIfSharesTransferConfig
- *   F) LP pool + USDT constituent
- *   G) ProtectedMakerModeConfig
+ *   0)  create dUSDT SPL mint + initialize token_faucet for distribution
+ *   A)  global state + amm cache
+ *   B)  dUSDT spot market at index 0 (oracle source forced to QuoteAsset by program)
+ *   C)  Pyth Lazer SOL + USDT oracle PDAs (created empty)
+ *   C+) post initial Pyth Lazer signed price update for SOL + USDT (one tx)
+ *   C2) SOL spot market at index 1 (uses SOL Pyth Lazer oracle)
+ *   D)  SOL-PERP at index 0 (uses SOL Pyth Lazer oracle)
+ *   E)  ProtocolIfSharesTransferConfig
+ *   F)  LP pool + dUSDT constituent
+ *   G)  ProtectedMakerModeConfig
+ *   H)  switch dUSDT spot market oracle to PythLazerStableCoin pointing at USDT lazer PDA
  *
  * Idempotent: every phase checks whether its destination PDA already exists on
  * chain and skips if so. Safe to re-run after partial failure. Phase 0 reuses
  * the mint recorded in the receipt on re-runs.
  *
  * Required env:
- *   DEVNET_ADMIN        path to admin keypair file (becomes State.admin — immutable)
- *   SOL_LAZER_FEED_ID   Pyth Lazer u32 feed id for SOL/USD
+ *   DEVNET_ADMIN          path to admin keypair file (becomes State.admin — immutable)
+ *   SOL_LAZER_FEED_ID     Pyth Lazer u32 feed id for SOL/USD
+ *   PYTH_LAZER_TOKEN      auth token for the Pyth Lazer relay (needed to post initial prices)
  * Optional env:
- *   USDT_MINT           existing devnet USDT SPL mint (6 decimals). If unset, a
- *                       fresh mint is created in Phase 0 and persisted to the
- *                       receipt; subsequent runs reuse it.
+ *   USDT_LAZER_FEED_ID    Pyth Lazer u32 feed id for USDT/USD (default 8)
+ *   PYTH_LAZER_ENDPOINTS  comma-separated WSS endpoints (default wss://pyth-lazer.dourolabs.app/v1/stream)
+ *   PYTH_LAZER_WAIT_MS    milliseconds to wait for first price message (default 30000)
+ *   USDT_MINT             existing devnet USDT SPL mint (6 decimals). If unset, a
+ *                         fresh mint is created in Phase 0 and persisted to the
+ *                         receipt; subsequent runs reuse it.
  *   USDT_MINT_KEYPAIR   path to keypair for the USDT mint (vanity address).
  *                       If unset, a random keypair is generated and saved next
  *                       to the receipt as usdt-mint.json.
@@ -70,6 +75,7 @@ import {
 	PEG_PRECISION,
 	PERCENTAGE_PRECISION,
 	PRICE_PRECISION,
+	PythLazerSubscriber,
 	QUOTE_PRECISION,
 	SPOT_MARKET_RATE_PRECISION,
 	SPOT_MARKET_WEIGHT_PRECISION,
@@ -221,6 +227,22 @@ async function main() {
 	if (!Number.isFinite(solLazerFeedId) || solLazerFeedId < 0) {
 		throw new Error('SOL_LAZER_FEED_ID must be a non-negative integer');
 	}
+	const usdtLazerFeedId = Number(process.env.USDT_LAZER_FEED_ID ?? 8);
+	if (!Number.isFinite(usdtLazerFeedId) || usdtLazerFeedId < 0) {
+		throw new Error('USDT_LAZER_FEED_ID must be a non-negative integer');
+	}
+	// Posting prices is required because non-quote spot markets and perp markets
+	// validate `get_oracle_price` succeeds at init, and `update_spot_market_oracle`
+	// rejects an oracle that can't be read. PYTH_LAZER_TOKEN is mandatory.
+	const pythLazerToken = requireEnv('PYTH_LAZER_TOKEN');
+	const pythLazerEndpoints = (
+		process.env.PYTH_LAZER_ENDPOINTS ??
+		'wss://pyth-lazer.dourolabs.app/v1/stream'
+	)
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
+	const pythLazerWaitMs = Number(process.env.PYTH_LAZER_WAIT_MS ?? 30_000);
 	const lpPoolId = Number(process.env.LP_POOL_ID ?? 1);
 	const lpMaxAum = new BN(process.env.LP_MAX_AUM ?? '1000000').mul(
 		QUOTE_PRECISION
@@ -266,6 +288,8 @@ async function main() {
 		`usdt mint:     ${usdtMint ? usdtMint.toBase58() : '(will create in Phase 0)'}`
 	);
 	console.log(`sol lazer fid: ${solLazerFeedId}`);
+	console.log(`usdt lazer fid:${usdtLazerFeedId}`);
+	console.log(`lazer endpoints: ${pythLazerEndpoints.join(',')}`);
 	console.log(`lp pool id:    ${lpPoolId}`);
 
 	// === Pre-flight: verify program + mint are live, show admin balance ===
@@ -306,6 +330,8 @@ async function main() {
 		}`,
 		`USDT supply:    ${usdtInitialSupplyWhole.toString()} tokens pre-mint to admin (before faucet takes authority)`,
 		`SOL Lazer feed: ${solLazerFeedId}`,
+		`USDT Lazer feed:${usdtLazerFeedId}`,
+		`Lazer endpoints:${pythLazerEndpoints.join(',')}`,
 		`LP pool id:     ${lpPoolId}`,
 		`LP max AUM:     ${lpMaxAum.toString()} (raw, QUOTE_PRECISION units)`,
 		`PMM max users:  ${protectedMakerMaxUsers}`,
@@ -570,25 +596,105 @@ async function main() {
 		await client.fetchAccounts();
 	}
 
-	await confirm('Begin Phase C — Pyth Lazer SOL/USD oracle?', [
-		`feed id = ${solLazerFeedId}`,
-		'Resulting PythLazerOracle PDA is the oracle for SOL-PERP in the next phase.',
+	await confirm('Begin Phase C — Pyth Lazer SOL + USDT oracles?', [
+		`SOL feed id  = ${solLazerFeedId}`,
+		`USDT feed id = ${usdtLazerFeedId} (used after init to switch dUSDT spot market)`,
+		'Both PDAs are created empty here; prices are posted in the next phase.',
 	]);
-	// === Phase C: Pyth Lazer SOL/USD oracle ===
+	// === Phase C: Pyth Lazer oracle PDAs (SOL + USDT) ===
 	const lazerPk = getPythLazerOraclePublicKey(programId, solLazerFeedId);
-	if (await pdaExists(connection, lazerPk)) {
-		logStep(
-			`Pyth Lazer oracle (feed ${solLazerFeedId}) already initialized`,
-			lazerPk.toBase58()
+	const usdtLazerPk = getPythLazerOraclePublicKey(programId, usdtLazerFeedId);
+	for (const [feedId, pk, label] of [
+		[solLazerFeedId, lazerPk, 'SOL'],
+		[usdtLazerFeedId, usdtLazerPk, 'USDT'],
+	] as const) {
+		if (await pdaExists(connection, pk)) {
+			logStep(
+				`Pyth Lazer oracle (${label} feed ${feedId}) already initialized`,
+				pk.toBase58()
+			);
+			receipt.pythLazerOracles[feedId] = { pubkey: pk.toBase58() };
+		} else {
+			logStep(`initializePythLazerOracle ${label} feed=${feedId}`);
+			const txSig = await client.initializePythLazerOracle(feedId);
+			receipt.pythLazerOracles[feedId] = {
+				pubkey: pk.toBase58(),
+				txSig,
+			};
+		}
+	}
+
+	// === Phase C+: post initial Pyth Lazer prices to both oracles ===
+	// Required because:
+	//   - Phase C2 (SOL spot market) calls `get_oracle_price` on the SOL oracle.
+	//   - Phase D  (SOL-PERP)        calls `get_oracle_price` on the SOL oracle.
+	//   - Phase H  (dUSDT switch)    calls `get_oracle_price` on the USDT oracle.
+	// All three fail if the oracle account has no published price yet.
+	await confirm(
+		'Begin Phase C+ — post initial Pyth Lazer prices for SOL + USDT?',
+		[
+			`feeds = [${solLazerFeedId}, ${usdtLazerFeedId}]`,
+			`subscribing to ${pythLazerEndpoints.join(', ')}`,
+			`waiting up to ${pythLazerWaitMs}ms for first signed message`,
+			'Posts a single tx that updates both PythLazerOracle PDAs.',
+		]
+	);
+	{
+		const feedIds = [solLazerFeedId, usdtLazerFeedId];
+		// IMPORTANT: must include `feedUpdateTimestamp`. The on-chain
+		// post_pyth_lazer_oracle_update silently skips messages without it
+		// ("Skipping lazer price update. next_timestamp is None"). bestBid/Ask
+		// feed the on-chain conf calculation; falls back to 20bps if absent.
+		const subscriber = new PythLazerSubscriber(
+			pythLazerEndpoints,
+			pythLazerToken,
+			[{ priceFeedIds: feedIds }],
+			'devnet',
+			2000,
+			false,
+			[
+				'price',
+				'bestAskPrice',
+				'bestBidPrice',
+				'exponent',
+				'feedUpdateTimestamp',
+			]
 		);
-		receipt.pythLazerOracles[solLazerFeedId] = { pubkey: lazerPk.toBase58() };
-	} else {
-		logStep(`initializePythLazerOracle feed=${solLazerFeedId}`);
-		const txSig = await client.initializePythLazerOracle(solLazerFeedId);
-		receipt.pythLazerOracles[solLazerFeedId] = {
-			pubkey: lazerPk.toBase58(),
-			txSig,
-		};
+		logStep('PythLazerSubscriber.subscribe()');
+		await subscriber.subscribe();
+
+		const deadline = Date.now() + pythLazerWaitMs;
+		let messageHex: string | undefined;
+		while (Date.now() < deadline) {
+			const messages = Array.from(
+				subscriber.feedIdChunkToPriceMessage.values()
+			);
+			if (messages.length > 0) {
+				messageHex = messages[0];
+				break;
+			}
+			await new Promise((r) => setTimeout(r, 250));
+		}
+		try {
+			await subscriber.unsubscribe();
+		} catch {
+			/* ignore */
+		}
+
+		if (!messageHex) {
+			throw new Error(
+				`Timed out waiting ${pythLazerWaitMs}ms for a Pyth Lazer signed message for feeds [${feedIds.join(
+					', '
+				)}]. Check PYTH_LAZER_TOKEN and that ${pythLazerEndpoints.join(', ')} accepts it.`
+			);
+		}
+
+		logStep(
+			`postPythLazerOracleUpdate feeds=[${feedIds.join(',')}]`,
+			`message length = ${messageHex.length / 2}b`
+		);
+		const postSig = await client.postPythLazerOracleUpdate(feedIds, messageHex);
+		console.log(`  tx: ${postSig}`);
 	}
 
 	const skipPhaseC2 = process.env.SKIP_PHASE_C2 === '1';
@@ -834,6 +940,66 @@ async function main() {
 			protectedMakerMaxUsers
 		);
 		receipt.protectedMakerModeConfig = { pubkey: pmCfgPk.toBase58(), txSig };
+	}
+
+	// === Phase H: switch dUSDT spot market oracle to PythLazerStableCoin ===
+	// The program forces quote spot market init with OracleSource::QuoteAsset
+	// (admin.rs:217-228). After init we switch via update_spot_market_oracle so
+	// downstream code paths that expect a stable-coin oracle work. Idempotent:
+	// re-runs detect the existing source and skip.
+	const skipPhaseH = process.env.SKIP_PHASE_H === '1';
+	await confirm('Begin Phase H — switch dUSDT spot market oracle to PythLazerStableCoin?', [
+		`new oracle = ${usdtLazerPk.toBase58()} (USDT Pyth Lazer PDA, feed ${usdtLazerFeedId})`,
+		'oracleSource = PYTH_LAZER_STABLE_COIN',
+		'Required because the program forces QuoteAsset at init for spot[0]; this is the post-init swap.',
+		skipPhaseH ? '*** SKIP_PHASE_H=1 set — phase will be SKIPPED ***' : '',
+	]);
+	if (skipPhaseH) {
+		logStep('dUSDT oracle switch SKIPPED via SKIP_PHASE_H=1');
+	} else {
+		// `client` was constructed with spotMarketIndexes=[], so it doesn't carry
+		// the spot[0] account we need to read `oracleSource`/`oracle` from. Spin up
+		// a one-shot client subscribed to spot[0] (mirrors Phase F.2's pattern).
+		await client.unsubscribe();
+		const phaseHClient = new AdminClient({
+			connection,
+			wallet,
+			programID: programId,
+			env: 'devnet',
+			accountSubscription: { type: 'websocket', commitment: 'confirmed' },
+			perpMarketIndexes: [],
+			spotMarketIndexes: [0],
+			oracleInfos: [],
+			skipLoadUsers: true,
+		});
+		await phaseHClient.subscribe();
+		const spot0 = phaseHClient.getSpotMarketAccount(0);
+		if (!spot0) {
+			throw new Error('spot market 0 not found after subscribe');
+		}
+		// OracleSource is a tagged variant; pythLazerStableCoin tag means already-switched.
+		const alreadySwitched =
+			(spot0.oracleSource as any)?.pythLazerStableCoin !== undefined &&
+			spot0.oracle.equals(usdtLazerPk);
+		if (alreadySwitched) {
+			logStep(
+				'dUSDT oracle already PythLazerStableCoin',
+				spot0.oracle.toBase58()
+			);
+		} else {
+			logStep(
+				'updateSpotMarketOracle spot=0 -> PythLazerStableCoin',
+				usdtLazerPk.toBase58()
+			);
+			const txSig = await phaseHClient.updateSpotMarketOracle(
+				0,
+				usdtLazerPk,
+				OracleSource.PYTH_LAZER_STABLE_COIN
+			);
+			console.log(`  tx: ${txSig}`);
+		}
+		await phaseHClient.unsubscribe();
+		await client.subscribe();
 	}
 
 	// === Persist receipt ===
