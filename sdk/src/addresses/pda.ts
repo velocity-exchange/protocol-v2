@@ -368,6 +368,16 @@ export function getProtectedMakerModeConfigPublicKey(
 	)[0];
 }
 
+/** PDA holding warm + per-role hot admin pubkeys (tiered admin authority config). */
+export function getAdminAuthorityConfigPublicKey(
+	programId: PublicKey
+): PublicKey {
+	return PublicKey.findProgramAddressSync(
+		[Buffer.from(anchor.utils.bytes.utf8.encode('admin_authority_config'))],
+		programId
+	)[0];
+}
+
 export function getIfRebalanceConfigPublicKey(
 	programId: PublicKey,
 	inMarketIndex: number,

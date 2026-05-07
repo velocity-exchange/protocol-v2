@@ -28,6 +28,7 @@ use crate::state::spot_market::SpotFulfillmentConfigStatus;
 use crate::state::state::FeeStructure;
 use crate::state::state::*;
 use crate::state::user::MarketType;
+pub mod auth;
 pub mod controller;
 pub mod error;
 pub mod ids;
@@ -1677,8 +1678,30 @@ pub mod drift {
     //     )
     // }
 
-    pub fn update_admin(ctx: Context<AdminUpdateState>, admin: Pubkey) -> Result<()> {
+    pub fn update_admin(ctx: Context<ColdAdminUpdateState>, admin: Pubkey) -> Result<()> {
         handle_update_admin(ctx, admin)
+    }
+
+    pub fn initialize_admin_authority_config(
+        ctx: Context<InitializeAdminAuthorityConfig>,
+        initial_warm_admin: Pubkey,
+    ) -> Result<()> {
+        handle_initialize_admin_authority_config(ctx, initial_warm_admin)
+    }
+
+    pub fn update_warm_admin(
+        ctx: Context<UpdateAdminAuthorityConfigCold>,
+        new_warm_admin: Pubkey,
+    ) -> Result<()> {
+        handle_update_warm_admin(ctx, new_warm_admin)
+    }
+
+    pub fn update_hot_admin(
+        ctx: Context<UpdateAdminAuthorityConfigWarm>,
+        role: crate::state::admin_authority_config::HotRole,
+        new_pubkey: Pubkey,
+    ) -> Result<()> {
+        handle_update_hot_admin(ctx, role, new_pubkey)
     }
 
     // pub fn update_whitelist_mint(

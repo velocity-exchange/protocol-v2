@@ -2,8 +2,11 @@ use anchor_lang::prelude::*;
 use anchor_lang::Discriminator;
 use anchor_spl::token_interface::{TokenAccount, TokenInterface};
 
+use crate::auth::check_hot_loader;
 use crate::error::ErrorCode;
-use crate::ids::{admin_hot_wallet, if_rebalance_wallet};
+use crate::state::admin_authority_config::{
+    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
+};
 use crate::instructions::constraints::*;
 use crate::instructions::optional_accounts::{load_maps, AccountMaps};
 use crate::load_mut;
@@ -1116,9 +1119,11 @@ pub struct TransferProtocolIfShares<'info> {
 #[instruction(in_market_index: u16, out_market_index: u16, )]
 pub struct InsuranceFundSwap<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = authority.key() == if_rebalance_wallet::id() || authority.key() == state.admin
+        constraint = check_hot_loader(&authority.key(), &state, &admin_authority_config, HotRole::IfRebalance)?
     )]
     pub authority: Signer<'info>,
     #[account(
@@ -1163,9 +1168,11 @@ pub struct InsuranceFundSwap<'info> {
 #[instruction(market_index: u16)]
 pub struct TransferProtocolIfSharesToRevenuePool<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = authority.key() == if_rebalance_wallet::id() || authority.key() == state.admin
+        constraint = check_hot_loader(&authority.key(), &state, &admin_authority_config, HotRole::IfRebalance)?
     )]
     pub authority: Signer<'info>,
     #[account(
@@ -1196,11 +1203,13 @@ pub struct TransferProtocolIfSharesToRevenuePool<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16,)]
 pub struct DepositIntoInsuranceFundStake<'info> {
-    pub signer: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
-        mut,
-        constraint = signer.key() == admin_hot_wallet::id() || signer.key() == state.admin
+        constraint = check_hot_loader(&signer.key(), &state, &admin_authority_config, HotRole::IfRebalance)?
     )]
+    pub signer: Signer<'info>,
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
     #[account(
         mut,

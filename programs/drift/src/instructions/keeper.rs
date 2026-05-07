@@ -26,7 +26,10 @@ use crate::controller::spot_balance::update_spot_balances;
 use crate::controller::token::{receive, send_from_program_vault};
 use crate::error::ErrorCode;
 use crate::get_then_update_id;
-use crate::ids::admin_hot_wallet;
+use crate::auth::check_hot_loader;
+use crate::state::admin_authority_config::{
+    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
+};
 use crate::ids::{
     dflow_mainnet_aggregator_4, jupiter_mainnet_3, jupiter_mainnet_4, jupiter_mainnet_6,
     serum_program, titan_mainnet_argos_v1,
@@ -2874,15 +2877,6 @@ pub fn handle_update_user_gov_token_insurance_stake(
 pub fn handle_force_delete_user<'c: 'info, 'info>(
     ctx: Context<'info, ForceDeleteUser<'info>>,
 ) -> Result<()> {
-    #[cfg(not(feature = "anchor-test"))]
-    {
-        validate!(
-            *ctx.accounts.keeper.key == admin_hot_wallet::id(),
-            ErrorCode::DefaultError,
-            "only admin hot wallet can force delete user"
-        )?;
-    }
-
     // Pyra accounts are exempt from force_delete_user
 
     let pyra_program = pubkey!("6JjHXLheGSNvvexgzMthEcgjkcirDrGduc3HAKB2P1v2");
@@ -3429,11 +3423,13 @@ pub fn handle_update_amm_cache<'c: 'info, 'info>(
 #[derive(Accounts)]
 pub struct SettleAmmPnlToLp<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub lp_pool: AccountLoader<'info, LPPool>,
     #[account(
         mut,
-        constraint = keeper.key() == crate::ids::lp_pool_swap_wallet::id() || keeper.key() == admin_hot_wallet::id() || keeper.key() == state.admin.key(),
+        constraint = check_hot_loader(&keeper.key(), &state, &admin_authority_config, HotRole::LpSettle)?,
     )]
     pub keeper: Signer<'info>,
     /// CHECK: checked in AmmCacheZeroCopy checks
@@ -4015,10 +4011,15 @@ pub struct ForceDeleteUser<'info> {
     pub user_stats: AccountLoader<'info, UserStats>,
     #[account(mut)]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     /// CHECK: authority
     #[account(mut)]
     pub authority: AccountInfo<'info>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = check_hot_loader(&keeper.key(), &state, &admin_authority_config, HotRole::UserFlag)?
+    )]
     pub keeper: Signer<'info>,
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,

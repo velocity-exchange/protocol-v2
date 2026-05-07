@@ -11,7 +11,11 @@ use crate::controller;
 use crate::controller::token::{close_vault, initialize_immutable_owner, initialize_token_account};
 use crate::error::ErrorCode;
 use crate::get_then_update_id;
-use crate::ids::{admin_hot_wallet, amm_spread_adjust_wallet, mm_oracle_crank_wallet};
+use crate::auth::{check_hot_loader, check_warm_loader};
+use crate::ids::{amm_spread_adjust_wallet, mm_oracle_crank_wallet};
+use crate::state::admin_authority_config::{
+    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
+};
 use crate::instructions::constraints::*;
 use crate::instructions::optional_accounts::{load_maps, AccountMaps};
 use crate::load;
@@ -4318,7 +4322,7 @@ pub fn handle_update_spot_market_fuel(
     Ok(())
 }
 
-pub fn handle_update_admin(ctx: Context<AdminUpdateState>, admin: Pubkey) -> Result<()> {
+pub fn handle_update_admin(ctx: Context<ColdAdminUpdateState>, admin: Pubkey) -> Result<()> {
     msg!("admin: {:?} -> {:?}", ctx.accounts.state.admin, admin);
     ctx.accounts.state.admin = admin;
     Ok(())
@@ -5311,9 +5315,11 @@ pub struct InitializeSpotMarket<'info> {
     pub oracle: AccountInfo<'info>,
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     pub token_program: Interface<'info, TokenInterface>,
@@ -5322,12 +5328,11 @@ pub struct InitializeSpotMarket<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16)]
 pub struct DeleteInitializedSpotMarket<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
     #[account(mut, close = admin)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
@@ -5361,11 +5366,10 @@ pub struct InitializeSerumFulfillmentConfig<'info> {
         bump,
     )]
     pub quote_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     /// CHECK: checked in ix
     pub serum_program: AccountInfo<'info>,
     /// CHECK: checked in ix
@@ -5390,7 +5394,7 @@ pub struct InitializeSerumFulfillmentConfig<'info> {
         payer = admin,
     )]
     pub serum_fulfillment_config: AccountLoader<'info, SerumV3FulfillmentConfig>,
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -5399,11 +5403,13 @@ pub struct InitializeSerumFulfillmentConfig<'info> {
 #[derive(Accounts)]
 pub struct UpdateSerumFulfillmentConfig<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub serum_fulfillment_config: AccountLoader<'info, SerumV3FulfillmentConfig>,
     #[account(
         mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
 }
@@ -5411,11 +5417,13 @@ pub struct UpdateSerumFulfillmentConfig<'info> {
 #[derive(Accounts)]
 pub struct DeleteSerumFulfillmentConfig<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut, close = admin)]
     pub serum_fulfillment_config: AccountLoader<'info, SerumV3FulfillmentConfig>,
     #[account(
         mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
 }
@@ -5433,11 +5441,10 @@ pub struct InitializePhoenixFulfillmentConfig<'info> {
         bump,
     )]
     pub quote_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     /// CHECK: checked in ix
     pub phoenix_program: AccountInfo<'info>,
     /// CHECK: checked in ix
@@ -5455,7 +5462,7 @@ pub struct InitializePhoenixFulfillmentConfig<'info> {
         payer = admin,
     )]
     pub phoenix_fulfillment_config: AccountLoader<'info, PhoenixV1FulfillmentConfig>,
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -5463,24 +5470,22 @@ pub struct InitializePhoenixFulfillmentConfig<'info> {
 
 #[derive(Accounts)]
 pub struct UpdatePhoenixFulfillmentConfig<'info> {
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub phoenix_fulfillment_config: AccountLoader<'info, PhoenixV1FulfillmentConfig>,
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateSerumVault<'info> {
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
     #[account(mut)]
+    pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     pub srm_vault: Box<InterfaceAccount<'info, TokenAccount>>,
 }
@@ -5489,9 +5494,11 @@ pub struct UpdateSerumVault<'info> {
 pub struct InitializePerpMarket<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub state: Box<Account<'info, State>>,
     #[account(
@@ -5512,9 +5519,11 @@ pub struct InitializePerpMarket<'info> {
 pub struct InitializeAmmCache<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(
         init,
@@ -5532,9 +5541,11 @@ pub struct InitializeAmmCache<'info> {
 pub struct AddMarketToAmmCache<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(
         mut,
@@ -5554,9 +5565,11 @@ pub struct AddMarketToAmmCache<'info> {
 pub struct DeleteAmmCache<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
     )]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(
         mut,
@@ -5569,12 +5582,11 @@ pub struct DeleteAmmCache<'info> {
 
 #[derive(Accounts)]
 pub struct DeleteInitializedPerpMarket<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
     #[account(mut, close = admin)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
@@ -5582,33 +5594,33 @@ pub struct DeleteInitializedPerpMarket<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdatePerpMarket<'info> {
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
 }
 
 #[derive(Accounts)]
 pub struct HotAdminUpdatePerpMarket<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdatePerpMarketAmmSummaryStats<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::AmmCrank)?)]
     pub admin: Signer<'info>,
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     #[account(
@@ -5622,10 +5634,10 @@ pub struct AdminUpdatePerpMarketAmmSummaryStats<'info> {
 
 #[derive(Accounts)]
 pub struct SettleExpiredMarketPoolsToRevenuePool<'info> {
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     #[account(
         seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
@@ -5639,10 +5651,10 @@ pub struct SettleExpiredMarketPoolsToRevenuePool<'info> {
 
 #[derive(Accounts)]
 pub struct UpdatePerpMarketPnlPool<'info> {
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     #[account(
         seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
@@ -5662,13 +5674,13 @@ pub struct UpdatePerpMarketPnlPool<'info> {
 
 #[derive(Accounts)]
 pub struct DepositIntoMarketFeePool<'info> {
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::VaultDeposit)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5698,11 +5710,11 @@ pub struct DepositIntoMarketFeePool<'info> {
 #[derive(Accounts)]
 pub struct DepositIntoSpotMarketVault<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::VaultDeposit)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5719,43 +5731,43 @@ pub struct DepositIntoSpotMarketVault<'info> {
 
 #[derive(Accounts)]
 pub struct RepegCurve<'info> {
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     /// CHECK: checked in `repeg_curve` ix constraint
     pub oracle: AccountInfo<'info>,
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdateState<'info> {
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
 }
 
 #[derive(Accounts)]
 pub struct HotAdminUpdateState<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::FeatureFlag)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub state: Box<Account<'info, State>>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdateK<'info> {
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
@@ -5765,10 +5777,10 @@ pub struct AdminUpdateK<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdateSpotMarket<'info> {
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
@@ -5776,10 +5788,10 @@ pub struct AdminUpdateSpotMarket<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdateSpotMarketFuel<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::Fuel)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
@@ -5787,10 +5799,10 @@ pub struct AdminUpdateSpotMarketFuel<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdateSpotMarketOracle<'info> {
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
@@ -5802,10 +5814,10 @@ pub struct AdminUpdateSpotMarketOracle<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdatePerpMarketOracle<'info> {
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
@@ -5823,10 +5835,10 @@ pub struct AdminUpdatePerpMarketOracle<'info> {
 
 #[derive(Accounts)]
 pub struct AdminDisableBidAskTwapUpdate<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::UserFlag)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
@@ -5834,10 +5846,10 @@ pub struct AdminDisableBidAskTwapUpdate<'info> {
 
 #[derive(Accounts)]
 pub struct InitUserFuel<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
-    pub admin: Signer<'info>, // todo
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::Fuel)?)]
+    pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
@@ -5847,8 +5859,10 @@ pub struct InitUserFuel<'info> {
 
 #[derive(Accounts)]
 pub struct InitializeProtocolIfSharesTransferConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         init,
         seeds = [b"if_shares_transfer_config".as_ref()],
@@ -5857,9 +5871,6 @@ pub struct InitializeProtocolIfSharesTransferConfig<'info> {
         payer = admin
     )]
     pub protocol_if_shares_transfer_config: AccountLoader<'info, ProtocolIfSharesTransferConfig>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -5867,25 +5878,26 @@ pub struct InitializeProtocolIfSharesTransferConfig<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateProtocolIfSharesTransferConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
         seeds = [b"if_shares_transfer_config".as_ref()],
         bump,
     )]
     pub protocol_if_shares_transfer_config: AccountLoader<'info, ProtocolIfSharesTransferConfig>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
 }
 
 #[derive(Accounts)]
 #[instruction(params: PrelaunchOracleParams,)]
 pub struct InitializePrelaunchOracle<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         init,
         seeds = [b"prelaunch_oracle".as_ref(), params.perp_market_index.to_le_bytes().as_ref()],
@@ -5894,9 +5906,6 @@ pub struct InitializePrelaunchOracle<'info> {
         payer = admin
     )]
     pub prelaunch_oracle: AccountLoader<'info, PrelaunchOracle>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -5905,11 +5914,10 @@ pub struct InitializePrelaunchOracle<'info> {
 #[derive(Accounts)]
 #[instruction(params: PrelaunchOracleParams,)]
 pub struct UpdatePrelaunchOracleParams<'info> {
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
         seeds = [b"prelaunch_oracle".as_ref(), params.perp_market_index.to_le_bytes().as_ref()],
@@ -5927,8 +5935,10 @@ pub struct UpdatePrelaunchOracleParams<'info> {
 #[derive(Accounts)]
 #[instruction(perp_market_index: u16,)]
 pub struct DeletePrelaunchOracle<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
         seeds = [b"prelaunch_oracle".as_ref(), perp_market_index.to_le_bytes().as_ref()],
@@ -5940,9 +5950,6 @@ pub struct DeletePrelaunchOracle<'info> {
         constraint = perp_market.load()?.market_index == perp_market_index
     )]
     pub perp_market: AccountLoader<'info, PerpMarket>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
 }
 
@@ -5959,11 +5966,10 @@ pub struct InitializeOpenbookV2FulfillmentConfig<'info> {
         bump,
     )]
     pub quote_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
+    #[account(mut)]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     /// CHECK: checked in ix
     pub openbook_v2_program: AccountInfo<'info>,
     /// CHECK: checked in ix
@@ -5981,7 +5987,7 @@ pub struct InitializeOpenbookV2FulfillmentConfig<'info> {
         payer = admin,
     )]
     pub openbook_v2_fulfillment_config: AccountLoader<'info, OpenbookV2FulfillmentConfig>,
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -5990,35 +5996,32 @@ pub struct InitializeOpenbookV2FulfillmentConfig<'info> {
 #[derive(Accounts)]
 pub struct UpdateOpenbookV2FulfillmentConfig<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub openbook_v2_fulfillment_config: AccountLoader<'info, OpenbookV2FulfillmentConfig>,
-    #[account(
-        mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
-    )]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
 }
 
 #[derive(Accounts)]
 pub struct DeleteOpenbookV2FulfillmentConfig<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut, close = admin)]
     pub openbook_v2_fulfillment_config: AccountLoader<'info, OpenbookV2FulfillmentConfig>,
-    #[account(
-        mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
-    )]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
 }
 
 #[derive(Accounts)]
 #[instruction(feed_id: u32)]
 pub struct InitPythLazerOracle<'info> {
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(init, seeds = [PYTH_LAZER_ORACLE_SEED, &feed_id.to_le_bytes()],
         space=PythLazerOracle::SIZE,
         bump,
@@ -6032,11 +6035,10 @@ pub struct InitPythLazerOracle<'info> {
 
 #[derive(Accounts)]
 pub struct InitializeProtectedMakerModeConfig<'info> {
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         init,
         seeds = [b"protected_maker_mode_config".as_ref()],
@@ -6045,9 +6047,6 @@ pub struct InitializeProtectedMakerModeConfig<'info> {
         payer = admin
     )]
     pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -6055,17 +6054,16 @@ pub struct InitializeProtectedMakerModeConfig<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateProtectedMakerModeConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
         seeds = [b"protected_maker_mode_config".as_ref()],
         bump,
     )]
     pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
 }
 
@@ -6073,12 +6071,11 @@ pub struct UpdateProtectedMakerModeConfig<'info> {
 #[instruction(market_index: u16,)]
 pub struct AdminDeposit<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::VaultDeposit)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -6098,8 +6095,10 @@ pub struct AdminDeposit<'info> {
 #[derive(Accounts)]
 #[instruction(params: IfRebalanceConfigParams)]
 pub struct InitializeIfRebalanceConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         init,
         seeds = [b"if_rebalance_config".as_ref(), params.in_market_index.to_le_bytes().as_ref(), params.out_market_index.to_le_bytes().as_ref()],
@@ -6108,9 +6107,6 @@ pub struct InitializeIfRebalanceConfig<'info> {
         payer = admin
     )]
     pub if_rebalance_config: AccountLoader<'info, IfRebalanceConfig>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
@@ -6118,13 +6114,12 @@ pub struct InitializeIfRebalanceConfig<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateIfRebalanceConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(mut)]
     pub if_rebalance_config: AccountLoader<'info, IfRebalanceConfig>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
 }
 
@@ -6139,25 +6134,25 @@ pub struct UpdateDelegateUserGovTokenInsuranceStake<'info> {
     pub insurance_fund_stake: AccountLoader<'info, InsuranceFundStake>,
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
         seeds = [b"insurance_fund_vault".as_ref(), 15_u16.to_le_bytes().as_ref()],
         bump,
     )]
     pub insurance_fund_vault: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
 }
 
 #[derive(Accounts)]
 pub struct TransferFeeAndPnlPool<'info> {
-    #[account(
-        has_one = admin
-    )]
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
     pub admin: Signer<'info>,
     #[account(mut)]
     pub perp_market_with_fee_pool: AccountLoader<'info, PerpMarket>,
@@ -6179,11 +6174,97 @@ pub struct TransferFeeAndPnlPool<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateSpecialUserStatus<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::UserFlag)?)]
     pub admin: Signer<'info>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub state: Box<Account<'info, State>>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
+}
+
+// ----- Tiered admin authority handlers -----
+
+pub fn handle_initialize_admin_authority_config(
+    ctx: Context<InitializeAdminAuthorityConfig>,
+    initial_warm_admin: Pubkey,
+) -> Result<()> {
+    let mut config = ctx.accounts.admin_authority_config.load_init()?;
+    config.warm_admin = initial_warm_admin;
+    msg!("admin authority config initialized; warm_admin={:?}", initial_warm_admin);
+    Ok(())
+}
+
+pub fn handle_update_warm_admin(
+    ctx: Context<UpdateAdminAuthorityConfigCold>,
+    new_warm_admin: Pubkey,
+) -> Result<()> {
+    let mut config = ctx.accounts.admin_authority_config.load_mut()?;
+    msg!("warm_admin: {:?} -> {:?}", config.warm_admin, new_warm_admin);
+    config.warm_admin = new_warm_admin;
+    Ok(())
+}
+
+pub fn handle_update_hot_admin(
+    ctx: Context<UpdateAdminAuthorityConfigWarm>,
+    role: HotRole,
+    new_pubkey: Pubkey,
+) -> Result<()> {
+    let mut config = ctx.accounts.admin_authority_config.load_mut()?;
+    let prev = config.role_key(role);
+    config.set_role_key(role, new_pubkey);
+    msg!("hot_admin[{:?}]: {:?} -> {:?}", role, prev, new_pubkey);
+    Ok(())
+}
+
+/// Cold-only state mutation. Constraint enforces `state.admin == admin.key()`
+/// via `has_one = admin`; no runtime check needed in the handler.
+#[derive(Accounts)]
+pub struct ColdAdminUpdateState<'info> {
+    #[account(mut, has_one = admin)]
+    pub state: Box<Account<'info, State>>,
+    pub admin: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct InitializeAdminAuthorityConfig<'info> {
+    #[account(
+        init,
+        seeds = [ADMIN_AUTHORITY_CONFIG_SEED],
+        bump,
+        space = AdminAuthorityConfig::SIZE,
+        payer = admin,
+    )]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(has_one = admin)]
+    pub state: Box<Account<'info, State>>,
+    #[account(mut)]
+    pub admin: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateAdminAuthorityConfigCold<'info> {
+    #[account(
+        mut,
+        seeds = [ADMIN_AUTHORITY_CONFIG_SEED],
+        bump,
+    )]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    #[account(has_one = admin)]
+    pub state: Box<Account<'info, State>>,
+    pub admin: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateAdminAuthorityConfigWarm<'info> {
+    #[account(
+        mut,
+        seeds = [ADMIN_AUTHORITY_CONFIG_SEED],
+        bump,
+    )]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    pub state: Box<Account<'info, State>>,
+    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
+    pub admin: Signer<'info>,
 }

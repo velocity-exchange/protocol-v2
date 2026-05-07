@@ -25,7 +25,10 @@ use crate::controller::spot_position::{
 };
 use crate::error::ErrorCode;
 use crate::get_then_update_id;
-use crate::ids::admin_hot_wallet;
+use crate::auth::check_hot_loader;
+use crate::state::admin_authority_config::{
+    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
+};
 use crate::ids::{
     lighthouse, marinade_mainnet, WHITELISTED_EXTERNAL_DEPOSITORS, WHITELISTED_SWAP_PROGRAMS,
 };
@@ -552,13 +555,9 @@ pub fn handle_migrate_referrer<'c: 'info, 'info>(
     ctx: Context<'info, MigrateReferrer<'info>>,
 ) -> Result<()> {
     let state = &mut ctx.accounts.state;
-    if !state.builder_referral_enabled() {
-        if state.admin != ctx.accounts.payer.key()
-            || ctx.accounts.payer.key() == admin_hot_wallet::id()
-        {
-            msg!("Only admin can migrate referrer until builder referral feature is enabled");
-            return Err(anchor_lang::error::ErrorCode::ConstraintSigner.into());
-        }
+    if !state.builder_referral_enabled() && state.admin != ctx.accounts.payer.key() {
+        msg!("Only state.admin can migrate referrer until builder referral feature is enabled");
+        return Err(anchor_lang::error::ErrorCode::ConstraintSigner.into());
     }
 
     let escrow = &mut ctx.accounts.escrow;
@@ -4479,8 +4478,10 @@ pub struct ResetFuelSeason<'info> {
     /// CHECK: authority
     pub authority: AccountInfo<'info>,
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::Fuel)?
     )]
     pub admin: Signer<'info>,
 }

@@ -6581,4 +6581,33 @@ export class AdminClient extends DriftClient {
 			},
 		});
 	}
+
+}
+
+/**
+ * Hot-admin role identifier. Each role is a separate purpose-specific signer key
+ * stored on the `AdminAuthorityConfig` PDA. Compromise of one role's key only
+ * enables that role's instructions.
+ *
+ * NOTE: SDK ix builders for the new tiered-admin instructions
+ * (`initialize_admin_authority_config`, `update_warm_admin`, `update_hot_admin`)
+ * and `adminAuthorityConfig` pass-through on every existing admin method
+ * are pending IDL regeneration — see `sdk/src/idl/drift.json`. Once regenerated:
+ *   - Add `adminAuthorityConfig: getAdminAuthorityConfigPublicKey(this.program.programId)`
+ *     to every admin method's `accounts: { ... }` object.
+ *   - Add wrappers for the three new ixs (cold-tier `update_warm_admin` and
+ *     `initialize_admin_authority_config`; warm-tier `update_hot_admin(role, key)`).
+ */
+export enum HotRole {
+	AmmCrank = 'ammCrank',
+	LpCache = 'lpCache',
+	LpSwap = 'lpSwap',
+	LpSettle = 'lpSettle',
+	IfRebalance = 'ifRebalance',
+	FeatureFlag = 'featureFlag',
+	Fuel = 'fuel',
+	UserFlag = 'userFlag',
+	VaultDeposit = 'vaultDeposit',
+	MmOracleCrank = 'mmOracleCrank',
+	AmmSpreadAdjust = 'ammSpreadAdjust',
 }
