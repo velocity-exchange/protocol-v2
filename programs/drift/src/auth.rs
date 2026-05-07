@@ -17,11 +17,7 @@ pub fn admin_is_cold(signer: &Pubkey, state: &State) -> bool {
     *signer == state.admin
 }
 
-pub fn admin_is_warm(
-    signer: &Pubkey,
-    state: &State,
-    config: &AdminAuthorityConfig,
-) -> bool {
+pub fn admin_is_warm(signer: &Pubkey, state: &State, config: &AdminAuthorityConfig) -> bool {
     admin_is_cold(signer, state)
         || (config.warm_admin != Pubkey::default() && *signer == config.warm_admin)
 }
@@ -44,11 +40,7 @@ pub fn require_cold(signer: &Pubkey, state: &State) -> Result<()> {
     Ok(())
 }
 
-pub fn require_warm(
-    signer: &Pubkey,
-    state: &State,
-    config: &AdminAuthorityConfig,
-) -> Result<()> {
+pub fn require_warm(signer: &Pubkey, state: &State, config: &AdminAuthorityConfig) -> Result<()> {
     require!(
         admin_is_warm(signer, state, config),
         ErrorCode::Unauthorized

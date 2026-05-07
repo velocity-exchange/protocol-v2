@@ -268,8 +268,8 @@ export class AdminClient extends DriftClient {
 					admin: this.useHotWalletAdmin
 						? this.wallet.publicKey
 						: this.isSubscribed
-						? this.getStateAccount().admin
-						: this.wallet.publicKey,
+							? this.getStateAccount().admin
+							: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
 					spotMarket,
 					spotMarketVault,
@@ -513,9 +513,8 @@ export class AdminClient extends DriftClient {
 	public async deleteOpenbookV2FulfillmentConfig(
 		openbookMarket: PublicKey
 	): Promise<TransactionSignature> {
-		const deleteIx = await this.getDeleteOpenbookV2FulfillmentConfigIx(
-			openbookMarket
-		);
+		const deleteIx =
+			await this.getDeleteOpenbookV2FulfillmentConfigIx(openbookMarket);
 		const tx = await this.buildTransaction(deleteIx);
 		const { txSig } = await this.sendTransaction(tx, [], this.opts);
 		return txSig;
@@ -687,8 +686,8 @@ export class AdminClient extends DriftClient {
 					admin: this.useHotWalletAdmin
 						? this.wallet.publicKey
 						: this.isSubscribed
-						? this.getStateAccount().admin
-						: this.wallet.publicKey,
+							? this.getStateAccount().admin
+							: this.wallet.publicKey,
 					oracle: priceOracle,
 					perpMarket: perpMarketPublicKey,
 					rent: SYSVAR_RENT_PUBKEY,
@@ -730,9 +729,8 @@ export class AdminClient extends DriftClient {
 		perpMarketIndex: number,
 		txParams?: TxParams
 	): Promise<TransactionSignature> {
-		const initializeAmmCacheIx = await this.getAddMarketToAmmCacheIx(
-			perpMarketIndex
-		);
+		const initializeAmmCacheIx =
+			await this.getAddMarketToAmmCacheIx(perpMarketIndex);
 
 		const tx = await this.buildTransaction(initializeAmmCacheIx, txParams);
 
@@ -786,9 +784,8 @@ export class AdminClient extends DriftClient {
 		perpMarketIndexes: number[],
 		txParams?: TxParams
 	): Promise<TransactionSignature> {
-		const initializeAmmCacheIx = await this.getUpdateInitialAmmCacheInfoIx(
-			perpMarketIndexes
-		);
+		const initializeAmmCacheIx =
+			await this.getUpdateInitialAmmCacheInfoIx(perpMarketIndexes);
 
 		const tx = await this.buildTransaction(initializeAmmCacheIx, txParams);
 
@@ -2051,9 +2048,8 @@ export class AdminClient extends DriftClient {
 	public async updatePerpFeeStructure(
 		feeStructure: FeeStructure
 	): Promise<TransactionSignature> {
-		const updatePerpFeeStructureIx = await this.getUpdatePerpFeeStructureIx(
-			feeStructure
-		);
+		const updatePerpFeeStructureIx =
+			await this.getUpdatePerpFeeStructureIx(feeStructure);
 
 		const tx = await this.buildTransaction(updatePerpFeeStructureIx);
 
@@ -2078,9 +2074,8 @@ export class AdminClient extends DriftClient {
 	public async updateSpotFeeStructure(
 		feeStructure: FeeStructure
 	): Promise<TransactionSignature> {
-		const updateSpotFeeStructureIx = await this.getUpdateSpotFeeStructureIx(
-			feeStructure
-		);
+		const updateSpotFeeStructureIx =
+			await this.getUpdateSpotFeeStructureIx(feeStructure);
 
 		const tx = await this.buildTransaction(updateSpotFeeStructureIx);
 
@@ -2196,9 +2191,8 @@ export class AdminClient extends DriftClient {
 	public async updateOracleGuardRails(
 		oracleGuardRails: OracleGuardRails
 	): Promise<TransactionSignature> {
-		const updateOracleGuardRailsIx = await this.getUpdateOracleGuardRailsIx(
-			oracleGuardRails
-		);
+		const updateOracleGuardRailsIx =
+			await this.getUpdateOracleGuardRailsIx(oracleGuardRails);
 
 		const tx = await this.buildTransaction(updateOracleGuardRailsIx);
 
@@ -2589,9 +2583,8 @@ export class AdminClient extends DriftClient {
 	public async updateLpCooldownTime(
 		cooldownTime: BN
 	): Promise<TransactionSignature> {
-		const updateLpCooldownTimeIx = await this.getUpdateLpCooldownTimeIx(
-			cooldownTime
-		);
+		const updateLpCooldownTimeIx =
+			await this.getUpdateLpCooldownTimeIx(cooldownTime);
 
 		const tx = await this.buildTransaction(updateLpCooldownTimeIx);
 
@@ -3105,9 +3098,8 @@ export class AdminClient extends DriftClient {
 	public async updateWhitelistMint(
 		whitelistMint?: PublicKey
 	): Promise<TransactionSignature> {
-		const updateWhitelistMintIx = await this.getUpdateWhitelistMintIx(
-			whitelistMint
-		);
+		const updateWhitelistMintIx =
+			await this.getUpdateWhitelistMintIx(whitelistMint);
 
 		const tx = await this.buildTransaction(updateWhitelistMintIx);
 
@@ -3135,9 +3127,8 @@ export class AdminClient extends DriftClient {
 	public async updateDiscountMint(
 		discountMint: PublicKey
 	): Promise<TransactionSignature> {
-		const updateDiscountMintIx = await this.getUpdateDiscountMintIx(
-			discountMint
-		);
+		const updateDiscountMintIx =
+			await this.getUpdateDiscountMintIx(discountMint);
 
 		const tx = await this.buildTransaction(updateDiscountMintIx);
 
@@ -3481,9 +3472,8 @@ export class AdminClient extends DriftClient {
 	public async updateExchangeStatus(
 		exchangeStatus: ExchangeStatus
 	): Promise<TransactionSignature> {
-		const updateExchangeStatusIx = await this.getUpdateExchangeStatusIx(
-			exchangeStatus
-		);
+		const updateExchangeStatusIx =
+			await this.getUpdateExchangeStatusIx(exchangeStatus);
 
 		const tx = await this.buildTransaction(updateExchangeStatusIx);
 
@@ -4279,9 +4269,8 @@ export class AdminClient extends DriftClient {
 	public async deletePrelaunchOracle(
 		perpMarketIndex: number
 	): Promise<TransactionSignature> {
-		const deletePrelaunchOracleIx = await this.getDeletePrelaunchOracleIx(
-			perpMarketIndex
-		);
+		const deletePrelaunchOracleIx =
+			await this.getDeletePrelaunchOracleIx(perpMarketIndex);
 
 		const tx = await this.buildTransaction(deletePrelaunchOracleIx);
 
@@ -4900,9 +4889,8 @@ export class AdminClient extends DriftClient {
 	public async zeroMMOracleFields(
 		marketIndex: number
 	): Promise<TransactionSignature> {
-		const zeroMMOracleFieldsIx = await this.getZeroMMOracleFieldsIx(
-			marketIndex
-		);
+		const zeroMMOracleFieldsIx =
+			await this.getZeroMMOracleFieldsIx(marketIndex);
 
 		const tx = await this.buildTransaction(zeroMMOracleFieldsIx);
 		const { txSig } = await this.sendTransaction(tx, [], this.opts);
@@ -6581,7 +6569,6 @@ export class AdminClient extends DriftClient {
 			},
 		});
 	}
-
 }
 
 /**

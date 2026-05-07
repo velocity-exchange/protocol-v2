@@ -7,15 +7,12 @@ use phoenix::quantities::WrapperU64;
 use std::convert::{identity, TryInto};
 use std::mem::size_of;
 
+use crate::auth::{check_hot_loader, check_warm_loader};
 use crate::controller;
 use crate::controller::token::{close_vault, initialize_immutable_owner, initialize_token_account};
 use crate::error::ErrorCode;
 use crate::get_then_update_id;
-use crate::auth::{check_hot_loader, check_warm_loader};
 use crate::ids::{amm_spread_adjust_wallet, mm_oracle_crank_wallet};
-use crate::state::admin_authority_config::{
-    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
-};
 use crate::instructions::constraints::*;
 use crate::instructions::optional_accounts::{load_maps, AccountMaps};
 use crate::load;
@@ -41,6 +38,9 @@ use crate::math::spot_withdraw::validate_spot_market_vault_amount;
 use crate::math::{amm, bn};
 use crate::math_error;
 use crate::optional_accounts::get_token_mint;
+use crate::state::admin_authority_config::{
+    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
+};
 use crate::state::amm_cache::{AmmCache, CacheInfo, AMM_POSITIONS_CACHE};
 use crate::state::events::{
     CurveRecord, DepositDirection, DepositExplanation, DepositRecord, SpotMarketVaultDepositRecord,
@@ -6191,7 +6191,10 @@ pub fn handle_initialize_admin_authority_config(
 ) -> Result<()> {
     let mut config = ctx.accounts.admin_authority_config.load_init()?;
     config.warm_admin = initial_warm_admin;
-    msg!("admin authority config initialized; warm_admin={:?}", initial_warm_admin);
+    msg!(
+        "admin authority config initialized; warm_admin={:?}",
+        initial_warm_admin
+    );
     Ok(())
 }
 
@@ -6200,7 +6203,11 @@ pub fn handle_update_warm_admin(
     new_warm_admin: Pubkey,
 ) -> Result<()> {
     let mut config = ctx.accounts.admin_authority_config.load_mut()?;
-    msg!("warm_admin: {:?} -> {:?}", config.warm_admin, new_warm_admin);
+    msg!(
+        "warm_admin: {:?} -> {:?}",
+        config.warm_admin,
+        new_warm_admin
+    );
     config.warm_admin = new_warm_admin;
     Ok(())
 }
