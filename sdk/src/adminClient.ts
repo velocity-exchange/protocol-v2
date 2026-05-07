@@ -65,6 +65,7 @@ import {
 	getLpPoolTokenVaultPublicKey,
 	getDriftSignerPublicKey,
 	getConstituentCorrelationsPublicKey,
+	getAdminAuthorityConfigPublicKey,
 } from './addresses/pda';
 import { squareRootBN } from './math/utils';
 import {
@@ -268,9 +269,12 @@ export class AdminClient extends DriftClient {
 					admin: this.useHotWalletAdmin
 						? this.wallet.publicKey
 						: this.isSubscribed
-							? this.getStateAccount().admin
-							: this.wallet.publicKey,
+						? this.getStateAccount().admin
+						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket,
 					spotMarketVault,
 					insuranceFundVault,
@@ -323,6 +327,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -377,6 +384,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					baseSpotMarket: this.getSpotMarketAccount(marketIndex).pubkey,
 					quoteSpotMarket: this.getQuoteSpotMarketAccount().pubkey,
 					driftSigner: this.getSignerPublicKey(),
@@ -413,6 +423,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				serumFulfillmentConfig,
 			},
 		});
@@ -451,6 +464,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					baseSpotMarket: this.getSpotMarketAccount(marketIndex).pubkey,
 					quoteSpotMarket: this.getQuoteSpotMarketAccount().pubkey,
 					driftSigner: this.getSignerPublicKey(),
@@ -496,6 +512,9 @@ export class AdminClient extends DriftClient {
 					baseSpotMarket: this.getSpotMarketAccount(marketIndex).pubkey,
 					quoteSpotMarket: this.getQuoteSpotMarketAccount().pubkey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					openbookV2Program: OPENBOOK_PROGRAM_ID,
 					openbookV2Market: openbookMarket,
 					driftSigner: this.getSignerPublicKey(),
@@ -513,8 +532,9 @@ export class AdminClient extends DriftClient {
 	public async deleteOpenbookV2FulfillmentConfig(
 		openbookMarket: PublicKey
 	): Promise<TransactionSignature> {
-		const deleteIx =
-			await this.getDeleteOpenbookV2FulfillmentConfigIx(openbookMarket);
+		const deleteIx = await this.getDeleteOpenbookV2FulfillmentConfigIx(
+			openbookMarket
+		);
 		const tx = await this.buildTransaction(deleteIx);
 		const { txSig } = await this.sendTransaction(tx, [], this.opts);
 		return txSig;
@@ -533,6 +553,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				openbookV2FulfillmentConfig,
 			},
 		});
@@ -683,11 +706,14 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.useHotWalletAdmin
 						? this.wallet.publicKey
 						: this.isSubscribed
-							? this.getStateAccount().admin
-							: this.wallet.publicKey,
+						? this.getStateAccount().admin
+						: this.wallet.publicKey,
 					oracle: priceOracle,
 					perpMarket: perpMarketPublicKey,
 					rent: SYSVAR_RENT_PUBKEY,
@@ -715,6 +741,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.initializeAmmCache({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.useHotWalletAdmin
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
@@ -729,8 +758,9 @@ export class AdminClient extends DriftClient {
 		perpMarketIndex: number,
 		txParams?: TxParams
 	): Promise<TransactionSignature> {
-		const initializeAmmCacheIx =
-			await this.getAddMarketToAmmCacheIx(perpMarketIndex);
+		const initializeAmmCacheIx = await this.getAddMarketToAmmCacheIx(
+			perpMarketIndex
+		);
 
 		const tx = await this.buildTransaction(initializeAmmCacheIx, txParams);
 
@@ -745,6 +775,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.addMarketToAmmCache({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.useHotWalletAdmin
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
@@ -772,6 +805,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.deleteAmmCache({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.useHotWalletAdmin
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
@@ -784,8 +820,9 @@ export class AdminClient extends DriftClient {
 		perpMarketIndexes: number[],
 		txParams?: TxParams
 	): Promise<TransactionSignature> {
-		const initializeAmmCacheIx =
-			await this.getUpdateInitialAmmCacheInfoIx(perpMarketIndexes);
+		const initializeAmmCacheIx = await this.getUpdateInitialAmmCacheInfoIx(
+			perpMarketIndexes
+		);
 
 		const tx = await this.buildTransaction(initializeAmmCacheIx, txParams);
 
@@ -805,6 +842,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.updateInitialAmmCacheInfo({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.useHotWalletAdmin
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
@@ -865,6 +905,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.useHotWalletAdmin
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
@@ -889,6 +932,9 @@ export class AdminClient extends DriftClient {
 		return (this.program.instruction as any).resetAmmCache({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.useHotWalletAdmin
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
@@ -924,6 +970,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -975,6 +1024,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -1004,6 +1056,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.updateK(sqrtK, {
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.isSubscribed
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
@@ -1050,6 +1105,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -1087,6 +1145,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1127,6 +1188,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -1162,6 +1226,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.updatePerpMarketLpPoolId(lpPoolId, {
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.isSubscribed
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
@@ -1196,6 +1263,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -1259,6 +1329,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -1297,6 +1370,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.repegAmmCurve(newPeg, {
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.isSubscribed
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
@@ -1331,6 +1407,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.updatePerpMarketAmmOracleTwap({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.isSubscribed
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
@@ -1365,6 +1444,9 @@ export class AdminClient extends DriftClient {
 		return await this.program.instruction.resetPerpMarketAmmOracleTwap({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.isSubscribed
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
@@ -1413,6 +1495,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -1453,6 +1538,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -1505,6 +1593,9 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				sourceVault,
 				spotMarket: spotMarket.pubkey,
 				spotMarketVault: spotMarket.vault,
@@ -1533,6 +1624,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -1568,6 +1662,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1608,6 +1705,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1680,6 +1780,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1706,6 +1809,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -1747,6 +1853,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1789,6 +1898,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1824,6 +1936,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1861,6 +1976,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -1897,6 +2015,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -1932,6 +2053,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				spotMarket: await getSpotMarketPublicKey(
 					this.program.programId,
 					spotMarketIndex
@@ -1966,6 +2090,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				spotMarket: await getSpotMarketPublicKey(
 					this.program.programId,
 					spotMarketIndex
@@ -2005,6 +2132,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: perpMarketPublicKey,
 				},
 			}
@@ -2040,6 +2170,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: perpMarketPublicKey,
 			},
 		});
@@ -2048,8 +2181,9 @@ export class AdminClient extends DriftClient {
 	public async updatePerpFeeStructure(
 		feeStructure: FeeStructure
 	): Promise<TransactionSignature> {
-		const updatePerpFeeStructureIx =
-			await this.getUpdatePerpFeeStructureIx(feeStructure);
+		const updatePerpFeeStructureIx = await this.getUpdatePerpFeeStructureIx(
+			feeStructure
+		);
 
 		const tx = await this.buildTransaction(updatePerpFeeStructureIx);
 
@@ -2067,6 +2201,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -2074,8 +2211,9 @@ export class AdminClient extends DriftClient {
 	public async updateSpotFeeStructure(
 		feeStructure: FeeStructure
 	): Promise<TransactionSignature> {
-		const updateSpotFeeStructureIx =
-			await this.getUpdateSpotFeeStructureIx(feeStructure);
+		const updateSpotFeeStructureIx = await this.getUpdateSpotFeeStructureIx(
+			feeStructure
+		);
 
 		const tx = await this.buildTransaction(updateSpotFeeStructureIx);
 
@@ -2093,6 +2231,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -2121,6 +2262,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2150,6 +2294,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2183,6 +2330,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2191,8 +2341,9 @@ export class AdminClient extends DriftClient {
 	public async updateOracleGuardRails(
 		oracleGuardRails: OracleGuardRails
 	): Promise<TransactionSignature> {
-		const updateOracleGuardRailsIx =
-			await this.getUpdateOracleGuardRailsIx(oracleGuardRails);
+		const updateOracleGuardRailsIx = await this.getUpdateOracleGuardRailsIx(
+			oracleGuardRails
+		);
 
 		const tx = await this.buildTransaction(updateOracleGuardRailsIx);
 
@@ -2212,6 +2363,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2241,6 +2395,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2270,6 +2427,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2299,6 +2459,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2333,6 +2496,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2375,6 +2541,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2415,6 +2584,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2453,6 +2625,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2491,6 +2666,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2531,6 +2709,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2571,6 +2752,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2583,8 +2767,9 @@ export class AdminClient extends DriftClient {
 	public async updateLpCooldownTime(
 		cooldownTime: BN
 	): Promise<TransactionSignature> {
-		const updateLpCooldownTimeIx =
-			await this.getUpdateLpCooldownTimeIx(cooldownTime);
+		const updateLpCooldownTimeIx = await this.getUpdateLpCooldownTimeIx(
+			cooldownTime
+		);
 
 		const tx = await this.buildTransaction(updateLpCooldownTimeIx);
 
@@ -2604,6 +2789,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -2645,6 +2833,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -2692,6 +2883,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -2727,6 +2921,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -2771,6 +2968,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2791,6 +2991,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2817,6 +3020,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2851,6 +3057,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -2895,6 +3104,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2935,6 +3147,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -2973,6 +3188,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -3013,6 +3231,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					serumFulfillmentConfig,
 				},
 			}
@@ -3030,6 +3251,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					phoenixFulfillmentConfig,
 				},
 			});
@@ -3055,6 +3279,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					phoenixFulfillmentConfig,
 				},
 			}
@@ -3087,6 +3314,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				spotMarket: await getSpotMarketPublicKey(
 					this.program.programId,
 					spotMarketIndex
@@ -3098,8 +3328,9 @@ export class AdminClient extends DriftClient {
 	public async updateWhitelistMint(
 		whitelistMint?: PublicKey
 	): Promise<TransactionSignature> {
-		const updateWhitelistMintIx =
-			await this.getUpdateWhitelistMintIx(whitelistMint);
+		const updateWhitelistMintIx = await this.getUpdateWhitelistMintIx(
+			whitelistMint
+		);
 
 		const tx = await this.buildTransaction(updateWhitelistMintIx);
 
@@ -3119,6 +3350,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -3127,8 +3361,9 @@ export class AdminClient extends DriftClient {
 	public async updateDiscountMint(
 		discountMint: PublicKey
 	): Promise<TransactionSignature> {
-		const updateDiscountMintIx =
-			await this.getUpdateDiscountMintIx(discountMint);
+		const updateDiscountMintIx = await this.getUpdateDiscountMintIx(
+			discountMint
+		);
 
 		const tx = await this.buildTransaction(updateDiscountMintIx);
 
@@ -3146,6 +3381,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -3195,6 +3433,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -3245,6 +3486,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -3278,6 +3522,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				spotMarket: await getSpotMarketPublicKey(
 					this.program.programId,
 					spotMarketIndex
@@ -3312,6 +3559,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				spotMarket: await getSpotMarketPublicKey(
 					this.program.programId,
 					spotMarketIndex
@@ -3349,6 +3599,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -3384,6 +3637,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -3421,6 +3677,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3459,6 +3718,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3472,8 +3734,9 @@ export class AdminClient extends DriftClient {
 	public async updateExchangeStatus(
 		exchangeStatus: ExchangeStatus
 	): Promise<TransactionSignature> {
-		const updateExchangeStatusIx =
-			await this.getUpdateExchangeStatusIx(exchangeStatus);
+		const updateExchangeStatusIx = await this.getUpdateExchangeStatusIx(
+			exchangeStatus
+		);
 
 		const tx = await this.buildTransaction(updateExchangeStatusIx);
 
@@ -3491,6 +3754,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -3519,6 +3785,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -3548,6 +3817,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -3584,6 +3856,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3621,6 +3896,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: this.getPerpMarketAccount(perpMarketIndex).pubkey,
 				},
 			}
@@ -3662,6 +3940,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3708,6 +3989,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3746,6 +4030,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3788,6 +4075,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3826,6 +4116,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3864,6 +4157,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -3894,6 +4190,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				srmVault: srmVault,
 			},
 		});
@@ -3932,6 +4231,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndex
@@ -3974,6 +4276,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: await getSpotMarketPublicKey(
 						this.program.programId,
 						spotMarketIndex
@@ -4005,6 +4310,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				rent: SYSVAR_RENT_PUBKEY,
 				systemProgram: anchor.web3.SystemProgram.programId,
 				protocolIfSharesTransferConfig:
@@ -4047,6 +4355,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					protocolIfSharesTransferConfig:
 						getProtocolIfSharesTransferConfigPublicKey(this.program.programId),
 				},
@@ -4092,6 +4403,9 @@ export class AdminClient extends DriftClient {
 				accounts: {
 					authority: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					insuranceFundVault: await getInsuranceFundVaultPublicKey(
 						this.program.programId,
 						outMarketIndex
@@ -4156,6 +4470,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					authority: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -4206,6 +4523,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				prelaunchOracle: await getPrelaunchOraclePublicKey(
 					this.program.programId,
 					perpMarketIndex
@@ -4257,6 +4577,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: perpMarketPublicKey,
 				prelaunchOracle: await getPrelaunchOraclePublicKey(
 					this.program.programId,
@@ -4269,8 +4592,9 @@ export class AdminClient extends DriftClient {
 	public async deletePrelaunchOracle(
 		perpMarketIndex: number
 	): Promise<TransactionSignature> {
-		const deletePrelaunchOracleIx =
-			await this.getDeletePrelaunchOracleIx(perpMarketIndex);
+		const deletePrelaunchOracleIx = await this.getDeletePrelaunchOracleIx(
+			perpMarketIndex
+		);
 
 		const tx = await this.buildTransaction(deletePrelaunchOracleIx);
 
@@ -4301,6 +4625,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: perpMarketPublicKey,
 				prelaunchOracle: await getPrelaunchOraclePublicKey(
 					this.program.programId,
@@ -4358,6 +4685,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: spotMarketPublicKey,
 				},
 			}
@@ -4404,6 +4734,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: perpMarketPublicKey,
 				},
 			}
@@ -4444,6 +4777,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: perpMarketPublicKey,
 				},
 			}
@@ -4484,6 +4820,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: perpMarketPublicKey,
 				},
 			}
@@ -4532,6 +4871,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: perpMarketPublicKey,
 				},
 			}
@@ -4577,6 +4919,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: perpMarketPublicKey,
 				},
 			}
@@ -4604,6 +4949,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				ifRebalanceConfig: await getIfRebalanceConfigPublicKey(
 					this.program.programId,
 					params.inMarketIndex,
@@ -4666,6 +5014,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					user,
 					userStats,
 				},
@@ -4714,6 +5065,9 @@ export class AdminClient extends DriftClient {
 				),
 				authority: authority ?? this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.useHotWalletAdmin
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
@@ -4743,6 +5097,9 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				systemProgram: SystemProgram.programId,
 				lazerOracle: getPythLazerOraclePublicKey(
 					this.program.programId,
@@ -4781,6 +5138,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					rent: SYSVAR_RENT_PUBKEY,
 					systemProgram: anchor.web3.SystemProgram.programId,
 					protectedMakerModeConfig: getProtectedMakerModeConfigPublicKey(
@@ -4825,6 +5185,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					protectedMakerModeConfig: getProtectedMakerModeConfigPublicKey(
 						this.program.programId
 					),
@@ -4889,8 +5252,9 @@ export class AdminClient extends DriftClient {
 	public async zeroMMOracleFields(
 		marketIndex: number
 	): Promise<TransactionSignature> {
-		const zeroMMOracleFieldsIx =
-			await this.getZeroMMOracleFieldsIx(marketIndex);
+		const zeroMMOracleFieldsIx = await this.getZeroMMOracleFieldsIx(
+			marketIndex
+		);
 
 		const tx = await this.buildTransaction(zeroMMOracleFieldsIx);
 		const { txSig } = await this.sendTransaction(tx, [], this.opts);
@@ -4907,6 +5271,9 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: await getPerpMarketPublicKey(
 					this.program.programId,
 					marketIndex
@@ -4938,6 +5305,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -4964,6 +5334,9 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -4993,6 +5366,9 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 			},
 		});
 	}
@@ -5021,6 +5397,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -5065,6 +5444,9 @@ export class AdminClient extends DriftClient {
 		).getUpdateDelegateUserGovTokenInsuranceStakeIx({
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				spotMarket: spotMarket.pubkey,
 				insuranceFundStake: ifStakeAccountPublicKey,
 				userStats: userStatsPublicKey,
@@ -5113,6 +5495,9 @@ export class AdminClient extends DriftClient {
 				accounts: {
 					signer: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					spotMarket: spotMarket.pubkey,
 					insuranceFundStake: insuranceFundStakePublicKey,
 					userStats: userStatsPublicKey,
@@ -5149,6 +5534,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -5177,6 +5565,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -5205,6 +5596,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -5238,6 +5632,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					userStats: getUserStatsAccountPublicKey(
 						this.program.programId,
 						authority
@@ -5330,6 +5727,9 @@ export class AdminClient extends DriftClient {
 						constituentTargetBase,
 						mint: mint.publicKey,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 						tokenProgram: TOKEN_PROGRAM_ID,
 						rent: SYSVAR_RENT_PUBKEY,
 						systemProgram: SystemProgram.programId,
@@ -5411,6 +5811,9 @@ export class AdminClient extends DriftClient {
 						rent: SYSVAR_RENT_PUBKEY,
 						systemProgram: SystemProgram.programId,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 						spotMarketMint: spotMarketAccount.mint,
 						constituentVault: getConstituentVaultPublicKey(
 							this.program.programId,
@@ -5459,6 +5862,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -5494,6 +5900,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 				},
 			}
 		);
@@ -5570,6 +5979,9 @@ export class AdminClient extends DriftClient {
 						admin: this.wallet.publicKey,
 						constituent: constituentPublicKey,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 						lpPool,
 						constituentTargetBase: getConstituentTargetBasePublicKey(
 							this.program.programId,
@@ -5631,6 +6043,9 @@ export class AdminClient extends DriftClient {
 					accounts: {
 						admin: this.wallet.publicKey,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 						lpPool,
 					},
 					signers: [],
@@ -5677,6 +6092,9 @@ export class AdminClient extends DriftClient {
 						rent: SYSVAR_RENT_PUBKEY,
 						systemProgram: SystemProgram.programId,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 					},
 				}
 			),
@@ -5715,6 +6133,9 @@ export class AdminClient extends DriftClient {
 						ammConstituentMapping,
 						systemProgram: SystemProgram.programId,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 					},
 				}
 			),
@@ -5758,6 +6179,9 @@ export class AdminClient extends DriftClient {
 						ammConstituentMapping,
 						systemProgram: SystemProgram.programId,
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 					},
 				}
 			),
@@ -5802,6 +6226,9 @@ export class AdminClient extends DriftClient {
 							lpPool
 						),
 						state: await this.getStatePublicKey(),
+						adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+							this.program.programId
+						),
 					},
 				}
 			),
@@ -5895,6 +6322,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.wallet.publicKey,
 					signerOutTokenAccount: outTokenAccount,
 					signerInTokenAccount: inTokenAccount,
@@ -5922,6 +6352,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.wallet.publicKey,
 					signerOutTokenAccount: outTokenAccount,
 					signerInTokenAccount: inTokenAccount,
@@ -6264,6 +6697,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.wallet.publicKey,
 					constituent: depositConstituent,
 					constituentTokenAccount: depositConstituentTokenAccount,
@@ -6281,6 +6717,9 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.wallet.publicKey,
 					constituent: withdrawConstituent,
 					constituentTokenAccount: withdrawConstituentTokenAccount,
@@ -6387,6 +6826,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: this.getPerpMarketAccount(marketIndex).pubkey,
 				},
 			}
@@ -6418,6 +6860,9 @@ export class AdminClient extends DriftClient {
 						? this.wallet.publicKey
 						: this.getStateAccount().admin,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarket: this.getPerpMarketAccount(marketIndex).pubkey,
 				},
 			}
@@ -6489,6 +6934,9 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				perpMarket: this.getPerpMarketAccount(marketIndex).pubkey,
 			},
 		});
@@ -6526,6 +6974,9 @@ export class AdminClient extends DriftClient {
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					perpMarketWithFeePool: await getPerpMarketPublicKey(
 						this.program.programId,
 						perpMarketIndexWithFeePool
@@ -6565,9 +7016,102 @@ export class AdminClient extends DriftClient {
 					? this.wallet.publicKey
 					: this.getStateAccount().admin,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				user: userAccountPublicKey,
 			},
 		});
+	}
+
+	// ----- Tiered admin authority -----
+	//
+	// `state.admin` is COLD. The `AdminAuthorityConfig` PDA holds the WARM
+	// (multisig+timelock) pubkey plus one purpose-specific HOT pubkey per role.
+	// COLD ⊇ WARM ⊇ HOT(role). Cold initializes/rotates warm; warm rotates the
+	// hot roles.
+
+	public async initializeAdminAuthorityConfig(
+		initialWarmAdmin: PublicKey
+	): Promise<TransactionSignature> {
+		const ix = await this.getInitializeAdminAuthorityConfigIx(initialWarmAdmin);
+		const tx = await this.buildTransaction(ix);
+		const { txSig } = await this.sendTransaction(tx, [], this.opts);
+		return txSig;
+	}
+
+	public async getInitializeAdminAuthorityConfigIx(
+		initialWarmAdmin: PublicKey
+	): Promise<TransactionInstruction> {
+		return this.program.instruction.initializeAdminAuthorityConfig(
+			initialWarmAdmin,
+			{
+				accounts: {
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
+					state: await this.getStatePublicKey(),
+					admin: this.isSubscribed
+						? this.getStateAccount().admin
+						: this.wallet.publicKey,
+					systemProgram: SystemProgram.programId,
+				},
+			}
+		);
+	}
+
+	public async updateWarmAdmin(
+		newWarmAdmin: PublicKey
+	): Promise<TransactionSignature> {
+		const ix = await this.getUpdateWarmAdminIx(newWarmAdmin);
+		const tx = await this.buildTransaction(ix);
+		const { txSig } = await this.sendTransaction(tx, [], this.opts);
+		return txSig;
+	}
+
+	public async getUpdateWarmAdminIx(
+		newWarmAdmin: PublicKey
+	): Promise<TransactionInstruction> {
+		return this.program.instruction.updateWarmAdmin(newWarmAdmin, {
+			accounts: {
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
+				state: await this.getStatePublicKey(),
+				admin: this.isSubscribed
+					? this.getStateAccount().admin
+					: this.wallet.publicKey,
+			},
+		});
+	}
+
+	public async updateHotAdmin(
+		role: HotRole,
+		newPubkey: PublicKey
+	): Promise<TransactionSignature> {
+		const ix = await this.getUpdateHotAdminIx(role, newPubkey);
+		const tx = await this.buildTransaction(ix);
+		const { txSig } = await this.sendTransaction(tx, [], this.opts);
+		return txSig;
+	}
+
+	public async getUpdateHotAdminIx(
+		role: HotRole,
+		newPubkey: PublicKey
+	): Promise<TransactionInstruction> {
+		return this.program.instruction.updateHotAdmin(
+			encodeHotRole(role),
+			newPubkey,
+			{
+				accounts: {
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
+					state: await this.getStatePublicKey(),
+					admin: this.wallet.publicKey,
+				},
+			}
+		);
 	}
 }
 
@@ -6575,15 +7119,6 @@ export class AdminClient extends DriftClient {
  * Hot-admin role identifier. Each role is a separate purpose-specific signer key
  * stored on the `AdminAuthorityConfig` PDA. Compromise of one role's key only
  * enables that role's instructions.
- *
- * NOTE: SDK ix builders for the new tiered-admin instructions
- * (`initialize_admin_authority_config`, `update_warm_admin`, `update_hot_admin`)
- * and `adminAuthorityConfig` pass-through on every existing admin method
- * are pending IDL regeneration — see `sdk/src/idl/drift.json`. Once regenerated:
- *   - Add `adminAuthorityConfig: getAdminAuthorityConfigPublicKey(this.program.programId)`
- *     to every admin method's `accounts: { ... }` object.
- *   - Add wrappers for the three new ixs (cold-tier `update_warm_admin` and
- *     `initialize_admin_authority_config`; warm-tier `update_hot_admin(role, key)`).
  */
 export enum HotRole {
 	AmmCrank = 'ammCrank',
@@ -6597,4 +7132,9 @@ export enum HotRole {
 	VaultDeposit = 'vaultDeposit',
 	MmOracleCrank = 'mmOracleCrank',
 	AmmSpreadAdjust = 'ammSpreadAdjust',
+}
+
+/** Anchor encodes Rust enums as `{ <variant>: {} }`. */
+function encodeHotRole(role: HotRole): { [k: string]: Record<string, never> } {
+	return { [role]: {} };
 }
