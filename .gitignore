@@ -10,6 +10,7 @@ sdk/src/**/*.js
 sdk/src/**/*.js.map
 .DS_STORE
 .vscode
+.claude
 migrations
 /**/*.env
 vendor
