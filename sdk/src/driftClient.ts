@@ -6658,6 +6658,33 @@ export class DriftClient {
 		const userAccountPublicKeyToUse =
 			userAccountPublicKey || (await this.getUserAccountPublicKey());
 
+		process.stderr.write(
+			`[DRIFT-DEBUG] getSwapIx entered file=${__filename}\n`
+		);
+		process.stderr.write(
+			`[DRIFT-DEBUG] this.program.idl.instructions.length=${
+				(this.program.idl as any).instructions.length
+			}\n`
+		);
+		const _bsIdl = (this.program.idl as any).instructions.find(
+			(i: any) => i.name === 'begin_swap' || i.name === 'beginSwap'
+		);
+		const _bifsIdl = (this.program.idl as any).instructions.find(
+			(i: any) =>
+				i.name === 'begin_insurance_fund_swap' ||
+				i.name === 'beginInsuranceFundSwap'
+		);
+		process.stderr.write(
+			`[DRIFT-DEBUG] idl.beginSwap name=${_bsIdl?.name} disc=${JSON.stringify(
+				_bsIdl?.discriminator
+			)}\n`
+		);
+		process.stderr.write(
+			`[DRIFT-DEBUG] idl.beginInsuranceFundSwap name=${
+				_bifsIdl?.name
+			} disc=${JSON.stringify(_bifsIdl?.discriminator)}\n`
+		);
+
 		const userAccounts = [];
 		try {
 			if (this.hasUser() && this.getUser().getUserAccountAndSlot()) {
