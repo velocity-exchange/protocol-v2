@@ -360,8 +360,6 @@ export class User {
 			openBids: ZERO,
 			openAsks: ZERO,
 			settledPnl: ZERO,
-			lpShares: ZERO,
-			lastQuoteAssetAmountPerLp: ZERO,
 			maxMarginRatio: 0,
 			isolatedPositionScaledBalance: ZERO,
 			positionFlag: 0,

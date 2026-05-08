@@ -34,6 +34,44 @@ cd sdk/ && bun install && bun run build
 anchor build -- --features anchor-test && cp target/idl/drift.json sdk/src/idl/drift.json
 ```
 
+After regenerating the JSON, also regenerate the TypeScript IDL the SDK imports:
+```bash
+anchor idl type sdk/src/idl/drift.json --out sdk/src/idl/drift.ts
+```
+
+**Fast IDL-only regeneration** (no SBF .so build, useful when only field names/layouts changed):
+```bash
+anchor idl build -p drift -o target/idl/drift.json -- --features anchor-test
+cp target/idl/drift.json sdk/src/idl/drift.json
+anchor idl type sdk/src/idl/drift.json --out sdk/src/idl/drift.ts
+```
+`anchor idl build` runs under `cargo test` with the host toolchain, which sidesteps the bundled-cargo issues described below.
+
+### macOS build environment
+
+Two pitfalls that fresh setups regularly hit. If you see either symptom, apply the matching fix before debugging anything else.
+
+**Symptom: `c/blake3_impl.h:4:10: fatal error: 'assert.h' file not found`** during `anchor build`.
+The Solana platform-tools clang has no built-in macOS SDK path; it can't find system headers. Fix:
+```bash
+export SDKROOT="$(xcrun --show-sdk-path)"
+```
+(or prefix the build command with it). Add it to your shell profile so future sessions inherit it.
+
+**Symptom: `feature 'edition2024' is required ... not stabilized in this version of Cargo (1.84.0)`** when downloading `toml_datetime` / `wincode` / `toml_parser`.
+The bundled cargo in older platform-tools (v1.51 ships cargo 1.84) can't parse `edition2024` deps. Fix by upgrading platform-tools — the Anchor 1.0 branches need ≥ v1.54:
+```bash
+cargo-build-sbf --tools-version v1.54 --force-tools-install
+```
+Run that once; subsequent `anchor build` invocations will use the new toolchain. Check with `cargo-build-sbf --version`.
+
+**Symptom: program panics with `Access violation in unknown section at address 0x80 of size 8`** (or similar address) at runtime, on instructions that touch types you didn't change.
+This is almost always **stale SBF build artifacts** after a Cargo.lock dep change. SBF caches compiled `.rlib`s under `target/sbpf-solana-solana/`, and the cache key doesn't catch every dep-resolution change — the resulting `.so` loads but reads/writes wrong offsets. Whenever Cargo.lock dep versions change (e.g. after `cargo update`, or after switching branches with different lockfiles), do:
+```bash
+rm -rf target/sbpf-solana-solana target/deploy
+cargo-build-sbf --tools-version v1.54 -- --features anchor-test
+```
+
 ## Testing
 
 **Rust unit tests:**
@@ -53,6 +91,7 @@ bash test-scripts/run-anchor-tests.sh
 # Skip rebuild if .so is already built:
 bash test-scripts/run-anchor-tests.sh --skip-build
 ```
+The integration tests in `tests/` resolve `@coral-xyz/anchor` and friends from the **repo-root** `node_modules`, not from `sdk/`. If you only ran `bun install` / `yarn install` inside `sdk/`, the test files will fail to load with `Cannot find module '@coral-xyz/anchor'`. Run `yarn install` (or `bun install`) at the repo root first.
 
 **SDK unit tests:**
 ```bash

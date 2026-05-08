@@ -39,16 +39,13 @@ export const mockPerpPosition: PerpPosition = {
 	openBids: new BN(0),
 	openAsks: new BN(0),
 	settledPnl: new BN(0),
-	lpShares: new BN(0),
 	remainderBaseAssetAmount: 0,
-	lastQuoteAssetAmountPerLp: new BN(0),
 	maxMarginRatio: 1,
 	isolatedPositionScaledBalance: new BN(0),
 	positionFlag: 0,
 };
 
 export const mockAMM: AMM = {
-	perLpBase: 0,
 	/* these values create a bid/ask price of 12 */
 	baseAssetReserve: new BN(1).mul(BASE_PRECISION),
 	quoteAssetReserve: new BN(12)
@@ -82,8 +79,6 @@ export const mockAMM: AMM = {
 	totalFeeMinusDistributions: new BN(0),
 	totalFeeWithdrawn: new BN(0),
 	totalFee: new BN(0),
-	userLpShares: new BN(0),
-	baseAssetAmountWithUnsettledLp: new BN(0),
 	orderStepSize: new BN(1),
 	orderTickSize: new BN(1),
 	last24HAvgFundingRate: new BN(0),
@@ -120,9 +115,6 @@ export const mockAMM: AMM = {
 	maxBaseAssetReserve: new BN(0),
 	minBaseAssetReserve: new BN(0),
 	totalSocialLoss: new BN(0),
-	baseAssetAmountPerLp: new BN(0),
-	quoteAssetAmountPerLp: new BN(0),
-	targetBaseAssetAmountPerLp: 0,
 
 	quoteBreakEvenAmountLong: new BN(0),
 	quoteBreakEvenAmountShort: new BN(0),
@@ -142,7 +134,6 @@ export const mockAMM: AMM = {
 	askQuoteAssetReserve: new BN(0),
 
 	netUnsettledFundingPnl: new BN(0),
-	quoteAssetAmountWithUnsettledLp: new BN(0),
 	referencePriceOffset: 0,
 
 	oracleLowRiskSlotDelayOverride: 0,

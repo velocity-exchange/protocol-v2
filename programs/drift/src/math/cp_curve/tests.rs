@@ -327,11 +327,6 @@ fn amm_spread_adj_logic() {
     // let (t_price, _t_qar, _t_bar) = calculate_terminal_price_and_reserves(&market.amm).unwrap();
     // market.amm.terminal_quote_asset_reserve = _t_qar;
 
-    // todo fix this
-
-    market.amm.base_asset_amount_per_lp = 1;
-    market.amm.quote_asset_amount_per_lp = -QUOTE_PRECISION_I64 as i128;
-
     let reserve_price = market.amm.reserve_price().unwrap();
     update_spreads(&mut market, reserve_price, None).unwrap();
 

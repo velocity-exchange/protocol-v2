@@ -1000,7 +1000,7 @@ export function calculateSpreadReserves(
 				amm.maxBaseAssetReserve
 			);
 		const liquidityFractionSigned = liquidityFraction.mul(
-			sigNum(amm.baseAssetAmountWithAmm.add(amm.baseAssetAmountWithUnsettledLp))
+			sigNum(amm.baseAssetAmountWithAmm)
 		);
 
 		let liquidityFractionAfterDeadband = liquidityFractionSigned;

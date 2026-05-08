@@ -201,10 +201,7 @@ function fullLogPerpPosition(position: PerpPosition) {
 	openBids=${position.openBids.toString()}
 	openAsks=${position.openAsks.toString()}
 	settledPnl=${position.settledPnl.toString()}
-	lpShares=${position.lpShares.toString()}
 	remainderBaseAssetAmount=${position.remainderBaseAssetAmount}
-	lastQuoteAssetAmountPerLp=${position.lastQuoteAssetAmountPerLp.toString()}
-	perLpBase=${position.perLpBase}
 	maxMarginRatio=${position.maxMarginRatio}
 	marketIndex=${position.marketIndex}
 	openOrders=${position.openOrders}

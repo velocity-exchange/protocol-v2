@@ -88,8 +88,8 @@ pub struct User {
     pub perp_positions: [PerpPosition; 8],
     /// The user's orders
     pub orders: [Order; 32],
-    /// The last time the user added perp lp positions
-    pub last_add_perp_lp_shares_ts: i64,
+    /// Reserved: previously last_add_perp_lp_shares_ts (vAMM LP removed).
+    pub padding_lp_ts: [u8; 8],
     /// The total values of deposits the user has made
     /// precision: QUOTE_PRECISION
     pub total_deposits: u64,
@@ -1185,17 +1185,13 @@ pub struct PerpPosition {
     /// The amount of pnl settled in this market since opening the position
     /// precision: QUOTE_PRECISION
     pub settled_pnl: i64,
-    /// The number of lp (liquidity provider) shares the user has in this perp market
-    /// LP shares allow users to provide liquidity via the AMM
-    /// precision: BASE_PRECISION
-    pub lp_shares: u64,
+    /// Reserved: previously lp_shares (vAMM LP removed).
+    pub padding_lp_shares: [u8; 8],
     /// The scaled balance of the isolated position
     /// precision: SPOT_BALANCE_PRECISION
     pub isolated_position_scaled_balance: u64,
-    /// The last quote asset amount per lp the amm had
-    /// Used to settle the users lp position
-    /// precision: QUOTE_PRECISION
-    pub last_quote_asset_amount_per_lp: i64,
+    /// Reserved: previously last_quote_asset_amount_per_lp (vAMM LP removed).
+    pub padding_last_qaapl: [u8; 8],
     pub padding: [u8; 2],
     // custom max margin ratio for perp market
     pub max_margin_ratio: u16,

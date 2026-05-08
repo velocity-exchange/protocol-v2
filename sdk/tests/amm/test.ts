@@ -492,8 +492,6 @@ describe('AMM Tests', () => {
 				totalFeeWithdrawn: '5251194706',
 				totalFee: '7896066035',
 				totalFeeEarnedPerLp: '77063238',
-				userLpShares: '109260723000000000',
-				baseAssetAmountWithUnsettledLp: '-762306519581',
 				orderStepSize: '1000000000',
 				orderTickSize: '100',
 				maxFillReserveFraction: '100',
@@ -518,9 +516,6 @@ describe('AMM Tests', () => {
 				longSpread: '259471',
 				shortSpread: '3314',
 				maxSpread: '29500',
-				baseAssetAmountPerLp: '-11388426214145',
-				quoteAssetAmountPerLp: '13038990874',
-				targetBaseAssetAmountPerLp: '0',
 				ammJitIntensity: '200',
 				maxOpenInterest: '2000000000000000',
 				maxBaseAssetReserve: '282922257844734',
@@ -543,7 +538,6 @@ describe('AMM Tests', () => {
 				bidQuoteAssetReserve: '50849187948657797529',
 				askBaseAssetReserve: '205083797418879',
 				askQuoteAssetReserve: '58209891472312580749',
-				perLpBase: '4',
 			},
 			numberOfUsersWithBase: '279',
 			numberOfUsers: '436',
@@ -820,11 +814,7 @@ describe('AMM Tests', () => {
 		console.log('liquidityFraction:', liquidityFraction.toString());
 		assert(liquidityFraction.eq(new BN(1000000))); // full
 		const liquidityFractionSigned = liquidityFraction.mul(
-			sigNum(
-				mockAmm.baseAssetAmountWithAmm.add(
-					mockAmm.baseAssetAmountWithUnsettledLp
-				)
-			)
+			sigNum(mockAmm.baseAssetAmountWithAmm)
 		);
 		const referencePriceOffset = calculateReferencePriceOffset(
 			reservePrice,
@@ -1026,11 +1016,7 @@ describe('AMM Tests', () => {
 		console.log('liquidityFraction:', liquidityFraction.toString());
 		assert(liquidityFraction.eq(new BN(1000000))); // full
 		const liquidityFractionSigned = liquidityFraction.mul(
-			sigNum(
-				mockAmm.baseAssetAmountWithAmm.add(
-					mockAmm.baseAssetAmountWithUnsettledLp
-				)
-			)
+			sigNum(mockAmm.baseAssetAmountWithAmm)
 		);
 		const referencePriceOffset = calculateReferencePriceOffset(
 			reservePrice,

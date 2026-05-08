@@ -1054,24 +1054,23 @@ pub fn handle_initialize_perp_market(
             last_trade_ts: now,
             curve_update_intensity,
             fee_pool: PoolBalance::default(),
-            base_asset_amount_per_lp: 0,
-            quote_asset_amount_per_lp: 0,
+            padding_baapl: [0; 16],
+            padding_qaapl: [0; 16],
             last_update_slot: clock_slot,
 
-            // lp stuff
-            base_asset_amount_with_unsettled_lp: 0,
-            user_lp_shares: 0,
+            padding_baawul: [0; 16],
+            padding_user_lp_shares: [0; 16],
             amm_jit_intensity,
 
             last_oracle_valid: false,
-            target_base_asset_amount_per_lp: 0,
-            per_lp_base: 0,
+            padding_target_baapl: [0; 4],
+            padding_per_lp_base: [0; 1],
             oracle_slot_delay_override: -1,
             oracle_low_risk_slot_delay_override: 0,
             amm_spread_adjustment: 0,
             mm_oracle_sequence_id: 0,
             net_unsettled_funding_pnl: 0,
-            quote_asset_amount_with_unsettled_lp: 0,
+            padding_qaawul: [0; 8],
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
@@ -1720,8 +1719,6 @@ pub fn handle_recenter_perp_market_amm_crank(
 
 #[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub struct UpdatePerpMarketSummaryStatsParams {
-    // new aggregate unsettled user stats
-    pub quote_asset_amount_with_unsettled_lp: Option<i64>,
     pub net_unsettled_funding_pnl: Option<i64>,
     pub update_amm_summary_stats: Option<bool>,
     pub exclude_total_liq_fee: Option<bool>,
@@ -1755,16 +1752,6 @@ pub fn handle_update_perp_market_amm_summary_stats(
         price: oracle_price,
         ..
     } = get_oracle_price(&perp_market.amm.oracle_source, price_oracle, clock.slot)?;
-
-    if let Some(quote_asset_amount_with_unsettled_lp) = params.quote_asset_amount_with_unsettled_lp
-    {
-        msg!(
-            "quote_asset_amount_with_unsettled_lp {} -> {}",
-            perp_market.amm.quote_asset_amount_with_unsettled_lp,
-            quote_asset_amount_with_unsettled_lp
-        );
-        perp_market.amm.quote_asset_amount_with_unsettled_lp = quote_asset_amount_with_unsettled_lp;
-    }
 
     if let Some(net_unsettled_funding_pnl) = params.net_unsettled_funding_pnl {
         msg!(

@@ -491,7 +491,6 @@ export type FundingRateRecord = {
 	markPriceTwap: BN;
 	periodRevenue: BN;
 	baseAssetAmountWithAmm: BN;
-	baseAssetAmountWithUnsettledLp: BN;
 };
 
 export type FundingPaymentRecord = {
@@ -549,7 +548,6 @@ export type LiquidatePerpRecord = {
 	oraclePrice: BN;
 	baseAssetAmount: BN;
 	quoteAssetAmount: BN;
-	lpShares: BN;
 	userOrderId: BN;
 	liquidatorOrderId: BN;
 	fillRecordId: BN;
@@ -1067,8 +1065,6 @@ export type AMM = {
 	totalFeeWithdrawn: BN;
 	totalFee: BN;
 	mmOracleSequenceId: BN;
-	userLpShares: BN;
-	baseAssetAmountWithUnsettledLp: BN;
 	orderStepSize: BN;
 	orderTickSize: BN;
 	maxFillReserveFraction: number;
@@ -1093,10 +1089,6 @@ export type AMM = {
 	longSpread: number;
 	shortSpread: number;
 	maxSpread: number;
-
-	baseAssetAmountPerLp: BN;
-	quoteAssetAmountPerLp: BN;
-	targetBaseAssetAmountPerLp: number;
 
 	ammJitIntensity: number;
 	maxOpenInterest: BN;
@@ -1123,9 +1115,7 @@ export type AMM = {
 	askBaseAssetReserve: BN;
 	askQuoteAssetReserve: BN;
 
-	perLpBase: number; // i8
 	netUnsettledFundingPnl: BN;
-	quoteAssetAmountWithUnsettledLp: BN;
 	referencePriceOffset: number;
 
 	oracleLowRiskSlotDelayOverride: number;
@@ -1149,11 +1139,9 @@ export type PerpPosition = {
 	openBids: BN;
 	openAsks: BN;
 	settledPnl: BN;
-	lpShares: BN;
 	/**	 TODO: remove this field - it doesn't exist on chain */
 	remainderBaseAssetAmount: number;
 	maxMarginRatio: number;
-	lastQuoteAssetAmountPerLp: BN;
 	positionFlag: number;
 	isolatedPositionScaledBalance: BN;
 };
@@ -1217,7 +1205,6 @@ export type UserAccount = {
 	nextLiquidationId: number;
 	nextOrderId: number;
 	maxMarginRatio: number;
-	lastAddPerpLpSharesTs: BN;
 	settledPerpPnl: BN;
 	totalDeposits: BN;
 	totalWithdraws: BN;

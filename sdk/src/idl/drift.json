@@ -1,5 +1,5 @@
 {
-  "address": "vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P",
+  "address": "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH",
   "metadata": {
     "name": "drift",
     "version": "2.162.0",
@@ -17475,20 +17475,28 @@
             }
           },
           {
-            "name": "base_asset_amount_per_lp",
+            "name": "padding_baapl",
             "docs": [
-              "accumulated base asset amount since inception per lp share",
-              "precision: QUOTE_PRECISION"
+              "Reserved: previously base_asset_amount_per_lp (vAMM LP removed)."
             ],
-            "type": "i128"
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           },
           {
-            "name": "quote_asset_amount_per_lp",
+            "name": "padding_qaapl",
             "docs": [
-              "accumulated quote asset amount since inception per lp share",
-              "precision: QUOTE_PRECISION"
+              "Reserved: previously quote_asset_amount_per_lp (vAMM LP removed)."
             ],
-            "type": "i128"
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           },
           {
             "name": "fee_pool",
@@ -17591,12 +17599,16 @@
             "type": "i128"
           },
           {
-            "name": "base_asset_amount_with_unsettled_lp",
+            "name": "padding_baawul",
             "docs": [
-              "tracks net position (longs-shorts) in market with LPs as counterparty",
-              "precision: BASE_PRECISION"
+              "Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed)."
             ],
-            "type": "i128"
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           },
           {
             "name": "max_open_interest",
@@ -17647,12 +17659,16 @@
             "type": "i128"
           },
           {
-            "name": "user_lp_shares",
+            "name": "padding_user_lp_shares",
             "docs": [
-              "total user lp shares of sqrt_k (protocol owned liquidity = sqrt_k - last_funding_rate)",
-              "precision: AMM_RESERVE_PRECISION"
+              "Reserved: previously user_lp_shares (vAMM LP removed)."
             ],
-            "type": "u128"
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           },
           {
             "name": "last_funding_rate",
@@ -18037,19 +18053,28 @@
             "type": "bool"
           },
           {
-            "name": "target_base_asset_amount_per_lp",
+            "name": "padding_target_baapl",
             "docs": [
-              "the target value for `base_asset_amount_per_lp`, used during AMM JIT with LP split",
-              "precision: BASE_PRECISION"
+              "Reserved: previously target_base_asset_amount_per_lp (vAMM LP removed)."
             ],
-            "type": "i32"
+            "type": {
+              "array": [
+                "u8",
+                4
+              ]
+            }
           },
           {
-            "name": "per_lp_base",
+            "name": "padding_per_lp_base",
             "docs": [
-              "expo for unit of per_lp, base 10 (if per_lp_base=X, then per_lp unit is 10^X)"
+              "Reserved: previously per_lp_base (vAMM LP removed)."
             ],
-            "type": "i8"
+            "type": {
+              "array": [
+                "u8",
+                1
+              ]
+            }
           },
           {
             "name": "oracle_low_risk_slot_delay_override",
@@ -18079,8 +18104,16 @@
             "type": "i64"
           },
           {
-            "name": "quote_asset_amount_with_unsettled_lp",
-            "type": "i64"
+            "name": "padding_qaawul",
+            "docs": [
+              "Reserved: previously quote_asset_amount_with_unsettled_lp (vAMM LP removed)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           },
           {
             "name": "reference_price_offset",
@@ -19572,11 +19605,16 @@
             "type": "i128"
           },
           {
-            "name": "base_asset_amount_with_unsettled_lp",
+            "name": "padding_baawul",
             "docs": [
-              "precision: BASE_PRECISION"
+              "Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed)."
             ],
-            "type": "i128"
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           }
         ]
       }
@@ -20869,11 +20907,16 @@
             "type": "i64"
           },
           {
-            "name": "lp_shares",
+            "name": "padding_lp_shares",
             "docs": [
-              "precision: AMM_RESERVE_PRECISION"
+              "Reserved: previously lp_shares (vAMM LP removed)."
             ],
-            "type": "u64"
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           },
           {
             "name": "fill_record_id",
@@ -22797,13 +22840,16 @@
             "type": "i64"
           },
           {
-            "name": "lp_shares",
+            "name": "padding_lp_shares",
             "docs": [
-              "The number of lp (liquidity provider) shares the user has in this perp market",
-              "LP shares allow users to provide liquidity via the AMM",
-              "precision: BASE_PRECISION"
+              "Reserved: previously lp_shares (vAMM LP removed)."
             ],
-            "type": "u64"
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           },
           {
             "name": "isolated_position_scaled_balance",
@@ -22814,13 +22860,16 @@
             "type": "u64"
           },
           {
-            "name": "last_quote_asset_amount_per_lp",
+            "name": "padding_last_qaapl",
             "docs": [
-              "The last quote asset amount per lp the amm had",
-              "Used to settle the users lp position",
-              "precision: QUOTE_PRECISION"
+              "Reserved: previously last_quote_asset_amount_per_lp (vAMM LP removed)."
             ],
-            "type": "i64"
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           },
           {
             "name": "padding",
@@ -25165,12 +25214,6 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "quote_asset_amount_with_unsettled_lp",
-            "type": {
-              "option": "i64"
-            }
-          },
-          {
             "name": "net_unsettled_funding_pnl",
             "type": {
               "option": "i64"
@@ -25275,11 +25318,16 @@
             }
           },
           {
-            "name": "last_add_perp_lp_shares_ts",
+            "name": "padding_lp_ts",
             "docs": [
-              "The last time the user added perp lp positions"
+              "Reserved: previously last_add_perp_lp_shares_ts (vAMM LP removed)."
             ],
-            "type": "i64"
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           },
           {
             "name": "total_deposits",

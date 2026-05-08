@@ -243,7 +243,6 @@ export function positionIsAvailable(position: PerpPosition): boolean {
 		position.baseAssetAmount.eq(ZERO) &&
 		position.openOrders === 0 &&
 		position.quoteAssetAmount.eq(ZERO) &&
-		position.lpShares.eq(ZERO) &&
 		position.isolatedPositionScaledBalance.eq(ZERO) &&
 		!positionIsBeingLiquidated(position)
 	);

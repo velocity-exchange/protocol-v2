@@ -871,7 +871,6 @@ pub fn calculate_amm_available_liquidity(
 
 pub fn calculate_net_user_cost_basis(amm: &AMM) -> DriftResult<i128> {
     amm.quote_asset_amount
-        .safe_add(amm.quote_asset_amount_with_unsettled_lp.cast()?)?
         .safe_add(amm.net_unsettled_funding_pnl.cast()?)
 }
 
@@ -884,7 +883,6 @@ pub fn calculate_net_user_pnl(amm: &AMM, oracle_price: i64) -> DriftResult<i128>
 
     let net_user_base_asset_value = amm
         .base_asset_amount_with_amm
-        .safe_add(amm.base_asset_amount_with_unsettled_lp)?
         .safe_mul(oracle_price.cast()?)?
         .safe_div(PRICE_TIMES_AMM_TO_QUOTE_PRECISION_RATIO.cast()?)?;
 

@@ -82,7 +82,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 	for (let i = 0; i < 8; i++) {
 		const baseAssetAmount = readSignedBigInt64LE(buffer, offset + 8);
 		const quoteAssetAmount = readSignedBigInt64LE(buffer, offset + 16);
-		const lpShares = readUnsignedBigInt64LE(buffer, offset + 64);
 		const isolatedPositionScaledBalance = readUnsignedBigInt64LE(
 			buffer,
 			offset + 72
@@ -94,7 +93,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 			baseAssetAmount.eq(ZERO) &&
 			openOrders === 0 &&
 			quoteAssetAmount.eq(ZERO) &&
-			lpShares.eq(ZERO) &&
 			isolatedPositionScaledBalance.eq(ZERO) &&
 			!(
 				(positionFlag &
@@ -117,9 +115,10 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		const openAsks = readSignedBigInt64LE(buffer, offset);
 		offset += 8;
 		const settledPnl = readSignedBigInt64LE(buffer, offset);
-		offset += 24;
-		const lastQuoteAssetAmountPerLp = readSignedBigInt64LE(buffer, offset);
 		offset += 8;
+		offset += 8; // padding_lp_shares (was lp_shares: u64)
+		offset += 8; // isolated_position_scaled_balance (already pre-read above)
+		offset += 8; // padding_last_qaapl (was last_quote_asset_amount_per_lp: i64)
 		offset += 2; // skip padding[u8; 2]
 		const maxMarginRatio = buffer.readUInt16LE(offset); // offset+90
 		offset += 2;
@@ -134,9 +133,7 @@ export function decodeUser(buffer: Buffer): UserAccount {
 			openBids,
 			openAsks,
 			settledPnl,
-			lpShares,
 			remainderBaseAssetAmount: 0,
-			lastQuoteAssetAmountPerLp,
 			marketIndex,
 			openOrders,
 			maxMarginRatio,
@@ -281,8 +278,7 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		});
 	}
 
-	const lastAddPerpLpSharesTs = readSignedBigInt64LE(buffer, offset);
-	offset += 8;
+	offset += 8; // padding_lp_ts (was last_add_perp_lp_shares_ts: i64)
 
 	const totalDeposits = readUnsignedBigInt64LE(buffer, offset);
 	offset += 8;
@@ -359,7 +355,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		spotPositions,
 		perpPositions,
 		orders,
-		lastAddPerpLpSharesTs,
 		totalDeposits,
 		totalWithdraws,
 		totalSocialLoss,

@@ -136,8 +136,8 @@ pub struct FundingRateRecord {
     pub period_revenue: i64,
     /// precision: BASE_PRECISION
     pub base_asset_amount_with_amm: i128,
-    /// precision: BASE_PRECISION
-    pub base_asset_amount_with_unsettled_lp: i128,
+    /// Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed).
+    pub padding_baawul: [u8; 16],
 }
 
 #[event]
@@ -462,8 +462,8 @@ pub struct LiquidatePerpRecord {
     pub oracle_price: i64,
     pub base_asset_amount: i64,
     pub quote_asset_amount: i64,
-    /// precision: AMM_RESERVE_PRECISION
-    pub lp_shares: u64,
+    /// Reserved: previously lp_shares (vAMM LP removed).
+    pub padding_lp_shares: [u8; 8],
     pub fill_record_id: u64,
     pub user_order_id: u32,
     pub liquidator_order_id: u32,
