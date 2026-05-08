@@ -78,6 +78,23 @@ import {
 } from './types';
 import driftIDL from './idl/drift.json';
 
+(() => {
+	const ix = (driftIDL as any).instructions;
+	const bs = ix.find(
+		(i: any) => i.name === 'begin_swap' || i.name === 'beginSwap'
+	);
+	const bif = ix.find(
+		(i: any) =>
+			i.name === 'begin_insurance_fund_swap' ||
+			i.name === 'beginInsuranceFundSwap'
+	);
+	process.stderr.write(
+		`[DRIFT-DEBUG] driftIDL loaded ix.len=${ix.length} ` +
+			`begin_swap=${JSON.stringify(bs?.discriminator)} ` +
+			`begin_if_swap=${JSON.stringify(bif?.discriminator)}\n`
+	);
+})();
+
 /** Client-side guardrail; mirrors on-chain `ErrorCode::SpotDlobTradingDisabled`. */
 const SPOT_DLOB_TRADING_DISABLED_MSG =
 	'Spot DLOB trading is disabled; spot balances, deposits, and swaps remain available.';
