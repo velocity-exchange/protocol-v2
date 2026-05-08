@@ -1,10 +1,12 @@
 #!/usr/bin/env bun
 import { Command } from 'commander';
+import { registerAuth } from './commands/auth';
 import { registerCall } from './commands/call';
-import { registerCold } from './commands/cold';
-import { registerHot } from './commands/hot';
+import { registerExchange } from './commands/exchange';
+import { registerPerpMarket } from './commands/perpMarket';
 import { registerShow } from './commands/show';
-import { registerWarm } from './commands/warm';
+import { registerSpotMarket } from './commands/spotMarket';
+import { registerUser } from './commands/user';
 
 const program = new Command();
 
@@ -12,16 +14,13 @@ program
 	.name('drift-admin')
 	.description(
 		[
-			'Drift v2 admin CLI — cold/warm/hot tier operations.',
+			'Drift v2 admin CLI.',
 			'',
-			'Authority model:',
-			'  COLD ⊇ WARM ⊇ HOT(role). Cold is `state.admin` (rare, ceremonial).',
-			'  Warm is the multisig+timelock pubkey on AdminAuthorityConfig (day-to-day governance).',
-			'  Hot keys are per-role bot signers stored on AdminAuthorityConfig.',
-			'',
-			'Squads V4 multisig: pass --multisig <pubkey> to wrap any subcommand in a',
-			'vault transaction proposal instead of sending directly. Members must then',
-			'approve + execute via the Squads UI (or a separate CLI).',
+			'Each subcommand builds the appropriate instruction(s) and either signs them',
+			'with --keypair (default) or, with --multisig <pda>, wraps them in a Squads V4',
+			'vault transaction + proposal. Tier (cold / warm / hot) is enforced on-chain;',
+			'whatever signs is what gets checked, so you choose the tier by choosing the',
+			'key (or multisig) you pass — not by which command you run.',
 		].join('\n')
 	)
 	.version('0.1.0')
@@ -29,9 +28,11 @@ program
 	.showSuggestionAfterError();
 
 registerShow(program);
-registerCold(program);
-registerWarm(program);
-registerHot(program);
+registerAuth(program);
+registerPerpMarket(program);
+registerSpotMarket(program);
+registerExchange(program);
+registerUser(program);
 registerCall(program);
 
 program.parseAsync(process.argv).catch((err) => {

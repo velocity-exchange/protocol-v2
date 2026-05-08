@@ -1,6 +1,8 @@
 # drift-admin
 
-CLI for Drift v2 cold/warm/hot tier admin operations, with optional Squads V4 multisig dispatch.
+CLI for Drift v2 admin operations. Sign with the right key (or pass a Squads
+V4 multisig); the on-chain program enforces which tier of authority is
+required for the action.
 
 ## Setup
 
@@ -21,39 +23,42 @@ Or, if linked into your `$PATH`:
 drift-admin --help
 ```
 
-### Common operations
+## Commands
 
-```sh
-# Inspect current authorities
+```
 drift-admin show config
 
-# Cold rotation (rare; usually after warm key compromise)
-drift-admin cold update-warm-admin <newPubkey>
+drift-admin auth set-admin <pubkey>
+drift-admin auth set-warm-admin <pubkey>
+drift-admin auth set-hot-admin <role> <pubkey>
+drift-admin auth init-config [--initial-warm <pk>]
 
-# Warm one-time setup post-upgrade
-drift-admin warm init-admin-authority-config
+drift-admin perp-market set-status <market> <status>
+drift-admin spot-market set-status <market> <status>
+drift-admin spot-market set-guard-threshold <market> <threshold>
 
-# Rotate a hot-role signer
-drift-admin warm update-hot-admin ammCrank <newPubkey>
+drift-admin exchange set-status <bitfield>
 
-# Pause spot market 0
-drift-admin warm update-spot-market-status 0 ReduceOnly
+drift-admin user set-special-status <user> <flags>
+drift-admin user admin-deposit <market> <amount> --user <pk> --user-token-account <pk>
+
+drift-admin call <ixName> <payloadFile>     # generic IDL escape hatch
 ```
 
-### Routing through a Squads V4 multisig
+## Routing through a Squads V4 multisig
 
 Append `--multisig <multisigPda>` to any subcommand. The CLI submits a single
 transaction that creates a `vault_transaction` + `proposal` against the
-multisig, with the wallet as the proposer. Members then approve + execute via
-Squads.
+multisig with your wallet as the proposer. Members then approve + execute via
+the Squads UI.
 
 ```sh
-drift-admin cold update-warm-admin <newWarmAdmin> \
+drift-admin auth set-warm-admin <newWarmAdmin> \
   --multisig <multisigPda> \
   --keypair ~/cold-proposer.json
 ```
 
-### Generic dispatcher
+## Generic dispatcher
 
 For any drift instruction without a dedicated wrapper:
 
@@ -75,14 +80,13 @@ Example payload:
 }
 ```
 
-The dispatcher does no PDA derivation — every account must be supplied. It's
-the escape hatch; prefer the named commands.
+The dispatcher does no PDA derivation — every account must be supplied.
 
 ## Global options
 
-| Flag                     | Default                                         |
-| ------------------------ | ----------------------------------------------- |
-| `-u, --url <url>`        | `https://api.mainnet-beta.solana.com`           |
-| `-k, --keypair <path>`   | `~/.config/solana/id.json`                      |
-| `-e, --env <env>`        | `mainnet-beta` (or `devnet`)                    |
-| `-m, --multisig <pubkey>`| (none — direct send)                            |
+| Flag                      | Default                               |
+| ------------------------- | ------------------------------------- |
+| `-u, --url <url>`         | `https://api.mainnet-beta.solana.com` |
+| `-k, --keypair <path>`    | `~/.config/solana/id.json`            |
+| `-e, --env <env>`         | `mainnet-beta` (or `devnet`)          |
+| `-m, --multisig <pubkey>` | (none — direct send)                  |
