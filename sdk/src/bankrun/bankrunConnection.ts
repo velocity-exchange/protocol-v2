@@ -256,9 +256,21 @@ export class BankrunConnection {
 					.toString()
 					.includes('This transaction has already been processed')
 			) {
+				const ixDebug = isVersioned
+					? (tx as VersionedTransaction).message.compiledInstructions.map(
+							(ix, i) =>
+								`  ix[${i}] dataHex=${Buffer.from(ix.data).toString('hex')}`
+					  )
+					: (tx as Transaction).instructions.map(
+							(ix, i) =>
+								`  ix[${i}] pid=${ix.programId.toBase58()} dataHex=${ix.data.toString(
+									'hex'
+								)}`
+					  );
 				console.error(
 					'tx failed:',
 					banksTransactionMeta.result?.toString(),
+					'\ninstructions:\n' + ixDebug.join('\n'),
 					'\nlogs:\n',
 					(banksTransactionMeta.meta?.logMessages ?? []).join('\n')
 				);
