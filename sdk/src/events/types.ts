@@ -17,8 +17,6 @@ import {
 	SpotMarketVaultDepositRecord,
 	SignedMsgOrderRecord,
 	DeleteUserRecord,
-	FuelSweepRecord,
-	FuelSeasonRecord,
 	InsuranceFundSwapRecord,
 	TransferProtocolIfSharesToRevenuePoolRecord,
 	LPMintRedeemRecord,
@@ -61,8 +59,6 @@ export const DefaultEventSubscriptionOptions: EventSubscriptionOptions = {
 		'SpotMarketVaultDepositRecord',
 		'SignedMsgOrderRecord',
 		'DeleteUserRecord',
-		'FuelSweepRecord',
-		'FuelSeasonRecord',
 		'InsuranceFundSwapRecord',
 		'TransferProtocolIfSharesToRevenuePoolRecord',
 		'LPMintRedeemRecord',
@@ -113,8 +109,6 @@ export type EventMap = {
 	SpotMarketVaultDepositRecord: Event<SpotMarketVaultDepositRecord>;
 	SignedMsgOrderRecord: Event<SignedMsgOrderRecord>;
 	DeleteUserRecord: Event<DeleteUserRecord>;
-	FuelSweepRecord: Event<FuelSweepRecord>;
-	FuelSeasonRecord: Event<FuelSeasonRecord>;
 	InsuranceFundSwapRecord: Event<InsuranceFundSwapRecord>;
 	TransferProtocolIfSharesToRevenuePoolRecord: Event<TransferProtocolIfSharesToRevenuePoolRecord>;
 	LPSettleRecord: Event<LPSettleRecord>;
@@ -142,8 +136,6 @@ export type DriftEvent =
 	| Event<SpotMarketVaultDepositRecord>
 	| Event<SignedMsgOrderRecord>
 	| Event<DeleteUserRecord>
-	| Event<FuelSweepRecord>
-	| Event<FuelSeasonRecord>
 	| Event<InsuranceFundSwapRecord>
 	| Event<TransferProtocolIfSharesToRevenuePoolRecord>
 	| Event<LPSettleRecord>

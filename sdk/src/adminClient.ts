@@ -52,7 +52,6 @@ import {
 	getUserStatsAccountPublicKey,
 	getPythLazerOraclePublicKey,
 	getProtectedMakerModeConfigPublicKey,
-	getFuelOverflowAccountPublicKey,
 	getTokenProgramForSpotMarket,
 	getIfRebalanceConfigPublicKey,
 	getInsuranceFundStakeAccountPublicKey,
@@ -88,7 +87,6 @@ import {
 import { calculateTargetPriceTrade } from './math/trade';
 import { calculateAmmReservesAfterSwap, getSwapDirection } from './math/amm';
 import { PROGRAM_ID as PHOENIX_PROGRAM_ID } from '@ellipsis-labs/phoenix-sdk';
-import { FUEL_RESET_LOG_ACCOUNT } from './constants/txConstants';
 import { JupiterClient, QuoteResponse } from './jupiter/jupiterClient';
 import { SwapMode } from './swap/UnifiedSwapClient';
 
@@ -4321,106 +4319,6 @@ export class AdminClient extends DriftClient {
 		});
 	}
 
-	public async updateSpotMarketFuel(
-		spotMarketIndex: number,
-		fuelBoostDeposits?: number,
-		fuelBoostBorrows?: number,
-		fuelBoostTaker?: number,
-		fuelBoostMaker?: number,
-		fuelBoostInsurance?: number
-	): Promise<TransactionSignature> {
-		const updateSpotMarketFuelIx = await this.getUpdateSpotMarketFuelIx(
-			spotMarketIndex,
-			fuelBoostDeposits ?? null,
-			fuelBoostBorrows ?? null,
-			fuelBoostTaker ?? null,
-			fuelBoostMaker ?? null,
-			fuelBoostInsurance ?? null
-		);
-
-		const tx = await this.buildTransaction(updateSpotMarketFuelIx);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getUpdateSpotMarketFuelIx(
-		spotMarketIndex: number,
-		fuelBoostDeposits?: number,
-		fuelBoostBorrows?: number,
-		fuelBoostTaker?: number,
-		fuelBoostMaker?: number,
-		fuelBoostInsurance?: number
-	): Promise<TransactionInstruction> {
-		const spotMarketPublicKey = await getSpotMarketPublicKey(
-			this.program.programId,
-			spotMarketIndex
-		);
-
-		return await (this.program.instruction as any).updateSpotMarketFuel(
-			fuelBoostDeposits ?? null,
-			fuelBoostBorrows ?? null,
-			fuelBoostTaker ?? null,
-			fuelBoostMaker ?? null,
-			fuelBoostInsurance ?? null,
-			{
-				accounts: {
-					admin: this.isSubscribed
-						? this.getStateAccount().admin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-					spotMarket: spotMarketPublicKey,
-				},
-			}
-		);
-	}
-
-	public async updatePerpMarketFuel(
-		perpMarketIndex: number,
-		fuelBoostTaker?: number,
-		fuelBoostMaker?: number,
-		fuelBoostPosition?: number
-	): Promise<TransactionSignature> {
-		const updatePerpMarketFuelIx = await this.getUpdatePerpMarketFuelIx(
-			perpMarketIndex,
-			fuelBoostTaker ?? null,
-			fuelBoostMaker ?? null,
-			fuelBoostPosition ?? null
-		);
-
-		const tx = await this.buildTransaction(updatePerpMarketFuelIx);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getUpdatePerpMarketFuelIx(
-		perpMarketIndex: number,
-		fuelBoostTaker?: number,
-		fuelBoostMaker?: number,
-		fuelBoostPosition?: number
-	): Promise<TransactionInstruction> {
-		const perpMarketPublicKey = await getPerpMarketPublicKey(
-			this.program.programId,
-			perpMarketIndex
-		);
-
-		return await (this.program.instruction as any).updatePerpMarketFuel(
-			fuelBoostTaker ?? null,
-			fuelBoostMaker ?? null,
-			fuelBoostPosition ?? null,
-			{
-				accounts: {
-					admin: this.isSubscribed
-						? this.getStateAccount().admin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-					perpMarket: perpMarketPublicKey,
-				},
-			}
-		);
-	}
-
 	public async updatePerpMarketOracleLowRiskSlotDelayOverride(
 		perpMarketIndex: number,
 		oracleLowRiskSlotDelayOverride: number
@@ -4623,114 +4521,6 @@ export class AdminClient extends DriftClient {
 				rent: SYSVAR_RENT_PUBKEY,
 				systemProgram: anchor.web3.SystemProgram.programId,
 			},
-		});
-	}
-
-	public async initUserFuel(
-		user: PublicKey,
-		authority: PublicKey,
-		fuelBonusDeposits?: number,
-		fuelBonusBorrows?: number,
-		fuelBonusTaker?: number,
-		fuelBonusMaker?: number,
-		fuelBonusInsurance?: number
-	): Promise<TransactionSignature> {
-		const updatePerpMarketFuelIx = await this.getInitUserFuelIx(
-			user,
-			authority,
-			fuelBonusDeposits,
-			fuelBonusBorrows,
-			fuelBonusTaker,
-			fuelBonusMaker,
-			fuelBonusInsurance
-		);
-
-		const tx = await this.buildTransaction(updatePerpMarketFuelIx);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getInitUserFuelIx(
-		user: PublicKey,
-		authority: PublicKey,
-		fuelBonusDeposits?: number,
-		fuelBonusBorrows?: number,
-		fuelBonusTaker?: number,
-		fuelBonusMaker?: number,
-		fuelBonusInsurance?: number
-	): Promise<TransactionInstruction> {
-		const userStats = await getUserStatsAccountPublicKey(
-			this.program.programId,
-			authority
-		);
-
-		return await (this.program.instruction as any).initUserFuel(
-			fuelBonusDeposits || null,
-			fuelBonusBorrows || null,
-			fuelBonusTaker || null,
-			fuelBonusMaker || null,
-			fuelBonusInsurance || null,
-			{
-				accounts: {
-					admin: this.useHotWalletAdmin
-						? this.wallet.publicKey
-						: this.getStateAccount().admin,
-					state: await this.getStatePublicKey(),
-					user,
-					userStats,
-				},
-			}
-		);
-	}
-
-	/**
-	 * @param fuelSweepExists - whether the fuel sweep account exists, must provide this if the user has a FuelSweep account in order to properly reset the fuel season
-	 * @param authority - the authority to reset fuel for
-	 * @returns the transaction signature
-	 */
-	public async resetFuelSeason(
-		fuelSweepExists: boolean,
-		authority?: PublicKey
-	): Promise<TransactionSignature> {
-		const resetFuelSeasonIx = await this.getResetFuelSeasonIx(
-			fuelSweepExists,
-			authority
-		);
-		const tx = await this.buildTransaction([resetFuelSeasonIx], this.txParams);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-		return txSig;
-	}
-
-	public async getResetFuelSeasonIx(
-		fuelSweepExists: boolean,
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		const remainingAccounts = [];
-		if (fuelSweepExists) {
-			remainingAccounts.push({
-				pubkey: getFuelOverflowAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				isSigner: false,
-				isWritable: true,
-			});
-		}
-		return (this.program.instruction as any).resetFuelSeason({
-			accounts: {
-				userStats: getUserStatsAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				authority: authority ?? this.wallet.publicKey,
-				state: await this.getStatePublicKey(),
-				admin: this.useHotWalletAdmin
-					? this.wallet.publicKey
-					: this.getStateAccount().admin,
-				logAccount: FUEL_RESET_LOG_ACCOUNT,
-			},
-			remainingAccounts,
 		});
 	}
 

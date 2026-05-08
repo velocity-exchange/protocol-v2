@@ -25,8 +25,6 @@ test_files=(
 	builderCodes.ts
   decodeUser.ts
   scaleOrders.ts
-  # fuel.ts
-  # fuelSweep.ts
   admin.ts
   assetTier.ts
   cancelAllOrders.ts

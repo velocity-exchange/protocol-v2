@@ -7077,9 +7077,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7131,9 +7129,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, 9 * BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7185,9 +7181,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7245,9 +7239,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7307,9 +7299,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7363,9 +7353,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7417,9 +7405,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7479,9 +7465,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
                 cross_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7531,9 +7515,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Fill,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7581,9 +7563,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Fill,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7631,9 +7611,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Fill,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7689,9 +7667,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Fill,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7741,9 +7717,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Maintenance,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7791,9 +7765,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Maintenance,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,
@@ -7849,9 +7821,7 @@ mod fill_perp_order_margin_requirement_with_isolated {
                 margin_requirement_type: MarginRequirementType::Maintenance,
                 default_margin_requirement_type: MarginRequirementType::Maintenance,
             };
-            let context = MarginContext::standard_with_config(margin_type_config)
-                .fuel_perp_delta(0, -BASE_PRECISION_I64)
-                .fuel_numerator(&user, NOW);
+            let context = MarginContext::standard_with_config(margin_type_config);
 
             let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
                 &user,

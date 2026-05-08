@@ -699,37 +699,6 @@ export type DeleteUserRecord = {
 	keeper: PublicKey | null;
 };
 
-export type FuelSeasonRecord = {
-	ts: BN;
-	authority: PublicKey;
-	fuelInsurance: BN;
-	fuelDeposits: BN;
-	fuelBorrows: BN;
-	fuelPositions: BN;
-	fuelTaker: BN;
-	fuelMaker: BN;
-	fuelTotal: BN;
-};
-
-export type FuelSweepRecord = {
-	ts: BN;
-	authority: PublicKey;
-	// fuel values on UserStats before sweep
-	userStatsFuelInsurance: BN;
-	userStatsFuelDeposits: BN;
-	userStatsFuelBorrows: BN;
-	userStatsFuelPositions: BN;
-	userStatsFuelTaker: BN;
-	userStatsFuelMaker: BN;
-	// fuel values on FuelOverflow before sweep
-	fuelOverflowFuelInsurance: BN;
-	fuelOverflowFuelDeposits: BN;
-	fuelOverflowFuelBorrows: BN;
-	fuelOverflowFuelPositions: BN;
-	fuelOverflowFuelTaker: BN;
-	fuelOverflowFuelMaker: BN;
-};
-
 export type InsuranceFundSwapRecord = {
 	rebalanceConfig: PublicKey;
 	inIfTotalSharesBefore: BN;
@@ -906,9 +875,9 @@ export type PerpMarketAccount = {
 	feeAdjustment: number;
 	pausedOperations: number;
 
-	fuelBoostTaker: number;
-	fuelBoostMaker: number;
-	fuelBoostPosition: number;
+	paddingFormerFuelBoostTaker: number;
+	paddingFormerFuelBoostMaker: number;
+	paddingFormerFuelBoostPosition: number;
 
 	protectedMakerLimitPriceDivisor: number;
 	protectedMakerDynamicDivisor: number;
@@ -1019,11 +988,11 @@ export type SpotMarketAccount = {
 	maxTokenBorrowsFraction: number;
 	minBorrowRate: number;
 
-	fuelBoostDeposits: number;
-	fuelBoostBorrows: number;
-	fuelBoostTaker: number;
-	fuelBoostMaker: number;
-	fuelBoostInsurance: number;
+	paddingFormerFuelBoostDeposits: number;
+	paddingFormerFuelBoostBorrows: number;
+	paddingFormerFuelBoostTaker: number;
+	paddingFormerFuelBoostMaker: number;
+	paddingFormerFuelBoostInsurance: number;
 
 	tokenProgramFlag: number;
 
@@ -1179,30 +1148,17 @@ export type UserStatsAccount = {
 	referrerStatus: number;
 	authority: PublicKey;
 	ifStakedQuoteAssetAmount: BN;
-	lastFuelIfBonusUpdateTs: number; // u32 onchain
+	paddingFormerLastFuelIfBonusUpdateTs: number; // u32 onchain
 
-	fuelOverflowStatus: number;
-	fuelInsurance: number;
-	fuelDeposits: number;
-	fuelBorrows: number;
-	fuelPositions: number;
-	fuelTaker: number;
-	fuelMaker: number;
+	paddingFormerFuelOverflowStatus: number;
+	paddingFormerFuelInsurance: number;
+	paddingFormerFuelDeposits: number;
+	paddingFormerFuelBorrows: number;
+	paddingFormerFuelPositions: number;
+	paddingFormerFuelTaker: number;
+	paddingFormerFuelMaker: number;
 
 	ifStakedGovTokenAmount: BN;
-};
-
-export type FuelOverflowAccount = {
-	authority: PublicKey;
-	fuelInsurance: BN;
-	fuelDeposits: BN;
-	fuelBorrows: BN;
-	fuelPositions: BN;
-	fuelTaker: BN;
-	fuelMaker: BN;
-	lastFuelSweepTs: number;
-	lastResetTs: number;
-	padding: number[];
 };
 
 export type UserAccount = {
@@ -1232,7 +1188,7 @@ export type UserAccount = {
 	hasOpenOrder: boolean;
 	openAuctions: number;
 	hasOpenAuction: boolean;
-	lastFuelBonusUpdateTs: number;
+	paddingFormerLastFuelBonusUpdateTs: number;
 	poolId: number;
 	specialUserStatus: number;
 };
@@ -1442,10 +1398,6 @@ export type ReferrerInfo = {
 export enum ReferrerStatus {
 	IsReferrer = 1,
 	IsReferred = 2,
-}
-
-export enum FuelOverflowStatus {
-	Exists = 1,
 }
 
 export enum PlaceAndTakeOrderSuccessCondition {

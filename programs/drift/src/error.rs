@@ -646,8 +646,10 @@ pub enum ErrorCode {
     InvalidLiquidateSpotWithSwap,
     #[msg("User in SignedMsg message does not match user in ix context")]
     SignedMsgUserContextUserMismatch,
+    /// @deprecated
     #[msg("User fuel overflow threshold not met")]
     UserFuelOverflowThresholdNotMet,
+    /// @deprecated
     #[msg("FuelOverflow account not found")]
     FuelOverflowAccountNotFound,
     #[msg("Invalid Transfer Perp Position")]

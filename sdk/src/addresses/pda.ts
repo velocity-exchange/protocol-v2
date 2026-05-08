@@ -82,19 +82,6 @@ export function getUserStatsAccountPublicKey(
 	)[0];
 }
 
-export function getFuelOverflowAccountPublicKey(
-	programId: PublicKey,
-	authority: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(anchor.utils.bytes.utf8.encode('fuel_overflow')),
-			authority.toBuffer(),
-		],
-		programId
-	)[0];
-}
-
 export function getSignedMsgUserAccountPublicKey(
 	programId: PublicKey,
 	authority: PublicKey

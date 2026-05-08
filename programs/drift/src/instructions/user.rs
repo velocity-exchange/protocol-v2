@@ -65,8 +65,8 @@ use crate::state::events::OrderAction;
 use crate::state::events::OrderActionRecord;
 use crate::state::events::OrderRecord;
 use crate::state::events::{
-    DepositDirection, DepositExplanation, DepositRecord, FuelSeasonRecord, FuelSweepRecord,
-    NewUserRecord, OrderActionExplanation, SwapRecord,
+    DepositDirection, DepositExplanation, DepositRecord, NewUserRecord, OrderActionExplanation,
+    SwapRecord,
 };
 use crate::state::fill_mode::FillMode;
 use crate::state::margin_calculation::MarginContext;
@@ -100,9 +100,7 @@ use crate::state::state::State;
 use crate::state::traits::Size;
 use crate::state::user::OrderStatus;
 use crate::state::user::ReferrerStatus;
-use crate::state::user::{
-    FuelOverflow, FuelOverflowProvider, MarketType, OrderType, ReferrerName, User, UserStats,
-};
+use crate::state::user::{MarketType, OrderType, ReferrerName, User, UserStats};
 use crate::state::user::{Order, SpecialUserStatus};
 use crate::state::user_map::load_user_maps;
 use crate::validate;
@@ -195,8 +193,6 @@ pub fn handle_initialize_user<'c: 'info, 'info>(
 
     let now_ts = Clock::get()?.unix_timestamp;
 
-    user.last_fuel_bonus_update_ts = now_ts.cast()?;
-
     emit!(NewUserRecord {
         ts: now_ts,
         user_authority: ctx.accounts.authority.key(),
@@ -261,7 +257,6 @@ pub fn handle_initialize_user_stats<'c: 'info, 'info>(
         last_taker_volume_30d_ts: clock.unix_timestamp,
         last_maker_volume_30d_ts: clock.unix_timestamp,
         last_filler_volume_30d_ts: clock.unix_timestamp,
-        last_fuel_if_bonus_update_ts: clock.unix_timestamp.cast()?,
         ..UserStats::default()
     };
 
@@ -387,128 +382,6 @@ pub fn handle_change_signed_msg_ws_delegate_status<'c: 'info, 'info>(
             .delegates
             .retain(|&pubkey| pubkey != delegate);
     }
-
-    Ok(())
-}
-
-pub fn handle_initialize_fuel_overflow<'c: 'info, 'info>(
-    ctx: Context<'info, InitializeFuelOverflow<'info>>,
-) -> Result<()> {
-    let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
-    validate!(
-        user_stats.can_sweep_fuel(),
-        ErrorCode::UserFuelOverflowThresholdNotMet,
-        "User fuel sweep threshold not met"
-    )?;
-
-    let mut fuel_overflow = ctx
-        .accounts
-        .fuel_overflow
-        .load_init()
-        .or(Err(ErrorCode::UnableToLoadAccountLoader))?;
-
-    *fuel_overflow = FuelOverflow {
-        authority: ctx.accounts.authority.key(),
-        ..FuelOverflow::default()
-    };
-    user_stats.update_fuel_overflow_status(true);
-
-    Ok(())
-}
-
-pub fn handle_sweep_fuel<'c: 'info, 'info>(
-    ctx: Context<'info, SweepFuel<'info>>,
-) -> anchor_lang::Result<()> {
-    let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
-    validate!(
-        user_stats.can_sweep_fuel(),
-        ErrorCode::UserFuelOverflowThresholdNotMet,
-        "User fuel sweep threshold not met"
-    )?;
-
-    let mut fuel_overflow = load_mut!(&ctx.accounts.fuel_overflow)?;
-
-    let clock = Clock::get()?;
-    emit!(FuelSweepRecord {
-        ts: clock.unix_timestamp.cast()?,
-        authority: ctx.accounts.authority.key(),
-        user_stats_fuel_insurance: user_stats.fuel_insurance,
-        user_stats_fuel_deposits: user_stats.fuel_deposits,
-        user_stats_fuel_borrows: user_stats.fuel_borrows,
-        user_stats_fuel_positions: user_stats.fuel_positions,
-        user_stats_fuel_taker: user_stats.fuel_taker,
-        user_stats_fuel_maker: user_stats.fuel_maker,
-        fuel_overflow_fuel_insurance: fuel_overflow.fuel_insurance,
-        fuel_overflow_fuel_deposits: fuel_overflow.fuel_deposits,
-        fuel_overflow_fuel_borrows: fuel_overflow.fuel_borrows,
-        fuel_overflow_fuel_positions: fuel_overflow.fuel_positions,
-        fuel_overflow_fuel_taker: fuel_overflow.fuel_taker,
-        fuel_overflow_fuel_maker: fuel_overflow.fuel_maker,
-    });
-
-    fuel_overflow.update_from_user_stats(&user_stats, clock.unix_timestamp.cast()?)?;
-    user_stats.reset_fuel();
-
-    Ok(())
-}
-
-pub fn handle_reset_fuel_season<'c: 'info, 'info>(
-    ctx: Context<'info, ResetFuelSeason<'info>>,
-) -> Result<()> {
-    let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
-
-    let fuel_overflow = ctx.fuel_overflow();
-    user_stats.validate_fuel_overflow(&fuel_overflow)?;
-
-    let clock = Clock::get()?;
-    if let Some(fuel_overflow_account) = fuel_overflow {
-        // if FuelOverflow exists, sweep before resetting user_stats
-        let mut fuel_overflow = load_mut!(fuel_overflow_account)?;
-        emit!(FuelSweepRecord {
-            ts: clock.unix_timestamp.cast()?,
-            authority: ctx.accounts.authority.key(),
-            user_stats_fuel_insurance: user_stats.fuel_insurance,
-            user_stats_fuel_deposits: user_stats.fuel_deposits,
-            user_stats_fuel_borrows: user_stats.fuel_borrows,
-            user_stats_fuel_positions: user_stats.fuel_positions,
-            user_stats_fuel_taker: user_stats.fuel_taker,
-            user_stats_fuel_maker: user_stats.fuel_maker,
-            fuel_overflow_fuel_insurance: fuel_overflow.fuel_insurance,
-            fuel_overflow_fuel_deposits: fuel_overflow.fuel_deposits,
-            fuel_overflow_fuel_borrows: fuel_overflow.fuel_borrows,
-            fuel_overflow_fuel_positions: fuel_overflow.fuel_positions,
-            fuel_overflow_fuel_taker: fuel_overflow.fuel_taker,
-            fuel_overflow_fuel_maker: fuel_overflow.fuel_maker,
-        });
-        fuel_overflow.update_from_user_stats(&user_stats, clock.unix_timestamp.cast()?)?;
-
-        emit!(FuelSeasonRecord {
-            ts: clock.unix_timestamp.cast()?,
-            authority: ctx.accounts.authority.key(),
-            fuel_insurance: fuel_overflow.fuel_insurance,
-            fuel_deposits: fuel_overflow.fuel_deposits,
-            fuel_borrows: fuel_overflow.fuel_borrows,
-            fuel_positions: fuel_overflow.fuel_positions,
-            fuel_taker: fuel_overflow.fuel_taker,
-            fuel_maker: fuel_overflow.fuel_maker,
-            fuel_total: fuel_overflow.total_fuel()?,
-        });
-        fuel_overflow.reset_fuel(clock.unix_timestamp.cast()?);
-    } else {
-        emit!(FuelSeasonRecord {
-            ts: clock.unix_timestamp.cast()?,
-            authority: ctx.accounts.authority.key(),
-            fuel_insurance: user_stats.fuel_insurance.cast()?,
-            fuel_deposits: user_stats.fuel_deposits.cast()?,
-            fuel_borrows: user_stats.fuel_borrows.cast()?,
-            fuel_positions: user_stats.fuel_positions.cast()?,
-            fuel_taker: user_stats.fuel_taker.cast()?,
-            fuel_maker: user_stats.fuel_maker.cast()?,
-            fuel_total: user_stats.total_fuel()?,
-        });
-    };
-
-    user_stats.reset_fuel();
 
     Ok(())
 }
@@ -952,15 +825,11 @@ pub fn handle_withdraw<'c: 'info, 'info>(
         amount
     };
 
-    user.meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+    user.meets_withdraw_margin_requirement(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        market_index,
-        amount as u128,
-        &mut user_stats,
-        now,
     )?;
 
     validate_spot_margin_trading(user, &perp_market_map, &spot_market_map, &mut oracle_map)?;
@@ -1128,15 +997,11 @@ pub fn handle_transfer_deposit<'c: 'info, 'info>(
         )?;
     }
 
-    from_user.meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+    from_user.meets_withdraw_margin_requirement(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        market_index,
-        amount as u128,
-        user_stats,
-        now,
     )?;
 
     validate_spot_margin_trading(
@@ -1608,30 +1473,18 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
     drop(borrow_from_spot_market);
     drop(borrow_to_spot_market);
 
-    from_user.meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    from_user.meets_withdraw_margin_requirement_swap(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        deposit_from_market_index,
-        deposit_transfer.cast::<i128>()?,
-        borrow_from_market_index,
-        -borrow_transfer.cast::<i128>()?,
-        user_stats,
-        clock.unix_timestamp,
     )?;
 
-    to_user.meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    to_user.meets_withdraw_margin_requirement_swap(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        deposit_to_market_index,
-        -deposit_transfer.cast::<i128>()?,
-        borrow_to_market_index,
-        borrow_transfer.cast::<i128>()?,
-        user_stats,
-        clock.unix_timestamp,
     )?;
 
     validate_spot_margin_trading(
@@ -1961,8 +1814,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
         )
     };
 
-    let from_user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance)
-        .fuel_perp_delta(market_index, transfer_amount);
+    let from_user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance);
 
     let from_user_margin_calculation =
         calculate_margin_requirement_and_total_collateral_and_liability_info(
@@ -1979,8 +1831,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
         "from user margin requirement is greater than total collateral"
     )?;
 
-    let to_user_margin_context = MarginContext::standard(MarginRequirementType::Initial)
-        .fuel_perp_delta(market_index, -transfer_amount);
+    let to_user_margin_context = MarginContext::standard(MarginRequirementType::Initial);
 
     let to_user_margin_requirement =
         calculate_margin_requirement_and_total_collateral_and_liability_info(
@@ -3911,11 +3762,7 @@ pub fn handle_end_swap<'c: 'info, 'info>(
             out_spot_market.decimals,
             out_oracle_price,
         )?;
-        user_stats.update_taker_volume_30d(
-            out_spot_market.fuel_boost_taker,
-            amount_out_value.cast()?,
-            now,
-        )?;
+        user_stats.update_taker_volume_30d(amount_out_value.cast()?, now)?;
     }
 
     validate!(
@@ -4010,17 +3857,11 @@ pub fn handle_end_swap<'c: 'info, 'info>(
     drop(out_spot_market);
     drop(in_spot_market);
 
-    user.meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    user.meets_withdraw_margin_requirement_swap(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         margin_type,
-        in_market_index,
-        in_token_amount_before.safe_sub(in_token_amount_after)?,
-        out_market_index,
-        out_token_amount_before.safe_sub(out_token_amount_after)?,
-        &mut user_stats,
-        now,
     )?;
 
     user.update_last_active_slot(slot);
@@ -4265,8 +4106,7 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
         controller::amm::update_spread_reserves(&mut market)?;
     }
 
-    let user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance)
-        .fuel_perp_delta(market_index, transfer_amount);
+    let user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance);
 
     let user_margin_calculation =
         calculate_margin_requirement_and_total_collateral_and_liability_info(
@@ -4427,62 +4267,6 @@ pub struct ChangeSignedMsgWsDelegateStatus<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct InitializeFuelOverflow<'info> {
-    #[account(
-        init,
-        seeds = [b"fuel_overflow", authority.key.as_ref()],
-        space = FuelOverflow::SIZE,
-        bump,
-        payer = payer
-    )]
-    pub fuel_overflow: AccountLoader<'info, FuelOverflow>,
-    #[account(
-        mut,
-        has_one = authority
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
-    /// CHECK: authority
-    pub authority: AccountInfo<'info>,
-    #[account(mut)]
-    pub payer: Signer<'info>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct SweepFuel<'info> {
-    #[account(
-        mut,
-        has_one = authority,
-    )]
-    pub fuel_overflow: AccountLoader<'info, FuelOverflow>,
-    #[account(
-        mut,
-        has_one = authority
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
-    /// CHECK: authority
-    pub authority: AccountInfo<'info>,
-    pub signer: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct ResetFuelSeason<'info> {
-    #[account(
-        mut,
-        has_one = authority
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
-    /// CHECK: authority
-    pub authority: AccountInfo<'info>,
-    pub state: Box<Account<'info, State>>,
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
-    pub admin: Signer<'info>,
 }
 
 #[derive(Accounts)]

@@ -25,7 +25,6 @@ import {
 	QUOTE_PRECISION,
 	UserStatsAccount,
 	getUserStatsAccountPublicKey,
-	FUEL_WINDOW,
 } from '../sdk/src';
 
 import {
@@ -164,8 +163,6 @@ describe('spot swap', () => {
 		);
 		await makerDriftClient.updateSpotAuctionDuration(0);
 
-		// await makerDriftClient.updateSpotMarketFuel(0, 1);
-
 		[takerDriftClient, takerWSOL, takerUSDC, takerKeypair] =
 			await createUserWithUSDCAndWSOLAccount(
 				bankrunContextWrapper,
@@ -189,8 +186,6 @@ describe('spot swap', () => {
 			10 * LAMPORTS_PER_SOL
 		);
 		await takerDriftClient.deposit(usdcAmount, 0, takerUSDC);
-
-		await bankrunContextWrapper.moveTimeForward(FUEL_WINDOW.toNumber());
 	});
 
 	after(async () => {
@@ -415,13 +410,6 @@ describe('spot swap', () => {
 			  ) as UserStatsAccount)
 			: undefined;
 
-		// assert(userStatsAccount.fuelDeposits === 2000);
-
-		// await makerDriftClient.initUserFuel(
-		// 	await takerDriftClient.getUserAccountPublicKey(),
-		// 	takerDriftClient.wallet.publicKey,
-		// 	1000
-		// );
 		await takerDriftClient.fetchAccounts();
 		const accountInfo2 = await bankrunContextWrapper.connection.getAccountInfo(
 			userStatsPublicKey
@@ -433,14 +421,6 @@ describe('spot swap', () => {
 			  ) as UserStatsAccount)
 			: undefined;
 
-		// console.log(userStatsAccount2.fuelDeposits.toString());
-		// assert(userStatsAccount2.fuelDeposits === 3000);
-
-		// await makerDriftClient.initUserFuel(
-		// 	await takerDriftClient.getUserAccountPublicKey(),
-		// 	takerDriftClient.wallet.publicKey,
-		// 	-2501
-		// );
 		await takerDriftClient.fetchAccounts();
 
 		const accountInfo3 = await bankrunContextWrapper.connection.getAccountInfo(
@@ -452,11 +432,7 @@ describe('spot swap', () => {
 					accountInfo3.data
 			  ) as UserStatsAccount)
 			: undefined;
-		// console.log(userStatsAccount3.fuelDeposits.toString());
 
-		// assert(userStatsAccount3.fuelDeposits === 499);
-
-		// assert(userStatsAccount.fees.totalFeePaid.eq(new BN(50000)));
 		assert(userStatsAccount.takerVolume30D.eq(new BN(0)));
 
 		const swapRecord = eventSubscriber.getEventsArray('SwapRecord')[0];

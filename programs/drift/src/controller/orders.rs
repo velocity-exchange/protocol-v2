@@ -82,8 +82,6 @@ mod tests;
 
 #[cfg(test)]
 mod amm_jit_tests;
-#[cfg(test)]
-mod fuel_tests;
 
 pub fn place_perp_order(
     state: &State,
@@ -1969,9 +1967,7 @@ fn fulfill_perp_order(
             }
         };
 
-        let mut context = MarginContext::standard_with_config(margin_type_config)
-            .fuel_perp_delta(market_index, taker_base_asset_amount_delta)
-            .fuel_numerator(user, now);
+        let mut context = MarginContext::standard_with_config(margin_type_config);
 
         if oracle_stale_for_margin && !user_order_position_decreasing {
             context = context.margin_ratio_override(MARGIN_PRECISION);
@@ -1985,14 +1981,6 @@ fn fulfill_perp_order(
                 oracle_map,
                 context,
             )?;
-
-        user_stats.update_fuel_bonus(
-            user,
-            taker_margin_calculation.fuel_deposits,
-            taker_margin_calculation.fuel_borrows,
-            taker_margin_calculation.fuel_positions,
-            now,
-        )?;
 
         if !taker_margin_calculation.meets_margin_requirement() {
             let (margin_requirement, total_collateral) =
@@ -2048,9 +2036,7 @@ fn fulfill_perp_order(
             }
         };
 
-        let mut context = MarginContext::standard_with_config(margin_type_config)
-            .fuel_perp_delta(market_index, -maker_base_asset_amount_filled)
-            .fuel_numerator(&maker, now);
+        let mut context = MarginContext::standard_with_config(margin_type_config);
 
         if oracle_stale_for_margin {
             validate!(
@@ -2072,16 +2058,6 @@ fn fulfill_perp_order(
                 oracle_map,
                 context,
             )?;
-
-        if let Some(mut maker_stats) = maker_stats {
-            maker_stats.update_fuel_bonus(
-                &mut maker,
-                maker_margin_calculation.fuel_deposits,
-                maker_margin_calculation.fuel_borrows,
-                maker_margin_calculation.fuel_positions,
-                now,
-            )?;
-        }
 
         if !maker_margin_calculation.meets_margin_requirement() {
             let (margin_requirement, total_collateral) =
@@ -2422,9 +2398,9 @@ pub fn fulfill_perp_order_with_amm(
     }
 
     if order_post_only {
-        user_stats.update_maker_volume_30d(market.fuel_boost_maker, quote_asset_amount, now)?;
+        user_stats.update_maker_volume_30d(quote_asset_amount, now)?;
     } else {
-        user_stats.update_taker_volume_30d(market.fuel_boost_taker, quote_asset_amount, now)?;
+        user_stats.update_taker_volume_30d(quote_asset_amount, now)?;
     }
 
     if let Some(filler) = filler.as_mut() {
@@ -2808,9 +2784,9 @@ pub fn fulfill_perp_order_with_match(
 
     // if maker is none, makes maker and taker authority was the same
     if let Some(maker_stats) = maker_stats {
-        maker_stats.update_maker_volume_30d(market.fuel_boost_maker, quote_asset_amount, now)?;
+        maker_stats.update_maker_volume_30d(quote_asset_amount, now)?;
     } else {
-        taker_stats.update_maker_volume_30d(market.fuel_boost_maker, quote_asset_amount, now)?;
+        taker_stats.update_maker_volume_30d(quote_asset_amount, now)?;
     };
 
     let taker_position_index = get_position_index(
@@ -2830,7 +2806,7 @@ pub fn fulfill_perp_order_with_match(
         &taker_position_delta,
     )?;
 
-    taker_stats.update_taker_volume_30d(market.fuel_boost_taker, quote_asset_amount, now)?;
+    taker_stats.update_taker_volume_30d(quote_asset_amount, now)?;
 
     let reward_referrer = can_reward_user_with_referral_reward(
         referrer,

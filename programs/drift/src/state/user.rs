@@ -3,9 +3,8 @@ use crate::error::{DriftResult, ErrorCode};
 use crate::math::auction::{calculate_auction_price, is_auction_complete};
 use crate::math::casting::Cast;
 use crate::math::constants::{
-    EPOCH_DURATION, FUEL_OVERFLOW_THRESHOLD_U32, FUEL_START_TS, OPEN_ORDER_MARGIN_REQUIREMENT,
-    QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX, SPOT_WEIGHT_PRECISION,
-    SPOT_WEIGHT_PRECISION_I128, THIRTY_DAY,
+    EPOCH_DURATION, OPEN_ORDER_MARGIN_REQUIREMENT, QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX,
+    SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_I128, THIRTY_DAY,
 };
 use crate::math::margin::MarginRequirementType;
 use crate::math::orders::{
@@ -140,7 +139,7 @@ pub struct User {
     pub padding_former_margin_mode: u8,
     pub pool_id: u8,
     pub padding1: [u8; 3],
-    pub last_fuel_bonus_update_ts: u32,
+    pub padding_former_last_fuel_bonus_update_ts: u32,
     /// Whether the user is a special user (vamm hedger, etc)
     pub special_user_status: u8,
     pub padding: [u8; 11],
@@ -597,78 +596,17 @@ impl User {
         false
     }
 
-    pub fn get_fuel_bonus_numerator(&self, now: i64) -> DriftResult<i64> {
-        if self.last_fuel_bonus_update_ts > 0 {
-            now.safe_sub(self.last_fuel_bonus_update_ts.cast()?)
-        } else {
-            // start ts for existing accounts pre fuel
-            if now > FUEL_START_TS {
-                now.safe_sub(FUEL_START_TS)
-            } else {
-                Ok(0)
-            }
-        }
-    }
-
-    pub fn calculate_margin_and_increment_fuel_bonus(
-        &mut self,
-        perp_market_map: &PerpMarketMap,
-        spot_market_map: &SpotMarketMap,
-        oracle_map: &mut OracleMap,
-        context: MarginContext,
-        user_stats: &mut UserStats,
-        now: i64,
-    ) -> DriftResult<MarginCalculation> {
-        let fuel_bonus_numerator = self.get_fuel_bonus_numerator(now)?;
-
-        validate!(
-            context.fuel_bonus_numerator == fuel_bonus_numerator,
-            ErrorCode::DefaultError,
-            "Bad fuel bonus update attempt {} != {} (last_fuel_bonus_update_ts = {} vs now = {})",
-            context.fuel_bonus_numerator,
-            fuel_bonus_numerator,
-            self.last_fuel_bonus_update_ts,
-            now
-        )?;
-
-        let margin_calculation =
-            calculate_margin_requirement_and_total_collateral_and_liability_info(
-                self,
-                perp_market_map,
-                spot_market_map,
-                oracle_map,
-                context,
-            )?;
-
-        user_stats.update_fuel_bonus(
-            self,
-            margin_calculation.fuel_deposits,
-            margin_calculation.fuel_borrows,
-            margin_calculation.fuel_positions,
-            now,
-        )?;
-
-        Ok(margin_calculation)
-    }
-    pub fn meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    pub fn meets_withdraw_margin_requirement_swap(
         &mut self,
         perp_market_map: &PerpMarketMap,
         spot_market_map: &SpotMarketMap,
         oracle_map: &mut OracleMap,
         margin_requirement_type: MarginRequirementType,
-        in_market_index: u16,
-        in_delta: i128,
-        out_market_index: u16,
-        out_delta: i128,
-        user_stats: &mut UserStats,
-        now: i64,
     ) -> DriftResult<bool> {
         let strict = margin_requirement_type == MarginRequirementType::Initial;
         let context = MarginContext::standard(margin_requirement_type)
             .strict(strict)
-            .ignore_invalid_deposit_oracles(true)
-            .fuel_spot_deltas([(in_market_index, in_delta), (out_market_index, out_delta)])
-            .fuel_numerator(self, now);
+            .ignore_invalid_deposit_oracles(true);
 
         let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
             self,
@@ -693,36 +631,22 @@ impl User {
             ErrorCode::InsufficientCollateral,
             "margin calculation: {:?}",
             calculation
-        )?;
-
-        user_stats.update_fuel_bonus(
-            self,
-            calculation.fuel_deposits,
-            calculation.fuel_borrows,
-            calculation.fuel_positions,
-            now,
         )?;
 
         Ok(true)
     }
 
-    pub fn meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+    pub fn meets_withdraw_margin_requirement(
         &mut self,
         perp_market_map: &PerpMarketMap,
         spot_market_map: &SpotMarketMap,
         oracle_map: &mut OracleMap,
         margin_requirement_type: MarginRequirementType,
-        withdraw_market_index: u16,
-        withdraw_amount: u128,
-        user_stats: &mut UserStats,
-        now: i64,
     ) -> DriftResult<bool> {
         let strict = margin_requirement_type == MarginRequirementType::Initial;
         let context = MarginContext::standard(margin_requirement_type)
             .strict(strict)
-            .ignore_invalid_deposit_oracles(true)
-            .fuel_spot_delta(withdraw_market_index, withdraw_amount.cast::<i128>()?)
-            .fuel_numerator(self, now);
+            .ignore_invalid_deposit_oracles(true);
 
         let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
             self,
@@ -747,14 +671,6 @@ impl User {
             ErrorCode::InsufficientCollateral,
             "margin calculation: {:?}",
             calculation
-        )?;
-
-        user_stats.update_fuel_bonus(
-            self,
-            calculation.fuel_deposits,
-            calculation.fuel_borrows,
-            calculation.fuel_positions,
-            now,
         )?;
 
         Ok(true)
@@ -766,10 +682,6 @@ impl User {
         spot_market_map: &SpotMarketMap,
         oracle_map: &mut OracleMap,
         margin_type_config: MarginTypeConfig,
-        withdraw_market_index: u16,
-        withdraw_amount: u128,
-        user_stats: &mut UserStats,
-        now: i64,
         to_isolated_position: bool,
         isolated_market_index: u16,
     ) -> DriftResult<bool> {
@@ -781,9 +693,7 @@ impl User {
         };
         let context = MarginContext::standard_with_config(margin_type_config)
             .strict(strict)
-            .ignore_invalid_deposit_oracles(true)
-            .fuel_spot_delta(withdraw_market_index, withdraw_amount.cast::<i128>()?)
-            .fuel_numerator(self, now);
+            .ignore_invalid_deposit_oracles(true);
 
         let calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
             self,
@@ -808,14 +718,6 @@ impl User {
             ErrorCode::InsufficientCollateral,
             "margin calculation: {:?}",
             calculation
-        )?;
-
-        user_stats.update_fuel_bonus(
-            self,
-            calculation.fuel_deposits,
-            calculation.fuel_borrows,
-            calculation.fuel_positions,
-            now,
         )?;
 
         Ok(true)
@@ -1956,26 +1858,18 @@ pub struct UserStats {
     pub referrer_status: u8,
     pub disable_update_perp_bid_ask_twap: u8,
     pub paused_operations: u8,
-    /// whether the user has a FuelOverflow account
-    pub fuel_overflow_status: u8,
-    /// accumulated fuel for token amounts of insurance
-    pub fuel_insurance: u32,
-    /// accumulated fuel for notional of deposits
-    pub fuel_deposits: u32,
-    /// accumulate fuel bonus for notional of borrows
-    pub fuel_borrows: u32,
-    /// accumulated fuel for perp open interest
-    pub fuel_positions: u32,
-    /// accumulate fuel bonus for taker volume
-    pub fuel_taker: u32,
-    /// accumulate fuel bonus for maker volume
-    pub fuel_maker: u32,
+    pub padding_former_fuel_overflow_status: u8,
+    pub padding_former_fuel_insurance: u32,
+    pub padding_former_fuel_deposits: u32,
+    pub padding_former_fuel_borrows: u32,
+    pub padding_former_fuel_positions: u32,
+    pub padding_former_fuel_taker: u32,
+    pub padding_former_fuel_maker: u32,
 
     /// The amount of tokens staked in the governance spot markets if
     pub if_staked_gov_token_amount: u64,
 
-    /// last unix ts user stats data was used to update if fuel (u32 to save space)
-    pub last_fuel_if_bonus_update_ts: u32,
+    pub padding_former_last_fuel_if_bonus_update_ts: u32,
 
     pub padding: [u8; 12],
 }
@@ -2008,88 +1902,12 @@ impl Size for UserStats {
 }
 
 impl UserStats {
-    pub fn get_fuel_bonus_numerator(
-        self,
-        last_fuel_bonus_update_ts: i64,
-        now: i64,
-    ) -> DriftResult<i64> {
-        if last_fuel_bonus_update_ts != 0 {
-            let since_last = now.safe_sub(last_fuel_bonus_update_ts)?;
-            return Ok(since_last);
-        }
-
-        Ok(0)
-    }
-
-    pub fn update_fuel_bonus_trade(&mut self, fuel_taker: u32, fuel_maker: u32) -> DriftResult {
-        self.fuel_taker = self.fuel_taker.saturating_add(fuel_taker);
-        self.fuel_maker = self.fuel_maker.saturating_add(fuel_maker);
-
-        Ok(())
-    }
-
-    pub fn update_fuel_bonus(
-        &mut self,
-        user: &mut User,
-        fuel_deposits: u32,
-        fuel_borrows: u32,
-        fuel_positions: u32,
-        now: i64,
-    ) -> DriftResult {
-        if user.last_fuel_bonus_update_ts != 0 || now > FUEL_START_TS {
-            self.fuel_deposits = self.fuel_deposits.saturating_add(fuel_deposits);
-            self.fuel_borrows = self.fuel_borrows.saturating_add(fuel_borrows);
-            self.fuel_positions = self.fuel_positions.saturating_add(fuel_positions);
-
-            user.last_fuel_bonus_update_ts = now.cast()?;
-        }
-
-        Ok(())
-    }
-
-    pub fn update_fuel_maker_bonus(
-        &mut self,
-        fuel_boost: u8,
-        quote_asset_amount: u64,
-    ) -> DriftResult {
-        if fuel_boost > 0 {
-            self.fuel_maker = self.fuel_maker.saturating_add(
-                fuel_boost
-                    .cast::<u64>()?
-                    .saturating_mul(quote_asset_amount / QUOTE_PRECISION_U64)
-                    .cast::<u32>()
-                    .unwrap_or(u32::MAX),
-            ); // todo of ratio
-        }
-        Ok(())
-    }
-
-    pub fn update_fuel_taker_bonus(
-        &mut self,
-        fuel_boost: u8,
-        quote_asset_amount: u64,
-    ) -> DriftResult {
-        if fuel_boost > 0 {
-            self.fuel_taker = self.fuel_taker.saturating_add(
-                fuel_boost
-                    .cast::<u64>()?
-                    .saturating_mul(quote_asset_amount / QUOTE_PRECISION_U64)
-                    .cast::<u32>()
-                    .unwrap_or(u32::MAX),
-            ); // todo of ratio
-        }
-        Ok(())
-    }
-
     pub fn update_maker_volume_30d(
         &mut self,
-        fuel_boost: u8,
         quote_asset_amount: u64,
         now: i64,
     ) -> DriftResult {
         let since_last = max(1_i64, now.safe_sub(self.last_maker_volume_30d_ts)?);
-
-        self.update_fuel_maker_bonus(fuel_boost, quote_asset_amount)?;
 
         self.maker_volume_30d = calculate_rolling_sum(
             self.maker_volume_30d,
@@ -2104,13 +1922,10 @@ impl UserStats {
 
     pub fn update_taker_volume_30d(
         &mut self,
-        fuel_boost: u8,
         quote_asset_amount: u64,
         now: i64,
     ) -> DriftResult {
         let since_last = max(1_i64, now.safe_sub(self.last_taker_volume_30d_ts)?);
-
-        self.update_fuel_taker_bonus(fuel_boost, quote_asset_amount)?;
 
         self.taker_volume_30d = calculate_rolling_sum(
             self.taker_volume_30d,
@@ -2215,118 +2030,12 @@ impl UserStats {
         }
     }
 
-    pub fn update_fuel_overflow_status(&mut self, has_overflow: bool) {
-        if has_overflow {
-            self.fuel_overflow_status |= FuelOverflowStatus::Exists as u8;
-        } else {
-            self.fuel_overflow_status &= !(FuelOverflowStatus::Exists as u8);
-        }
-    }
-
-    pub fn can_sweep_fuel(&self) -> bool {
-        if self.fuel_insurance > FUEL_OVERFLOW_THRESHOLD_U32 {
-            return true;
-        }
-        if self.fuel_deposits > FUEL_OVERFLOW_THRESHOLD_U32 {
-            return true;
-        }
-        if self.fuel_borrows > FUEL_OVERFLOW_THRESHOLD_U32 {
-            return true;
-        }
-        if self.fuel_positions > FUEL_OVERFLOW_THRESHOLD_U32 {
-            return true;
-        }
-        if self.fuel_taker > FUEL_OVERFLOW_THRESHOLD_U32 {
-            return true;
-        }
-        if self.fuel_maker > FUEL_OVERFLOW_THRESHOLD_U32 {
-            return true;
-        }
-        false
-    }
-
-    pub fn reset_fuel(&mut self) {
-        self.fuel_insurance = 0;
-        self.fuel_deposits = 0;
-        self.fuel_borrows = 0;
-        self.fuel_positions = 0;
-        self.fuel_taker = 0;
-        self.fuel_maker = 0;
-    }
-
-    pub fn total_fuel(&self) -> DriftResult<u128> {
-        self.fuel_insurance
-            .cast::<u128>()?
-            .safe_add(self.fuel_deposits.cast::<u128>()?)?
-            .safe_add(self.fuel_borrows.cast::<u128>()?)?
-            .safe_add(self.fuel_positions.cast::<u128>()?)?
-            .safe_add(self.fuel_taker.cast::<u128>()?)?
-            .safe_add(self.fuel_maker.cast::<u128>()?)
-    }
-
-    pub fn validate_fuel_overflow(
-        &self,
-        fuel_overflow: &Option<AccountLoader<FuelOverflow>>,
-    ) -> DriftResult<()> {
-        match fuel_overflow {
-            None => {
-                if FuelOverflowStatus::exists(self.fuel_overflow_status) {
-                    let ec = ErrorCode::FuelOverflowAccountNotFound;
-                    msg!("Error {} thrown at {}:{}", ec, file!(), line!());
-                    msg!("FuelOverflow missing in remaining accounts");
-                    return Err(ec);
-                } else {
-                    // no FuelOverflow account and none was given
-                    Ok(())
-                }
-            }
-            Some(fuel_overflow) => {
-                if FuelOverflowStatus::exists(self.fuel_overflow_status) {
-                    // check PDA matches
-                    let (expected, _) = Pubkey::find_program_address(
-                        &[b"fuel_overflow", self.authority.as_ref()],
-                        &crate::id(),
-                    );
-                    let actual = fuel_overflow.to_account_info().key();
-                    if actual != expected {
-                        let ec = ErrorCode::InvalidPDA;
-                        msg!("Error {} thrown at {}:{}", ec, file!(), line!());
-                        msg!("PDA mismatch. Expected: {}, Actual: {}", expected, actual);
-                        return Err(ec);
-                    } else {
-                        Ok(())
-                    }
-                } else {
-                    // no FuelOverflow account but one was provided
-                    let ec = ErrorCode::FuelOverflowAccountNotFound;
-                    msg!("Error {} thrown at {}:{}", ec, file!(), line!());
-                    msg!("Unexpected FuelOverflow account provided in remaining accounts");
-                    return Err(ec);
-                }
-            }
-        }
-    }
-
     pub fn can_update_bid_ask_twap(&self) -> bool {
         let update_mark_twap_paused = UserStatsPausedOperations::is_operation_paused(
             self.paused_operations,
             UserStatsPausedOperations::UpdateBidAskTwap,
         );
         !update_mark_twap_paused
-    }
-}
-
-pub trait FuelOverflowProvider<'a> {
-    fn fuel_overflow(&self) -> Option<AccountLoader<'a, FuelOverflow>>;
-}
-
-impl<'info, T: anchor_lang::Bumps> FuelOverflowProvider<'info> for Context<'info, T> {
-    fn fuel_overflow(&self) -> Option<AccountLoader<'info, FuelOverflow>> {
-        let acct = match self.remaining_accounts.get(0) {
-            Some(acct) => acct,
-            None => return None,
-        };
-        AccountLoader::<'info, FuelOverflow>::try_from(acct).ok()
     }
 }
 
@@ -2342,81 +2051,6 @@ pub struct ReferrerName {
 
 impl Size for ReferrerName {
     const SIZE: usize = 136;
-}
-
-#[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
-#[borsh(use_discriminant = true)]
-#[repr(u8)]
-pub enum FuelOverflowStatus {
-    Exists = 0b00000001,
-}
-
-impl FuelOverflowStatus {
-    pub fn exists(status: u8) -> bool {
-        status & FuelOverflowStatus::Exists as u8 != 0
-    }
-}
-#[account(zero_copy(unsafe))]
-#[derive(Default, Debug)]
-#[repr(C)]
-pub struct FuelOverflow {
-    /// The authority of this overflow account
-    pub authority: Pubkey,
-
-    pub fuel_insurance: u128,
-    pub fuel_deposits: u128,
-    pub fuel_borrows: u128,
-    pub fuel_positions: u128,
-    pub fuel_taker: u128,
-    pub fuel_maker: u128,
-    pub last_fuel_sweep_ts: u32,
-    pub last_reset_ts: u32,
-    pub padding: [u128; 6],
-}
-
-impl Size for FuelOverflow {
-    const SIZE: usize = 240;
-}
-
-impl FuelOverflow {
-    pub fn update_from_user_stats(&mut self, user_stats: &UserStats, now: u32) -> DriftResult<()> {
-        self.fuel_insurance = self
-            .fuel_insurance
-            .safe_add(user_stats.fuel_insurance.cast()?)?;
-        self.fuel_deposits = self
-            .fuel_deposits
-            .safe_add(user_stats.fuel_deposits.cast()?)?;
-        self.fuel_borrows = self
-            .fuel_borrows
-            .safe_add(user_stats.fuel_borrows.cast()?)?;
-        self.fuel_positions = self
-            .fuel_positions
-            .safe_add(user_stats.fuel_positions.cast()?)?;
-        self.fuel_taker = self.fuel_taker.safe_add(user_stats.fuel_taker.cast()?)?;
-        self.fuel_maker = self.fuel_maker.safe_add(user_stats.fuel_maker.cast()?)?;
-        self.last_fuel_sweep_ts = now;
-
-        Ok(())
-    }
-
-    pub fn reset_fuel(&mut self, now: u32) {
-        self.fuel_insurance = 0;
-        self.fuel_deposits = 0;
-        self.fuel_borrows = 0;
-        self.fuel_positions = 0;
-        self.fuel_taker = 0;
-        self.fuel_maker = 0;
-        self.last_reset_ts = now;
-    }
-
-    pub fn total_fuel(&self) -> DriftResult<u128> {
-        self.fuel_insurance
-            .safe_add(self.fuel_deposits)?
-            .safe_add(self.fuel_borrows)?
-            .safe_add(self.fuel_positions)?
-            .safe_add(self.fuel_taker)?
-            .safe_add(self.fuel_maker)
-    }
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
