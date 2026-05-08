@@ -6754,6 +6754,23 @@ export class DriftClient {
 				remainingAccounts,
 			}
 		);
+		console.log(
+			'[DRIFT-DEBUG] encoded beginSwapIx first8=',
+			Array.from(beginSwapIx.data.subarray(0, 8))
+		);
+		const _coderEntries = Array.from(
+			((this.program.coder.instruction as any).ixLayouts as Map<
+				string,
+				any
+			>).entries()
+		).map(([n, v]: [string, any]) => [n, v.discriminator]);
+		console.log(
+			'[DRIFT-DEBUG] coder begin entries:',
+			_coderEntries
+				.filter(([n]) => /begin/i.test(n))
+				.map(([n, d]) => `${n}=${JSON.stringify(d)}`)
+				.join(', ')
+		);
 
 		const endSwapIx = await this.program.instruction.endSwap(
 			inMarketIndex,
