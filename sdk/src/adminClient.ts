@@ -119,6 +119,9 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: driftStatePublicKey,
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				quoteAssetMint: usdcMint,
 				rent: SYSVAR_RENT_PUBKEY,
 				driftSigner: this.getSignerPublicKey(),
@@ -5238,6 +5241,9 @@ export class AdminClient extends DriftClient {
 			remainingAccounts,
 			accounts: {
 				state,
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				user: depositUserAccount,
 				admin: this.wallet.publicKey,
 				spotMarketVault: spotMarket.vault,

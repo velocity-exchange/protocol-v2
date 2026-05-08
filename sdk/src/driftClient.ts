@@ -136,6 +136,7 @@ import {
 	getConstituentVaultPublicKey,
 	getConstituentCorrelationsPublicKey,
 	getLpPoolTokenTokenAccountPublicKey,
+	getAdminAuthorityConfigPublicKey,
 } from './addresses/pda';
 import {
 	DataAndSlot,
@@ -2320,6 +2321,9 @@ export class DriftClient {
 				userStats,
 				authority,
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				driftSigner: this.getSignerPublicKey(),
 				keeper: this.wallet.publicKey,
 			},
@@ -5130,6 +5134,9 @@ export class DriftClient {
 		return await this.program.instruction.settleExpiredMarket(marketIndex, {
 			accounts: {
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				admin: this.isSubscribed
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
@@ -5171,6 +5178,9 @@ export class DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					admin: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
@@ -9518,6 +9528,9 @@ export class DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					authority: this.wallet.publicKey,
 					outInsuranceFundVault: outSpotMarket.insuranceFund.vault,
 					inInsuranceFundVault: inSpotMarket.insuranceFund.vault,
@@ -9538,6 +9551,9 @@ export class DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
+					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+						this.program.programId
+					),
 					authority: this.wallet.publicKey,
 					outInsuranceFundVault: outSpotMarket.insuranceFund.vault,
 					inInsuranceFundVault: inSpotMarket.insuranceFund.vault,

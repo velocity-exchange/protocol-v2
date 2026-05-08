@@ -110,6 +110,13 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
     let (drift_signer, drift_signer_nonce) =
         Pubkey::find_program_address(&[b"drift_signer".as_ref()], ctx.program_id);
 
+    // Default warm_admin to the cold admin so warm-tier handlers work
+    // immediately. All hot roles start as `Pubkey::default()` (unassigned)
+    // until rotated via `update_hot_admin`.
+    let mut config = ctx.accounts.admin_authority_config.load_init()?;
+    config.warm_admin = *ctx.accounts.admin.key;
+    drop(config);
+
     **ctx.accounts.state = State {
         admin: *ctx.accounts.admin.key,
         exchange_status: ExchangeStatus::active(),
@@ -5262,6 +5269,18 @@ pub struct Initialize<'info> {
         payer = admin
     )]
     pub state: Box<Account<'info, State>>,
+    /// Created here so subsequent admin ixs can load this PDA without each test
+    /// having to call `initialize_admin_authority_config` separately. `warm_admin`
+    /// defaults to the cold admin (state.admin) until rotated; all hot roles
+    /// start unset (`Pubkey::default()`).
+    #[account(
+        init,
+        seeds = [ADMIN_AUTHORITY_CONFIG_SEED],
+        space = AdminAuthorityConfig::SIZE,
+        bump,
+        payer = admin,
+    )]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     pub quote_asset_mint: Box<InterfaceAccount<'info, Mint>>,
     /// CHECK: checked in `initialize`
     pub drift_signer: AccountInfo<'info>,

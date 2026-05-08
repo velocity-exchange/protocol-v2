@@ -1,8 +1,11 @@
 use anchor_lang::{prelude::*, Accounts, Key, Result};
 use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
-use crate::ids::lp_pool_swap_wallet;
+use crate::auth::check_hot_loader;
 use crate::math::constants::PRICE_PRECISION_I64;
+use crate::state::admin_authority_config::{
+    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
+};
 use crate::state::events::{DepositDirection, LPBorrowLendDepositRecord};
 use crate::state::paused_operations::ConstituentLpOperation;
 use crate::validation::whitelist::validate_whitelist_token;
@@ -14,7 +17,6 @@ use crate::{
     },
     error::ErrorCode,
     get_then_update_id,
-    ids::admin_hot_wallet,
     math::{
         self,
         casting::Cast,
@@ -1722,9 +1724,11 @@ fn transfer_from_program_vault<'info>(
 #[derive(Accounts)]
 pub struct DepositProgramVault<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin || admin.key() == lp_pool_swap_wallet::id()
+        constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::LpSwap)?
     )]
     pub admin: Signer<'info>,
     #[account(mut)]
@@ -1758,9 +1762,11 @@ pub struct DepositProgramVault<'info> {
 #[derive(Accounts)]
 pub struct WithdrawProgramVault<'info> {
     pub state: Box<Account<'info, State>>,
+    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
+    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin || admin.key() == lp_pool_swap_wallet::id()
+        constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::LpSwap)?
     )]
     pub admin: Signer<'info>,
     /// CHECK: program signer

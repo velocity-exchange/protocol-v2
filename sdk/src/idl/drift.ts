@@ -15,7 +15,16 @@ export type Drift = {
 	instructions: [
 		{
 			name: 'addAmmConstituentMappingData';
-			discriminator: [164, 236, 130, 40, 118, 179, 46, 235];
+			discriminator: [
+				164,
+				236,
+				130,
+				40,
+				118,
+				179,
+				46,
+				235,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -32,7 +41,15 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [65, 77, 77, 95, 77, 65, 80];
+								value: [
+									65,
+									77,
+									77,
+									95,
+									77,
+									65,
+									80,
+								];
 							},
 							{
 								kind: 'account';
@@ -90,6 +107,40 @@ export type Drift = {
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'systemProgram';
 					address: '11111111111111111111111111111111';
 				},
@@ -100,7 +151,7 @@ export type Drift = {
 					type: {
 						vec: {
 							defined: {
-								name: 'addAmmConstituentMappingDatum';
+								name: 'AddAmmConstituentMappingDatum';
 							};
 						};
 					};
@@ -109,7 +160,16 @@ export type Drift = {
 		},
 		{
 			name: 'addInsuranceFundStake';
-			discriminator: [251, 144, 115, 11, 222, 47, 62, 236];
+			discriminator: [
+				251,
+				144,
+				115,
+				11,
+				222,
+				47,
+				62,
+				236,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -121,7 +181,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -141,7 +213,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['insuranceFundStake', 'userStats'];
+					relations: [
+						'insurance_fund_stake',
+						'user_stats',
+					];
 				},
 				{
 					name: 'spotMarketVault';
@@ -238,7 +313,16 @@ export type Drift = {
 		},
 		{
 			name: 'addMarketToAmmCache';
-			discriminator: [112, 149, 195, 222, 124, 7, 87, 237];
+			discriminator: [
+				112,
+				149,
+				195,
+				222,
+				124,
+				7,
+				87,
+				237,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -247,6 +331,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'ammCache';
@@ -291,10 +409,53 @@ export type Drift = {
 		},
 		{
 			name: 'adminDeposit';
-			discriminator: [210, 66, 65, 182, 102, 214, 176, 30];
+			discriminator: [
+				210,
+				66,
+				65,
+				182,
+				102,
+				214,
+				176,
+				30,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'user';
@@ -360,7 +521,16 @@ export type Drift = {
 		},
 		{
 			name: 'adminUpdateUserStatsPausedOperations';
-			discriminator: [183, 104, 63, 150, 240, 199, 3, 10];
+			discriminator: [
+				183,
+				104,
+				63,
+				150,
+				240,
+				199,
+				3,
+				10,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -368,6 +538,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'userStats';
@@ -383,10 +587,53 @@ export type Drift = {
 		},
 		{
 			name: 'adminWithdrawFromInsuranceFundVault';
-			discriminator: [228, 208, 191, 246, 169, 58, 189, 213];
+			discriminator: [
+				228,
+				208,
+				191,
+				246,
+				169,
+				58,
+				189,
+				213,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'authority';
@@ -400,7 +647,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -470,10 +729,53 @@ export type Drift = {
 		},
 		{
 			name: 'beginInsuranceFundSwap';
-			discriminator: [176, 69, 143, 205, 32, 132, 163, 0];
+			discriminator: [
+				176,
+				69,
+				143,
+				205,
+				32,
+				132,
+				163,
+				0,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'authority';
@@ -574,7 +876,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 			];
@@ -595,10 +899,53 @@ export type Drift = {
 		},
 		{
 			name: 'beginLpSwap';
-			discriminator: [64, 44, 24, 199, 48, 125, 67, 91];
+			discriminator: [
+				64,
+				44,
+				24,
+				199,
+				48,
+				125,
+				67,
+				91,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -607,7 +954,9 @@ export type Drift = {
 				},
 				{
 					name: 'signerOutTokenAccount';
-					docs: ['Signer token accounts'];
+					docs: [
+						'Signer token accounts',
+					];
 					writable: true;
 				},
 				{
@@ -616,7 +965,9 @@ export type Drift = {
 				},
 				{
 					name: 'constituentOutTokenAccount';
-					docs: ['Constituent token accounts'];
+					docs: [
+						'Constituent token accounts',
+					];
 					writable: true;
 				},
 				{
@@ -625,13 +976,27 @@ export type Drift = {
 				},
 				{
 					name: 'outConstituent';
-					docs: ['Constituents'];
+					docs: [
+						'Constituents',
+					];
 					writable: true;
 					pda: {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -651,7 +1016,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -669,7 +1046,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 				{
@@ -693,7 +1072,16 @@ export type Drift = {
 		},
 		{
 			name: 'beginSwap';
-			discriminator: [174, 109, 228, 1, 242, 105, 232, 105];
+			discriminator: [
+				174,
+				109,
+				228,
+				1,
+				242,
+				105,
+				232,
+				105,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -794,7 +1182,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 			];
@@ -815,7 +1205,16 @@ export type Drift = {
 		},
 		{
 			name: 'cancelOrder';
-			discriminator: [95, 129, 237, 240, 8, 49, 223, 132];
+			discriminator: [
+				95,
+				129,
+				237,
+				240,
+				8,
+				49,
+				223,
+				132,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -840,7 +1239,16 @@ export type Drift = {
 		},
 		{
 			name: 'cancelOrderByUserId';
-			discriminator: [107, 211, 250, 133, 18, 37, 57, 100];
+			discriminator: [
+				107,
+				211,
+				250,
+				133,
+				18,
+				37,
+				57,
+				100,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -863,7 +1271,16 @@ export type Drift = {
 		},
 		{
 			name: 'cancelOrders';
-			discriminator: [238, 225, 95, 158, 227, 103, 8, 194];
+			discriminator: [
+				238,
+				225,
+				95,
+				158,
+				227,
+				103,
+				8,
+				194,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -883,7 +1300,7 @@ export type Drift = {
 					type: {
 						option: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					};
@@ -899,7 +1316,7 @@ export type Drift = {
 					type: {
 						option: {
 							defined: {
-								name: 'positionDirection';
+								name: 'PositionDirection';
 							};
 						};
 					};
@@ -908,7 +1325,16 @@ export type Drift = {
 		},
 		{
 			name: 'cancelOrdersByIds';
-			discriminator: [134, 19, 144, 165, 94, 240, 210, 94];
+			discriminator: [
+				134,
+				19,
+				144,
+				165,
+				94,
+				240,
+				210,
+				94,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -933,7 +1359,16 @@ export type Drift = {
 		},
 		{
 			name: 'cancelRequestRemoveInsuranceFundStake';
-			discriminator: [97, 235, 78, 62, 212, 42, 241, 127];
+			discriminator: [
+				97,
+				235,
+				78,
+				62,
+				212,
+				42,
+				241,
+				127,
+			];
 			accounts: [
 				{
 					name: 'spotMarket';
@@ -942,7 +1377,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -962,7 +1409,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['insuranceFundStake', 'userStats'];
+					relations: [
+						'insurance_fund_stake',
+						'user_stats',
+					];
 				},
 				{
 					name: 'insuranceFundVault';
@@ -1011,7 +1461,16 @@ export type Drift = {
 		},
 		{
 			name: 'changeApprovedBuilder';
-			discriminator: [179, 134, 211, 45, 195, 5, 189, 173];
+			discriminator: [
+				179,
+				134,
+				211,
+				45,
+				195,
+				5,
+				189,
+				173,
+			];
 			accounts: [
 				{
 					name: 'escrow';
@@ -1020,7 +1479,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [82, 69, 86, 95, 69, 83, 67, 82, 79, 87];
+								value: [
+									82,
+									69,
+									86,
+									95,
+									69,
+									83,
+									67,
+									82,
+									79,
+									87,
+								];
 							},
 							{
 								kind: 'account';
@@ -1032,7 +1502,9 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['escrow'];
+					relations: [
+						'escrow',
+					];
 				},
 				{
 					name: 'payer';
@@ -1061,7 +1533,16 @@ export type Drift = {
 		},
 		{
 			name: 'changeSignedMsgWsDelegateStatus';
-			discriminator: [252, 202, 252, 219, 179, 27, 84, 138];
+			discriminator: [
+				252,
+				202,
+				252,
+				219,
+				179,
+				27,
+				84,
+				138,
+			];
 			accounts: [
 				{
 					name: 'signedMsgWsDelegates';
@@ -1070,7 +1551,21 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71, 95, 87, 83];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+									95,
+									87,
+									83,
+								];
 							},
 							{
 								kind: 'account';
@@ -1102,7 +1597,16 @@ export type Drift = {
 		},
 		{
 			name: 'deleteAmmCache';
-			discriminator: [216, 130, 215, 206, 233, 232, 191, 88];
+			discriminator: [
+				216,
+				130,
+				215,
+				206,
+				233,
+				232,
+				191,
+				88,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -1111,6 +1615,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'ammCache';
@@ -1144,17 +1682,62 @@ export type Drift = {
 		},
 		{
 			name: 'deleteInitializedPerpMarket';
-			discriminator: [91, 154, 24, 87, 106, 59, 190, 66];
+			discriminator: [
+				91,
+				154,
+				24,
+				87,
+				106,
+				59,
+				190,
+				66,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -1170,17 +1753,62 @@ export type Drift = {
 		},
 		{
 			name: 'deleteInitializedSpotMarket';
-			discriminator: [31, 140, 67, 191, 189, 20, 101, 221];
+			discriminator: [
+				31,
+				140,
+				67,
+				191,
+				189,
+				20,
+				101,
+				221,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -1273,10 +1901,53 @@ export type Drift = {
 		},
 		{
 			name: 'deleteOpenbookV2FulfillmentConfig';
-			discriminator: [18, 198, 138, 142, 138, 48, 79, 187];
+			discriminator: [
+				18,
+				198,
+				138,
+				142,
+				138,
+				48,
+				79,
+				187,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'openbookV2FulfillmentConfig';
@@ -1292,13 +1963,24 @@ export type Drift = {
 		},
 		{
 			name: 'deletePrelaunchOracle';
-			discriminator: [59, 169, 100, 49, 69, 17, 173, 253];
+			discriminator: [
+				59,
+				169,
+				100,
+				49,
+				69,
+				17,
+				173,
+				253,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'prelaunchOracle';
@@ -1339,6 +2021,40 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
@@ -1349,10 +2065,53 @@ export type Drift = {
 		},
 		{
 			name: 'deleteSerumFulfillmentConfig';
-			discriminator: [30, 143, 88, 48, 249, 103, 154, 255];
+			discriminator: [
+				30,
+				143,
+				88,
+				48,
+				249,
+				103,
+				154,
+				255,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'serumFulfillmentConfig';
@@ -1368,7 +2127,16 @@ export type Drift = {
 		},
 		{
 			name: 'deleteSignedMsgUserOrders';
-			discriminator: [221, 247, 128, 253, 212, 254, 46, 153];
+			discriminator: [
+				221,
+				247,
+				128,
+				253,
+				212,
+				254,
+				46,
+				153,
+			];
 			accounts: [
 				{
 					name: 'signedMsgUserOrders';
@@ -1377,7 +2145,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+								];
 							},
 							{
 								kind: 'account';
@@ -1399,7 +2178,16 @@ export type Drift = {
 		},
 		{
 			name: 'deleteUser';
-			discriminator: [186, 85, 17, 249, 219, 231, 98, 251];
+			discriminator: [
+				186,
+				85,
+				17,
+				249,
+				219,
+				231,
+				98,
+				251,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -1417,14 +2205,26 @@ export type Drift = {
 					name: 'authority';
 					writable: true;
 					signer: true;
-					relations: ['user', 'userStats'];
+					relations: [
+						'user',
+						'user_stats',
+					];
 				},
 			];
 			args: [];
 		},
 		{
 			name: 'deposit';
-			discriminator: [242, 35, 198, 137, 82, 225, 242, 182];
+			discriminator: [
+				242,
+				35,
+				198,
+				137,
+				82,
+				225,
+				242,
+				182,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -1500,7 +2300,16 @@ export type Drift = {
 		},
 		{
 			name: 'depositIntoInsuranceFundStake';
-			discriminator: [4, 22, 226, 201, 124, 44, 82, 230];
+			discriminator: [
+				4,
+				22,
+				226,
+				201,
+				124,
+				44,
+				82,
+				230,
+			];
 			accounts: [
 				{
 					name: 'signer';
@@ -1511,13 +2320,59 @@ export type Drift = {
 					writable: true;
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'spotMarket';
 					writable: true;
 					pda: {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -1666,7 +2521,16 @@ export type Drift = {
 		},
 		{
 			name: 'depositIntoIsolatedPerpPosition';
-			discriminator: [101, 48, 255, 153, 127, 121, 170, 26];
+			discriminator: [
+				101,
+				48,
+				255,
+				153,
+				127,
+				121,
+				170,
+				26,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -1742,11 +2606,54 @@ export type Drift = {
 		},
 		{
 			name: 'depositIntoPerpMarketFeePool';
-			discriminator: [34, 58, 57, 68, 97, 80, 244, 6];
+			discriminator: [
+				34,
+				58,
+				57,
+				68,
+				97,
+				80,
+				244,
+				6,
+			];
 			accounts: [
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -1755,7 +2662,9 @@ export type Drift = {
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'sourceVault';
@@ -1771,11 +2680,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -1809,7 +2733,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -1827,7 +2754,16 @@ export type Drift = {
 		},
 		{
 			name: 'depositIntoSpotMarketRevenuePool';
-			discriminator: [92, 40, 151, 42, 122, 254, 139, 246];
+			discriminator: [
+				92,
+				40,
+				151,
+				42,
+				122,
+				254,
+				139,
+				246,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -1892,10 +2828,53 @@ export type Drift = {
 		},
 		{
 			name: 'depositIntoSpotMarketVault';
-			discriminator: [48, 252, 119, 73, 255, 205, 174, 247];
+			discriminator: [
+				48,
+				252,
+				119,
+				73,
+				255,
+				205,
+				174,
+				247,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -1926,10 +2905,53 @@ export type Drift = {
 		},
 		{
 			name: 'depositToProgramVault';
-			discriminator: [235, 171, 121, 80, 57, 239, 147, 220];
+			discriminator: [
+				235,
+				171,
+				121,
+				80,
+				57,
+				239,
+				147,
+				220,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -1971,10 +2993,53 @@ export type Drift = {
 		},
 		{
 			name: 'endInsuranceFundSwap';
-			discriminator: [206, 230, 98, 8, 249, 158, 169, 167];
+			discriminator: [
+				206,
+				230,
+				98,
+				8,
+				249,
+				158,
+				169,
+				167,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'authority';
@@ -2075,7 +3140,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 			];
@@ -2092,10 +3159,53 @@ export type Drift = {
 		},
 		{
 			name: 'endLpSwap';
-			discriminator: [99, 125, 214, 165, 129, 175, 253, 135];
+			discriminator: [
+				99,
+				125,
+				214,
+				165,
+				129,
+				175,
+				253,
+				135,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -2104,7 +3214,9 @@ export type Drift = {
 				},
 				{
 					name: 'signerOutTokenAccount';
-					docs: ['Signer token accounts'];
+					docs: [
+						'Signer token accounts',
+					];
 					writable: true;
 				},
 				{
@@ -2113,7 +3225,9 @@ export type Drift = {
 				},
 				{
 					name: 'constituentOutTokenAccount';
-					docs: ['Constituent token accounts'];
+					docs: [
+						'Constituent token accounts',
+					];
 					writable: true;
 				},
 				{
@@ -2122,13 +3236,27 @@ export type Drift = {
 				},
 				{
 					name: 'outConstituent';
-					docs: ['Constituents'];
+					docs: [
+						'Constituents',
+					];
 					writable: true;
 					pda: {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -2148,7 +3276,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -2166,7 +3306,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 				{
@@ -2175,18 +3317,27 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'inMarketIndex';
+					name: 'InMarketIndex';
 					type: 'u16';
 				},
 				{
-					name: 'outMarketIndex';
+					name: 'OutMarketIndex';
 					type: 'u16';
 				},
 			];
 		},
 		{
 			name: 'endSwap';
-			discriminator: [177, 184, 27, 193, 34, 13, 210, 145];
+			discriminator: [
+				177,
+				184,
+				27,
+				193,
+				34,
+				13,
+				210,
+				145,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -2287,7 +3438,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 			];
@@ -2311,7 +3464,7 @@ export type Drift = {
 					type: {
 						option: {
 							defined: {
-								name: 'swapReduceOnly';
+								name: 'SwapReduceOnly';
 							};
 						};
 					};
@@ -2320,7 +3473,16 @@ export type Drift = {
 		},
 		{
 			name: 'fillPerpOrder';
-			discriminator: [13, 188, 248, 103, 134, 217, 106, 240];
+			discriminator: [
+				13,
+				188,
+				248,
+				103,
+				134,
+				217,
+				106,
+				240,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -2354,7 +3516,7 @@ export type Drift = {
 					};
 				},
 				{
-					name: 'makerOrderId';
+					name: 'MakerOrderId';
 					type: {
 						option: 'u32';
 					};
@@ -2363,7 +3525,16 @@ export type Drift = {
 		},
 		{
 			name: 'forceCancelOrders';
-			discriminator: [64, 181, 196, 63, 222, 72, 64, 232];
+			discriminator: [
+				64,
+				181,
+				196,
+				63,
+				222,
+				72,
+				64,
+				232,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -2385,7 +3556,16 @@ export type Drift = {
 		},
 		{
 			name: 'forceDeleteUser';
-			discriminator: [2, 241, 195, 172, 227, 24, 254, 158];
+			discriminator: [
+				2,
+				241,
+				195,
+				172,
+				227,
+				24,
+				254,
+				158,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -2400,9 +3580,46 @@ export type Drift = {
 					writable: true;
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'authority';
 					writable: true;
-					relations: ['user', 'userStats'];
+					relations: [
+						'user',
+						'user_stats',
+					];
 				},
 				{
 					name: 'keeper';
@@ -2417,7 +3634,16 @@ export type Drift = {
 		},
 		{
 			name: 'initialize';
-			discriminator: [175, 175, 109, 31, 13, 152, 155, 237];
+			discriminator: [
+				175,
+				175,
+				109,
+				31,
+				13,
+				152,
+				155,
+				237,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -2431,7 +3657,54 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [100, 114, 105, 102, 116, 95, 115, 116, 97, 116, 101];
+								value: [
+									100,
+									114,
+									105,
+									102,
+									116,
+									95,
+									115,
+									116,
+									97,
+									116,
+									101,
+								];
+							},
+						];
+					};
+				},
+				{
+					name: 'adminAuthorityConfig';
+					writable: true;
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
 							},
 						];
 					};
@@ -2458,7 +3731,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeAmmCache';
-			discriminator: [38, 60, 171, 158, 203, 58, 137, 8];
+			discriminator: [
+				38,
+				60,
+				171,
+				158,
+				203,
+				58,
+				137,
+				8,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -2467,6 +3749,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'ammCache';
@@ -2508,10 +3824,53 @@ export type Drift = {
 		},
 		{
 			name: 'initializeConstituent';
-			discriminator: [12, 196, 45, 218, 93, 89, 0, 33];
+			discriminator: [
+				12,
+				196,
+				45,
+				218,
+				93,
+				89,
+				0,
+				33,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -2615,7 +3974,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -2634,7 +4005,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -2769,7 +4152,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeFuelOverflow';
-			discriminator: [88, 223, 132, 161, 208, 88, 142, 42];
+			discriminator: [
+				88,
+				223,
+				132,
+				161,
+				208,
+				88,
+				142,
+				42,
+			];
 			accounts: [
 				{
 					name: 'fuelOverflow';
@@ -2807,7 +4199,9 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['userStats'];
+					relations: [
+						'user_stats',
+					];
 				},
 				{
 					name: 'payer';
@@ -2827,13 +4221,24 @@ export type Drift = {
 		},
 		{
 			name: 'initializeIfRebalanceConfig';
-			discriminator: [8, 85, 184, 167, 176, 61, 173, 226];
+			discriminator: [
+				8,
+				85,
+				184,
+				167,
+				176,
+				61,
+				173,
+				226,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'ifRebalanceConfig';
@@ -2866,17 +4271,51 @@ export type Drift = {
 							},
 							{
 								kind: 'arg';
-								path: 'params.in_market_index';
+								path: 'params.inMarketIndex';
 							},
 							{
 								kind: 'arg';
-								path: 'params.out_market_index';
+								path: 'params.outMarketIndex';
 							},
 						];
 					};
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'rent';
@@ -2892,7 +4331,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'ifRebalanceConfigParams';
+							name: 'IfRebalanceConfigParams';
 						};
 					};
 				},
@@ -2900,7 +4339,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeInsuranceFundStake';
-			discriminator: [187, 179, 243, 70, 248, 90, 92, 147];
+			discriminator: [
+				187,
+				179,
+				243,
+				70,
+				248,
+				90,
+				92,
+				147,
+			];
 			accounts: [
 				{
 					name: 'spotMarket';
@@ -2908,7 +4356,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -2968,7 +4428,9 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['userStats'];
+					relations: [
+						'user_stats',
+					];
 				},
 				{
 					name: 'payer';
@@ -2993,7 +4455,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeLpPool';
-			discriminator: [242, 64, 1, 222, 142, 46, 204, 227];
+			discriminator: [
+				242,
+				64,
+				1,
+				222,
+				142,
+				46,
+				204,
+				227,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -3007,7 +4478,15 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [108, 112, 95, 112, 111, 111, 108];
+								value: [
+									108,
+									112,
+									95,
+									112,
+									111,
+									111,
+									108,
+								];
 							},
 							{
 								kind: 'arg';
@@ -3062,7 +4541,15 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [65, 77, 77, 95, 77, 65, 80];
+								value: [
+									65,
+									77,
+									77,
+									95,
+									77,
+									65,
+									80,
+								];
 							},
 							{
 								kind: 'account';
@@ -3161,6 +4648,40 @@ export type Drift = {
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'tokenProgram';
 					address: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 				},
@@ -3198,7 +4719,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeOpenbookV2FulfillmentConfig';
-			discriminator: [7, 221, 103, 153, 107, 57, 27, 197];
+			discriminator: [
+				7,
+				221,
+				103,
+				153,
+				107,
+				57,
+				27,
+				197,
+			];
 			accounts: [
 				{
 					name: 'baseSpotMarket';
@@ -3206,7 +4736,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -3221,11 +4763,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -3233,6 +4790,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'openbookV2Program';
@@ -3294,7 +4885,9 @@ export type Drift = {
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'rent';
@@ -3314,7 +4907,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializePerpMarket';
-			discriminator: [132, 9, 229, 118, 117, 118, 117, 62];
+			discriminator: [
+				132,
+				9,
+				229,
+				118,
+				117,
+				118,
+				117,
+				62,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -3326,18 +4928,64 @@ export type Drift = {
 					writable: true;
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'perpMarket';
 					writable: true;
 					pda: {
 						seeds: [
 							{
 								kind: 'const';
-								value: [112, 101, 114, 112, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									112,
+									101,
+									114,
+									112,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'account';
-								path: 'state.number_of_markets';
-								account: 'state';
+								path: 'state.numberOfMarkets';
+								account: 'State';
 							},
 						];
 					};
@@ -3379,7 +5027,7 @@ export type Drift = {
 					name: 'oracleSource';
 					type: {
 						defined: {
-							name: 'oracleSource';
+							name: 'OracleSource';
 						};
 					};
 				},
@@ -3387,7 +5035,7 @@ export type Drift = {
 					name: 'contractTier';
 					type: {
 						defined: {
-							name: 'contractTier';
+							name: 'ContractTier';
 						};
 					};
 				},
@@ -3462,7 +5110,10 @@ export type Drift = {
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 				{
@@ -3473,7 +5124,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializePhoenixFulfillmentConfig';
-			discriminator: [135, 132, 110, 107, 185, 160, 169, 154];
+			discriminator: [
+				135,
+				132,
+				110,
+				107,
+				185,
+				160,
+				169,
+				154,
+			];
 			accounts: [
 				{
 					name: 'baseSpotMarket';
@@ -3481,7 +5141,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -3496,11 +5168,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -3508,6 +5195,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'phoenixProgram';
@@ -3565,7 +5286,9 @@ export type Drift = {
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'rent';
@@ -3585,13 +5308,24 @@ export type Drift = {
 		},
 		{
 			name: 'initializePrelaunchOracle';
-			discriminator: [169, 178, 84, 25, 175, 62, 29, 247];
+			discriminator: [
+				169,
+				178,
+				84,
+				25,
+				175,
+				62,
+				29,
+				247,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'prelaunchOracle';
@@ -3621,13 +5355,47 @@ export type Drift = {
 							},
 							{
 								kind: 'arg';
-								path: 'params.perp_market_index';
+								path: 'params.perpMarketIndex';
 							},
 						];
 					};
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'rent';
@@ -3643,7 +5411,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'prelaunchOracleParams';
+							name: 'PrelaunchOracleParams';
 						};
 					};
 				},
@@ -3651,13 +5419,24 @@ export type Drift = {
 		},
 		{
 			name: 'initializeProtectedMakerModeConfig';
-			discriminator: [67, 103, 220, 67, 88, 32, 252, 8];
+			discriminator: [
+				67,
+				103,
+				220,
+				67,
+				88,
+				32,
+				252,
+				8,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'protectedMakerModeConfig';
@@ -3703,6 +5482,40 @@ export type Drift = {
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'rent';
 					address: 'SysvarRent111111111111111111111111111111111';
 				},
@@ -3720,7 +5533,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializePythLazerOracle';
-			discriminator: [140, 107, 33, 214, 235, 219, 103, 20];
+			discriminator: [
+				140,
+				107,
+				33,
+				214,
+				235,
+				219,
+				103,
+				20,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -3734,7 +5556,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [112, 121, 116, 104, 95, 108, 97, 122, 101, 114];
+								value: [
+									112,
+									121,
+									116,
+									104,
+									95,
+									108,
+									97,
+									122,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'arg';
@@ -3745,6 +5578,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'rent';
@@ -3764,7 +5631,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeReferrerName';
-			discriminator: [235, 126, 231, 10, 42, 164, 26, 61];
+			discriminator: [
+				235,
+				126,
+				231,
+				10,
+				42,
+				164,
+				26,
+				61,
+			];
 			accounts: [
 				{
 					name: 'referrerName';
@@ -3826,14 +5702,26 @@ export type Drift = {
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'initializeRevenueShare';
-			discriminator: [57, 9, 123, 131, 82, 52, 50, 13];
+			discriminator: [
+				57,
+				9,
+				123,
+				131,
+				82,
+				52,
+				50,
+				13,
+			];
 			accounts: [
 				{
 					name: 'revenueShare';
@@ -3842,7 +5730,17 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [82, 69, 86, 95, 83, 72, 65, 82, 69];
+								value: [
+									82,
+									69,
+									86,
+									95,
+									83,
+									72,
+									65,
+									82,
+									69,
+								];
 							},
 							{
 								kind: 'account';
@@ -3872,7 +5770,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeRevenueShareEscrow';
-			discriminator: [187, 18, 123, 88, 238, 104, 84, 154];
+			discriminator: [
+				187,
+				18,
+				123,
+				88,
+				238,
+				104,
+				84,
+				154,
+			];
 			accounts: [
 				{
 					name: 'escrow';
@@ -3881,7 +5788,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [82, 69, 86, 95, 69, 83, 67, 82, 79, 87];
+								value: [
+									82,
+									69,
+									86,
+									95,
+									69,
+									83,
+									67,
+									82,
+									79,
+									87,
+								];
 							},
 							{
 								kind: 'account';
@@ -3892,7 +5810,9 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['userStats'];
+					relations: [
+						'user_stats',
+					];
 				},
 				{
 					name: 'userStats';
@@ -3924,7 +5844,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeSerumFulfillmentConfig';
-			discriminator: [193, 211, 132, 172, 70, 171, 7, 94];
+			discriminator: [
+				193,
+				211,
+				132,
+				172,
+				70,
+				171,
+				7,
+				94,
+			];
 			accounts: [
 				{
 					name: 'baseSpotMarket';
@@ -3932,7 +5861,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -3947,11 +5888,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -3959,6 +5915,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'serumProgram';
@@ -4048,7 +6038,9 @@ export type Drift = {
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'rent';
@@ -4068,7 +6060,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeSignedMsgUserOrders';
-			discriminator: [164, 99, 156, 126, 156, 57, 99, 180];
+			discriminator: [
+				164,
+				99,
+				156,
+				126,
+				156,
+				57,
+				99,
+				180,
+			];
 			accounts: [
 				{
 					name: 'signedMsgUserOrders';
@@ -4077,7 +6078,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+								];
 							},
 							{
 								kind: 'account';
@@ -4112,7 +6124,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeSignedMsgWsDelegates';
-			discriminator: [40, 132, 96, 219, 184, 193, 80, 8];
+			discriminator: [
+				40,
+				132,
+				96,
+				219,
+				184,
+				193,
+				80,
+				8,
+			];
 			accounts: [
 				{
 					name: 'signedMsgWsDelegates';
@@ -4121,7 +6142,21 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71, 95, 87, 83];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+									95,
+									87,
+									83,
+								];
 							},
 							{
 								kind: 'account';
@@ -4155,7 +6190,16 @@ export type Drift = {
 		},
 		{
 			name: 'initializeSpotMarket';
-			discriminator: [234, 196, 128, 44, 94, 15, 48, 201];
+			discriminator: [
+				234,
+				196,
+				128,
+				44,
+				94,
+				15,
+				48,
+				201,
+			];
 			accounts: [
 				{
 					name: 'spotMarket';
@@ -4164,12 +6208,24 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'account';
-								path: 'state.number_of_spot_markets';
-								account: 'state';
+								path: 'state.numberOfSpotMarkets';
+								account: 'State';
 							},
 						];
 					};
@@ -4206,8 +6262,8 @@ export type Drift = {
 							},
 							{
 								kind: 'account';
-								path: 'state.number_of_spot_markets';
-								account: 'state';
+								path: 'state.numberOfSpotMarkets';
+								account: 'State';
 							},
 						];
 					};
@@ -4244,8 +6300,8 @@ export type Drift = {
 							},
 							{
 								kind: 'account';
-								path: 'state.number_of_spot_markets';
-								account: 'state';
+								path: 'state.numberOfSpotMarkets';
+								account: 'State';
 							},
 						];
 					};
@@ -4256,6 +6312,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'oracle';
@@ -4294,7 +6384,7 @@ export type Drift = {
 					name: 'oracleSource';
 					type: {
 						defined: {
-							name: 'oracleSource';
+							name: 'OracleSource';
 						};
 					};
 				},
@@ -4334,7 +6424,7 @@ export type Drift = {
 					name: 'assetTier';
 					type: {
 						defined: {
-							name: 'assetTier';
+							name: 'AssetTier';
 						};
 					};
 				},
@@ -4361,14 +6451,26 @@ export type Drift = {
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'initializeUser';
-			discriminator: [111, 17, 185, 250, 60, 122, 38, 254];
+			discriminator: [
+				111,
+				17,
+				185,
+				250,
+				60,
+				122,
+				38,
+				254,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -4377,7 +6479,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -4400,7 +6507,9 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['userStats'];
+					relations: [
+						'user_stats',
+					];
 				},
 				{
 					name: 'payer';
@@ -4424,14 +6533,26 @@ export type Drift = {
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'initializeUserStats';
-			discriminator: [254, 243, 72, 98, 251, 130, 168, 213];
+			discriminator: [
+				254,
+				243,
+				72,
+				98,
+				251,
+				130,
+				168,
+				213,
+			];
 			accounts: [
 				{
 					name: 'userStats';
@@ -4440,7 +6561,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114, 95, 115, 116, 97, 116, 115];
+								value: [
+									117,
+									115,
+									101,
+									114,
+									95,
+									115,
+									116,
+									97,
+									116,
+									115,
+								];
 							},
 							{
 								kind: 'account';
@@ -4474,7 +6606,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidateBorrowForPerpPnl';
-			discriminator: [169, 17, 32, 90, 207, 148, 209, 27];
+			discriminator: [
+				169,
+				17,
+				32,
+				90,
+				207,
+				148,
+				209,
+				27,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4523,7 +6664,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidatePerp';
-			discriminator: [75, 35, 119, 247, 191, 18, 139, 2];
+			discriminator: [
+				75,
+				35,
+				119,
+				247,
+				191,
+				18,
+				139,
+				2,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4568,7 +6718,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidatePerpPnlForDeposit';
-			discriminator: [237, 75, 198, 235, 233, 186, 75, 35];
+			discriminator: [
+				237,
+				75,
+				198,
+				235,
+				233,
+				186,
+				75,
+				35,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4617,7 +6776,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidatePerpWithFill';
-			discriminator: [95, 111, 124, 105, 86, 169, 187, 34];
+			discriminator: [
+				95,
+				111,
+				124,
+				105,
+				86,
+				169,
+				187,
+				34,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4652,7 +6820,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidateSpot';
-			discriminator: [107, 0, 128, 41, 35, 229, 251, 18];
+			discriminator: [
+				107,
+				0,
+				128,
+				41,
+				35,
+				229,
+				251,
+				18,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4701,7 +6878,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidateSpotWithSwapBegin';
-			discriminator: [12, 43, 176, 83, 156, 251, 117, 13];
+			discriminator: [
+				12,
+				43,
+				176,
+				83,
+				156,
+				251,
+				117,
+				13,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4810,7 +6996,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 			];
@@ -4831,7 +7019,16 @@ export type Drift = {
 		},
 		{
 			name: 'liquidateSpotWithSwapEnd';
-			discriminator: [142, 88, 163, 160, 223, 75, 55, 225];
+			discriminator: [
+				142,
+				88,
+				163,
+				160,
+				223,
+				75,
+				55,
+				225,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4940,7 +7137,9 @@ export type Drift = {
 				},
 				{
 					name: 'instructions';
-					docs: ['Instructions Sysvar for instruction introspection'];
+					docs: [
+						'Instructions Sysvar for instruction introspection',
+					];
 					address: 'Sysvar1nstructions1111111111111111111111111';
 				},
 			];
@@ -4957,7 +7156,16 @@ export type Drift = {
 		},
 		{
 			name: 'logUserBalances';
-			discriminator: [162, 21, 35, 251, 32, 57, 161, 210];
+			discriminator: [
+				162,
+				21,
+				35,
+				251,
+				32,
+				57,
+				161,
+				210,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4975,7 +7183,16 @@ export type Drift = {
 		},
 		{
 			name: 'lpPoolAddLiquidity';
-			discriminator: [49, 135, 246, 103, 93, 146, 220, 141];
+			discriminator: [
+				49,
+				135,
+				246,
+				103,
+				93,
+				146,
+				220,
+				141,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -4998,7 +7215,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -5121,7 +7350,16 @@ export type Drift = {
 		},
 		{
 			name: 'lpPoolRemoveLiquidity';
-			discriminator: [164, 36, 193, 252, 196, 157, 138, 43];
+			discriminator: [
+				164,
+				36,
+				193,
+				252,
+				196,
+				157,
+				138,
+				43,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5147,7 +7385,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -5330,7 +7580,16 @@ export type Drift = {
 		},
 		{
 			name: 'lpPoolSwap';
-			discriminator: [36, 161, 39, 49, 227, 1, 35, 226];
+			discriminator: [
+				36,
+				161,
+				39,
+				49,
+				227,
+				1,
+				35,
+				226,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5367,7 +7626,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -5387,7 +7658,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -5435,7 +7718,16 @@ export type Drift = {
 		},
 		{
 			name: 'modifyOrder';
-			discriminator: [47, 124, 117, 255, 201, 197, 130, 94];
+			discriminator: [
+				47,
+				124,
+				117,
+				255,
+				201,
+				197,
+				130,
+				94,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5460,7 +7752,7 @@ export type Drift = {
 					name: 'modifyOrderParams';
 					type: {
 						defined: {
-							name: 'modifyOrderParams';
+							name: 'ModifyOrderParams';
 						};
 					};
 				},
@@ -5468,7 +7760,16 @@ export type Drift = {
 		},
 		{
 			name: 'modifyOrderByUserId';
-			discriminator: [158, 77, 4, 253, 252, 194, 161, 179];
+			discriminator: [
+				158,
+				77,
+				4,
+				253,
+				252,
+				194,
+				161,
+				179,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5491,7 +7792,7 @@ export type Drift = {
 					name: 'modifyOrderParams';
 					type: {
 						defined: {
-							name: 'modifyOrderParams';
+							name: 'ModifyOrderParams';
 						};
 					};
 				},
@@ -5499,15 +7800,60 @@ export type Drift = {
 		},
 		{
 			name: 'moveAmmPrice';
-			discriminator: [235, 109, 2, 82, 219, 118, 6, 159];
+			discriminator: [
+				235,
+				109,
+				2,
+				82,
+				219,
+				118,
+				6,
+				159,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -5531,7 +7877,16 @@ export type Drift = {
 		},
 		{
 			name: 'openbookV2FulfillmentConfigStatus';
-			discriminator: [25, 173, 19, 189, 4, 211, 64, 238];
+			discriminator: [
+				25,
+				173,
+				19,
+				189,
+				4,
+				211,
+				64,
+				238,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5551,7 +7906,7 @@ export type Drift = {
 					name: 'status';
 					type: {
 						defined: {
-							name: 'spotFulfillmentConfigStatus';
+							name: 'SpotFulfillmentConfigStatus';
 						};
 					};
 				},
@@ -5559,11 +7914,54 @@ export type Drift = {
 		},
 		{
 			name: 'overrideAmmCacheInfo';
-			discriminator: [189, 198, 128, 9, 49, 145, 201, 115];
+			discriminator: [
+				189,
+				198,
+				128,
+				9,
+				49,
+				145,
+				201,
+				115,
+			];
 			accounts: [
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -5606,7 +8004,7 @@ export type Drift = {
 					name: 'overrideParams';
 					type: {
 						defined: {
-							name: 'overrideAmmCacheParams';
+							name: 'OverrideAmmCacheParams';
 						};
 					};
 				},
@@ -5614,7 +8012,16 @@ export type Drift = {
 		},
 		{
 			name: 'pauseSpotMarketDepositWithdraw';
-			discriminator: [183, 119, 59, 170, 137, 35, 242, 86];
+			discriminator: [
+				183,
+				119,
+				59,
+				170,
+				137,
+				35,
+				242,
+				86,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5665,10 +8072,53 @@ export type Drift = {
 		},
 		{
 			name: 'phoenixFulfillmentConfigStatus';
-			discriminator: [96, 31, 113, 32, 12, 203, 7, 154];
+			discriminator: [
+				96,
+				31,
+				113,
+				32,
+				12,
+				203,
+				7,
+				154,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'phoenixFulfillmentConfig';
@@ -5678,7 +8128,9 @@ export type Drift = {
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 			];
 			args: [
@@ -5686,7 +8138,7 @@ export type Drift = {
 					name: 'status';
 					type: {
 						defined: {
-							name: 'spotFulfillmentConfigStatus';
+							name: 'SpotFulfillmentConfigStatus';
 						};
 					};
 				},
@@ -5694,7 +8146,16 @@ export type Drift = {
 		},
 		{
 			name: 'placeAndMakePerpOrder';
-			discriminator: [149, 117, 11, 237, 47, 95, 89, 237];
+			discriminator: [
+				149,
+				117,
+				11,
+				237,
+				47,
+				95,
+				89,
+				237,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5725,7 +8186,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'orderParams';
+							name: 'OrderParams';
 						};
 					};
 				},
@@ -5737,7 +8198,16 @@ export type Drift = {
 		},
 		{
 			name: 'placeAndMakeSignedMsgPerpOrder';
-			discriminator: [16, 26, 123, 131, 94, 29, 175, 98];
+			discriminator: [
+				16,
+				26,
+				123,
+				131,
+				94,
+				29,
+				175,
+				98,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5764,7 +8234,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+								];
 							},
 							{
 								kind: 'account';
@@ -5783,21 +8264,33 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'orderParams';
+							name: 'OrderParams';
 						};
 					};
 				},
 				{
 					name: 'signedMsgOrderUuid';
 					type: {
-						array: ['u8', 8];
+						array: [
+							'u8',
+							8,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'placeAndTakePerpOrder';
-			discriminator: [213, 51, 1, 187, 108, 220, 230, 224];
+			discriminator: [
+				213,
+				51,
+				1,
+				187,
+				108,
+				220,
+				230,
+				224,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5820,7 +8313,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'orderParams';
+							name: 'OrderParams';
 						};
 					};
 				},
@@ -5834,7 +8327,16 @@ export type Drift = {
 		},
 		{
 			name: 'placeOrders';
-			discriminator: [60, 63, 50, 123, 12, 197, 60, 190];
+			discriminator: [
+				60,
+				63,
+				50,
+				123,
+				12,
+				197,
+				60,
+				190,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5854,7 +8356,7 @@ export type Drift = {
 					type: {
 						vec: {
 							defined: {
-								name: 'orderParams';
+								name: 'OrderParams';
 							};
 						};
 					};
@@ -5863,7 +8365,16 @@ export type Drift = {
 		},
 		{
 			name: 'placePerpOrder';
-			discriminator: [69, 161, 93, 202, 120, 126, 76, 185];
+			discriminator: [
+				69,
+				161,
+				93,
+				202,
+				120,
+				126,
+				76,
+				185,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5882,7 +8393,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'orderParams';
+							name: 'OrderParams';
 						};
 					};
 				},
@@ -5890,7 +8401,16 @@ export type Drift = {
 		},
 		{
 			name: 'placeScaleOrders';
-			discriminator: [129, 249, 70, 55, 177, 250, 252, 94];
+			discriminator: [
+				129,
+				249,
+				70,
+				55,
+				177,
+				250,
+				252,
+				94,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5909,7 +8429,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'scaleOrderParams';
+							name: 'ScaleOrderParams';
 						};
 					};
 				},
@@ -5917,7 +8437,16 @@ export type Drift = {
 		},
 		{
 			name: 'placeSignedMsgTakerOrder';
-			discriminator: [32, 79, 101, 139, 25, 6, 98, 15];
+			discriminator: [
+				32,
+				79,
+				101,
+				139,
+				25,
+				6,
+				98,
+				15,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -5937,7 +8466,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+								];
 							},
 							{
 								kind: 'account';
@@ -5973,7 +8513,16 @@ export type Drift = {
 		},
 		{
 			name: 'postPythLazerOracleUpdate';
-			discriminator: [218, 237, 170, 245, 39, 143, 166, 33];
+			discriminator: [
+				218,
+				237,
+				170,
+				245,
+				39,
+				143,
+				166,
+				33,
+			];
 			accounts: [
 				{
 					name: 'keeper';
@@ -5998,15 +8547,60 @@ export type Drift = {
 		},
 		{
 			name: 'recenterPerpMarketAmm';
-			discriminator: [24, 87, 10, 115, 165, 190, 80, 139];
+			discriminator: [
+				24,
+				87,
+				10,
+				115,
+				165,
+				190,
+				80,
+				139,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -6026,7 +8620,16 @@ export type Drift = {
 		},
 		{
 			name: 'recenterPerpMarketAmmCrank';
-			discriminator: [166, 19, 64, 10, 14, 51, 101, 122];
+			discriminator: [
+				166,
+				19,
+				64,
+				10,
+				14,
+				51,
+				101,
+				122,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -6034,6 +8637,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -6045,7 +8682,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'account';
@@ -6069,7 +8718,16 @@ export type Drift = {
 		},
 		{
 			name: 'reclaimRent';
-			discriminator: [218, 200, 19, 197, 227, 89, 192, 22];
+			discriminator: [
+				218,
+				200,
+				19,
+				197,
+				227,
+				89,
+				192,
+				22,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -6085,7 +8743,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['user', 'userStats'];
+					relations: [
+						'user',
+						'user_stats',
+					];
 				},
 				{
 					name: 'rent';
@@ -6096,7 +8757,16 @@ export type Drift = {
 		},
 		{
 			name: 'removeAmmConstituentMappingData';
-			discriminator: [20, 183, 211, 162, 16, 52, 229, 115];
+			discriminator: [
+				20,
+				183,
+				211,
+				162,
+				16,
+				52,
+				229,
+				115,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -6113,7 +8783,15 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [65, 77, 77, 95, 77, 65, 80];
+								value: [
+									65,
+									77,
+									77,
+									95,
+									77,
+									65,
+									80,
+								];
 							},
 							{
 								kind: 'account';
@@ -6129,6 +8807,40 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
@@ -6143,7 +8855,16 @@ export type Drift = {
 		},
 		{
 			name: 'removeInsuranceFundStake';
-			discriminator: [128, 166, 142, 9, 254, 187, 143, 174];
+			discriminator: [
+				128,
+				166,
+				142,
+				9,
+				254,
+				187,
+				143,
+				174,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6155,7 +8876,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -6175,7 +8908,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['insuranceFundStake', 'userStats'];
+					relations: [
+						'insurance_fund_stake',
+						'user_stats',
+					];
 				},
 				{
 					name: 'insuranceFundVault';
@@ -6234,10 +8970,53 @@ export type Drift = {
 		},
 		{
 			name: 'repegAmmCurve';
-			discriminator: [3, 36, 102, 89, 180, 128, 120, 213];
+			discriminator: [
+				3,
+				36,
+				102,
+				89,
+				180,
+				128,
+				120,
+				213,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -6249,7 +9028,9 @@ export type Drift = {
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 			];
 			args: [
@@ -6261,7 +9042,16 @@ export type Drift = {
 		},
 		{
 			name: 'requestRemoveInsuranceFundStake';
-			discriminator: [142, 70, 204, 92, 73, 106, 180, 52];
+			discriminator: [
+				142,
+				70,
+				204,
+				92,
+				73,
+				106,
+				180,
+				52,
+			];
 			accounts: [
 				{
 					name: 'spotMarket';
@@ -6270,7 +9060,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -6290,7 +9092,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['insuranceFundStake', 'userStats'];
+					relations: [
+						'insurance_fund_stake',
+						'user_stats',
+					];
 				},
 				{
 					name: 'insuranceFundVault';
@@ -6343,7 +9148,16 @@ export type Drift = {
 		},
 		{
 			name: 'resetFuelSeason';
-			discriminator: [199, 122, 192, 255, 32, 99, 63, 200];
+			discriminator: [
+				199,
+				122,
+				192,
+				255,
+				32,
+				99,
+				63,
+				200,
+			];
 			accounts: [
 				{
 					name: 'userStats';
@@ -6351,10 +9165,46 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['userStats'];
+					relations: [
+						'user_stats',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -6365,10 +9215,53 @@ export type Drift = {
 		},
 		{
 			name: 'resetPerpMarketAmmOracleTwap';
-			discriminator: [127, 10, 55, 164, 123, 226, 47, 24];
+			discriminator: [
+				127,
+				10,
+				55,
+				164,
+				123,
+				226,
+				47,
+				24,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -6380,14 +9273,25 @@ export type Drift = {
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 			];
 			args: [];
 		},
 		{
 			name: 'resizeRevenueShareEscrowOrders';
-			discriminator: [32, 124, 247, 225, 151, 213, 225, 38];
+			discriminator: [
+				32,
+				124,
+				247,
+				225,
+				151,
+				213,
+				225,
+				38,
+			];
 			accounts: [
 				{
 					name: 'escrow';
@@ -6396,7 +9300,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [82, 69, 86, 95, 69, 83, 67, 82, 79, 87];
+								value: [
+									82,
+									69,
+									86,
+									95,
+									69,
+									83,
+									67,
+									82,
+									79,
+									87,
+								];
 							},
 							{
 								kind: 'account';
@@ -6407,7 +9322,9 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['escrow'];
+					relations: [
+						'escrow',
+					];
 				},
 				{
 					name: 'payer';
@@ -6428,7 +9345,16 @@ export type Drift = {
 		},
 		{
 			name: 'resizeSignedMsgUserOrders';
-			discriminator: [137, 10, 87, 150, 18, 115, 79, 168];
+			discriminator: [
+				137,
+				10,
+				87,
+				150,
+				18,
+				115,
+				79,
+				168,
+			];
 			accounts: [
 				{
 					name: 'signedMsgUserOrders';
@@ -6437,7 +9363,18 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [83, 73, 71, 78, 69, 68, 95, 77, 83, 71];
+								value: [
+									83,
+									73,
+									71,
+									78,
+									69,
+									68,
+									95,
+									77,
+									83,
+									71,
+								];
 							},
 							{
 								kind: 'account';
@@ -6448,7 +9385,9 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['user'];
+					relations: [
+						'user',
+					];
 				},
 				{
 					name: 'user';
@@ -6472,7 +9411,16 @@ export type Drift = {
 		},
 		{
 			name: 'resolvePerpBankruptcy';
-			discriminator: [224, 16, 176, 214, 162, 213, 183, 222];
+			discriminator: [
+				224,
+				16,
+				176,
+				214,
+				162,
+				213,
+				183,
+				222,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6588,7 +9536,16 @@ export type Drift = {
 		},
 		{
 			name: 'resolvePerpPnlDeficit';
-			discriminator: [168, 204, 68, 150, 159, 126, 95, 148];
+			discriminator: [
+				168,
+				204,
+				68,
+				150,
+				159,
+				126,
+				95,
+				148,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6688,7 +9645,16 @@ export type Drift = {
 		},
 		{
 			name: 'resolveSpotBankruptcy';
-			discriminator: [124, 194, 240, 254, 198, 213, 52, 122];
+			discriminator: [
+				124,
+				194,
+				240,
+				254,
+				198,
+				213,
+				52,
+				122,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6800,7 +9766,16 @@ export type Drift = {
 		},
 		{
 			name: 'revertFill';
-			discriminator: [236, 238, 176, 69, 239, 10, 181, 193];
+			discriminator: [
+				236,
+				238,
+				176,
+				69,
+				239,
+				10,
+				181,
+				193,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6822,7 +9797,16 @@ export type Drift = {
 		},
 		{
 			name: 'setUserStatusToBeingLiquidated';
-			discriminator: [106, 133, 160, 206, 193, 171, 192, 194];
+			discriminator: [
+				106,
+				133,
+				160,
+				206,
+				193,
+				171,
+				192,
+				194,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6840,15 +9824,60 @@ export type Drift = {
 		},
 		{
 			name: 'settleExpiredMarket';
-			discriminator: [120, 89, 11, 25, 122, 77, 72, 193];
+			discriminator: [
+				120,
+				89,
+				11,
+				25,
+				122,
+				77,
+				72,
+				193,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -6864,15 +9893,60 @@ export type Drift = {
 		},
 		{
 			name: 'settleExpiredMarketPoolsToRevenuePool';
-			discriminator: [55, 19, 238, 169, 227, 90, 200, 184];
+			discriminator: [
+				55,
+				19,
+				238,
+				169,
+				227,
+				90,
+				200,
+				184,
+			];
 			accounts: [
 				{
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'spotMarket';
@@ -6881,11 +9955,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -6899,7 +9988,16 @@ export type Drift = {
 		},
 		{
 			name: 'settleFundingPayment';
-			discriminator: [222, 90, 202, 94, 28, 45, 115, 183];
+			discriminator: [
+				222,
+				90,
+				202,
+				94,
+				28,
+				45,
+				115,
+				183,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6913,7 +10011,16 @@ export type Drift = {
 		},
 		{
 			name: 'settleMultiplePnls';
-			discriminator: [127, 66, 117, 57, 40, 50, 152, 127];
+			discriminator: [
+				127,
+				66,
+				117,
+				57,
+				40,
+				50,
+				152,
+				127,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -6954,7 +10061,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -6971,7 +10081,7 @@ export type Drift = {
 					name: 'mode';
 					type: {
 						defined: {
-							name: 'settlePnlMode';
+							name: 'SettlePnlMode';
 						};
 					};
 				},
@@ -6979,7 +10089,16 @@ export type Drift = {
 		},
 		{
 			name: 'settlePerpToLpPool';
-			discriminator: [5, 98, 46, 188, 10, 59, 2, 249];
+			discriminator: [
+				5,
+				98,
+				46,
+				188,
+				10,
+				59,
+				2,
+				249,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -7004,11 +10123,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -7020,7 +10154,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -7028,7 +10174,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -7052,7 +10201,16 @@ export type Drift = {
 		},
 		{
 			name: 'settlePnl';
-			discriminator: [43, 61, 234, 45, 15, 95, 152, 153];
+			discriminator: [
+				43,
+				61,
+				234,
+				45,
+				15,
+				95,
+				152,
+				153,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -7093,7 +10251,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -7108,7 +10269,16 @@ export type Drift = {
 		},
 		{
 			name: 'settleRevenueToInsuranceFund';
-			discriminator: [200, 120, 93, 136, 69, 38, 199, 159];
+			discriminator: [
+				200,
+				120,
+				93,
+				136,
+				69,
+				38,
+				199,
+				159,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -7120,7 +10290,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'arg';
@@ -7216,7 +10398,16 @@ export type Drift = {
 		},
 		{
 			name: 'specialTransferPerpPositionToVamm';
-			discriminator: [39, 111, 187, 243, 18, 139, 223, 1];
+			discriminator: [
+				39,
+				111,
+				187,
+				243,
+				18,
+				139,
+				223,
+				1,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -7245,7 +10436,16 @@ export type Drift = {
 		},
 		{
 			name: 'sweepFuel';
-			discriminator: [175, 107, 19, 56, 165, 241, 43, 69];
+			discriminator: [
+				175,
+				107,
+				19,
+				56,
+				165,
+				241,
+				43,
+				69,
+			];
 			accounts: [
 				{
 					name: 'fuelOverflow';
@@ -7257,7 +10457,10 @@ export type Drift = {
 				},
 				{
 					name: 'authority';
-					relations: ['fuelOverflow', 'userStats'];
+					relations: [
+						'fuel_overflow',
+						'user_stats',
+					];
 				},
 				{
 					name: 'signer';
@@ -7268,7 +10471,16 @@ export type Drift = {
 		},
 		{
 			name: 'transferDeposit';
-			discriminator: [20, 20, 147, 223, 41, 63, 204, 111];
+			discriminator: [
+				20,
+				20,
+				147,
+				223,
+				41,
+				63,
+				204,
+				111,
+			];
 			accounts: [
 				{
 					name: 'fromUser';
@@ -7285,7 +10497,11 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['fromUser', 'toUser', 'userStats'];
+					relations: [
+						'from_user',
+						'to_user',
+						'user_stats',
+					];
 				},
 				{
 					name: 'state';
@@ -7337,15 +10553,60 @@ export type Drift = {
 		},
 		{
 			name: 'transferFeeAndPnlPool';
-			discriminator: [167, 110, 96, 211, 215, 250, 115, 39];
+			discriminator: [
+				167,
+				110,
+				96,
+				211,
+				215,
+				250,
+				115,
+				39,
+			];
 			accounts: [
 				{
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'perpMarketWithFeePool';
@@ -7362,11 +10623,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -7400,7 +10676,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -7415,7 +10694,7 @@ export type Drift = {
 					name: 'direction';
 					type: {
 						defined: {
-							name: 'transferFeeAndPnlPoolDirection';
+							name: 'TransferFeeAndPnlPoolDirection';
 						};
 					};
 				},
@@ -7423,7 +10702,16 @@ export type Drift = {
 		},
 		{
 			name: 'transferIsolatedPerpPositionDeposit';
-			discriminator: [201, 131, 242, 228, 85, 226, 70, 237];
+			discriminator: [
+				201,
+				131,
+				242,
+				228,
+				85,
+				226,
+				70,
+				237,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -7491,7 +10779,16 @@ export type Drift = {
 		},
 		{
 			name: 'transferPerpPosition';
-			discriminator: [23, 172, 188, 168, 134, 210, 3, 108];
+			discriminator: [
+				23,
+				172,
+				188,
+				168,
+				134,
+				210,
+				3,
+				108,
+			];
 			accounts: [
 				{
 					name: 'fromUser';
@@ -7528,7 +10825,16 @@ export type Drift = {
 		},
 		{
 			name: 'transferPools';
-			discriminator: [197, 103, 154, 25, 107, 90, 60, 94];
+			discriminator: [
+				197,
+				103,
+				154,
+				25,
+				107,
+				90,
+				60,
+				94,
+			];
 			accounts: [
 				{
 					name: 'fromUser';
@@ -7545,7 +10851,11 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['fromUser', 'toUser', 'userStats'];
+					relations: [
+						'from_user',
+						'to_user',
+						'user_stats',
+					];
 				},
 				{
 					name: 'state';
@@ -7723,10 +11033,53 @@ export type Drift = {
 		},
 		{
 			name: 'transferProtocolIfSharesToRevenuePool';
-			discriminator: [236, 136, 147, 153, 146, 205, 104, 29];
+			discriminator: [
+				236,
+				136,
+				147,
+				153,
+				146,
+				205,
+				104,
+				29,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'authority';
@@ -7828,7 +11181,16 @@ export type Drift = {
 		},
 		{
 			name: 'triggerOrder';
-			discriminator: [63, 112, 51, 233, 232, 47, 240, 199];
+			discriminator: [
+				63,
+				112,
+				51,
+				233,
+				232,
+				47,
+				240,
+				199,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -7855,16 +11217,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateAdmin';
-			discriminator: [161, 176, 40, 213, 60, 184, 179, 228];
+			discriminator: [
+				161,
+				176,
+				40,
+				213,
+				60,
+				184,
+				179,
+				228,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -7876,7 +11283,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateAmmCache';
-			discriminator: [88, 4, 63, 94, 83, 224, 255, 130];
+			discriminator: [
+				88,
+				4,
+				63,
+				94,
+				83,
+				224,
+				255,
+				130,
+			];
 			accounts: [
 				{
 					name: 'keeper';
@@ -7896,11 +11312,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -7910,7 +11341,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateAmmConstituentMappingData';
-			discriminator: [84, 70, 33, 167, 133, 107, 59, 24];
+			discriminator: [
+				84,
+				70,
+				33,
+				167,
+				133,
+				107,
+				59,
+				24,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -7927,7 +11367,15 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [65, 77, 77, 95, 77, 65, 80];
+								value: [
+									65,
+									77,
+									77,
+									95,
+									77,
+									65,
+									80,
+								];
 							},
 							{
 								kind: 'account';
@@ -7943,6 +11391,40 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
@@ -7950,7 +11432,7 @@ export type Drift = {
 					type: {
 						vec: {
 							defined: {
-								name: 'addAmmConstituentMappingDatum';
+								name: 'AddAmmConstituentMappingDatum';
 							};
 						};
 					};
@@ -7959,7 +11441,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateAmmJitIntensity';
-			discriminator: [181, 191, 53, 109, 166, 249, 55, 142];
+			discriminator: [
+				181,
+				191,
+				53,
+				109,
+				166,
+				249,
+				55,
+				142,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -7967,6 +11458,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -7982,7 +11507,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateAmms';
-			discriminator: [201, 106, 217, 253, 4, 175, 228, 97];
+			discriminator: [
+				201,
+				106,
+				217,
+				253,
+				4,
+				175,
+				228,
+				97,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -8003,7 +11537,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateConstituentCorrelationData';
-			discriminator: [79, 14, 19, 73, 221, 106, 62, 109];
+			discriminator: [
+				79,
+				14,
+				19,
+				73,
+				221,
+				106,
+				62,
+				109,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8057,6 +11600,40 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
@@ -8075,7 +11652,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateConstituentOracleInfo';
-			discriminator: [198, 117, 231, 250, 147, 33, 127, 161];
+			discriminator: [
+				198,
+				117,
+				231,
+				250,
+				147,
+				33,
+				127,
+				161,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -8100,7 +11686,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateConstituentParams';
-			discriminator: [238, 130, 122, 31, 12, 104, 192, 122];
+			discriminator: [
+				238,
+				130,
+				122,
+				31,
+				12,
+				104,
+				192,
+				122,
+			];
 			accounts: [
 				{
 					name: 'lpPool';
@@ -8159,6 +11754,40 @@ export type Drift = {
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'constituent';
 					writable: true;
 				},
@@ -8168,7 +11797,7 @@ export type Drift = {
 					name: 'constituentParams';
 					type: {
 						defined: {
-							name: 'constituentParams';
+							name: 'ConstituentParams';
 						};
 					};
 				},
@@ -8176,7 +11805,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateConstituentPausedOperations';
-			discriminator: [185, 122, 153, 191, 131, 177, 132, 208];
+			discriminator: [
+				185,
+				122,
+				153,
+				191,
+				131,
+				177,
+				132,
+				208,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8185,6 +11823,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'constituent';
@@ -8200,7 +11872,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateConstituentStatus';
-			discriminator: [76, 159, 211, 239, 182, 214, 6, 15];
+			discriminator: [
+				76,
+				159,
+				211,
+				239,
+				182,
+				214,
+				6,
+				15,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8209,6 +11890,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'constituent';
@@ -8224,7 +11939,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateDelegateUserGovTokenInsuranceStake';
-			discriminator: [241, 29, 215, 228, 142, 116, 22, 160];
+			discriminator: [
+				241,
+				29,
+				215,
+				228,
+				142,
+				116,
+				22,
+				160,
+			];
 			accounts: [
 				{
 					name: 'spotMarket';
@@ -8233,11 +11957,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [15, 0];
+								value: [
+									15,
+									0,
+								];
 							},
 						];
 					};
@@ -8252,7 +11991,9 @@ export type Drift = {
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'insuranceFundVault';
@@ -8286,7 +12027,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [15, 0];
+								value: [
+									15,
+									0,
+								];
 							},
 						];
 					};
@@ -8294,21 +12038,100 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [];
 		},
 		{
 			name: 'updateDiscountMint';
-			discriminator: [32, 252, 122, 211, 66, 31, 47, 241];
+			discriminator: [
+				32,
+				252,
+				122,
+				211,
+				66,
+				31,
+				47,
+				241,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8320,16 +12143,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateExchangeStatus';
-			discriminator: [83, 160, 252, 250, 129, 116, 49, 223];
+			discriminator: [
+				83,
+				160,
+				252,
+				250,
+				129,
+				116,
+				49,
+				223,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8341,7 +12209,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFeatureBitFlagsBuilderCodes';
-			discriminator: [1, 128, 177, 51, 173, 45, 11, 102];
+			discriminator: [
+				1,
+				128,
+				177,
+				51,
+				173,
+				45,
+				11,
+				102,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8350,6 +12227,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8361,7 +12272,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFeatureBitFlagsMedianTriggerPrice';
-			discriminator: [64, 185, 221, 45, 87, 147, 12, 19];
+			discriminator: [
+				64,
+				185,
+				221,
+				45,
+				87,
+				147,
+				12,
+				19,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8370,6 +12290,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8381,7 +12335,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFeatureBitFlagsMintRedeemLpPool';
-			discriminator: [26, 11, 142, 122, 206, 159, 9, 45];
+			discriminator: [
+				26,
+				11,
+				142,
+				122,
+				206,
+				159,
+				9,
+				45,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8390,6 +12353,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8401,7 +12398,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFeatureBitFlagsMmOracle';
-			discriminator: [218, 134, 33, 186, 231, 59, 130, 149];
+			discriminator: [
+				218,
+				134,
+				33,
+				186,
+				231,
+				59,
+				130,
+				149,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8410,6 +12416,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8421,7 +12461,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFeatureBitFlagsSettleLpPool';
-			discriminator: [186, 28, 78, 230, 155, 83, 242, 26];
+			discriminator: [
+				186,
+				28,
+				78,
+				230,
+				155,
+				83,
+				242,
+				26,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8430,6 +12479,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8441,7 +12524,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFeatureBitFlagsSwapLpPool';
-			discriminator: [83, 16, 150, 12, 102, 3, 22, 58];
+			discriminator: [
+				83,
+				16,
+				150,
+				12,
+				102,
+				3,
+				22,
+				58,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8450,6 +12542,40 @@ export type Drift = {
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8461,7 +12587,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateFundingRate';
-			discriminator: [201, 178, 116, 212, 166, 144, 72, 238];
+			discriminator: [
+				201,
+				178,
+				116,
+				212,
+				166,
+				144,
+				72,
+				238,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -8483,13 +12618,24 @@ export type Drift = {
 		},
 		{
 			name: 'updateIfRebalanceConfig';
-			discriminator: [142, 245, 249, 66, 249, 181, 22, 83];
+			discriminator: [
+				142,
+				245,
+				249,
+				66,
+				249,
+				181,
+				22,
+				83,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'ifRebalanceConfig';
@@ -8498,13 +12644,47 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
 					name: 'params';
 					type: {
 						defined: {
-							name: 'ifRebalanceConfigParams';
+							name: 'IfRebalanceConfigParams';
 						};
 					};
 				},
@@ -8512,11 +12692,54 @@ export type Drift = {
 		},
 		{
 			name: 'updateInitialAmmCacheInfo';
-			discriminator: [157, 210, 109, 67, 212, 170, 12, 107];
+			discriminator: [
+				157,
+				210,
+				109,
+				67,
+				212,
+				170,
+				12,
+				107,
+			];
 			accounts: [
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -8554,16 +12777,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateInitialPctToLiquidate';
-			discriminator: [210, 133, 225, 128, 194, 50, 13, 109];
+			discriminator: [
+				210,
+				133,
+				225,
+				128,
+				194,
+				50,
+				13,
+				109,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8575,15 +12843,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateInsuranceFundUnstakingPeriod';
-			discriminator: [44, 69, 43, 226, 204, 223, 202, 52];
+			discriminator: [
+				44,
+				69,
+				43,
+				226,
+				204,
+				223,
+				202,
+				52,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -8599,15 +12912,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateK';
-			discriminator: [72, 98, 9, 139, 129, 229, 172, 56];
+			discriminator: [
+				72,
+				98,
+				9,
+				139,
+				129,
+				229,
+				172,
+				56,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -8626,16 +12984,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateLiquidationDuration';
-			discriminator: [28, 154, 20, 249, 102, 192, 73, 71];
+			discriminator: [
+				28,
+				154,
+				20,
+				249,
+				102,
+				192,
+				73,
+				71,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8647,16 +13050,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateLiquidationMarginBufferRatio';
-			discriminator: [132, 224, 243, 160, 154, 82, 97, 215];
+			discriminator: [
+				132,
+				224,
+				243,
+				160,
+				154,
+				82,
+				97,
+				215,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8668,7 +13116,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateLpConstituentTargetBase';
-			discriminator: [157, 65, 50, 207, 59, 236, 161, 110];
+			discriminator: [
+				157,
+				65,
+				50,
+				207,
+				59,
+				236,
+				161,
+				110,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -8696,7 +13153,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateLpPoolAum';
-			discriminator: [88, 113, 137, 206, 246, 247, 171, 142];
+			discriminator: [
+				88,
+				113,
+				137,
+				206,
+				246,
+				247,
+				171,
+				142,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -8723,7 +13189,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateLpPoolParams';
-			discriminator: [217, 92, 2, 255, 27, 167, 178, 81];
+			discriminator: [
+				217,
+				92,
+				2,
+				255,
+				27,
+				167,
+				178,
+				81,
+			];
 			accounts: [
 				{
 					name: 'lpPool';
@@ -8737,13 +13212,47 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
 					name: 'lpPoolParams';
 					type: {
 						defined: {
-							name: 'lpPoolParams';
+							name: 'LpPoolParams';
 						};
 					};
 				},
@@ -8751,16 +13260,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateOracleGuardRails';
-			discriminator: [131, 112, 10, 59, 32, 54, 40, 164];
+			discriminator: [
+				131,
+				112,
+				10,
+				59,
+				32,
+				54,
+				40,
+				164,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8768,7 +13322,7 @@ export type Drift = {
 					name: 'oracleGuardRails';
 					type: {
 						defined: {
-							name: 'oracleGuardRails';
+							name: 'OracleGuardRails';
 						};
 					};
 				},
@@ -8776,16 +13330,61 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpAuctionDuration';
-			discriminator: [126, 110, 52, 174, 30, 206, 215, 90];
+			discriminator: [
+				126,
+				110,
+				52,
+				174,
+				30,
+				206,
+				215,
+				90,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8797,7 +13396,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpBidAskTwap';
-			discriminator: [247, 23, 255, 65, 212, 90, 221, 194];
+			discriminator: [
+				247,
+				23,
+				255,
+				65,
+				212,
+				90,
+				221,
+				194,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -8821,16 +13429,61 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpFeeStructure';
-			discriminator: [23, 178, 111, 203, 73, 22, 140, 75];
+			discriminator: [
+				23,
+				178,
+				111,
+				203,
+				73,
+				22,
+				140,
+				75,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -8838,7 +13491,7 @@ export type Drift = {
 					name: 'feeStructure';
 					type: {
 						defined: {
-							name: 'feeStructure';
+							name: 'FeeStructure';
 						};
 					};
 				},
@@ -8846,10 +13499,53 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketAmmOracleTwap';
-			discriminator: [241, 74, 114, 123, 206, 153, 24, 202];
+			discriminator: [
+				241,
+				74,
+				114,
+				123,
+				206,
+				153,
+				24,
+				202,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -8861,14 +13557,25 @@ export type Drift = {
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 			];
 			args: [];
 		},
 		{
 			name: 'updatePerpMarketAmmSpreadAdjustment';
-			discriminator: [155, 195, 149, 43, 220, 82, 173, 205];
+			discriminator: [
+				155,
+				195,
+				149,
+				43,
+				220,
+				82,
+				173,
+				205,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8876,6 +13583,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -8899,7 +13640,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketAmmSummaryStats';
-			discriminator: [122, 101, 249, 238, 209, 9, 241, 245];
+			discriminator: [
+				122,
+				101,
+				249,
+				238,
+				209,
+				9,
+				241,
+				245,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -8907,6 +13657,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -8918,7 +13702,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'account';
@@ -8936,7 +13732,7 @@ export type Drift = {
 					name: 'params';
 					type: {
 						defined: {
-							name: 'updatePerpMarketSummaryStatsParams';
+							name: 'UpdatePerpMarketSummaryStatsParams';
 						};
 					};
 				},
@@ -8944,15 +13740,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketBaseSpread';
-			discriminator: [71, 95, 84, 168, 9, 157, 198, 65];
+			discriminator: [
+				71,
+				95,
+				84,
+				168,
+				9,
+				157,
+				198,
+				65,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -8968,15 +13809,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketConcentrationCoef';
-			discriminator: [24, 78, 232, 126, 169, 176, 230, 16];
+			discriminator: [
+				24,
+				78,
+				232,
+				126,
+				169,
+				176,
+				230,
+				16,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -8992,7 +13878,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketConfig';
-			discriminator: [134, 90, 6, 34, 80, 160, 94, 245];
+			discriminator: [
+				134,
+				90,
+				6,
+				34,
+				80,
+				160,
+				94,
+				245,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9000,6 +13895,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9015,15 +13944,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketContractTier';
-			discriminator: [236, 128, 15, 95, 203, 214, 68, 117];
+			discriminator: [
+				236,
+				128,
+				15,
+				95,
+				203,
+				214,
+				68,
+				117,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9035,7 +14009,7 @@ export type Drift = {
 					name: 'contractTier';
 					type: {
 						defined: {
-							name: 'contractTier';
+							name: 'ContractTier';
 						};
 					};
 				},
@@ -9043,7 +14017,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketCurveUpdateIntensity';
-			discriminator: [50, 131, 6, 156, 226, 231, 189, 72];
+			discriminator: [
+				50,
+				131,
+				6,
+				156,
+				226,
+				231,
+				189,
+				72,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9051,6 +14034,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9066,15 +14083,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketExpiry';
-			discriminator: [44, 221, 227, 151, 131, 140, 22, 110];
+			discriminator: [
+				44,
+				221,
+				227,
+				151,
+				131,
+				140,
+				22,
+				110,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9090,15 +14152,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketFeeAdjustment';
-			discriminator: [194, 174, 87, 102, 43, 148, 32, 112];
+			discriminator: [
+				194,
+				174,
+				87,
+				102,
+				43,
+				148,
+				32,
+				112,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9114,15 +14221,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketFundingPeriod';
-			discriminator: [171, 161, 69, 91, 129, 139, 161, 28];
+			discriminator: [
+				171,
+				161,
+				69,
+				91,
+				129,
+				139,
+				161,
+				28,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9138,15 +14290,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketImfFactor';
-			discriminator: [207, 194, 56, 132, 35, 67, 71, 244];
+			discriminator: [
+				207,
+				194,
+				56,
+				132,
+				35,
+				67,
+				71,
+				244,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9166,15 +14363,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketLiquidationFee';
-			discriminator: [90, 137, 9, 145, 41, 8, 148, 117];
+			discriminator: [
+				90,
+				137,
+				9,
+				145,
+				41,
+				8,
+				148,
+				117,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9194,7 +14436,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketLpPoolFeeTransferScalar';
-			discriminator: [94, 228, 237, 109, 100, 185, 4, 81];
+			discriminator: [
+				94,
+				228,
+				237,
+				109,
+				100,
+				185,
+				4,
+				81,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9202,6 +14453,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9225,15 +14510,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketLpPoolId';
-			discriminator: [119, 208, 154, 88, 165, 92, 21, 188];
+			discriminator: [
+				119,
+				208,
+				154,
+				88,
+				165,
+				92,
+				21,
+				188,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9249,15 +14579,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketLpPoolPausedOperations';
-			discriminator: [181, 94, 93, 146, 51, 89, 32, 135];
+			discriminator: [
+				181,
+				94,
+				93,
+				146,
+				51,
+				89,
+				32,
+				135,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9273,15 +14648,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketLpPoolStatus';
-			discriminator: [67, 6, 252, 61, 54, 88, 89, 233];
+			discriminator: [
+				67,
+				6,
+				252,
+				61,
+				54,
+				88,
+				89,
+				233,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9324,15 +14744,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMarginRatio';
-			discriminator: [130, 173, 107, 45, 119, 105, 26, 113];
+			discriminator: [
+				130,
+				173,
+				107,
+				45,
+				119,
+				105,
+				26,
+				113,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9352,15 +14817,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMaxFillReserveFraction';
-			discriminator: [19, 172, 114, 154, 42, 135, 161, 133];
+			discriminator: [
+				19,
+				172,
+				114,
+				154,
+				42,
+				135,
+				161,
+				133,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9376,15 +14886,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMaxImbalances';
-			discriminator: [15, 206, 73, 133, 60, 8, 86, 89];
+			discriminator: [
+				15,
+				206,
+				73,
+				133,
+				60,
+				8,
+				86,
+				89,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9408,15 +14963,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMaxOpenInterest';
-			discriminator: [194, 79, 149, 224, 246, 102, 186, 140];
+			discriminator: [
+				194,
+				79,
+				149,
+				224,
+				246,
+				102,
+				186,
+				140,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9432,12 +15032,23 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMaxSlippageRatio';
-			discriminator: [235, 37, 40, 196, 70, 146, 54, 201];
+			discriminator: [
+				235,
+				37,
+				40,
+				196,
+				70,
+				146,
+				54,
+				201,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
@@ -9456,7 +15067,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMaxSpread';
-			discriminator: [80, 252, 122, 62, 40, 218, 91, 100];
+			discriminator: [
+				80,
+				252,
+				122,
+				62,
+				40,
+				218,
+				91,
+				100,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9464,6 +15084,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9479,15 +15133,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketMinOrderSize';
-			discriminator: [226, 74, 5, 89, 108, 223, 46, 141];
+			discriminator: [
+				226,
+				74,
+				5,
+				89,
+				108,
+				223,
+				46,
+				141,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9503,15 +15202,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketName';
-			discriminator: [211, 31, 21, 210, 64, 108, 66, 201];
+			discriminator: [
+				211,
+				31,
+				21,
+				210,
+				64,
+				108,
+				66,
+				201,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9522,22 +15266,70 @@ export type Drift = {
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'updatePerpMarketNumberOfUsers';
-			discriminator: [35, 62, 144, 177, 180, 62, 215, 196];
+			discriminator: [
+				35,
+				62,
+				144,
+				177,
+				180,
+				62,
+				215,
+				196,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9561,15 +15353,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketOracle';
-			discriminator: [182, 113, 111, 160, 67, 174, 89, 191];
+			discriminator: [
+				182,
+				113,
+				111,
+				160,
+				67,
+				174,
+				89,
+				191,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9618,7 +15455,7 @@ export type Drift = {
 					name: 'oracleSource';
 					type: {
 						defined: {
-							name: 'oracleSource';
+							name: 'OracleSource';
 						};
 					};
 				},
@@ -9630,7 +15467,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketOracleLowRiskSlotDelayOverride';
-			discriminator: [124, 108, 147, 229, 109, 117, 123, 3];
+			discriminator: [
+				124,
+				108,
+				147,
+				229,
+				109,
+				117,
+				123,
+				3,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9638,6 +15484,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9653,7 +15533,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketOracleSlotDelayOverride';
-			discriminator: [165, 91, 239, 227, 63, 172, 227, 8];
+			discriminator: [
+				165,
+				91,
+				239,
+				227,
+				63,
+				172,
+				227,
+				8,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9661,6 +15550,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9676,7 +15599,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketPausedOperations';
-			discriminator: [53, 16, 136, 132, 30, 220, 121, 85];
+			discriminator: [
+				53,
+				16,
+				136,
+				132,
+				30,
+				220,
+				121,
+				85,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9684,6 +15616,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9699,15 +15665,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketPnlPool';
-			discriminator: [50, 202, 249, 224, 166, 184, 13, 143];
+			discriminator: [
+				50,
+				202,
+				249,
+				224,
+				166,
+				184,
+				13,
+				143,
+			];
 			accounts: [
 				{
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'spotMarket';
@@ -9716,11 +15727,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -9754,7 +15780,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -9773,15 +15802,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketProtectedMakerParams';
-			discriminator: [249, 213, 115, 34, 253, 239, 75, 173];
+			discriminator: [
+				249,
+				213,
+				115,
+				34,
+				253,
+				239,
+				75,
+				173,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9805,7 +15879,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketReferencePriceOffsetDeadbandPct';
-			discriminator: [214, 73, 166, 11, 218, 76, 110, 163];
+			discriminator: [
+				214,
+				73,
+				166,
+				11,
+				218,
+				76,
+				110,
+				163,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9813,6 +15896,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9828,15 +15945,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketStatus';
-			discriminator: [71, 201, 175, 122, 255, 207, 196, 207];
+			discriminator: [
+				71,
+				201,
+				175,
+				122,
+				255,
+				207,
+				196,
+				207,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9848,7 +16010,7 @@ export type Drift = {
 					name: 'status';
 					type: {
 						defined: {
-							name: 'marketStatus';
+							name: 'MarketStatus';
 						};
 					};
 				},
@@ -9856,15 +16018,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketStepSizeAndTickSize';
-			discriminator: [231, 255, 97, 25, 146, 139, 174, 4];
+			discriminator: [
+				231,
+				255,
+				97,
+				25,
+				146,
+				139,
+				174,
+				4,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9884,15 +16091,60 @@ export type Drift = {
 		},
 		{
 			name: 'updatePerpMarketUnrealizedAssetWeight';
-			discriminator: [135, 132, 205, 165, 109, 150, 166, 106];
+			discriminator: [
+				135,
+				132,
+				205,
+				165,
+				109,
+				150,
+				166,
+				106,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'perpMarket';
@@ -9912,7 +16164,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePrelaunchOracle';
-			discriminator: [220, 132, 27, 27, 233, 220, 61, 219];
+			discriminator: [
+				220,
+				132,
+				27,
+				27,
+				233,
+				220,
+				61,
+				219,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -9929,7 +16190,16 @@ export type Drift = {
 		},
 		{
 			name: 'updatePrelaunchOracleParams';
-			discriminator: [98, 205, 147, 243, 18, 75, 83, 207];
+			discriminator: [
+				98,
+				205,
+				147,
+				243,
+				18,
+				75,
+				83,
+				207,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -9964,7 +16234,7 @@ export type Drift = {
 							},
 							{
 								kind: 'arg';
-								path: 'params.perp_market_index';
+								path: 'params.perpMarketIndex';
 							},
 						];
 					};
@@ -9976,13 +16246,47 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
 					name: 'params';
 					type: {
 						defined: {
-							name: 'prelaunchOracleParams';
+							name: 'PrelaunchOracleParams';
 						};
 					};
 				},
@@ -9990,13 +16294,24 @@ export type Drift = {
 		},
 		{
 			name: 'updateProtectedMakerModeConfig';
-			discriminator: [86, 166, 235, 253, 67, 202, 223, 17];
+			discriminator: [
+				86,
+				166,
+				235,
+				253,
+				67,
+				202,
+				223,
+				17,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					writable: true;
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'protectedMakerModeConfig';
@@ -10041,6 +16356,40 @@ export type Drift = {
 				{
 					name: 'state';
 				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
 			];
 			args: [
 				{
@@ -10061,10 +16410,53 @@ export type Drift = {
 		},
 		{
 			name: 'updateSerumFulfillmentConfigStatus';
-			discriminator: [171, 109, 240, 251, 95, 1, 149, 89];
+			discriminator: [
+				171,
+				109,
+				240,
+				251,
+				95,
+				1,
+				149,
+				89,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'serumFulfillmentConfig';
@@ -10081,7 +16473,7 @@ export type Drift = {
 					name: 'status';
 					type: {
 						defined: {
-							name: 'spotFulfillmentConfigStatus';
+							name: 'SpotFulfillmentConfigStatus';
 						};
 					};
 				},
@@ -10089,7 +16481,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpecialUserStatus';
-			discriminator: [23, 237, 166, 194, 38, 7, 41, 45];
+			discriminator: [
+				23,
+				237,
+				166,
+				194,
+				38,
+				7,
+				41,
+				45,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -10097,6 +16498,40 @@ export type Drift = {
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'user';
@@ -10112,16 +16547,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotAuctionDuration';
-			discriminator: [182, 178, 203, 72, 187, 143, 157, 107];
+			discriminator: [
+				182,
+				178,
+				203,
+				72,
+				187,
+				143,
+				157,
+				107,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -10133,16 +16613,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotFeeStructure';
-			discriminator: [97, 216, 105, 131, 113, 246, 142, 141];
+			discriminator: [
+				97,
+				216,
+				105,
+				131,
+				113,
+				246,
+				142,
+				141,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -10150,7 +16675,7 @@ export type Drift = {
 					name: 'feeStructure';
 					type: {
 						defined: {
-							name: 'feeStructure';
+							name: 'FeeStructure';
 						};
 					};
 				},
@@ -10158,15 +16683,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketAssetTier';
-			discriminator: [253, 209, 231, 14, 242, 208, 243, 130];
+			discriminator: [
+				253,
+				209,
+				231,
+				14,
+				242,
+				208,
+				243,
+				130,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10178,7 +16748,7 @@ export type Drift = {
 					name: 'assetTier';
 					type: {
 						defined: {
-							name: 'assetTier';
+							name: 'AssetTier';
 						};
 					};
 				},
@@ -10186,15 +16756,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketBorrowRate';
-			discriminator: [71, 239, 236, 153, 210, 62, 254, 76];
+			discriminator: [
+				71,
+				239,
+				236,
+				153,
+				210,
+				62,
+				254,
+				76,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10224,7 +16839,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketCumulativeInterest';
-			discriminator: [39, 166, 139, 243, 158, 165, 155, 225];
+			discriminator: [
+				39,
+				166,
+				139,
+				243,
+				158,
+				165,
+				155,
+				225,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -10274,15 +16898,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketExpiry';
-			discriminator: [208, 11, 211, 159, 226, 24, 11, 247];
+			discriminator: [
+				208,
+				11,
+				211,
+				159,
+				226,
+				24,
+				11,
+				247,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10298,15 +16967,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketFeeAdjustment';
-			discriminator: [148, 182, 3, 126, 157, 114, 220, 99];
+			discriminator: [
+				148,
+				182,
+				3,
+				126,
+				157,
+				114,
+				220,
+				99,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10322,15 +17036,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketIfFactor';
-			discriminator: [147, 30, 224, 34, 18, 230, 105, 4];
+			discriminator: [
+				147,
+				30,
+				224,
+				34,
+				18,
+				230,
+				105,
+				4,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10354,15 +17113,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketIfPausedOperations';
-			discriminator: [101, 215, 79, 74, 59, 41, 79, 12];
+			discriminator: [
+				101,
+				215,
+				79,
+				74,
+				59,
+				41,
+				79,
+				12,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10378,15 +17182,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketLiquidationFee';
-			discriminator: [11, 13, 255, 53, 56, 136, 104, 177];
+			discriminator: [
+				11,
+				13,
+				255,
+				53,
+				56,
+				136,
+				104,
+				177,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10406,15 +17255,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketMarginWeights';
-			discriminator: [109, 33, 87, 195, 255, 36, 6, 81];
+			discriminator: [
+				109,
+				33,
+				87,
+				195,
+				255,
+				36,
+				6,
+				81,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10446,15 +17340,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketMaxTokenBorrows';
-			discriminator: [57, 102, 204, 212, 253, 95, 13, 199];
+			discriminator: [
+				57,
+				102,
+				204,
+				212,
+				253,
+				95,
+				13,
+				199,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10470,15 +17409,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketMaxTokenDeposits';
-			discriminator: [56, 191, 79, 18, 26, 121, 80, 208];
+			discriminator: [
+				56,
+				191,
+				79,
+				18,
+				26,
+				121,
+				80,
+				208,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10494,15 +17478,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketMinOrderSize';
-			discriminator: [93, 128, 11, 119, 26, 20, 181, 50];
+			discriminator: [
+				93,
+				128,
+				11,
+				119,
+				26,
+				20,
+				181,
+				50,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10518,15 +17547,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketName';
-			discriminator: [17, 208, 1, 1, 162, 211, 188, 224];
+			discriminator: [
+				17,
+				208,
+				1,
+				1,
+				162,
+				211,
+				188,
+				224,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10537,22 +17611,70 @@ export type Drift = {
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'updateSpotMarketOracle';
-			discriminator: [114, 184, 102, 37, 246, 186, 180, 99];
+			discriminator: [
+				114,
+				184,
+				102,
+				37,
+				246,
+				186,
+				180,
+				99,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10574,7 +17696,7 @@ export type Drift = {
 					name: 'oracleSource';
 					type: {
 						defined: {
-							name: 'oracleSource';
+							name: 'OracleSource';
 						};
 					};
 				},
@@ -10586,15 +17708,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketOrdersEnabled';
-			discriminator: [190, 79, 206, 15, 26, 229, 229, 43];
+			discriminator: [
+				190,
+				79,
+				206,
+				15,
+				26,
+				229,
+				229,
+				43,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10610,15 +17777,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketPausedOperations';
-			discriminator: [100, 61, 153, 81, 180, 12, 6, 248];
+			discriminator: [
+				100,
+				61,
+				153,
+				81,
+				180,
+				12,
+				6,
+				248,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10634,15 +17846,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketPoolId';
-			discriminator: [22, 213, 197, 160, 139, 193, 81, 149];
+			discriminator: [
+				22,
+				213,
+				197,
+				160,
+				139,
+				193,
+				81,
+				149,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10658,15 +17915,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketRevenueSettlePeriod';
-			discriminator: [81, 92, 126, 41, 250, 225, 156, 219];
+			discriminator: [
+				81,
+				92,
+				126,
+				41,
+				250,
+				225,
+				156,
+				219,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10682,15 +17984,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketScaleInitialAssetWeightStart';
-			discriminator: [217, 204, 204, 118, 204, 130, 225, 147];
+			discriminator: [
+				217,
+				204,
+				204,
+				118,
+				204,
+				130,
+				225,
+				147,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10706,15 +18053,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketStatus';
-			discriminator: [78, 94, 16, 188, 193, 110, 231, 31];
+			discriminator: [
+				78,
+				94,
+				16,
+				188,
+				193,
+				110,
+				231,
+				31,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10726,7 +18118,7 @@ export type Drift = {
 					name: 'status';
 					type: {
 						defined: {
-							name: 'marketStatus';
+							name: 'MarketStatus';
 						};
 					};
 				},
@@ -10734,15 +18126,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateSpotMarketStepSizeAndTickSize';
-			discriminator: [238, 153, 137, 80, 206, 59, 250, 61];
+			discriminator: [
+				238,
+				153,
+				137,
+				80,
+				206,
+				59,
+				250,
+				61,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -10762,16 +18199,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateStateMaxInitializeUserFee';
-			discriminator: [237, 225, 25, 237, 193, 45, 77, 97];
+			discriminator: [
+				237,
+				225,
+				25,
+				237,
+				193,
+				45,
+				77,
+				97,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -10783,16 +18265,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateStateMaxNumberOfSubAccounts';
-			discriminator: [155, 123, 214, 2, 221, 166, 204, 85];
+			discriminator: [
+				155,
+				123,
+				214,
+				2,
+				221,
+				166,
+				204,
+				85,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -10804,16 +18331,61 @@ export type Drift = {
 		},
 		{
 			name: 'updateStateSettlementDuration';
-			discriminator: [97, 68, 199, 235, 131, 80, 61, 173];
+			discriminator: [
+				97,
+				68,
+				199,
+				235,
+				131,
+				80,
+				61,
+				173,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
 					writable: true;
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 			];
 			args: [
@@ -10825,7 +18397,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserCustomMarginRatio';
-			discriminator: [21, 221, 140, 187, 32, 129, 11, 123];
+			discriminator: [
+				21,
+				221,
+				140,
+				187,
+				32,
+				129,
+				11,
+				123,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -10834,7 +18415,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -10854,7 +18440,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -10865,7 +18451,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserDelegate';
-			discriminator: [139, 205, 141, 141, 113, 36, 94, 187];
+			discriminator: [
+				139,
+				205,
+				141,
+				141,
+				113,
+				36,
+				94,
+				187,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -10874,7 +18469,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -10894,7 +18494,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -10905,7 +18505,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserGovTokenInsuranceStake';
-			discriminator: [143, 99, 235, 187, 20, 159, 184, 84];
+			discriminator: [
+				143,
+				99,
+				235,
+				187,
+				20,
+				159,
+				184,
+				84,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -10917,11 +18526,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [15, 0];
+								value: [
+									15,
+									0,
+								];
 							},
 						];
 					};
@@ -10970,7 +18594,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [15, 0];
+								value: [
+									15,
+									0,
+								];
 							},
 						];
 					};
@@ -10980,7 +18607,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserIdle';
-			discriminator: [253, 133, 67, 22, 103, 161, 20, 100];
+			discriminator: [
+				253,
+				133,
+				67,
+				22,
+				103,
+				161,
+				20,
+				100,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11002,7 +18638,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserMarginTradingEnabled';
-			discriminator: [194, 92, 204, 223, 246, 188, 31, 203];
+			discriminator: [
+				194,
+				92,
+				204,
+				223,
+				246,
+				188,
+				31,
+				203,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -11011,7 +18656,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -11031,7 +18681,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -11042,7 +18692,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserName';
-			discriminator: [135, 25, 185, 56, 165, 53, 34, 136];
+			discriminator: [
+				135,
+				25,
+				185,
+				56,
+				165,
+				53,
+				34,
+				136,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -11051,7 +18710,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -11071,20 +18735,32 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
 					name: 'name';
 					type: {
-						array: ['u8', 32];
+						array: [
+							'u8',
+							32,
+						];
 					};
 				},
 			];
 		},
 		{
 			name: 'updateUserPerpPositionCustomMarginRatio';
-			discriminator: [121, 137, 157, 155, 89, 186, 145, 113];
+			discriminator: [
+				121,
+				137,
+				157,
+				155,
+				89,
+				186,
+				145,
+				113,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -11097,7 +18773,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -11112,7 +18788,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserPoolId';
-			discriminator: [219, 86, 73, 106, 56, 218, 128, 109];
+			discriminator: [
+				219,
+				86,
+				73,
+				106,
+				56,
+				218,
+				128,
+				109,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -11121,7 +18806,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -11141,7 +18831,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -11152,7 +18842,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserProtectedMakerOrders';
-			discriminator: [114, 39, 123, 198, 187, 25, 90, 219];
+			discriminator: [
+				114,
+				39,
+				123,
+				198,
+				187,
+				25,
+				90,
+				219,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11172,7 +18871,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -11183,7 +18882,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserQuoteAssetInsuranceStake';
-			discriminator: [251, 101, 156, 7, 2, 63, 30, 23];
+			discriminator: [
+				251,
+				101,
+				156,
+				7,
+				2,
+				63,
+				30,
+				23,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11195,11 +18903,26 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [115, 112, 111, 116, 95, 109, 97, 114, 107, 101, 116];
+								value: [
+									115,
+									112,
+									111,
+									116,
+									95,
+									109,
+									97,
+									114,
+									107,
+									101,
+									116,
+								];
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -11248,7 +18971,10 @@ export type Drift = {
 							},
 							{
 								kind: 'const';
-								value: [0, 0];
+								value: [
+									0,
+									0,
+								];
 							},
 						];
 					};
@@ -11258,7 +18984,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserReduceOnly';
-			discriminator: [199, 71, 42, 67, 144, 19, 86, 109];
+			discriminator: [
+				199,
+				71,
+				42,
+				67,
+				144,
+				19,
+				86,
+				109,
+			];
 			accounts: [
 				{
 					name: 'user';
@@ -11267,7 +19002,12 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [117, 115, 101, 114];
+								value: [
+									117,
+									115,
+									101,
+									114,
+								];
 							},
 							{
 								kind: 'account';
@@ -11287,7 +19027,7 @@ export type Drift = {
 			];
 			args: [
 				{
-					name: 'subAccountId';
+					name: 'SubAccountId';
 					type: 'u16';
 				},
 				{
@@ -11298,7 +19038,16 @@ export type Drift = {
 		},
 		{
 			name: 'updateUserStatsReferrerStatus';
-			discriminator: [174, 154, 72, 42, 191, 148, 145, 205];
+			discriminator: [
+				174,
+				154,
+				72,
+				42,
+				191,
+				148,
+				145,
+				205,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11316,15 +19065,60 @@ export type Drift = {
 		},
 		{
 			name: 'updateWithdrawGuardThreshold';
-			discriminator: [56, 18, 39, 61, 155, 211, 44, 133];
+			discriminator: [
+				56,
+				18,
+				39,
+				61,
+				155,
+				211,
+				44,
+				133,
+			];
 			accounts: [
 				{
 					name: 'admin';
 					signer: true;
-					relations: ['state'];
+					relations: [
+						'state',
+					];
 				},
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'spotMarket';
@@ -11340,7 +19134,16 @@ export type Drift = {
 		},
 		{
 			name: 'viewLpPoolAddLiquidityFees';
-			discriminator: [80, 66, 226, 161, 70, 142, 119, 84];
+			discriminator: [
+				80,
+				66,
+				226,
+				161,
+				70,
+				142,
+				119,
+				84,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11361,7 +19164,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -11394,7 +19209,16 @@ export type Drift = {
 		},
 		{
 			name: 'viewLpPoolRemoveLiquidityFees';
-			discriminator: [47, 12, 9, 102, 12, 226, 197, 89];
+			discriminator: [
+				47,
+				12,
+				9,
+				102,
+				12,
+				226,
+				197,
+				89,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11415,7 +19239,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -11448,7 +19284,16 @@ export type Drift = {
 		},
 		{
 			name: 'viewLpPoolSwapFees';
-			discriminator: [126, 189, 109, 189, 170, 156, 3, 46];
+			discriminator: [
+				126,
+				189,
+				109,
+				189,
+				170,
+				156,
+				3,
+				46,
+			];
 			accounts: [
 				{
 					name: 'driftSigner';
@@ -11480,7 +19325,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -11500,7 +19357,19 @@ export type Drift = {
 						seeds: [
 							{
 								kind: 'const';
-								value: [67, 79, 78, 83, 84, 73, 84, 85, 69, 78, 84];
+								value: [
+									67,
+									79,
+									78,
+									83,
+									84,
+									73,
+									84,
+									85,
+									69,
+									78,
+									84,
+								];
 							},
 							{
 								kind: 'account';
@@ -11546,7 +19415,16 @@ export type Drift = {
 		},
 		{
 			name: 'withdraw';
-			discriminator: [183, 18, 70, 156, 148, 109, 161, 34];
+			discriminator: [
+				183,
+				18,
+				70,
+				156,
+				148,
+				109,
+				161,
+				34,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11562,7 +19440,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['user', 'userStats'];
+					relations: [
+						'user',
+						'user_stats',
+					];
 				},
 				{
 					name: 'spotMarketVault';
@@ -11626,7 +19507,16 @@ export type Drift = {
 		},
 		{
 			name: 'withdrawFromIsolatedPerpPosition';
-			discriminator: [37, 92, 178, 149, 140, 76, 159, 135];
+			discriminator: [
+				37,
+				92,
+				178,
+				149,
+				140,
+				76,
+				159,
+				135,
+			];
 			accounts: [
 				{
 					name: 'state';
@@ -11642,7 +19532,10 @@ export type Drift = {
 				{
 					name: 'authority';
 					signer: true;
-					relations: ['user', 'userStats'];
+					relations: [
+						'user',
+						'user_stats',
+					];
 				},
 				{
 					name: 'spotMarketVault';
@@ -11706,10 +19599,53 @@ export type Drift = {
 		},
 		{
 			name: 'withdrawFromProgramVault';
-			discriminator: [120, 40, 183, 149, 232, 18, 224, 151];
+			discriminator: [
+				120,
+				40,
+				183,
+				149,
+				232,
+				18,
+				224,
+				151,
+			];
 			accounts: [
 				{
 					name: 'state';
+				},
+				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
 				},
 				{
 					name: 'admin';
@@ -11754,7 +19690,16 @@ export type Drift = {
 		},
 		{
 			name: 'zeroMmOracleFields';
-			discriminator: [192, 226, 39, 204, 207, 120, 148, 250];
+			discriminator: [
+				192,
+				226,
+				39,
+				204,
+				207,
+				120,
+				148,
+				250,
+			];
 			accounts: [
 				{
 					name: 'admin';
@@ -11764,1993 +19709,2733 @@ export type Drift = {
 					name: 'state';
 				},
 				{
+					name: 'adminAuthorityConfig';
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
 					name: 'perpMarket';
 					writable: true;
 				},
 			];
 			args: [];
 		},
+		{
+			name: 'initializeAdminAuthorityConfig';
+			discriminator: [
+				40,
+				145,
+				37,
+				114,
+				103,
+				155,
+				194,
+				7,
+			];
+			accounts: [
+				{
+					name: 'adminAuthorityConfig';
+					writable: true;
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
+					name: 'state';
+					relations: [
+						'admin',
+					];
+				},
+				{
+					name: 'admin';
+					writable: true;
+					signer: true;
+				},
+				{
+					name: 'systemProgram';
+				},
+			];
+			args: [
+				{
+					name: 'initialWarmAdmin';
+					type: 'pubkey';
+				},
+			];
+		},
+		{
+			name: 'updateWarmAdmin';
+			discriminator: [
+				35,
+				244,
+				112,
+				119,
+				5,
+				99,
+				195,
+				204,
+			];
+			accounts: [
+				{
+					name: 'adminAuthorityConfig';
+					writable: true;
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
+					name: 'state';
+					relations: [
+						'admin',
+					];
+				},
+				{
+					name: 'admin';
+					signer: true;
+				},
+			];
+			args: [
+				{
+					name: 'newWarmAdmin';
+					type: 'pubkey';
+				},
+			];
+		},
+		{
+			name: 'updateHotAdmin';
+			discriminator: [
+				162,
+				199,
+				182,
+				64,
+				214,
+				244,
+				195,
+				30,
+			];
+			accounts: [
+				{
+					name: 'adminAuthorityConfig';
+					writable: true;
+					pda: {
+						seeds: [
+							{
+								kind: 'const';
+								value: [
+									97,
+									100,
+									109,
+									105,
+									110,
+									95,
+									97,
+									117,
+									116,
+									104,
+									111,
+									114,
+									105,
+									116,
+									121,
+									95,
+									99,
+									111,
+									110,
+									102,
+									105,
+									103,
+								];
+							},
+						];
+					};
+				},
+				{
+					name: 'state';
+				},
+				{
+					name: 'admin';
+					signer: true;
+				},
+			];
+			args: [
+				{
+					name: 'role';
+					type: {
+						defined: {
+							name: 'HotRole';
+						};
+					};
+				},
+				{
+					name: 'newPubkey';
+					type: 'pubkey';
+				},
+			];
+		},
 	];
 	accounts: [
 		{
-			name: 'ammCache';
-			discriminator: [213, 114, 161, 56, 20, 22, 2, 59];
+			name: 'AmmCache';
+			discriminator: [
+				213,
+				114,
+				161,
+				56,
+				20,
+				22,
+				2,
+				59,
+			];
 		},
 		{
-			name: 'ammConstituentMapping';
-			discriminator: [254, 89, 5, 173, 66, 54, 214, 247];
+			name: 'AmmConstituentMapping';
+			discriminator: [
+				254,
+				89,
+				5,
+				173,
+				66,
+				54,
+				214,
+				247,
+			];
 		},
 		{
-			name: 'constituent';
-			discriminator: [0, 61, 36, 35, 177, 76, 216, 205];
+			name: 'Constituent';
+			discriminator: [
+				0,
+				61,
+				36,
+				35,
+				177,
+				76,
+				216,
+				205,
+			];
 		},
 		{
-			name: 'constituentCorrelations';
-			discriminator: [124, 203, 115, 33, 18, 162, 67, 216];
+			name: 'ConstituentCorrelations';
+			discriminator: [
+				124,
+				203,
+				115,
+				33,
+				18,
+				162,
+				67,
+				216,
+			];
 		},
 		{
-			name: 'constituentTargetBase';
-			discriminator: [255, 142, 134, 71, 125, 66, 198, 99];
+			name: 'ConstituentTargetBase';
+			discriminator: [
+				255,
+				142,
+				134,
+				71,
+				125,
+				66,
+				198,
+				99,
+			];
 		},
 		{
-			name: 'fuelOverflow';
-			discriminator: [182, 64, 231, 177, 226, 142, 69, 58];
+			name: 'FuelOverflow';
+			discriminator: [
+				182,
+				64,
+				231,
+				177,
+				226,
+				142,
+				69,
+				58,
+			];
 		},
 		{
-			name: 'ifRebalanceConfig';
-			discriminator: [214, 84, 40, 251, 107, 144, 173, 239];
+			name: 'IfRebalanceConfig';
+			discriminator: [
+				214,
+				84,
+				40,
+				251,
+				107,
+				144,
+				173,
+				239,
+			];
 		},
 		{
-			name: 'insuranceFundStake';
-			discriminator: [110, 202, 14, 42, 95, 73, 90, 95];
+			name: 'InsuranceFundStake';
+			discriminator: [
+				110,
+				202,
+				14,
+				42,
+				95,
+				73,
+				90,
+				95,
+			];
 		},
 		{
-			name: 'lpPool';
-			discriminator: [228, 152, 141, 224, 161, 170, 11, 89];
+			name: 'LPPool';
+			discriminator: [
+				228,
+				152,
+				141,
+				224,
+				161,
+				170,
+				11,
+				89,
+			];
 		},
 		{
-			name: 'openbookV2FulfillmentConfig';
-			discriminator: [3, 43, 58, 106, 131, 132, 199, 171];
+			name: 'OpenbookV2FulfillmentConfig';
+			discriminator: [
+				3,
+				43,
+				58,
+				106,
+				131,
+				132,
+				199,
+				171,
+			];
 		},
 		{
-			name: 'perpMarket';
-			discriminator: [10, 223, 12, 44, 107, 245, 55, 247];
+			name: 'PerpMarket';
+			discriminator: [
+				10,
+				223,
+				12,
+				44,
+				107,
+				245,
+				55,
+				247,
+			];
 		},
 		{
-			name: 'phoenixV1FulfillmentConfig';
-			discriminator: [233, 45, 62, 40, 35, 129, 48, 72];
+			name: 'PhoenixV1FulfillmentConfig';
+			discriminator: [
+				233,
+				45,
+				62,
+				40,
+				35,
+				129,
+				48,
+				72,
+			];
 		},
 		{
-			name: 'prelaunchOracle';
-			discriminator: [92, 14, 139, 234, 72, 244, 68, 26];
+			name: 'PrelaunchOracle';
+			discriminator: [
+				92,
+				14,
+				139,
+				234,
+				72,
+				244,
+				68,
+				26,
+			];
 		},
 		{
-			name: 'protectedMakerModeConfig';
-			discriminator: [47, 86, 90, 9, 224, 255, 10, 69];
+			name: 'ProtectedMakerModeConfig';
+			discriminator: [
+				47,
+				86,
+				90,
+				9,
+				224,
+				255,
+				10,
+				69,
+			];
 		},
 		{
-			name: 'pythLazerOracle';
-			discriminator: [159, 7, 161, 249, 34, 81, 121, 133];
+			name: 'PythLazerOracle';
+			discriminator: [
+				159,
+				7,
+				161,
+				249,
+				34,
+				81,
+				121,
+				133,
+			];
 		},
 		{
-			name: 'referrerName';
-			discriminator: [105, 133, 170, 110, 52, 42, 28, 182];
+			name: 'ReferrerName';
+			discriminator: [
+				105,
+				133,
+				170,
+				110,
+				52,
+				42,
+				28,
+				182,
+			];
 		},
 		{
-			name: 'revenueShare';
-			discriminator: [55, 40, 228, 7, 139, 52, 180, 110];
+			name: 'RevenueShare';
+			discriminator: [
+				55,
+				40,
+				228,
+				7,
+				139,
+				52,
+				180,
+				110,
+			];
 		},
 		{
-			name: 'revenueShareEscrow';
-			discriminator: [98, 167, 3, 46, 74, 177, 173, 252];
+			name: 'RevenueShareEscrow';
+			discriminator: [
+				98,
+				167,
+				3,
+				46,
+				74,
+				177,
+				173,
+				252,
+			];
 		},
 		{
-			name: 'serumV3FulfillmentConfig';
-			discriminator: [65, 160, 197, 112, 239, 168, 103, 185];
+			name: 'SerumV3FulfillmentConfig';
+			discriminator: [
+				65,
+				160,
+				197,
+				112,
+				239,
+				168,
+				103,
+				185,
+			];
 		},
 		{
-			name: 'signedMsgUserOrders';
-			discriminator: [70, 6, 50, 248, 222, 1, 143, 49];
+			name: 'SignedMsgUserOrders';
+			discriminator: [
+				70,
+				6,
+				50,
+				248,
+				222,
+				1,
+				143,
+				49,
+			];
 		},
 		{
-			name: 'signedMsgWsDelegates';
-			discriminator: [190, 115, 111, 44, 216, 252, 108, 85];
+			name: 'SignedMsgWsDelegates';
+			discriminator: [
+				190,
+				115,
+				111,
+				44,
+				216,
+				252,
+				108,
+				85,
+			];
 		},
 		{
-			name: 'spotMarket';
-			discriminator: [100, 177, 8, 107, 168, 65, 65, 39];
+			name: 'SpotMarket';
+			discriminator: [
+				100,
+				177,
+				8,
+				107,
+				168,
+				65,
+				65,
+				39,
+			];
 		},
 		{
-			name: 'state';
-			discriminator: [216, 146, 107, 94, 104, 75, 182, 177];
+			name: 'State';
+			discriminator: [
+				216,
+				146,
+				107,
+				94,
+				104,
+				75,
+				182,
+				177,
+			];
 		},
 		{
-			name: 'user';
-			discriminator: [159, 117, 95, 227, 239, 151, 58, 236];
+			name: 'User';
+			discriminator: [
+				159,
+				117,
+				95,
+				227,
+				239,
+				151,
+				58,
+				236,
+			];
 		},
 		{
-			name: 'userStats';
-			discriminator: [176, 223, 136, 27, 122, 79, 32, 227];
+			name: 'UserStats';
+			discriminator: [
+				176,
+				223,
+				136,
+				27,
+				122,
+				79,
+				32,
+				227,
+			];
+		},
+		{
+			name: 'AdminAuthorityConfig';
+			discriminator: [
+				194,
+				113,
+				123,
+				151,
+				206,
+				141,
+				2,
+				109,
+			];
 		},
 	];
 	events: [
 		{
-			name: 'adminWithdrawFromInsuranceFundRecord';
-			discriminator: [230, 236, 10, 0, 196, 41, 147, 45];
+			name: 'AdminWithdrawFromInsuranceFundRecord';
+			discriminator: [
+				230,
+				236,
+				10,
+				0,
+				196,
+				41,
+				147,
+				45,
+			];
 		},
 		{
-			name: 'curveRecord';
-			discriminator: [101, 238, 40, 228, 70, 46, 61, 117];
+			name: 'CurveRecord';
+			discriminator: [
+				101,
+				238,
+				40,
+				228,
+				70,
+				46,
+				61,
+				117,
+			];
 		},
 		{
-			name: 'deleteUserRecord';
-			discriminator: [71, 111, 190, 118, 7, 3, 132, 222];
+			name: 'DeleteUserRecord';
+			discriminator: [
+				71,
+				111,
+				190,
+				118,
+				7,
+				3,
+				132,
+				222,
+			];
 		},
 		{
-			name: 'depositRecord';
-			discriminator: [180, 241, 218, 207, 102, 135, 44, 134];
+			name: 'DepositRecord';
+			discriminator: [
+				180,
+				241,
+				218,
+				207,
+				102,
+				135,
+				44,
+				134,
+			];
 		},
 		{
-			name: 'fuelSeasonRecord';
-			discriminator: [19, 137, 119, 33, 224, 249, 6, 87];
+			name: 'FuelSeasonRecord';
+			discriminator: [
+				19,
+				137,
+				119,
+				33,
+				224,
+				249,
+				6,
+				87,
+			];
 		},
 		{
-			name: 'fuelSweepRecord';
-			discriminator: [41, 84, 37, 246, 132, 240, 131, 8];
+			name: 'FuelSweepRecord';
+			discriminator: [
+				41,
+				84,
+				37,
+				246,
+				132,
+				240,
+				131,
+				8,
+			];
 		},
 		{
-			name: 'fundingPaymentRecord';
-			discriminator: [8, 59, 96, 20, 137, 201, 56, 95];
+			name: 'FundingPaymentRecord';
+			discriminator: [
+				8,
+				59,
+				96,
+				20,
+				137,
+				201,
+				56,
+				95,
+			];
 		},
 		{
-			name: 'fundingRateRecord';
-			discriminator: [68, 3, 255, 26, 133, 91, 147, 254];
+			name: 'FundingRateRecord';
+			discriminator: [
+				68,
+				3,
+				255,
+				26,
+				133,
+				91,
+				147,
+				254,
+			];
 		},
 		{
-			name: 'insuranceFundRecord';
-			discriminator: [56, 222, 215, 235, 78, 197, 99, 146];
+			name: 'InsuranceFundRecord';
+			discriminator: [
+				56,
+				222,
+				215,
+				235,
+				78,
+				197,
+				99,
+				146,
+			];
 		},
 		{
-			name: 'insuranceFundStakeRecord';
-			discriminator: [68, 66, 156, 7, 216, 148, 250, 114];
+			name: 'InsuranceFundStakeRecord';
+			discriminator: [
+				68,
+				66,
+				156,
+				7,
+				216,
+				148,
+				250,
+				114,
+			];
 		},
 		{
-			name: 'insuranceFundSwapRecord';
-			discriminator: [85, 190, 99, 203, 237, 33, 227, 100];
+			name: 'InsuranceFundSwapRecord';
+			discriminator: [
+				85,
+				190,
+				99,
+				203,
+				237,
+				33,
+				227,
+				100,
+			];
 		},
 		{
-			name: 'lpBorrowLendDepositRecord';
-			discriminator: [242, 181, 11, 56, 243, 61, 79, 210];
+			name: 'LPBorrowLendDepositRecord';
+			discriminator: [
+				242,
+				181,
+				11,
+				56,
+				243,
+				61,
+				79,
+				210,
+			];
 		},
 		{
-			name: 'lpMintRedeemRecord';
-			discriminator: [53, 178, 142, 73, 78, 91, 91, 8];
+			name: 'LPMintRedeemRecord';
+			discriminator: [
+				53,
+				178,
+				142,
+				73,
+				78,
+				91,
+				91,
+				8,
+			];
 		},
 		{
-			name: 'lpRecord';
-			discriminator: [101, 22, 54, 38, 178, 13, 142, 111];
+			name: 'LPRecord';
+			discriminator: [
+				101,
+				22,
+				54,
+				38,
+				178,
+				13,
+				142,
+				111,
+			];
 		},
 		{
-			name: 'lpSettleRecord';
-			discriminator: [208, 191, 131, 110, 173, 48, 7, 2];
+			name: 'LPSettleRecord';
+			discriminator: [
+				208,
+				191,
+				131,
+				110,
+				173,
+				48,
+				7,
+				2,
+			];
 		},
 		{
-			name: 'lpSwapRecord';
-			discriminator: [159, 62, 130, 196, 96, 79, 176, 254];
+			name: 'LPSwapRecord';
+			discriminator: [
+				159,
+				62,
+				130,
+				196,
+				96,
+				79,
+				176,
+				254,
+			];
 		},
 		{
-			name: 'liquidationRecord';
-			discriminator: [127, 17, 0, 108, 182, 13, 231, 53];
+			name: 'LiquidationRecord';
+			discriminator: [
+				127,
+				17,
+				0,
+				108,
+				182,
+				13,
+				231,
+				53,
+			];
 		},
 		{
-			name: 'newUserRecord';
-			discriminator: [236, 186, 113, 219, 42, 51, 149, 249];
+			name: 'NewUserRecord';
+			discriminator: [
+				236,
+				186,
+				113,
+				219,
+				42,
+				51,
+				149,
+				249,
+			];
 		},
 		{
-			name: 'orderActionRecord';
-			discriminator: [224, 52, 67, 71, 194, 237, 109, 1];
+			name: 'OrderActionRecord';
+			discriminator: [
+				224,
+				52,
+				67,
+				71,
+				194,
+				237,
+				109,
+				1,
+			];
 		},
 		{
-			name: 'orderRecord';
-			discriminator: [104, 19, 64, 56, 89, 21, 2, 90];
+			name: 'OrderRecord';
+			discriminator: [
+				104,
+				19,
+				64,
+				56,
+				89,
+				21,
+				2,
+				90,
+			];
 		},
 		{
-			name: 'revenueShareSettleRecord';
-			discriminator: [61, 162, 89, 10, 24, 20, 59, 45];
+			name: 'RevenueShareSettleRecord';
+			discriminator: [
+				61,
+				162,
+				89,
+				10,
+				24,
+				20,
+				59,
+				45,
+			];
 		},
 		{
-			name: 'settlePnlRecord';
-			discriminator: [57, 68, 105, 26, 119, 198, 213, 89];
+			name: 'SettlePnlRecord';
+			discriminator: [
+				57,
+				68,
+				105,
+				26,
+				119,
+				198,
+				213,
+				89,
+			];
 		},
 		{
-			name: 'signedMsgOrderRecord';
-			discriminator: [211, 197, 25, 18, 142, 86, 113, 27];
+			name: 'SignedMsgOrderRecord';
+			discriminator: [
+				211,
+				197,
+				25,
+				18,
+				142,
+				86,
+				113,
+				27,
+			];
 		},
 		{
-			name: 'spotInterestRecord';
-			discriminator: [183, 186, 203, 186, 225, 187, 95, 130];
+			name: 'SpotInterestRecord';
+			discriminator: [
+				183,
+				186,
+				203,
+				186,
+				225,
+				187,
+				95,
+				130,
+			];
 		},
 		{
-			name: 'spotMarketVaultDepositRecord';
-			discriminator: [178, 217, 23, 188, 127, 190, 32, 73];
+			name: 'SpotMarketVaultDepositRecord';
+			discriminator: [
+				178,
+				217,
+				23,
+				188,
+				127,
+				190,
+				32,
+				73,
+			];
 		},
 		{
-			name: 'swapRecord';
-			discriminator: [162, 187, 123, 194, 138, 56, 250, 241];
+			name: 'SwapRecord';
+			discriminator: [
+				162,
+				187,
+				123,
+				194,
+				138,
+				56,
+				250,
+				241,
+			];
 		},
 		{
-			name: 'transferFeeAndPnlPoolRecord';
-			discriminator: [92, 57, 45, 144, 26, 86, 247, 12];
+			name: 'TransferFeeAndPnlPoolRecord';
+			discriminator: [
+				92,
+				57,
+				45,
+				144,
+				26,
+				86,
+				247,
+				12,
+			];
 		},
 		{
-			name: 'transferProtocolIfSharesToRevenuePoolRecord';
-			discriminator: [209, 118, 142, 167, 130, 46, 164, 151];
+			name: 'TransferProtocolIfSharesToRevenuePoolRecord';
+			discriminator: [
+				209,
+				118,
+				142,
+				167,
+				130,
+				46,
+				164,
+				151,
+			];
 		},
 		{
-			name: 'signedMsgOrderParamsExport';
-			discriminator: [141, 81, 104, 63, 186, 109, 87, 251];
+			name: 'SignedMsgOrderParamsExport';
+			discriminator: [
+				141,
+				81,
+				104,
+				63,
+				186,
+				109,
+				87,
+				251,
+			];
 		},
 	];
 	errors: [
 		{
 			code: 6000;
-			name: 'invalidSpotMarketAuthority';
+			name: 'InvalidSpotMarketAuthority';
 			msg: 'Invalid Spot Market Authority';
 		},
 		{
 			code: 6001;
-			name: 'invalidInsuranceFundAuthority';
+			name: 'InvalidInsuranceFundAuthority';
 			msg: 'Clearing house not insurance fund authority';
 		},
 		{
 			code: 6002;
-			name: 'insufficientDeposit';
+			name: 'InsufficientDeposit';
 			msg: 'Insufficient deposit';
 		},
 		{
 			code: 6003;
-			name: 'insufficientCollateral';
+			name: 'InsufficientCollateral';
 			msg: 'Insufficient collateral';
 		},
 		{
 			code: 6004;
-			name: 'sufficientCollateral';
+			name: 'SufficientCollateral';
 			msg: 'Sufficient collateral';
 		},
 		{
 			code: 6005;
-			name: 'maxNumberOfPositions';
+			name: 'MaxNumberOfPositions';
 			msg: 'Max number of positions taken';
 		},
 		{
 			code: 6006;
-			name: 'adminControlsPricesDisabled';
+			name: 'AdminControlsPricesDisabled';
 			msg: 'Admin Controls Prices Disabled';
 		},
 		{
 			code: 6007;
-			name: 'marketDelisted';
+			name: 'MarketDelisted';
 			msg: 'Market Delisted';
 		},
 		{
 			code: 6008;
-			name: 'marketIndexAlreadyInitialized';
+			name: 'MarketIndexAlreadyInitialized';
 			msg: 'Market Index Already Initialized';
 		},
 		{
 			code: 6009;
-			name: 'userAccountAndUserPositionsAccountMismatch';
+			name: 'UserAccountAndUserPositionsAccountMismatch';
 			msg: 'User Account And User Positions Account Mismatch';
 		},
 		{
 			code: 6010;
-			name: 'userHasNoPositionInMarket';
+			name: 'UserHasNoPositionInMarket';
 			msg: 'User Has No Position In Market';
 		},
 		{
 			code: 6011;
-			name: 'invalidInitialPeg';
+			name: 'InvalidInitialPeg';
 			msg: 'Invalid Initial Peg';
 		},
 		{
 			code: 6012;
-			name: 'invalidRepegRedundant';
+			name: 'InvalidRepegRedundant';
 			msg: 'AMM repeg already configured with amt given';
 		},
 		{
 			code: 6013;
-			name: 'invalidRepegDirection';
+			name: 'InvalidRepegDirection';
 			msg: 'AMM repeg incorrect repeg direction';
 		},
 		{
 			code: 6014;
-			name: 'invalidRepegProfitability';
+			name: 'InvalidRepegProfitability';
 			msg: 'AMM repeg out of bounds pnl';
 		},
 		{
 			code: 6015;
-			name: 'slippageOutsideLimit';
+			name: 'SlippageOutsideLimit';
 			msg: 'Slippage Outside Limit Price';
 		},
 		{
 			code: 6016;
-			name: 'orderSizeTooSmall';
+			name: 'OrderSizeTooSmall';
 			msg: 'Order Size Too Small';
 		},
 		{
 			code: 6017;
-			name: 'invalidUpdateK';
+			name: 'InvalidUpdateK';
 			msg: 'Price change too large when updating K';
 		},
 		{
 			code: 6018;
-			name: 'adminWithdrawTooLarge';
+			name: 'AdminWithdrawTooLarge';
 			msg: 'Admin tried to withdraw amount larger than fees collected';
 		},
 		{
 			code: 6019;
-			name: 'mathError';
+			name: 'MathError';
 			msg: 'Math Error';
 		},
 		{
 			code: 6020;
-			name: 'bnConversionError';
+			name: 'BnConversionError';
 			msg: 'Conversion to u128/u64 failed with an overflow or underflow';
 		},
 		{
 			code: 6021;
-			name: 'clockUnavailable';
+			name: 'ClockUnavailable';
 			msg: 'Clock unavailable';
 		},
 		{
 			code: 6022;
-			name: 'unableToLoadOracle';
+			name: 'UnableToLoadOracle';
 			msg: 'Unable To Load Oracles';
 		},
 		{
 			code: 6023;
-			name: 'priceBandsBreached';
+			name: 'PriceBandsBreached';
 			msg: 'Price Bands Breached';
 		},
 		{
 			code: 6024;
-			name: 'exchangePaused';
+			name: 'ExchangePaused';
 			msg: 'Exchange is paused';
 		},
 		{
 			code: 6025;
-			name: 'invalidWhitelistToken';
+			name: 'InvalidWhitelistToken';
 			msg: 'Invalid whitelist token';
 		},
 		{
 			code: 6026;
-			name: 'whitelistTokenNotFound';
+			name: 'WhitelistTokenNotFound';
 			msg: 'Whitelist token not found';
 		},
 		{
 			code: 6027;
-			name: 'invalidDiscountToken';
+			name: 'InvalidDiscountToken';
 			msg: 'Invalid discount token';
 		},
 		{
 			code: 6028;
-			name: 'discountTokenNotFound';
+			name: 'DiscountTokenNotFound';
 			msg: 'Discount token not found';
 		},
 		{
 			code: 6029;
-			name: 'referrerNotFound';
+			name: 'ReferrerNotFound';
 			msg: 'Referrer not found';
 		},
 		{
 			code: 6030;
-			name: 'referrerStatsNotFound';
-			msg: 'referrerNotFound';
+			name: 'ReferrerStatsNotFound';
+			msg: 'ReferrerNotFound';
 		},
 		{
 			code: 6031;
-			name: 'referrerMustBeWritable';
-			msg: 'referrerMustBeWritable';
+			name: 'ReferrerMustBeWritable';
+			msg: 'ReferrerMustBeWritable';
 		},
 		{
 			code: 6032;
-			name: 'referrerStatsMustBeWritable';
-			msg: 'referrerMustBeWritable';
+			name: 'ReferrerStatsMustBeWritable';
+			msg: 'ReferrerMustBeWritable';
 		},
 		{
 			code: 6033;
-			name: 'referrerAndReferrerStatsAuthorityUnequal';
-			msg: 'referrerAndReferrerStatsAuthorityUnequal';
+			name: 'ReferrerAndReferrerStatsAuthorityUnequal';
+			msg: 'ReferrerAndReferrerStatsAuthorityUnequal';
 		},
 		{
 			code: 6034;
-			name: 'invalidReferrer';
-			msg: 'invalidReferrer';
+			name: 'InvalidReferrer';
+			msg: 'InvalidReferrer';
 		},
 		{
 			code: 6035;
-			name: 'invalidOracle';
-			msg: 'invalidOracle';
+			name: 'InvalidOracle';
+			msg: 'InvalidOracle';
 		},
 		{
 			code: 6036;
-			name: 'oracleNotFound';
-			msg: 'oracleNotFound';
+			name: 'OracleNotFound';
+			msg: 'OracleNotFound';
 		},
 		{
 			code: 6037;
-			name: 'liquidationsBlockedByOracle';
+			name: 'LiquidationsBlockedByOracle';
 			msg: 'Liquidations Blocked By Oracle';
 		},
 		{
 			code: 6038;
-			name: 'maxDeposit';
+			name: 'MaxDeposit';
 			msg: 'Can not deposit more than max deposit';
 		},
 		{
 			code: 6039;
-			name: 'cantDeleteUserWithCollateral';
+			name: 'CantDeleteUserWithCollateral';
 			msg: 'Can not delete user that still has collateral';
 		},
 		{
 			code: 6040;
-			name: 'invalidFundingProfitability';
+			name: 'InvalidFundingProfitability';
 			msg: 'AMM funding out of bounds pnl';
 		},
 		{
 			code: 6041;
-			name: 'castingFailure';
+			name: 'CastingFailure';
 			msg: 'Casting Failure';
 		},
 		{
 			code: 6042;
-			name: 'invalidOrder';
-			msg: 'invalidOrder';
+			name: 'InvalidOrder';
+			msg: 'InvalidOrder';
 		},
 		{
 			code: 6043;
-			name: 'invalidOrderMaxTs';
-			msg: 'invalidOrderMaxTs';
+			name: 'InvalidOrderMaxTs';
+			msg: 'InvalidOrderMaxTs';
 		},
 		{
 			code: 6044;
-			name: 'invalidOrderMarketType';
-			msg: 'invalidOrderMarketType';
+			name: 'InvalidOrderMarketType';
+			msg: 'InvalidOrderMarketType';
 		},
 		{
 			code: 6045;
-			name: 'invalidOrderForInitialMarginReq';
-			msg: 'invalidOrderForInitialMarginReq';
+			name: 'InvalidOrderForInitialMarginReq';
+			msg: 'InvalidOrderForInitialMarginReq';
 		},
 		{
 			code: 6046;
-			name: 'invalidOrderNotRiskReducing';
-			msg: 'invalidOrderNotRiskReducing';
+			name: 'InvalidOrderNotRiskReducing';
+			msg: 'InvalidOrderNotRiskReducing';
 		},
 		{
 			code: 6047;
-			name: 'invalidOrderSizeTooSmall';
-			msg: 'invalidOrderSizeTooSmall';
+			name: 'InvalidOrderSizeTooSmall';
+			msg: 'InvalidOrderSizeTooSmall';
 		},
 		{
 			code: 6048;
-			name: 'invalidOrderNotStepSizeMultiple';
-			msg: 'invalidOrderNotStepSizeMultiple';
+			name: 'InvalidOrderNotStepSizeMultiple';
+			msg: 'InvalidOrderNotStepSizeMultiple';
 		},
 		{
 			code: 6049;
-			name: 'invalidOrderBaseQuoteAsset';
-			msg: 'invalidOrderBaseQuoteAsset';
+			name: 'InvalidOrderBaseQuoteAsset';
+			msg: 'InvalidOrderBaseQuoteAsset';
 		},
 		{
 			code: 6050;
-			name: 'invalidOrderIoc';
-			msg: 'invalidOrderIoc';
+			name: 'InvalidOrderIOC';
+			msg: 'InvalidOrderIOC';
 		},
 		{
 			code: 6051;
-			name: 'invalidOrderPostOnly';
-			msg: 'invalidOrderPostOnly';
+			name: 'InvalidOrderPostOnly';
+			msg: 'InvalidOrderPostOnly';
 		},
 		{
 			code: 6052;
-			name: 'invalidOrderIocPostOnly';
-			msg: 'invalidOrderIocPostOnly';
+			name: 'InvalidOrderIOCPostOnly';
+			msg: 'InvalidOrderIOCPostOnly';
 		},
 		{
 			code: 6053;
-			name: 'invalidOrderTrigger';
-			msg: 'invalidOrderTrigger';
+			name: 'InvalidOrderTrigger';
+			msg: 'InvalidOrderTrigger';
 		},
 		{
 			code: 6054;
-			name: 'invalidOrderAuction';
-			msg: 'invalidOrderAuction';
+			name: 'InvalidOrderAuction';
+			msg: 'InvalidOrderAuction';
 		},
 		{
 			code: 6055;
-			name: 'invalidOrderOracleOffset';
-			msg: 'invalidOrderOracleOffset';
+			name: 'InvalidOrderOracleOffset';
+			msg: 'InvalidOrderOracleOffset';
 		},
 		{
 			code: 6056;
-			name: 'invalidOrderMinOrderSize';
-			msg: 'invalidOrderMinOrderSize';
+			name: 'InvalidOrderMinOrderSize';
+			msg: 'InvalidOrderMinOrderSize';
 		},
 		{
 			code: 6057;
-			name: 'placePostOnlyLimitFailure';
+			name: 'PlacePostOnlyLimitFailure';
 			msg: 'Failed to Place Post-Only Limit Order';
 		},
 		{
 			code: 6058;
-			name: 'userHasNoOrder';
+			name: 'UserHasNoOrder';
 			msg: 'User has no order';
 		},
 		{
 			code: 6059;
-			name: 'orderAmountTooSmall';
+			name: 'OrderAmountTooSmall';
 			msg: 'Order Amount Too Small';
 		},
 		{
 			code: 6060;
-			name: 'maxNumberOfOrders';
+			name: 'MaxNumberOfOrders';
 			msg: 'Max number of orders taken';
 		},
 		{
 			code: 6061;
-			name: 'orderDoesNotExist';
+			name: 'OrderDoesNotExist';
 			msg: 'Order does not exist';
 		},
 		{
 			code: 6062;
-			name: 'orderNotOpen';
+			name: 'OrderNotOpen';
 			msg: 'Order not open';
 		},
 		{
 			code: 6063;
-			name: 'fillOrderDidNotUpdateState';
-			msg: 'fillOrderDidNotUpdateState';
+			name: 'FillOrderDidNotUpdateState';
+			msg: 'FillOrderDidNotUpdateState';
 		},
 		{
 			code: 6064;
-			name: 'reduceOnlyOrderIncreasedRisk';
+			name: 'ReduceOnlyOrderIncreasedRisk';
 			msg: 'Reduce only order increased risk';
 		},
 		{
 			code: 6065;
-			name: 'unableToLoadAccountLoader';
+			name: 'UnableToLoadAccountLoader';
 			msg: 'Unable to load AccountLoader';
 		},
 		{
 			code: 6066;
-			name: 'tradeSizeTooLarge';
+			name: 'TradeSizeTooLarge';
 			msg: 'Trade Size Too Large';
 		},
 		{
 			code: 6067;
-			name: 'userCantReferThemselves';
+			name: 'UserCantReferThemselves';
 			msg: 'User cant refer themselves';
 		},
 		{
 			code: 6068;
-			name: 'didNotReceiveExpectedReferrer';
+			name: 'DidNotReceiveExpectedReferrer';
 			msg: 'Did not receive expected referrer';
 		},
 		{
 			code: 6069;
-			name: 'couldNotDeserializeReferrer';
+			name: 'CouldNotDeserializeReferrer';
 			msg: 'Could not deserialize referrer';
 		},
 		{
 			code: 6070;
-			name: 'couldNotDeserializeReferrerStats';
+			name: 'CouldNotDeserializeReferrerStats';
 			msg: 'Could not deserialize referrer stats';
 		},
 		{
 			code: 6071;
-			name: 'userOrderIdAlreadyInUse';
+			name: 'UserOrderIdAlreadyInUse';
 			msg: 'User Order Id Already In Use';
 		},
 		{
 			code: 6072;
-			name: 'noPositionsLiquidatable';
+			name: 'NoPositionsLiquidatable';
 			msg: 'No positions liquidatable';
 		},
 		{
 			code: 6073;
-			name: 'invalidMarginRatio';
+			name: 'InvalidMarginRatio';
 			msg: 'Invalid Margin Ratio';
 		},
 		{
 			code: 6074;
-			name: 'cantCancelPostOnlyOrder';
+			name: 'CantCancelPostOnlyOrder';
 			msg: 'Cant Cancel Post Only Order';
 		},
 		{
 			code: 6075;
-			name: 'invalidOracleOffset';
-			msg: 'invalidOracleOffset';
+			name: 'InvalidOracleOffset';
+			msg: 'InvalidOracleOffset';
 		},
 		{
 			code: 6076;
-			name: 'cantExpireOrders';
-			msg: 'cantExpireOrders';
+			name: 'CantExpireOrders';
+			msg: 'CantExpireOrders';
 		},
 		{
 			code: 6077;
-			name: 'couldNotLoadMarketData';
-			msg: 'couldNotLoadMarketData';
+			name: 'CouldNotLoadMarketData';
+			msg: 'CouldNotLoadMarketData';
 		},
 		{
 			code: 6078;
-			name: 'perpMarketNotFound';
-			msg: 'perpMarketNotFound';
+			name: 'PerpMarketNotFound';
+			msg: 'PerpMarketNotFound';
 		},
 		{
 			code: 6079;
-			name: 'invalidMarketAccount';
-			msg: 'invalidMarketAccount';
+			name: 'InvalidMarketAccount';
+			msg: 'InvalidMarketAccount';
 		},
 		{
 			code: 6080;
-			name: 'unableToLoadPerpMarketAccount';
-			msg: 'unableToLoadMarketAccount';
+			name: 'UnableToLoadPerpMarketAccount';
+			msg: 'UnableToLoadMarketAccount';
 		},
 		{
 			code: 6081;
-			name: 'marketWrongMutability';
-			msg: 'marketWrongMutability';
+			name: 'MarketWrongMutability';
+			msg: 'MarketWrongMutability';
 		},
 		{
 			code: 6082;
-			name: 'unableToCastUnixTime';
-			msg: 'unableToCastUnixTime';
+			name: 'UnableToCastUnixTime';
+			msg: 'UnableToCastUnixTime';
 		},
 		{
 			code: 6083;
-			name: 'couldNotFindSpotPosition';
-			msg: 'couldNotFindSpotPosition';
+			name: 'CouldNotFindSpotPosition';
+			msg: 'CouldNotFindSpotPosition';
 		},
 		{
 			code: 6084;
-			name: 'noSpotPositionAvailable';
-			msg: 'noSpotPositionAvailable';
+			name: 'NoSpotPositionAvailable';
+			msg: 'NoSpotPositionAvailable';
 		},
 		{
 			code: 6085;
-			name: 'invalidSpotMarketInitialization';
-			msg: 'invalidSpotMarketInitialization';
+			name: 'InvalidSpotMarketInitialization';
+			msg: 'InvalidSpotMarketInitialization';
 		},
 		{
 			code: 6086;
-			name: 'couldNotLoadSpotMarketData';
-			msg: 'couldNotLoadSpotMarketData';
+			name: 'CouldNotLoadSpotMarketData';
+			msg: 'CouldNotLoadSpotMarketData';
 		},
 		{
 			code: 6087;
-			name: 'spotMarketNotFound';
-			msg: 'spotMarketNotFound';
+			name: 'SpotMarketNotFound';
+			msg: 'SpotMarketNotFound';
 		},
 		{
 			code: 6088;
-			name: 'invalidSpotMarketAccount';
-			msg: 'invalidSpotMarketAccount';
+			name: 'InvalidSpotMarketAccount';
+			msg: 'InvalidSpotMarketAccount';
 		},
 		{
 			code: 6089;
-			name: 'unableToLoadSpotMarketAccount';
-			msg: 'unableToLoadSpotMarketAccount';
+			name: 'UnableToLoadSpotMarketAccount';
+			msg: 'UnableToLoadSpotMarketAccount';
 		},
 		{
 			code: 6090;
-			name: 'spotMarketWrongMutability';
-			msg: 'spotMarketWrongMutability';
+			name: 'SpotMarketWrongMutability';
+			msg: 'SpotMarketWrongMutability';
 		},
 		{
 			code: 6091;
-			name: 'spotMarketInterestNotUpToDate';
-			msg: 'spotInterestNotUpToDate';
+			name: 'SpotMarketInterestNotUpToDate';
+			msg: 'SpotInterestNotUpToDate';
 		},
 		{
 			code: 6092;
-			name: 'spotMarketInsufficientDeposits';
-			msg: 'spotMarketInsufficientDeposits';
+			name: 'SpotMarketInsufficientDeposits';
+			msg: 'SpotMarketInsufficientDeposits';
 		},
 		{
 			code: 6093;
-			name: 'userMustSettleTheirOwnPositiveUnsettledPnl';
-			msg: 'userMustSettleTheirOwnPositiveUnsettledPnl';
+			name: 'UserMustSettleTheirOwnPositiveUnsettledPNL';
+			msg: 'UserMustSettleTheirOwnPositiveUnsettledPNL';
 		},
 		{
 			code: 6094;
-			name: 'cantUpdateSpotBalanceType';
-			msg: 'cantUpdateSpotBalanceType';
+			name: 'CantUpdateSpotBalanceType';
+			msg: 'CantUpdateSpotBalanceType';
 		},
 		{
 			code: 6095;
-			name: 'insufficientCollateralForSettlingPnl';
-			msg: 'insufficientCollateralForSettlingPnl';
+			name: 'InsufficientCollateralForSettlingPNL';
+			msg: 'InsufficientCollateralForSettlingPNL';
 		},
 		{
 			code: 6096;
-			name: 'ammNotUpdatedInSameSlot';
-			msg: 'ammNotUpdatedInSameSlot';
+			name: 'AMMNotUpdatedInSameSlot';
+			msg: 'AMMNotUpdatedInSameSlot';
 		},
 		{
 			code: 6097;
-			name: 'auctionNotComplete';
-			msg: 'auctionNotComplete';
+			name: 'AuctionNotComplete';
+			msg: 'AuctionNotComplete';
 		},
 		{
 			code: 6098;
-			name: 'makerNotFound';
-			msg: 'makerNotFound';
+			name: 'MakerNotFound';
+			msg: 'MakerNotFound';
 		},
 		{
 			code: 6099;
-			name: 'makerStatsNotFound';
-			msg: 'makerNotFound';
+			name: 'MakerStatsNotFound';
+			msg: 'MakerNotFound';
 		},
 		{
 			code: 6100;
-			name: 'makerMustBeWritable';
-			msg: 'makerMustBeWritable';
+			name: 'MakerMustBeWritable';
+			msg: 'MakerMustBeWritable';
 		},
 		{
 			code: 6101;
-			name: 'makerStatsMustBeWritable';
-			msg: 'makerMustBeWritable';
+			name: 'MakerStatsMustBeWritable';
+			msg: 'MakerMustBeWritable';
 		},
 		{
 			code: 6102;
-			name: 'makerOrderNotFound';
-			msg: 'makerOrderNotFound';
+			name: 'MakerOrderNotFound';
+			msg: 'MakerOrderNotFound';
 		},
 		{
 			code: 6103;
-			name: 'couldNotDeserializeMaker';
-			msg: 'couldNotDeserializeMaker';
+			name: 'CouldNotDeserializeMaker';
+			msg: 'CouldNotDeserializeMaker';
 		},
 		{
 			code: 6104;
-			name: 'couldNotDeserializeMakerStats';
-			msg: 'couldNotDeserializeMaker';
+			name: 'CouldNotDeserializeMakerStats';
+			msg: 'CouldNotDeserializeMaker';
 		},
 		{
 			code: 6105;
-			name: 'auctionPriceDoesNotSatisfyMaker';
-			msg: 'auctionPriceDoesNotSatisfyMaker';
+			name: 'AuctionPriceDoesNotSatisfyMaker';
+			msg: 'AuctionPriceDoesNotSatisfyMaker';
 		},
 		{
 			code: 6106;
-			name: 'makerCantFulfillOwnOrder';
-			msg: 'makerCantFulfillOwnOrder';
+			name: 'MakerCantFulfillOwnOrder';
+			msg: 'MakerCantFulfillOwnOrder';
 		},
 		{
 			code: 6107;
-			name: 'makerOrderMustBePostOnly';
-			msg: 'makerOrderMustBePostOnly';
+			name: 'MakerOrderMustBePostOnly';
+			msg: 'MakerOrderMustBePostOnly';
 		},
 		{
 			code: 6108;
-			name: 'cantMatchTwoPostOnlys';
-			msg: 'cantMatchTwoPostOnlys';
+			name: 'CantMatchTwoPostOnlys';
+			msg: 'CantMatchTwoPostOnlys';
 		},
 		{
 			code: 6109;
-			name: 'orderBreachesOraclePriceLimits';
-			msg: 'orderBreachesOraclePriceLimits';
+			name: 'OrderBreachesOraclePriceLimits';
+			msg: 'OrderBreachesOraclePriceLimits';
 		},
 		{
 			code: 6110;
-			name: 'orderMustBeTriggeredFirst';
-			msg: 'orderMustBeTriggeredFirst';
+			name: 'OrderMustBeTriggeredFirst';
+			msg: 'OrderMustBeTriggeredFirst';
 		},
 		{
 			code: 6111;
-			name: 'orderNotTriggerable';
-			msg: 'orderNotTriggerable';
+			name: 'OrderNotTriggerable';
+			msg: 'OrderNotTriggerable';
 		},
 		{
 			code: 6112;
-			name: 'orderDidNotSatisfyTriggerCondition';
-			msg: 'orderDidNotSatisfyTriggerCondition';
+			name: 'OrderDidNotSatisfyTriggerCondition';
+			msg: 'OrderDidNotSatisfyTriggerCondition';
 		},
 		{
 			code: 6113;
-			name: 'positionAlreadyBeingLiquidated';
-			msg: 'positionAlreadyBeingLiquidated';
+			name: 'PositionAlreadyBeingLiquidated';
+			msg: 'PositionAlreadyBeingLiquidated';
 		},
 		{
 			code: 6114;
-			name: 'positionDoesntHaveOpenPositionOrOrders';
-			msg: 'positionDoesntHaveOpenPositionOrOrders';
+			name: 'PositionDoesntHaveOpenPositionOrOrders';
+			msg: 'PositionDoesntHaveOpenPositionOrOrders';
 		},
 		{
 			code: 6115;
-			name: 'allOrdersAreAlreadyLiquidations';
-			msg: 'allOrdersAreAlreadyLiquidations';
+			name: 'AllOrdersAreAlreadyLiquidations';
+			msg: 'AllOrdersAreAlreadyLiquidations';
 		},
 		{
 			code: 6116;
-			name: 'cantCancelLiquidationOrder';
-			msg: 'cantCancelLiquidationOrder';
+			name: 'CantCancelLiquidationOrder';
+			msg: 'CantCancelLiquidationOrder';
 		},
 		{
 			code: 6117;
-			name: 'userIsBeingLiquidated';
-			msg: 'userIsBeingLiquidated';
+			name: 'UserIsBeingLiquidated';
+			msg: 'UserIsBeingLiquidated';
 		},
 		{
 			code: 6118;
-			name: 'liquidationsOngoing';
-			msg: 'liquidationsOngoing';
+			name: 'LiquidationsOngoing';
+			msg: 'LiquidationsOngoing';
 		},
 		{
 			code: 6119;
-			name: 'wrongSpotBalanceType';
-			msg: 'wrongSpotBalanceType';
+			name: 'WrongSpotBalanceType';
+			msg: 'WrongSpotBalanceType';
 		},
 		{
 			code: 6120;
-			name: 'userCantLiquidateThemself';
-			msg: 'userCantLiquidateThemself';
+			name: 'UserCantLiquidateThemself';
+			msg: 'UserCantLiquidateThemself';
 		},
 		{
 			code: 6121;
-			name: 'invalidPerpPositionToLiquidate';
-			msg: 'invalidPerpPositionToLiquidate';
+			name: 'InvalidPerpPositionToLiquidate';
+			msg: 'InvalidPerpPositionToLiquidate';
 		},
 		{
 			code: 6122;
-			name: 'invalidBaseAssetAmountForLiquidatePerp';
-			msg: 'invalidBaseAssetAmountForLiquidatePerp';
+			name: 'InvalidBaseAssetAmountForLiquidatePerp';
+			msg: 'InvalidBaseAssetAmountForLiquidatePerp';
 		},
 		{
 			code: 6123;
-			name: 'invalidPositionLastFundingRate';
-			msg: 'invalidPositionLastFundingRate';
+			name: 'InvalidPositionLastFundingRate';
+			msg: 'InvalidPositionLastFundingRate';
 		},
 		{
 			code: 6124;
-			name: 'invalidPositionDelta';
-			msg: 'invalidPositionDelta';
+			name: 'InvalidPositionDelta';
+			msg: 'InvalidPositionDelta';
 		},
 		{
 			code: 6125;
-			name: 'userBankrupt';
-			msg: 'userBankrupt';
+			name: 'UserBankrupt';
+			msg: 'UserBankrupt';
 		},
 		{
 			code: 6126;
-			name: 'userNotBankrupt';
-			msg: 'userNotBankrupt';
+			name: 'UserNotBankrupt';
+			msg: 'UserNotBankrupt';
 		},
 		{
 			code: 6127;
-			name: 'userHasInvalidBorrow';
-			msg: 'userHasInvalidBorrow';
+			name: 'UserHasInvalidBorrow';
+			msg: 'UserHasInvalidBorrow';
 		},
 		{
 			code: 6128;
-			name: 'dailyWithdrawLimit';
-			msg: 'dailyWithdrawLimit';
+			name: 'DailyWithdrawLimit';
+			msg: 'DailyWithdrawLimit';
 		},
 		{
 			code: 6129;
-			name: 'defaultError';
-			msg: 'defaultError';
+			name: 'DefaultError';
+			msg: 'DefaultError';
 		},
 		{
 			code: 6130;
-			name: 'insufficientLpTokens';
+			name: 'InsufficientLPTokens';
 			msg: 'Insufficient LP tokens';
 		},
 		{
 			code: 6131;
-			name: 'cantLpWithPerpPosition';
+			name: 'CantLPWithPerpPosition';
 			msg: 'Cant LP with a market position';
 		},
 		{
 			code: 6132;
-			name: 'unableToBurnLpTokens';
+			name: 'UnableToBurnLPTokens';
 			msg: 'Unable to burn LP tokens';
 		},
 		{
 			code: 6133;
-			name: 'tryingToRemoveLiquidityTooFast';
+			name: 'TryingToRemoveLiquidityTooFast';
 			msg: 'Trying to remove liqudity too fast after adding it';
 		},
 		{
 			code: 6134;
-			name: 'invalidSpotMarketVault';
+			name: 'InvalidSpotMarketVault';
 			msg: 'Invalid Spot Market Vault';
 		},
 		{
 			code: 6135;
-			name: 'invalidSpotMarketState';
+			name: 'InvalidSpotMarketState';
 			msg: 'Invalid Spot Market State';
 		},
 		{
 			code: 6136;
-			name: 'invalidSerumProgram';
-			msg: 'invalidSerumProgram';
+			name: 'InvalidSerumProgram';
+			msg: 'InvalidSerumProgram';
 		},
 		{
 			code: 6137;
-			name: 'invalidSerumMarket';
-			msg: 'invalidSerumMarket';
+			name: 'InvalidSerumMarket';
+			msg: 'InvalidSerumMarket';
 		},
 		{
 			code: 6138;
-			name: 'invalidSerumBids';
-			msg: 'invalidSerumBids';
+			name: 'InvalidSerumBids';
+			msg: 'InvalidSerumBids';
 		},
 		{
 			code: 6139;
-			name: 'invalidSerumAsks';
-			msg: 'invalidSerumAsks';
+			name: 'InvalidSerumAsks';
+			msg: 'InvalidSerumAsks';
 		},
 		{
 			code: 6140;
-			name: 'invalidSerumOpenOrders';
-			msg: 'invalidSerumOpenOrders';
+			name: 'InvalidSerumOpenOrders';
+			msg: 'InvalidSerumOpenOrders';
 		},
 		{
 			code: 6141;
-			name: 'failedSerumCpi';
-			msg: 'failedSerumCpi';
+			name: 'FailedSerumCPI';
+			msg: 'FailedSerumCPI';
 		},
 		{
 			code: 6142;
-			name: 'failedToFillOnExternalMarket';
-			msg: 'failedToFillOnExternalMarket';
+			name: 'FailedToFillOnExternalMarket';
+			msg: 'FailedToFillOnExternalMarket';
 		},
 		{
 			code: 6143;
-			name: 'invalidFulfillmentConfig';
-			msg: 'invalidFulfillmentConfig';
+			name: 'InvalidFulfillmentConfig';
+			msg: 'InvalidFulfillmentConfig';
 		},
 		{
 			code: 6144;
-			name: 'invalidFeeStructure';
-			msg: 'invalidFeeStructure';
+			name: 'InvalidFeeStructure';
+			msg: 'InvalidFeeStructure';
 		},
 		{
 			code: 6145;
-			name: 'insufficientIfShares';
+			name: 'InsufficientIFShares';
 			msg: 'Insufficient IF shares';
 		},
 		{
 			code: 6146;
-			name: 'marketActionPaused';
+			name: 'MarketActionPaused';
 			msg: 'the Market has paused this action';
 		},
 		{
 			code: 6147;
-			name: 'marketPlaceOrderPaused';
+			name: 'MarketPlaceOrderPaused';
 			msg: 'the Market status doesnt allow placing orders';
 		},
 		{
 			code: 6148;
-			name: 'marketFillOrderPaused';
+			name: 'MarketFillOrderPaused';
 			msg: 'the Market status doesnt allow filling orders';
 		},
 		{
 			code: 6149;
-			name: 'marketWithdrawPaused';
+			name: 'MarketWithdrawPaused';
 			msg: 'the Market status doesnt allow withdraws';
 		},
 		{
 			code: 6150;
-			name: 'protectedAssetTierViolation';
+			name: 'ProtectedAssetTierViolation';
 			msg: 'Action violates the Protected Asset Tier rules';
 		},
 		{
 			code: 6151;
-			name: 'isolatedAssetTierViolation';
+			name: 'IsolatedAssetTierViolation';
 			msg: 'Action violates the Isolated Asset Tier rules';
 		},
 		{
 			code: 6152;
-			name: 'userCantBeDeleted';
+			name: 'UserCantBeDeleted';
 			msg: 'User Cant Be Deleted';
 		},
 		{
 			code: 6153;
-			name: 'reduceOnlyWithdrawIncreasedRisk';
+			name: 'ReduceOnlyWithdrawIncreasedRisk';
 			msg: 'Reduce Only Withdraw Increased Risk';
 		},
 		{
 			code: 6154;
-			name: 'maxOpenInterest';
+			name: 'MaxOpenInterest';
 			msg: 'Max Open Interest';
 		},
 		{
 			code: 6155;
-			name: 'cantResolvePerpBankruptcy';
+			name: 'CantResolvePerpBankruptcy';
 			msg: 'Cant Resolve Perp Bankruptcy';
 		},
 		{
 			code: 6156;
-			name: 'liquidationDoesntSatisfyLimitPrice';
+			name: 'LiquidationDoesntSatisfyLimitPrice';
 			msg: 'Liquidation Doesnt Satisfy Limit Price';
 		},
 		{
 			code: 6157;
-			name: 'marginTradingDisabled';
+			name: 'MarginTradingDisabled';
 			msg: 'Margin Trading Disabled';
 		},
 		{
 			code: 6158;
-			name: 'invalidMarketStatusToSettlePnl';
+			name: 'InvalidMarketStatusToSettlePnl';
 			msg: 'Invalid Market Status to Settle Perp Pnl';
 		},
 		{
 			code: 6159;
-			name: 'perpMarketNotInSettlement';
-			msg: 'perpMarketNotInSettlement';
+			name: 'PerpMarketNotInSettlement';
+			msg: 'PerpMarketNotInSettlement';
 		},
 		{
 			code: 6160;
-			name: 'perpMarketNotInReduceOnly';
-			msg: 'perpMarketNotInReduceOnly';
+			name: 'PerpMarketNotInReduceOnly';
+			msg: 'PerpMarketNotInReduceOnly';
 		},
 		{
 			code: 6161;
-			name: 'perpMarketSettlementBufferNotReached';
-			msg: 'perpMarketSettlementBufferNotReached';
+			name: 'PerpMarketSettlementBufferNotReached';
+			msg: 'PerpMarketSettlementBufferNotReached';
 		},
 		{
 			code: 6162;
-			name: 'perpMarketSettlementUserHasOpenOrders';
-			msg: 'perpMarketSettlementUserHasOpenOrders';
+			name: 'PerpMarketSettlementUserHasOpenOrders';
+			msg: 'PerpMarketSettlementUserHasOpenOrders';
 		},
 		{
 			code: 6163;
-			name: 'perpMarketSettlementUserHasActiveLp';
-			msg: 'perpMarketSettlementUserHasActiveLp';
+			name: 'PerpMarketSettlementUserHasActiveLP';
+			msg: 'PerpMarketSettlementUserHasActiveLP';
 		},
 		{
 			code: 6164;
-			name: 'unableToSettleExpiredUserPosition';
-			msg: 'unableToSettleExpiredUserPosition';
+			name: 'UnableToSettleExpiredUserPosition';
+			msg: 'UnableToSettleExpiredUserPosition';
 		},
 		{
 			code: 6165;
-			name: 'unequalMarketIndexForSpotTransfer';
-			msg: 'unequalMarketIndexForSpotTransfer';
+			name: 'UnequalMarketIndexForSpotTransfer';
+			msg: 'UnequalMarketIndexForSpotTransfer';
 		},
 		{
 			code: 6166;
-			name: 'invalidPerpPositionDetected';
-			msg: 'invalidPerpPositionDetected';
+			name: 'InvalidPerpPositionDetected';
+			msg: 'InvalidPerpPositionDetected';
 		},
 		{
 			code: 6167;
-			name: 'invalidSpotPositionDetected';
-			msg: 'invalidSpotPositionDetected';
+			name: 'InvalidSpotPositionDetected';
+			msg: 'InvalidSpotPositionDetected';
 		},
 		{
 			code: 6168;
-			name: 'invalidAmmDetected';
-			msg: 'invalidAmmDetected';
+			name: 'InvalidAmmDetected';
+			msg: 'InvalidAmmDetected';
 		},
 		{
 			code: 6169;
-			name: 'invalidAmmForFillDetected';
-			msg: 'invalidAmmForFillDetected';
+			name: 'InvalidAmmForFillDetected';
+			msg: 'InvalidAmmForFillDetected';
 		},
 		{
 			code: 6170;
-			name: 'invalidAmmLimitPriceOverride';
-			msg: 'invalidAmmLimitPriceOverride';
+			name: 'InvalidAmmLimitPriceOverride';
+			msg: 'InvalidAmmLimitPriceOverride';
 		},
 		{
 			code: 6171;
-			name: 'invalidOrderFillPrice';
-			msg: 'invalidOrderFillPrice';
+			name: 'InvalidOrderFillPrice';
+			msg: 'InvalidOrderFillPrice';
 		},
 		{
 			code: 6172;
-			name: 'spotMarketBalanceInvariantViolated';
-			msg: 'spotMarketBalanceInvariantViolated';
+			name: 'SpotMarketBalanceInvariantViolated';
+			msg: 'SpotMarketBalanceInvariantViolated';
 		},
 		{
 			code: 6173;
-			name: 'spotMarketVaultInvariantViolated';
-			msg: 'spotMarketVaultInvariantViolated';
+			name: 'SpotMarketVaultInvariantViolated';
+			msg: 'SpotMarketVaultInvariantViolated';
 		},
 		{
 			code: 6174;
-			name: 'invalidPda';
-			msg: 'invalidPda';
+			name: 'InvalidPDA';
+			msg: 'InvalidPDA';
 		},
 		{
 			code: 6175;
-			name: 'invalidPdaSigner';
-			msg: 'invalidPdaSigner';
+			name: 'InvalidPDASigner';
+			msg: 'InvalidPDASigner';
 		},
 		{
 			code: 6176;
-			name: 'revenueSettingsCannotSettleToIf';
-			msg: 'revenueSettingsCannotSettleToIf';
+			name: 'RevenueSettingsCannotSettleToIF';
+			msg: 'RevenueSettingsCannotSettleToIF';
 		},
 		{
 			code: 6177;
-			name: 'noRevenueToSettleToIf';
-			msg: 'noRevenueToSettleToIf';
+			name: 'NoRevenueToSettleToIF';
+			msg: 'NoRevenueToSettleToIF';
 		},
 		{
 			code: 6178;
-			name: 'noAmmPerpPnlDeficit';
-			msg: 'noAmmPerpPnlDeficit';
+			name: 'NoAmmPerpPnlDeficit';
+			msg: 'NoAmmPerpPnlDeficit';
 		},
 		{
 			code: 6179;
-			name: 'sufficientPerpPnlPool';
-			msg: 'sufficientPerpPnlPool';
+			name: 'SufficientPerpPnlPool';
+			msg: 'SufficientPerpPnlPool';
 		},
 		{
 			code: 6180;
-			name: 'insufficientPerpPnlPool';
-			msg: 'insufficientPerpPnlPool';
+			name: 'InsufficientPerpPnlPool';
+			msg: 'InsufficientPerpPnlPool';
 		},
 		{
 			code: 6181;
-			name: 'perpPnlDeficitBelowThreshold';
-			msg: 'perpPnlDeficitBelowThreshold';
+			name: 'PerpPnlDeficitBelowThreshold';
+			msg: 'PerpPnlDeficitBelowThreshold';
 		},
 		{
 			code: 6182;
-			name: 'maxRevenueWithdrawPerPeriodReached';
-			msg: 'maxRevenueWithdrawPerPeriodReached';
+			name: 'MaxRevenueWithdrawPerPeriodReached';
+			msg: 'MaxRevenueWithdrawPerPeriodReached';
 		},
 		{
 			code: 6183;
-			name: 'maxIfWithdrawReached';
-			msg: 'invalidSpotPositionDetected';
+			name: 'MaxIFWithdrawReached';
+			msg: 'InvalidSpotPositionDetected';
 		},
 		{
 			code: 6184;
-			name: 'noIfWithdrawAvailable';
-			msg: 'noIfWithdrawAvailable';
+			name: 'NoIFWithdrawAvailable';
+			msg: 'NoIFWithdrawAvailable';
 		},
 		{
 			code: 6185;
-			name: 'invalidIfUnstake';
-			msg: 'invalidIfUnstake';
+			name: 'InvalidIFUnstake';
+			msg: 'InvalidIFUnstake';
 		},
 		{
 			code: 6186;
-			name: 'invalidIfUnstakeSize';
-			msg: 'invalidIfUnstakeSize';
+			name: 'InvalidIFUnstakeSize';
+			msg: 'InvalidIFUnstakeSize';
 		},
 		{
 			code: 6187;
-			name: 'invalidIfUnstakeCancel';
-			msg: 'invalidIfUnstakeCancel';
+			name: 'InvalidIFUnstakeCancel';
+			msg: 'InvalidIFUnstakeCancel';
 		},
 		{
 			code: 6188;
-			name: 'invalidIfForNewStakes';
-			msg: 'invalidIfForNewStakes';
+			name: 'InvalidIFForNewStakes';
+			msg: 'InvalidIFForNewStakes';
 		},
 		{
 			code: 6189;
-			name: 'invalidIfRebase';
-			msg: 'invalidIfRebase';
+			name: 'InvalidIFRebase';
+			msg: 'InvalidIFRebase';
 		},
 		{
 			code: 6190;
-			name: 'invalidInsuranceUnstakeSize';
-			msg: 'invalidInsuranceUnstakeSize';
+			name: 'InvalidInsuranceUnstakeSize';
+			msg: 'InvalidInsuranceUnstakeSize';
 		},
 		{
 			code: 6191;
-			name: 'invalidOrderLimitPrice';
-			msg: 'invalidOrderLimitPrice';
+			name: 'InvalidOrderLimitPrice';
+			msg: 'InvalidOrderLimitPrice';
 		},
 		{
 			code: 6192;
-			name: 'invalidIfDetected';
-			msg: 'invalidIfDetected';
+			name: 'InvalidIFDetected';
+			msg: 'InvalidIFDetected';
 		},
 		{
 			code: 6193;
-			name: 'invalidAmmMaxSpreadDetected';
-			msg: 'invalidAmmMaxSpreadDetected';
+			name: 'InvalidAmmMaxSpreadDetected';
+			msg: 'InvalidAmmMaxSpreadDetected';
 		},
 		{
 			code: 6194;
-			name: 'invalidConcentrationCoef';
-			msg: 'invalidConcentrationCoef';
+			name: 'InvalidConcentrationCoef';
+			msg: 'InvalidConcentrationCoef';
 		},
 		{
 			code: 6195;
-			name: 'invalidSrmVault';
-			msg: 'invalidSrmVault';
+			name: 'InvalidSrmVault';
+			msg: 'InvalidSrmVault';
 		},
 		{
 			code: 6196;
-			name: 'invalidVaultOwner';
-			msg: 'invalidVaultOwner';
+			name: 'InvalidVaultOwner';
+			msg: 'InvalidVaultOwner';
 		},
 		{
 			code: 6197;
-			name: 'invalidMarketStatusForFills';
-			msg: 'invalidMarketStatusForFills';
+			name: 'InvalidMarketStatusForFills';
+			msg: 'InvalidMarketStatusForFills';
 		},
 		{
 			code: 6198;
-			name: 'ifWithdrawRequestInProgress';
-			msg: 'ifWithdrawRequestInProgress';
+			name: 'IFWithdrawRequestInProgress';
+			msg: 'IFWithdrawRequestInProgress';
 		},
 		{
 			code: 6199;
-			name: 'noIfWithdrawRequestInProgress';
-			msg: 'noIfWithdrawRequestInProgress';
+			name: 'NoIFWithdrawRequestInProgress';
+			msg: 'NoIFWithdrawRequestInProgress';
 		},
 		{
 			code: 6200;
-			name: 'ifWithdrawRequestTooSmall';
-			msg: 'ifWithdrawRequestTooSmall';
+			name: 'IFWithdrawRequestTooSmall';
+			msg: 'IFWithdrawRequestTooSmall';
 		},
 		{
 			code: 6201;
-			name: 'incorrectSpotMarketAccountPassed';
-			msg: 'incorrectSpotMarketAccountPassed';
+			name: 'IncorrectSpotMarketAccountPassed';
+			msg: 'IncorrectSpotMarketAccountPassed';
 		},
 		{
 			code: 6202;
-			name: 'blockchainClockInconsistency';
-			msg: 'blockchainClockInconsistency';
+			name: 'BlockchainClockInconsistency';
+			msg: 'BlockchainClockInconsistency';
 		},
 		{
 			code: 6203;
-			name: 'invalidIfSharesDetected';
-			msg: 'invalidIfSharesDetected';
+			name: 'InvalidIFSharesDetected';
+			msg: 'InvalidIFSharesDetected';
 		},
 		{
 			code: 6204;
-			name: 'newLpSizeTooSmall';
-			msg: 'newLpSizeTooSmall';
+			name: 'NewLPSizeTooSmall';
+			msg: 'NewLPSizeTooSmall';
 		},
 		{
 			code: 6205;
-			name: 'marketStatusInvalidForNewLp';
-			msg: 'marketStatusInvalidForNewLp';
+			name: 'MarketStatusInvalidForNewLP';
+			msg: 'MarketStatusInvalidForNewLP';
 		},
 		{
 			code: 6206;
-			name: 'invalidMarkTwapUpdateDetected';
-			msg: 'invalidMarkTwapUpdateDetected';
+			name: 'InvalidMarkTwapUpdateDetected';
+			msg: 'InvalidMarkTwapUpdateDetected';
 		},
 		{
 			code: 6207;
-			name: 'marketSettlementAttemptOnActiveMarket';
-			msg: 'marketSettlementAttemptOnActiveMarket';
+			name: 'MarketSettlementAttemptOnActiveMarket';
+			msg: 'MarketSettlementAttemptOnActiveMarket';
 		},
 		{
 			code: 6208;
-			name: 'marketSettlementRequiresSettledLp';
-			msg: 'marketSettlementRequiresSettledLp';
+			name: 'MarketSettlementRequiresSettledLP';
+			msg: 'MarketSettlementRequiresSettledLP';
 		},
 		{
 			code: 6209;
-			name: 'marketSettlementAttemptTooEarly';
-			msg: 'marketSettlementAttemptTooEarly';
+			name: 'MarketSettlementAttemptTooEarly';
+			msg: 'MarketSettlementAttemptTooEarly';
 		},
 		{
 			code: 6210;
-			name: 'marketSettlementTargetPriceInvalid';
-			msg: 'marketSettlementTargetPriceInvalid';
+			name: 'MarketSettlementTargetPriceInvalid';
+			msg: 'MarketSettlementTargetPriceInvalid';
 		},
 		{
 			code: 6211;
-			name: 'unsupportedSpotMarket';
-			msg: 'unsupportedSpotMarket';
+			name: 'UnsupportedSpotMarket';
+			msg: 'UnsupportedSpotMarket';
 		},
 		{
 			code: 6212;
-			name: 'spotOrdersDisabled';
-			msg: 'spotOrdersDisabled';
+			name: 'SpotOrdersDisabled';
+			msg: 'SpotOrdersDisabled';
 		},
 		{
 			code: 6213;
-			name: 'marketBeingInitialized';
+			name: 'MarketBeingInitialized';
 			msg: 'Market Being Initialized';
 		},
 		{
 			code: 6214;
-			name: 'invalidUserSubAccountId';
+			name: 'InvalidUserSubAccountId';
 			msg: 'Invalid Sub Account Id';
 		},
 		{
 			code: 6215;
-			name: 'invalidTriggerOrderCondition';
+			name: 'InvalidTriggerOrderCondition';
 			msg: 'Invalid Trigger Order Condition';
 		},
 		{
 			code: 6216;
-			name: 'invalidSpotPosition';
+			name: 'InvalidSpotPosition';
 			msg: 'Invalid Spot Position';
 		},
 		{
 			code: 6217;
-			name: 'cantTransferBetweenSameUserAccount';
+			name: 'CantTransferBetweenSameUserAccount';
 			msg: 'Cant transfer between same user account';
 		},
 		{
 			code: 6218;
-			name: 'invalidPerpPosition';
+			name: 'InvalidPerpPosition';
 			msg: 'Invalid Perp Position';
 		},
 		{
 			code: 6219;
-			name: 'unableToGetLimitPrice';
+			name: 'UnableToGetLimitPrice';
 			msg: 'Unable To Get Limit Price';
 		},
 		{
 			code: 6220;
-			name: 'invalidLiquidation';
+			name: 'InvalidLiquidation';
 			msg: 'Invalid Liquidation';
 		},
 		{
 			code: 6221;
-			name: 'spotFulfillmentConfigDisabled';
+			name: 'SpotFulfillmentConfigDisabled';
 			msg: 'Spot Fulfillment Config Disabled';
 		},
 		{
 			code: 6222;
-			name: 'invalidMaker';
+			name: 'InvalidMaker';
 			msg: 'Invalid Maker';
 		},
 		{
 			code: 6223;
-			name: 'failedUnwrap';
+			name: 'FailedUnwrap';
 			msg: 'Failed Unwrap';
 		},
 		{
 			code: 6224;
-			name: 'maxNumberOfUsers';
+			name: 'MaxNumberOfUsers';
 			msg: 'Max Number Of Users';
 		},
 		{
 			code: 6225;
-			name: 'invalidOracleForSettlePnl';
-			msg: 'invalidOracleForSettlePnl';
+			name: 'InvalidOracleForSettlePnl';
+			msg: 'InvalidOracleForSettlePnl';
 		},
 		{
 			code: 6226;
-			name: 'marginOrdersOpen';
-			msg: 'marginOrdersOpen';
+			name: 'MarginOrdersOpen';
+			msg: 'MarginOrdersOpen';
 		},
 		{
 			code: 6227;
-			name: 'tierViolationLiquidatingPerpPnl';
-			msg: 'tierViolationLiquidatingPerpPnl';
+			name: 'TierViolationLiquidatingPerpPnl';
+			msg: 'TierViolationLiquidatingPerpPnl';
 		},
 		{
 			code: 6228;
-			name: 'couldNotLoadUserData';
-			msg: 'couldNotLoadUserData';
+			name: 'CouldNotLoadUserData';
+			msg: 'CouldNotLoadUserData';
 		},
 		{
 			code: 6229;
-			name: 'userWrongMutability';
-			msg: 'userWrongMutability';
+			name: 'UserWrongMutability';
+			msg: 'UserWrongMutability';
 		},
 		{
 			code: 6230;
-			name: 'invalidUserAccount';
-			msg: 'invalidUserAccount';
+			name: 'InvalidUserAccount';
+			msg: 'InvalidUserAccount';
 		},
 		{
 			code: 6231;
-			name: 'couldNotLoadUserStatsData';
-			msg: 'couldNotLoadUserData';
+			name: 'CouldNotLoadUserStatsData';
+			msg: 'CouldNotLoadUserData';
 		},
 		{
 			code: 6232;
-			name: 'userStatsWrongMutability';
-			msg: 'userWrongMutability';
+			name: 'UserStatsWrongMutability';
+			msg: 'UserWrongMutability';
 		},
 		{
 			code: 6233;
-			name: 'invalidUserStatsAccount';
-			msg: 'invalidUserAccount';
+			name: 'InvalidUserStatsAccount';
+			msg: 'InvalidUserAccount';
 		},
 		{
 			code: 6234;
-			name: 'userNotFound';
-			msg: 'userNotFound';
+			name: 'UserNotFound';
+			msg: 'UserNotFound';
 		},
 		{
 			code: 6235;
-			name: 'unableToLoadUserAccount';
-			msg: 'unableToLoadUserAccount';
+			name: 'UnableToLoadUserAccount';
+			msg: 'UnableToLoadUserAccount';
 		},
 		{
 			code: 6236;
-			name: 'userStatsNotFound';
-			msg: 'userStatsNotFound';
+			name: 'UserStatsNotFound';
+			msg: 'UserStatsNotFound';
 		},
 		{
 			code: 6237;
-			name: 'unableToLoadUserStatsAccount';
-			msg: 'unableToLoadUserStatsAccount';
+			name: 'UnableToLoadUserStatsAccount';
+			msg: 'UnableToLoadUserStatsAccount';
 		},
 		{
 			code: 6238;
-			name: 'userNotInactive';
+			name: 'UserNotInactive';
 			msg: 'User Not Inactive';
 		},
 		{
 			code: 6239;
-			name: 'revertFill';
-			msg: 'revertFill';
+			name: 'RevertFill';
+			msg: 'RevertFill';
 		},
 		{
 			code: 6240;
-			name: 'invalidMarketAccountforDeletion';
+			name: 'InvalidMarketAccountforDeletion';
 			msg: 'Invalid MarketAccount for Deletion';
 		},
 		{
 			code: 6241;
-			name: 'invalidSpotFulfillmentParams';
+			name: 'InvalidSpotFulfillmentParams';
 			msg: 'Invalid Spot Fulfillment Params';
 		},
 		{
 			code: 6242;
-			name: 'failedToGetMint';
+			name: 'FailedToGetMint';
 			msg: 'Failed to Get Mint';
 		},
 		{
 			code: 6243;
-			name: 'failedPhoenixCpi';
-			msg: 'failedPhoenixCpi';
+			name: 'FailedPhoenixCPI';
+			msg: 'FailedPhoenixCPI';
 		},
 		{
 			code: 6244;
-			name: 'failedToDeserializePhoenixMarket';
-			msg: 'failedToDeserializePhoenixMarket';
+			name: 'FailedToDeserializePhoenixMarket';
+			msg: 'FailedToDeserializePhoenixMarket';
 		},
 		{
 			code: 6245;
-			name: 'invalidPricePrecision';
-			msg: 'invalidPricePrecision';
+			name: 'InvalidPricePrecision';
+			msg: 'InvalidPricePrecision';
 		},
 		{
 			code: 6246;
-			name: 'invalidPhoenixProgram';
-			msg: 'invalidPhoenixProgram';
+			name: 'InvalidPhoenixProgram';
+			msg: 'InvalidPhoenixProgram';
 		},
 		{
 			code: 6247;
-			name: 'invalidPhoenixMarket';
-			msg: 'invalidPhoenixMarket';
+			name: 'InvalidPhoenixMarket';
+			msg: 'InvalidPhoenixMarket';
 		},
 		{
 			code: 6248;
-			name: 'invalidSwap';
-			msg: 'invalidSwap';
+			name: 'InvalidSwap';
+			msg: 'InvalidSwap';
 		},
 		{
 			code: 6249;
-			name: 'swapLimitPriceBreached';
-			msg: 'swapLimitPriceBreached';
+			name: 'SwapLimitPriceBreached';
+			msg: 'SwapLimitPriceBreached';
 		},
 		{
 			code: 6250;
-			name: 'spotMarketReduceOnly';
-			msg: 'spotMarketReduceOnly';
+			name: 'SpotMarketReduceOnly';
+			msg: 'SpotMarketReduceOnly';
 		},
 		{
 			code: 6251;
-			name: 'fundingWasNotUpdated';
-			msg: 'fundingWasNotUpdated';
+			name: 'FundingWasNotUpdated';
+			msg: 'FundingWasNotUpdated';
 		},
 		{
 			code: 6252;
-			name: 'impossibleFill';
-			msg: 'impossibleFill';
+			name: 'ImpossibleFill';
+			msg: 'ImpossibleFill';
 		},
 		{
 			code: 6253;
-			name: 'cantUpdatePerpBidAskTwap';
-			msg: 'cantUpdatePerpBidAskTwap';
+			name: 'CantUpdatePerpBidAskTwap';
+			msg: 'CantUpdatePerpBidAskTwap';
 		},
 		{
 			code: 6254;
-			name: 'userReduceOnly';
-			msg: 'userReduceOnly';
+			name: 'UserReduceOnly';
+			msg: 'UserReduceOnly';
 		},
 		{
 			code: 6255;
-			name: 'invalidMarginCalculation';
-			msg: 'invalidMarginCalculation';
+			name: 'InvalidMarginCalculation';
+			msg: 'InvalidMarginCalculation';
 		},
 		{
 			code: 6256;
-			name: 'cantPayUserInitFee';
-			msg: 'cantPayUserInitFee';
+			name: 'CantPayUserInitFee';
+			msg: 'CantPayUserInitFee';
 		},
 		{
 			code: 6257;
-			name: 'cantReclaimRent';
-			msg: 'cantReclaimRent';
+			name: 'CantReclaimRent';
+			msg: 'CantReclaimRent';
 		},
 		{
 			code: 6258;
-			name: 'insuranceFundOperationPaused';
-			msg: 'insuranceFundOperationPaused';
+			name: 'InsuranceFundOperationPaused';
+			msg: 'InsuranceFundOperationPaused';
 		},
 		{
 			code: 6259;
-			name: 'noUnsettledPnl';
-			msg: 'noUnsettledPnl';
+			name: 'NoUnsettledPnl';
+			msg: 'NoUnsettledPnl';
 		},
 		{
 			code: 6260;
-			name: 'pnlPoolCantSettleUser';
-			msg: 'pnlPoolCantSettleUser';
+			name: 'PnlPoolCantSettleUser';
+			msg: 'PnlPoolCantSettleUser';
 		},
 		{
 			code: 6261;
-			name: 'oracleNonPositive';
-			msg: 'oracleInvalid';
+			name: 'OracleNonPositive';
+			msg: 'OracleInvalid';
 		},
 		{
 			code: 6262;
-			name: 'oracleTooVolatile';
-			msg: 'oracleTooVolatile';
+			name: 'OracleTooVolatile';
+			msg: 'OracleTooVolatile';
 		},
 		{
 			code: 6263;
-			name: 'oracleTooUncertain';
-			msg: 'oracleTooUncertain';
+			name: 'OracleTooUncertain';
+			msg: 'OracleTooUncertain';
 		},
 		{
 			code: 6264;
-			name: 'oracleStaleForMargin';
-			msg: 'oracleStaleForMargin';
+			name: 'OracleStaleForMargin';
+			msg: 'OracleStaleForMargin';
 		},
 		{
 			code: 6265;
-			name: 'oracleInsufficientDataPoints';
-			msg: 'oracleInsufficientDataPoints';
+			name: 'OracleInsufficientDataPoints';
+			msg: 'OracleInsufficientDataPoints';
 		},
 		{
 			code: 6266;
-			name: 'oracleStaleForAmm';
-			msg: 'oracleStaleForAmm';
+			name: 'OracleStaleForAMM';
+			msg: 'OracleStaleForAMM';
 		},
 		{
 			code: 6267;
-			name: 'unableToParsePullOracleMessage';
+			name: 'UnableToParsePullOracleMessage';
 			msg: 'Unable to parse pull oracle message';
 		},
 		{
 			code: 6268;
-			name: 'maxBorrows';
+			name: 'MaxBorrows';
 			msg: 'Can not borow more than max borrows';
 		},
 		{
 			code: 6269;
-			name: 'oracleUpdatesNotMonotonic';
+			name: 'OracleUpdatesNotMonotonic';
 			msg: 'Updates must be monotonically increasing';
 		},
 		{
 			code: 6270;
-			name: 'oraclePriceFeedMessageMismatch';
+			name: 'OraclePriceFeedMessageMismatch';
 			msg: 'Trying to update price feed with the wrong feed id';
 		},
 		{
 			code: 6271;
-			name: 'oracleUnsupportedMessageType';
+			name: 'OracleUnsupportedMessageType';
 			msg: 'The message in the update must be a PriceFeedMessage';
 		},
 		{
 			code: 6272;
-			name: 'oracleDeserializeMessageFailed';
+			name: 'OracleDeserializeMessageFailed';
 			msg: 'Could not deserialize the message in the update';
 		},
 		{
 			code: 6273;
-			name: 'oracleWrongGuardianSetOwner';
+			name: 'OracleWrongGuardianSetOwner';
 			msg: 'Wrong guardian set owner in update price atomic';
 		},
 		{
 			code: 6274;
-			name: 'oracleWrongWriteAuthority';
+			name: 'OracleWrongWriteAuthority';
 			msg: 'Oracle post update atomic price feed account must be drift program';
 		},
 		{
 			code: 6275;
-			name: 'oracleWrongVaaOwner';
+			name: 'OracleWrongVaaOwner';
 			msg: 'Oracle vaa owner must be wormhole program';
 		},
 		{
 			code: 6276;
-			name: 'oracleTooManyPriceAccountUpdates';
+			name: 'OracleTooManyPriceAccountUpdates';
 			msg: 'Multi updates must have 2 or fewer accounts passed in remaining accounts';
 		},
 		{
 			code: 6277;
-			name: 'oracleMismatchedVaaAndPriceUpdates';
-			msg: "Don't have the same remaining accounts number and pyth updates left";
+			name: 'OracleMismatchedVaaAndPriceUpdates';
+			msg: 'Don\'t have the same remaining accounts number and pyth updates left';
 		},
 		{
 			code: 6278;
-			name: 'oracleBadRemainingAccountPublicKey';
+			name: 'OracleBadRemainingAccountPublicKey';
 			msg: 'Remaining account passed does not match oracle update derived pda';
 		},
 		{
 			code: 6279;
-			name: 'failedOpenbookV2cpi';
-			msg: 'failedOpenbookV2cpi';
+			name: 'FailedOpenbookV2CPI';
+			msg: 'FailedOpenbookV2CPI';
 		},
 		{
 			code: 6280;
-			name: 'invalidOpenbookV2Program';
-			msg: 'invalidOpenbookV2Program';
+			name: 'InvalidOpenbookV2Program';
+			msg: 'InvalidOpenbookV2Program';
 		},
 		{
 			code: 6281;
-			name: 'invalidOpenbookV2Market';
-			msg: 'invalidOpenbookV2Market';
+			name: 'InvalidOpenbookV2Market';
+			msg: 'InvalidOpenbookV2Market';
 		},
 		{
 			code: 6282;
-			name: 'nonZeroTransferFee';
+			name: 'NonZeroTransferFee';
 			msg: 'Non zero transfer fee';
 		},
 		{
 			code: 6283;
-			name: 'liquidationOrderFailedToFill';
+			name: 'LiquidationOrderFailedToFill';
 			msg: 'Liquidation order failed to fill';
 		},
 		{
 			code: 6284;
-			name: 'depreciatedPredictionMarketOrder';
-			msg: 'deprecated';
+			name: 'DepreciatedPredictionMarketOrder';
+			msg: 'Deprecated';
 		},
 		{
 			code: 6285;
-			name: 'invalidVerificationIxIndex';
+			name: 'InvalidVerificationIxIndex';
 			msg: 'Ed25519 Ix must be before place and make SignedMsg order ix';
 		},
 		{
 			code: 6286;
-			name: 'sigVerificationFailed';
+			name: 'SigVerificationFailed';
 			msg: 'SignedMsg message verificaiton failed';
 		},
 		{
 			code: 6287;
-			name: 'mismatchedSignedMsgOrderParamsMarketIndex';
+			name: 'MismatchedSignedMsgOrderParamsMarketIndex';
 			msg: 'Market index mismatched b/w taker and maker SignedMsg order params';
 		},
 		{
 			code: 6288;
-			name: 'invalidSignedMsgOrderParam';
+			name: 'InvalidSignedMsgOrderParam';
 			msg: 'Invalid SignedMsg order param';
 		},
 		{
 			code: 6289;
-			name: 'placeAndTakeOrderSuccessConditionFailed';
+			name: 'PlaceAndTakeOrderSuccessConditionFailed';
 			msg: 'Place and take order success condition failed';
 		},
 		{
 			code: 6290;
-			name: 'deprecatedHighLeverageModeConfig';
-			msg: 'deprecated';
+			name: 'DeprecatedHighLeverageModeConfig';
+			msg: 'Deprecated';
 		},
 		{
 			code: 6291;
-			name: 'invalidRfqUserAccount';
+			name: 'InvalidRFQUserAccount';
 			msg: 'Invalid RFQ User Account';
 		},
 		{
 			code: 6292;
-			name: 'rfqUserAccountWrongMutability';
+			name: 'RFQUserAccountWrongMutability';
 			msg: 'RFQUserAccount should be mutable';
 		},
 		{
 			code: 6293;
-			name: 'rfqUserAccountFull';
+			name: 'RFQUserAccountFull';
 			msg: 'RFQUserAccount has too many active RFQs';
 		},
 		{
 			code: 6294;
-			name: 'rfqOrderNotFilled';
+			name: 'RFQOrderNotFilled';
 			msg: 'RFQ order not filled as expected';
 		},
 		{
 			code: 6295;
-			name: 'invalidRfqOrder';
+			name: 'InvalidRFQOrder';
 			msg: 'RFQ orders must be jit makers';
 		},
 		{
 			code: 6296;
-			name: 'invalidRfqMatch';
+			name: 'InvalidRFQMatch';
 			msg: 'RFQ matches must be valid';
 		},
 		{
 			code: 6297;
-			name: 'invalidSignedMsgUserAccount';
+			name: 'InvalidSignedMsgUserAccount';
 			msg: 'Invalid SignedMsg user account';
 		},
 		{
 			code: 6298;
-			name: 'signedMsgUserAccountWrongMutability';
+			name: 'SignedMsgUserAccountWrongMutability';
 			msg: 'SignedMsg account wrong mutability';
 		},
 		{
 			code: 6299;
-			name: 'signedMsgUserOrdersAccountFull';
+			name: 'SignedMsgUserOrdersAccountFull';
 			msg: 'SignedMsgUserAccount has too many active orders';
 		},
 		{
 			code: 6300;
-			name: 'signedMsgOrderDoesNotExist';
+			name: 'SignedMsgOrderDoesNotExist';
 			msg: 'Order with SignedMsg uuid does not exist';
 		},
 		{
 			code: 6301;
-			name: 'invalidSignedMsgOrderId';
+			name: 'InvalidSignedMsgOrderId';
 			msg: 'SignedMsg order id cannot be 0s';
 		},
 		{
 			code: 6302;
-			name: 'invalidPoolId';
+			name: 'InvalidPoolId';
 			msg: 'Invalid pool id';
 		},
 		{
 			code: 6303;
-			name: 'invalidProtectedMakerModeConfig';
+			name: 'InvalidProtectedMakerModeConfig';
 			msg: 'Invalid Protected Maker Mode Config';
 		},
 		{
 			code: 6304;
-			name: 'invalidPythLazerStorageOwner';
+			name: 'InvalidPythLazerStorageOwner';
 			msg: 'Invalid pyth lazer storage owner';
 		},
 		{
 			code: 6305;
-			name: 'unverifiedPythLazerMessage';
+			name: 'UnverifiedPythLazerMessage';
 			msg: 'Verification of pyth lazer message failed';
 		},
 		{
 			code: 6306;
-			name: 'invalidPythLazerMessage';
+			name: 'InvalidPythLazerMessage';
 			msg: 'Invalid pyth lazer message';
 		},
 		{
 			code: 6307;
-			name: 'pythLazerMessagePriceFeedMismatch';
+			name: 'PythLazerMessagePriceFeedMismatch';
 			msg: 'Pyth lazer message does not correspond to correct fed id';
 		},
 		{
 			code: 6308;
-			name: 'invalidLiquidateSpotWithSwap';
-			msg: 'invalidLiquidateSpotWithSwap';
+			name: 'InvalidLiquidateSpotWithSwap';
+			msg: 'InvalidLiquidateSpotWithSwap';
 		},
 		{
 			code: 6309;
-			name: 'signedMsgUserContextUserMismatch';
+			name: 'SignedMsgUserContextUserMismatch';
 			msg: 'User in SignedMsg message does not match user in ix context';
 		},
 		{
 			code: 6310;
-			name: 'userFuelOverflowThresholdNotMet';
+			name: 'UserFuelOverflowThresholdNotMet';
 			msg: 'User fuel overflow threshold not met';
 		},
 		{
 			code: 6311;
-			name: 'fuelOverflowAccountNotFound';
+			name: 'FuelOverflowAccountNotFound';
 			msg: 'FuelOverflow account not found';
 		},
 		{
 			code: 6312;
-			name: 'invalidTransferPerpPosition';
+			name: 'InvalidTransferPerpPosition';
 			msg: 'Invalid Transfer Perp Position';
 		},
 		{
 			code: 6313;
-			name: 'invalidSignedMsgUserOrdersResize';
+			name: 'InvalidSignedMsgUserOrdersResize';
 			msg: 'Invalid SignedMsgUserOrders resize';
 		},
 		{
 			code: 6314;
-			name: 'deprecatedCouldNotDeserializeHighLeverageModeConfig';
-			msg: 'deprecated';
+			name: 'DeprecatedCouldNotDeserializeHighLeverageModeConfig';
+			msg: 'Deprecated';
 		},
 		{
 			code: 6315;
-			name: 'invalidIfRebalanceConfig';
+			name: 'InvalidIfRebalanceConfig';
 			msg: 'Invalid If Rebalance Config';
 		},
 		{
 			code: 6316;
-			name: 'invalidIfRebalanceSwap';
+			name: 'InvalidIfRebalanceSwap';
 			msg: 'Invalid If Rebalance Swap';
 		},
 		{
 			code: 6317;
-			name: 'invalidRevenueShareResize';
+			name: 'InvalidRevenueShareResize';
 			msg: 'Invalid RevenueShare resize';
 		},
 		{
 			code: 6318;
-			name: 'builderRevoked';
+			name: 'BuilderRevoked';
 			msg: 'Builder has been revoked';
 		},
 		{
 			code: 6319;
-			name: 'invalidBuilderFee';
+			name: 'InvalidBuilderFee';
 			msg: 'Builder fee is greater than max fee bps';
 		},
 		{
 			code: 6320;
-			name: 'revenueShareEscrowAuthorityMismatch';
+			name: 'RevenueShareEscrowAuthorityMismatch';
 			msg: 'RevenueShareEscrow authority mismatch';
 		},
 		{
 			code: 6321;
-			name: 'revenueShareEscrowOrdersAccountFull';
+			name: 'RevenueShareEscrowOrdersAccountFull';
 			msg: 'RevenueShareEscrow has too many active orders';
 		},
 		{
 			code: 6322;
-			name: 'invalidRevenueShareAccount';
+			name: 'InvalidRevenueShareAccount';
 			msg: 'Invalid RevenueShareAccount';
 		},
 		{
 			code: 6323;
-			name: 'cannotRevokeBuilderWithOpenOrders';
+			name: 'CannotRevokeBuilderWithOpenOrders';
 			msg: 'Cannot revoke builder with open orders';
 		},
 		{
 			code: 6324;
-			name: 'unableToLoadRevenueShareAccount';
+			name: 'UnableToLoadRevenueShareAccount';
 			msg: 'Unable to load builder account';
 		},
 		{
 			code: 6325;
-			name: 'invalidConstituent';
+			name: 'InvalidConstituent';
 			msg: 'Invalid Constituent';
 		},
 		{
 			code: 6326;
-			name: 'invalidAmmConstituentMappingArgument';
+			name: 'InvalidAmmConstituentMappingArgument';
 			msg: 'Invalid Amm Constituent Mapping argument';
 		},
 		{
 			code: 6327;
-			name: 'constituentNotFound';
+			name: 'ConstituentNotFound';
 			msg: 'Constituent not found';
 		},
 		{
 			code: 6328;
-			name: 'constituentCouldNotLoad';
+			name: 'ConstituentCouldNotLoad';
 			msg: 'Constituent could not load';
 		},
 		{
 			code: 6329;
-			name: 'constituentWrongMutability';
+			name: 'ConstituentWrongMutability';
 			msg: 'Constituent wrong mutability';
 		},
 		{
 			code: 6330;
-			name: 'wrongNumberOfConstituents';
+			name: 'WrongNumberOfConstituents';
 			msg: 'Wrong number of constituents passed to instruction';
 		},
 		{
 			code: 6331;
-			name: 'insufficientConstituentTokenBalance';
+			name: 'InsufficientConstituentTokenBalance';
 			msg: 'Insufficient constituent token balance';
 		},
 		{
 			code: 6332;
-			name: 'ammCacheStale';
+			name: 'AMMCacheStale';
 			msg: 'Amm Cache data too stale';
 		},
 		{
 			code: 6333;
-			name: 'lpPoolAumDelayed';
+			name: 'LpPoolAumDelayed';
 			msg: 'LP Pool AUM not updated recently';
 		},
 		{
 			code: 6334;
-			name: 'constituentOracleStale';
+			name: 'ConstituentOracleStale';
 			msg: 'Constituent oracle is stale';
 		},
 		{
 			code: 6335;
-			name: 'lpInvariantFailed';
+			name: 'LpInvariantFailed';
 			msg: 'LP Invariant failed';
 		},
 		{
 			code: 6336;
-			name: 'invalidConstituentDerivativeWeights';
+			name: 'InvalidConstituentDerivativeWeights';
 			msg: 'Invalid constituent derivative weights';
 		},
 		{
 			code: 6337;
-			name: 'maxDlpAumBreached';
+			name: 'MaxDlpAumBreached';
 			msg: 'Max DLP AUM Breached';
 		},
 		{
 			code: 6338;
-			name: 'settleLpPoolDisabled';
+			name: 'SettleLpPoolDisabled';
 			msg: 'Settle Lp Pool Disabled';
 		},
 		{
 			code: 6339;
-			name: 'mintRedeemLpPoolDisabled';
+			name: 'MintRedeemLpPoolDisabled';
 			msg: 'Mint/Redeem Lp Pool Disabled';
 		},
 		{
 			code: 6340;
-			name: 'lpPoolSettleInvariantBreached';
+			name: 'LpPoolSettleInvariantBreached';
 			msg: 'Settlement amount exceeded';
 		},
 		{
 			code: 6341;
-			name: 'invalidConstituentOperation';
+			name: 'InvalidConstituentOperation';
 			msg: 'Invalid constituent operation';
 		},
 		{
 			code: 6342;
-			name: 'unauthorized';
+			name: 'Unauthorized';
 			msg: 'Unauthorized for operation';
 		},
 		{
 			code: 6343;
-			name: 'invalidLpPoolId';
+			name: 'InvalidLpPoolId';
 			msg: 'Invalid Lp Pool Id for Operation';
 		},
 		{
 			code: 6344;
-			name: 'marketIndexNotFoundAmmCache';
-			msg: 'marketIndexNotFoundAmmCache';
+			name: 'MarketIndexNotFoundAmmCache';
+			msg: 'MarketIndexNotFoundAmmCache';
 		},
 		{
 			code: 6345;
-			name: 'invalidIsolatedPerpMarket';
+			name: 'InvalidIsolatedPerpMarket';
 			msg: 'Invalid Isolated Perp Market';
 		},
 		{
 			code: 6346;
-			name: 'invalidOrderScaleOrderCount';
+			name: 'InvalidOrderScaleOrderCount';
 			msg: 'Invalid scale order count - must be between 2 and 10';
 		},
 		{
 			code: 6347;
-			name: 'invalidOrderScalePriceRange';
+			name: 'InvalidOrderScalePriceRange';
 			msg: 'Invalid scale order price range';
 		},
 		{
 			code: 6348;
-			name: 'invalidPerpMarketConfig';
+			name: 'InvalidPerpMarketConfig';
 			msg: 'Invalid perp market config';
 		},
 		{
 			code: 6349;
-			name: 'invalidInsuranceFundWithdrawalRecipient';
+			name: 'InvalidInsuranceFundWithdrawalRecipient';
 			msg: 'Insurance fund withdrawal recipient must be the designated treasury address';
 		},
 		{
 			code: 6350;
-			name: 'spotDlobTradingDisabled';
+			name: 'SpotDlobTradingDisabled';
 			msg: 'Spot DLOB trading is disabled';
 		},
 	];
 	types: [
 		{
-			name: 'amm';
+			name: 'AMM';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -13760,15 +22445,19 @@ export type Drift = {
 				fields: [
 					{
 						name: 'oracle';
-						docs: ['oracle price data public key'];
+						docs: [
+							'oracle price data public key',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'historicalOracleData';
-						docs: ['stores historically witnessed oracle data'];
+						docs: [
+							'stores historically witnessed oracle data',
+						];
 						type: {
 							defined: {
-								name: 'historicalOracleData';
+								name: 'HistoricalOracleData';
 							};
 						};
 					},
@@ -13795,7 +22484,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'poolBalance';
+								name: 'PoolBalance';
 							};
 						};
 					},
@@ -13907,7 +22596,7 @@ export type Drift = {
 					{
 						name: 'quoteAssetAmount';
 						docs: [
-							"sum of all user's perp quote_asset_amount in market",
+							'sum of all user\'s perp quote_asset_amount in market',
 							'precision: QUOTE_PRECISION',
 						];
 						type: 'i128';
@@ -13915,7 +22604,7 @@ export type Drift = {
 					{
 						name: 'quoteEntryAmountLong';
 						docs: [
-							"sum of all long user's quote_entry_amount in market",
+							'sum of all long user\'s quote_entry_amount in market',
 							'precision: QUOTE_PRECISION',
 						];
 						type: 'i128';
@@ -13923,7 +22612,7 @@ export type Drift = {
 					{
 						name: 'quoteEntryAmountShort';
 						docs: [
-							"sum of all short user's quote_entry_amount in market",
+							'sum of all short user\'s quote_entry_amount in market',
 							'precision: QUOTE_PRECISION',
 						];
 						type: 'i128';
@@ -13931,7 +22620,7 @@ export type Drift = {
 					{
 						name: 'quoteBreakEvenAmountLong';
 						docs: [
-							"sum of all long user's quote_break_even_amount in market",
+							'sum of all long user\'s quote_break_even_amount in market',
 							'precision: QUOTE_PRECISION',
 						];
 						type: 'i128';
@@ -13939,7 +22628,7 @@ export type Drift = {
 					{
 						name: 'quoteBreakEvenAmountShort';
 						docs: [
-							"sum of all short user's quote_break_even_amount in market",
+							'sum of all short user\'s quote_break_even_amount in market',
 							'precision: QUOTE_PRECISION',
 						];
 						type: 'i128';
@@ -13995,7 +22684,7 @@ export type Drift = {
 					{
 						name: 'totalMmFee';
 						docs: [
-							"total fees collected by the vAMM's bid/ask spread",
+							'total fees collected by the vAMM\'s bid/ask spread',
 							'precision: QUOTE_PRECISION',
 						];
 						type: 'i128';
@@ -14126,12 +22815,16 @@ export type Drift = {
 					},
 					{
 						name: 'lastMarkPriceTwap5min';
-						docs: ['average estimate of (bid+ask)/2 price over FIVE_MINUTES'];
+						docs: [
+							'average estimate of (bid+ask)/2 price over FIVE_MINUTES',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lastUpdateSlot';
-						docs: ['the last blockchain slot the amm was updated'];
+						docs: [
+							'the last blockchain slot the amm was updated',
+						];
 						type: 'u64';
 					},
 					{
@@ -14152,12 +22845,16 @@ export type Drift = {
 					},
 					{
 						name: 'lastFundingRateTs';
-						docs: ['the last funding rate update unix_timestamp'];
+						docs: [
+							'the last funding rate update unix_timestamp',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'fundingPeriod';
-						docs: ['the peridocity of the funding rate updates'];
+						docs: [
+							'the peridocity of the funding rate updates',
+						];
 						type: 'i64';
 					},
 					{
@@ -14194,17 +22891,24 @@ export type Drift = {
 					},
 					{
 						name: 'volume24h';
-						docs: ['estimated total of volume in market', 'QUOTE_PRECISION'];
+						docs: [
+							'estimated total of volume in market',
+							'QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'longIntensityVolume';
-						docs: ['the volume intensity of long fills against AMM'];
+						docs: [
+							'the volume intensity of long fills against AMM',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'shortIntensityVolume';
-						docs: ['the volume intensity of short fills against AMM'];
+						docs: [
+							'the volume intensity of short fills against AMM',
+						];
 						type: 'u64';
 					},
 					{
@@ -14232,7 +22936,9 @@ export type Drift = {
 					},
 					{
 						name: 'lastMarkPriceTwapTs';
-						docs: ['the last unix_timestamp the mark twap was updated'];
+						docs: [
+							'the last unix_timestamp the mark twap was updated',
+						];
 						type: 'i64';
 					},
 					{
@@ -14244,22 +22950,30 @@ export type Drift = {
 					},
 					{
 						name: 'maxSpread';
-						docs: ['the maximum spread the AMM can quote'];
+						docs: [
+							'the maximum spread the AMM can quote',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'longSpread';
-						docs: ['the spread for asks vs the reserve price'];
+						docs: [
+							'the spread for asks vs the reserve price',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'shortSpread';
-						docs: ['the spread for bids vs the reserve price'];
+						docs: [
+							'the spread for bids vs the reserve price',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'mmOraclePrice';
-						docs: ['MM oracle price'];
+						docs: [
+							'MM oracle price',
+						];
 						type: 'i64';
 					},
 					{
@@ -14271,7 +22985,9 @@ export type Drift = {
 					},
 					{
 						name: 'maxSlippageRatio';
-						docs: ['the maximum slippage a single fill on the AMM can push'];
+						docs: [
+							'the maximum slippage a single fill on the AMM can push',
+						];
 						type: 'u16';
 					},
 					{
@@ -14296,7 +23012,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'oracleSource';
+								name: 'OracleSource';
 							};
 						};
 					},
@@ -14371,7 +23087,10 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 2];
+							array: [
+								'u8',
+								2,
+							];
 						};
 					},
 					{
@@ -14382,7 +23101,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'addAmmConstituentMappingDatum';
+			name: 'AddAmmConstituentMappingDatum';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -14402,7 +23121,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'adminWithdrawFromInsuranceFundRecord';
+			name: 'AdminWithdrawFromInsuranceFundRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -14446,7 +23165,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'ammCache';
+			name: 'AmmCache';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -14455,9 +23174,12 @@ export type Drift = {
 						type: 'u8';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 3];
+							array: [
+								'u8',
+								3,
+							];
 						};
 					},
 					{
@@ -14465,7 +23187,7 @@ export type Drift = {
 						type: {
 							vec: {
 								defined: {
-									name: 'cacheInfo';
+									name: 'CacheInfo';
 								};
 							};
 						};
@@ -14474,7 +23196,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'ammConstituentDatum';
+			name: 'AmmConstituentDatum';
 			serialization: 'bytemuck';
 			repr: {
 				kind: 'c';
@@ -14491,9 +23213,12 @@ export type Drift = {
 						type: 'u16';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 					{
@@ -14511,7 +23236,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'ammConstituentMapping';
+			name: 'AmmConstituentMapping';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -14524,9 +23249,12 @@ export type Drift = {
 						type: 'u8';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 3];
+							array: [
+								'u8',
+								3,
+							];
 						};
 					},
 					{
@@ -14534,7 +23262,7 @@ export type Drift = {
 						type: {
 							vec: {
 								defined: {
-									name: 'ammConstituentDatum';
+									name: 'AmmConstituentDatum';
 								};
 							};
 						};
@@ -14543,30 +23271,30 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'assetTier';
+			name: 'AssetTier';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'collateral';
+						name: 'Collateral';
 					},
 					{
-						name: 'protected';
+						name: 'Protected';
 					},
 					{
-						name: 'cross';
+						name: 'Cross';
 					},
 					{
-						name: 'isolated';
+						name: 'Isolated';
 					},
 					{
-						name: 'unlisted';
+						name: 'Unlisted';
 					},
 				];
 			};
 		},
 		{
-			name: 'builderInfo';
+			name: 'BuilderInfo';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -14585,14 +23313,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 6];
+							array: [
+								'u8',
+								6,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'cacheInfo';
+			name: 'CacheInfo';
 			serialization: 'bytemuck';
 			repr: {
 				kind: 'c';
@@ -14626,7 +23357,9 @@ export type Drift = {
 					},
 					{
 						name: 'position';
-						docs: ['BASE PRECISION'];
+						docs: [
+							'BASE PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -14682,16 +23415,19 @@ export type Drift = {
 						type: 'u8';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 34];
+							array: [
+								'u8',
+								34,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'constituent';
+			name: 'Constituent';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -14701,7 +23437,9 @@ export type Drift = {
 				fields: [
 					{
 						name: 'pubkey';
-						docs: ['address of the constituent'];
+						docs: [
+							'address of the constituent',
+						];
 						type: 'pubkey';
 					},
 					{
@@ -14725,10 +23463,12 @@ export type Drift = {
 					},
 					{
 						name: 'spotBalance';
-						docs: ['spot borrow-lend balance for constituent'];
+						docs: [
+							'spot borrow-lend balance for constituent',
+						];
 						type: {
 							defined: {
-								name: 'constituentSpotBalance';
+								name: 'ConstituentSpotBalance';
 							};
 						};
 					},
@@ -14766,12 +23506,17 @@ export type Drift = {
 					},
 					{
 						name: 'maxBorrowTokenAmount';
-						docs: ['Max Borrow amount:', 'precision: token precision'];
+						docs: [
+							'Max Borrow amount:',
+							'precision: token precision',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'vaultTokenBalance';
-						docs: ['ata token balance in token precision'];
+						docs: [
+							'ata token balance in token precision',
+						];
 						type: 'u64';
 					},
 					{
@@ -14784,7 +23529,9 @@ export type Drift = {
 					},
 					{
 						name: 'oracleStalenessThreshold';
-						docs: ['Delay allowed for valid AUM calculation'];
+						docs: [
+							'Delay allowed for valid AUM calculation',
+						];
 						type: 'u64';
 					},
 					{
@@ -14864,16 +23611,19 @@ export type Drift = {
 						type: 'u8';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 170];
+							array: [
+								'u8',
+								170,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'constituentCorrelations';
+			name: 'ConstituentCorrelations';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -14886,9 +23636,12 @@ export type Drift = {
 						type: 'u8';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 3];
+							array: [
+								'u8',
+								3,
+							];
 						};
 					},
 					{
@@ -14901,7 +23654,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'constituentParams';
+			name: 'ConstituentParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -14981,7 +23734,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'constituentSpotBalance';
+			name: 'ConstituentSpotBalance';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -15008,29 +23761,36 @@ export type Drift = {
 					},
 					{
 						name: 'marketIndex';
-						docs: ['The market index of the corresponding spot market'];
+						docs: [
+							'The market index of the corresponding spot market',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'balanceType';
-						docs: ['Whether the position is deposit or borrow'];
+						docs: [
+							'Whether the position is deposit or borrow',
+						];
 						type: {
 							defined: {
-								name: 'spotBalanceType';
+								name: 'SpotBalanceType';
 							};
 						};
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 5];
+							array: [
+								'u8',
+								5,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'constituentTargetBase';
+			name: 'ConstituentTargetBase';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15043,9 +23803,12 @@ export type Drift = {
 						type: 'u8';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 3];
+							array: [
+								'u8',
+								3,
+							];
 						};
 					},
 					{
@@ -15053,7 +23816,7 @@ export type Drift = {
 						type: {
 							vec: {
 								defined: {
-									name: 'targetsDatum';
+									name: 'TargetsDatum';
 								};
 							};
 						};
@@ -15062,50 +23825,50 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'contractTier';
+			name: 'ContractTier';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'a';
+						name: 'A';
 					},
 					{
-						name: 'b';
+						name: 'B';
 					},
 					{
-						name: 'c';
+						name: 'C';
 					},
 					{
-						name: 'speculative';
+						name: 'Speculative';
 					},
 					{
-						name: 'highlySpeculative';
+						name: 'HighlySpeculative';
 					},
 					{
-						name: 'isolated';
+						name: 'Isolated';
 					},
 				];
 			};
 		},
 		{
-			name: 'contractType';
+			name: 'ContractType';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'perpetual';
+						name: 'Perpetual';
 					},
 					{
-						name: 'deprecatedFuture';
+						name: 'DeprecatedFuture';
 					},
 					{
-						name: 'deprecatedPrediction';
+						name: 'DeprecatedPrediction';
 					},
 				];
 			};
 		},
 		{
-			name: 'curveRecord';
+			name: 'CurveRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15151,37 +23914,51 @@ export type Drift = {
 					},
 					{
 						name: 'baseAssetAmountLong';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'baseAssetAmountShort';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'baseAssetAmountWithAmm';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'totalFee';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'totalFeeMinusDistributions';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'adjustmentCost';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'oraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -15200,13 +23977,15 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'deleteUserRecord';
+			name: 'DeleteUserRecord';
 			type: {
 				kind: 'struct';
 				fields: [
 					{
 						name: 'ts';
-						docs: ['unix_timestamp of action'];
+						docs: [
+							'unix_timestamp of action',
+						];
 						type: 'i64';
 					},
 					{
@@ -15231,50 +24010,52 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'depositDirection';
+			name: 'DepositDirection';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'deposit';
+						name: 'Deposit';
 					},
 					{
-						name: 'withdraw';
+						name: 'Withdraw';
 					},
 				];
 			};
 		},
 		{
-			name: 'depositExplanation';
+			name: 'DepositExplanation';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'none';
+						name: 'None';
 					},
 					{
-						name: 'transfer';
+						name: 'Transfer';
 					},
 					{
-						name: 'borrow';
+						name: 'Borrow';
 					},
 					{
-						name: 'repayBorrow';
+						name: 'RepayBorrow';
 					},
 					{
-						name: 'reward';
+						name: 'Reward';
 					},
 				];
 			};
 		},
 		{
-			name: 'depositRecord';
+			name: 'DepositRecord';
 			type: {
 				kind: 'struct';
 				fields: [
 					{
 						name: 'ts';
-						docs: ['unix_timestamp of action'];
+						docs: [
+							'unix_timestamp of action',
+						];
 						type: 'i64';
 					},
 					{
@@ -15283,14 +24064,16 @@ export type Drift = {
 					},
 					{
 						name: 'user';
-						docs: ['user account public key'];
+						docs: [
+							'user account public key',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'direction';
 						type: {
 							defined: {
-								name: 'depositDirection';
+								name: 'DepositDirection';
 							};
 						};
 					},
@@ -15300,54 +24083,72 @@ export type Drift = {
 					},
 					{
 						name: 'amount';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'marketIndex';
-						docs: ['spot market index'];
+						docs: [
+							'spot market index',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'oraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'marketDepositBalance';
-						docs: ['precision: SPOT_BALANCE_PRECISION'];
+						docs: [
+							'precision: SPOT_BALANCE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'marketWithdrawBalance';
-						docs: ['precision: SPOT_BALANCE_PRECISION'];
+						docs: [
+							'precision: SPOT_BALANCE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'marketCumulativeDepositInterest';
-						docs: ['precision: SPOT_CUMULATIVE_INTEREST_PRECISION'];
+						docs: [
+							'precision: SPOT_CUMULATIVE_INTEREST_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'marketCumulativeBorrowInterest';
-						docs: ['precision: SPOT_CUMULATIVE_INTEREST_PRECISION'];
+						docs: [
+							'precision: SPOT_CUMULATIVE_INTEREST_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'totalDepositsAfter';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'totalWithdrawsAfter';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'explanation';
 						type: {
 							defined: {
-								name: 'depositExplanation';
+								name: 'DepositExplanation';
 							};
 						};
 					},
@@ -15365,14 +24166,16 @@ export type Drift = {
 					},
 					{
 						name: 'userTokenAmountAfter';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'i128';
 					},
 				];
 			};
 		},
 		{
-			name: 'feeStructure';
+			name: 'FeeStructure';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15382,7 +24185,7 @@ export type Drift = {
 							array: [
 								{
 									defined: {
-										name: 'feeTier';
+										name: 'FeeTier';
 									};
 								},
 								10,
@@ -15393,7 +24196,7 @@ export type Drift = {
 						name: 'fillerRewardStructure';
 						type: {
 							defined: {
-								name: 'orderFillerRewardStructure';
+								name: 'OrderFillerRewardStructure';
 							};
 						};
 					},
@@ -15409,7 +24212,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'feeTier';
+			name: 'FeeTier';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15449,7 +24252,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'fuelOverflow';
+			name: 'FuelOverflow';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -15459,7 +24262,9 @@ export type Drift = {
 				fields: [
 					{
 						name: 'authority';
-						docs: ['The authority of this overflow account'];
+						docs: [
+							'The authority of this overflow account',
+						];
 						type: 'pubkey';
 					},
 					{
@@ -15497,14 +24302,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u128', 6];
+							array: [
+								'u128',
+								6,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'fuelSeasonRecord';
+			name: 'FuelSeasonRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15548,7 +24356,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'fuelSweepRecord';
+			name: 'FuelSweepRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15612,7 +24420,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'fundingPaymentRecord';
+			name: 'FundingPaymentRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15634,34 +24442,44 @@ export type Drift = {
 					},
 					{
 						name: 'fundingPayment';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'baseAssetAmount';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'userLastCumulativeFunding';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'ammCumulativeFundingLong';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'ammCumulativeFundingShort';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i128';
 					},
 				];
 			};
 		},
 		{
-			name: 'fundingRateRecord';
+			name: 'FundingRateRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15679,130 +24497,172 @@ export type Drift = {
 					},
 					{
 						name: 'fundingRate';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'fundingRateLong';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'fundingRateShort';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'cumulativeFundingRateLong';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'cumulativeFundingRateShort';
-						docs: ['precision: FUNDING_RATE_PRECISION'];
+						docs: [
+							'precision: FUNDING_RATE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'oraclePriceTwap';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'markPriceTwap';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'periodRevenue';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'baseAssetAmountWithAmm';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'baseAssetAmountWithUnsettledLp';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'i128';
 					},
 				];
 			};
 		},
 		{
-			name: 'historicalIndexData';
+			name: 'HistoricalIndexData';
 			type: {
 				kind: 'struct';
 				fields: [
 					{
 						name: 'lastIndexBidPrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lastIndexAskPrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lastIndexPriceTwap';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lastIndexPriceTwap5min';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lastIndexPriceTwapTs';
-						docs: ['unix_timestamp of last snapshot'];
+						docs: [
+							'unix_timestamp of last snapshot',
+						];
 						type: 'i64';
 					},
 				];
 			};
 		},
 		{
-			name: 'historicalOracleData';
+			name: 'HistoricalOracleData';
 			type: {
 				kind: 'struct';
 				fields: [
 					{
 						name: 'lastOraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastOracleConf';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lastOracleDelay';
-						docs: ['number of slots since last update'];
+						docs: [
+							'number of slots since last update',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastOraclePriceTwap';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastOraclePriceTwap5min';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastOraclePriceTwapTs';
-						docs: ['unix_timestamp of last snapshot'];
+						docs: [
+							'unix_timestamp of last snapshot',
+						];
 						type: 'i64';
 					},
 				];
 			};
 		},
 		{
-			name: 'ifRebalanceConfig';
+			name: 'IfRebalanceConfig';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -15816,57 +24676,79 @@ export type Drift = {
 					},
 					{
 						name: 'totalInAmount';
-						docs: ['total amount to be sold'];
+						docs: [
+							'total amount to be sold',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'currentInAmount';
-						docs: ['amount already sold'];
+						docs: [
+							'amount already sold',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'currentOutAmount';
-						docs: ['amount already bought'];
+						docs: [
+							'amount already bought',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'currentOutAmountTransferred';
-						docs: ['amount already transferred to revenue pool'];
+						docs: [
+							'amount already transferred to revenue pool',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'currentInAmountSinceLastTransfer';
-						docs: ['amount already bought in epoch'];
+						docs: [
+							'amount already bought in epoch',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'epochStartTs';
-						docs: ['start time of epoch'];
+						docs: [
+							'start time of epoch',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'epochInAmount';
-						docs: ['amount already bought in epoch'];
+						docs: [
+							'amount already bought in epoch',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'epochMaxInAmount';
-						docs: ['max amount to swap in epoch'];
+						docs: [
+							'max amount to swap in epoch',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'epochDuration';
-						docs: ['duration of epoch'];
+						docs: [
+							'duration of epoch',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'outMarketIndex';
-						docs: ['market index to sell'];
+						docs: [
+							'market index to sell',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'inMarketIndex';
-						docs: ['market index to buy'];
+						docs: [
+							'market index to buy',
+						];
 						type: 'u16';
 					},
 					{
@@ -15884,14 +24766,17 @@ export type Drift = {
 					{
 						name: 'padding2';
 						type: {
-							array: ['u8', 32];
+							array: [
+								'u8',
+								32,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'ifRebalanceConfigParams';
+			name: 'IfRebalanceConfigParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -15931,7 +24816,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'insuranceClaim';
+			name: 'InsuranceClaim';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -15975,14 +24860,16 @@ export type Drift = {
 					},
 					{
 						name: 'lastRevenueWithdrawTs';
-						docs: ['The last time revenue was settled in/out of market'];
+						docs: [
+							'The last time revenue was settled in/out of market',
+						];
 						type: 'i64';
 					},
 				];
 			};
 		},
 		{
-			name: 'insuranceFund';
+			name: 'InsuranceFund';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -16030,7 +24917,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'insuranceFundRecord';
+			name: 'InsuranceFundRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16048,22 +24935,30 @@ export type Drift = {
 					},
 					{
 						name: 'userIfFactor';
-						docs: ['precision: PERCENTAGE_PRECISION'];
+						docs: [
+							'precision: PERCENTAGE_PRECISION',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'totalIfFactor';
-						docs: ['precision: PERCENTAGE_PRECISION'];
+						docs: [
+							'precision: PERCENTAGE_PRECISION',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'vaultAmountBefore';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'insuranceVaultAmountBefore';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 					{
@@ -16076,14 +24971,16 @@ export type Drift = {
 					},
 					{
 						name: 'amount';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'i64';
 					},
 				];
 			};
 		},
 		{
-			name: 'insuranceFundStake';
+			name: 'InsuranceFundStake';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -16130,14 +25027,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 14];
+							array: [
+								'u8',
+								14,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'insuranceFundStakeRecord';
+			name: 'InsuranceFundStakeRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16153,13 +25053,15 @@ export type Drift = {
 						name: 'action';
 						type: {
 							defined: {
-								name: 'stakeAction';
+								name: 'StakeAction';
 							};
 						};
 					},
 					{
 						name: 'amount';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 					{
@@ -16168,7 +25070,9 @@ export type Drift = {
 					},
 					{
 						name: 'insuranceVaultAmountBefore';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 					{
@@ -16199,7 +25103,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'insuranceFundSwapRecord';
+			name: 'InsuranceFundSwapRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16287,27 +25191,27 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'lpAction';
+			name: 'LPAction';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'addLiquidity';
+						name: 'AddLiquidity';
 					},
 					{
-						name: 'removeLiquidity';
+						name: 'RemoveLiquidity';
 					},
 					{
-						name: 'settleLiquidity';
+						name: 'SettleLiquidity';
 					},
 					{
-						name: 'removeLiquidityDerisk';
+						name: 'RemoveLiquidityDerisk';
 					},
 				];
 			};
 		},
 		{
-			name: 'lpBorrowLendDepositRecord';
+			name: 'LPBorrowLendDepositRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16331,7 +25235,7 @@ export type Drift = {
 						name: 'direction';
 						type: {
 							defined: {
-								name: 'depositDirection';
+								name: 'DepositDirection';
 							};
 						};
 					},
@@ -16359,7 +25263,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'lpMintRedeemRecord';
+			name: 'LPMintRedeemRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16381,7 +25285,9 @@ export type Drift = {
 					},
 					{
 						name: 'amount';
-						docs: ['precision: continutent mint precision, gross fees'];
+						docs: [
+							'precision: continutent mint precision, gross fees',
+						];
 						type: 'u128';
 					},
 					{
@@ -16401,27 +25307,37 @@ export type Drift = {
 					},
 					{
 						name: 'oraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'mint';
-						docs: ['token mint'];
+						docs: [
+							'token mint',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'lpAmount';
-						docs: ['lp amount, lp mint precision'];
+						docs: [
+							'lp amount, lp mint precision',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'lpFee';
-						docs: ['lp fee, lp mint precision'];
+						docs: [
+							'lp fee, lp mint precision',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lpPrice';
-						docs: ['the fair price of the lp token, PRICE_PRECISION'];
+						docs: [
+							'the fair price of the lp token, PRICE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
@@ -16430,7 +25346,9 @@ export type Drift = {
 					},
 					{
 						name: 'lastAum';
-						docs: ['LPPool last_aum'];
+						docs: [
+							'LPPool last_aum',
+						];
 						type: 'u128';
 					},
 					{
@@ -16439,7 +25357,9 @@ export type Drift = {
 					},
 					{
 						name: 'inMarketCurrentWeight';
-						docs: ['PERCENTAGE_PRECISION'];
+						docs: [
+							'PERCENTAGE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -16454,7 +25374,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'lpPool';
+			name: 'LPPool';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -16464,7 +25384,9 @@ export type Drift = {
 				fields: [
 					{
 						name: 'pubkey';
-						docs: ['address of the vault.'];
+						docs: [
+							'address of the vault.',
+						];
 						type: 'pubkey';
 					},
 					{
@@ -16495,12 +25417,16 @@ export type Drift = {
 					},
 					{
 						name: 'lastAum';
-						docs: ['QUOTE_PRECISION: AUM of the vault in USD, updated lazily'];
+						docs: [
+							'QUOTE_PRECISION: AUM of the vault in USD, updated lazily',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'cumulativeQuoteSentToPerpMarkets';
-						docs: ['QUOTE PRECISION: Cumulative quotes from settles'];
+						docs: [
+							'QUOTE PRECISION: Cumulative quotes from settles',
+						];
 						type: 'u128';
 					},
 					{
@@ -16516,7 +25442,9 @@ export type Drift = {
 					},
 					{
 						name: 'lastAumSlot';
-						docs: ['timestamp of last AUM slot'];
+						docs: [
+							'timestamp of last AUM slot',
+						];
 						type: 'u64';
 					},
 					{
@@ -16524,8 +25452,10 @@ export type Drift = {
 						type: 'u64';
 					},
 					{
-						name: 'padding';
-						docs: ['timestamp of last vAMM revenue rebalance'];
+						name: 'Padding';
+						docs: [
+							'timestamp of last vAMM revenue rebalance',
+						];
 						type: 'u64';
 					},
 					{
@@ -16541,7 +25471,9 @@ export type Drift = {
 					},
 					{
 						name: 'minMintFee';
-						docs: ['PERCENTAGE_PRECISION'];
+						docs: [
+							'PERCENTAGE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -16587,14 +25519,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 182];
+							array: [
+								'u8',
+								182,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'lpRecord';
+			name: 'LPRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16610,13 +25545,15 @@ export type Drift = {
 						name: 'action';
 						type: {
 							defined: {
-								name: 'lpAction';
+								name: 'LPAction';
 							};
 						};
 					},
 					{
 						name: 'nShares';
-						docs: ['precision: AMM_RESERVE_PRECISION'];
+						docs: [
+							'precision: AMM_RESERVE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
@@ -16625,12 +25562,16 @@ export type Drift = {
 					},
 					{
 						name: 'deltaBaseAssetAmount';
-						docs: ['precision: BASE_PRECISION'];
+						docs: [
+							'precision: BASE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'deltaQuoteAssetAmount';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -16645,7 +25586,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'lpSettleRecord';
+			name: 'LPSettleRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16701,7 +25642,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'lpSwapRecord';
+			name: 'LPSwapRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16719,22 +25660,30 @@ export type Drift = {
 					},
 					{
 						name: 'outAmount';
-						docs: ['precision: out market mint precision, gross fees'];
+						docs: [
+							'precision: out market mint precision, gross fees',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'inAmount';
-						docs: ['precision: in market mint precision, gross fees'];
+						docs: [
+							'precision: in market mint precision, gross fees',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'outFee';
-						docs: ['precision: fee on amount_out, in market mint precision'];
+						docs: [
+							'precision: fee on amount_out, in market mint precision',
+						];
 						type: 'i128';
 					},
 					{
 						name: 'inFee';
-						docs: ['precision: fee on amount_in, out market mint precision'];
+						docs: [
+							'precision: fee on amount_in, out market mint precision',
+						];
 						type: 'i128';
 					},
 					{
@@ -16755,17 +25704,23 @@ export type Drift = {
 					},
 					{
 						name: 'outOraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'inOraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastAum';
-						docs: ['LPPool last_aum, QUOTE_PRECISION'];
+						docs: [
+							'LPPool last_aum, QUOTE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
@@ -16774,22 +25729,30 @@ export type Drift = {
 					},
 					{
 						name: 'inMarketCurrentWeight';
-						docs: ['PERCENTAGE_PRECISION'];
+						docs: [
+							'PERCENTAGE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'outMarketCurrentWeight';
-						docs: ['PERCENTAGE_PRECISION'];
+						docs: [
+							'PERCENTAGE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'inMarketTargetWeight';
-						docs: ['PERCENTAGE_PRECISION'];
+						docs: [
+							'PERCENTAGE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'outMarketTargetWeight';
-						docs: ['PERCENTAGE_PRECISION'];
+						docs: [
+							'PERCENTAGE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -16808,7 +25771,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'liquidateBorrowForPerpPnlRecord';
+			name: 'LiquidateBorrowForPerpPnlRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16840,7 +25803,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'liquidatePerpPnlForDepositRecord';
+			name: 'LiquidatePerpPnlForDepositRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16872,7 +25835,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'liquidatePerpRecord';
+			name: 'LiquidatePerpRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16894,7 +25857,9 @@ export type Drift = {
 					},
 					{
 						name: 'lpShares';
-						docs: ['precision: AMM_RESERVE_PRECISION'];
+						docs: [
+							'precision: AMM_RESERVE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
@@ -16911,19 +25876,23 @@ export type Drift = {
 					},
 					{
 						name: 'liquidatorFee';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'ifFee';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 				];
 			};
 		},
 		{
-			name: 'liquidateSpotRecord';
+			name: 'LiquidateSpotRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16949,19 +25918,23 @@ export type Drift = {
 					},
 					{
 						name: 'liabilityTransfer';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'ifFee';
-						docs: ['precision: token mint precision'];
+						docs: [
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 				];
 			};
 		},
 		{
-			name: 'liquidationRecord';
+			name: 'LiquidationRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -16973,7 +25946,7 @@ export type Drift = {
 						name: 'liquidationType';
 						type: {
 							defined: {
-								name: 'liquidationType';
+								name: 'LiquidationType';
 							};
 						};
 					},
@@ -17015,7 +25988,7 @@ export type Drift = {
 						name: 'liquidatePerp';
 						type: {
 							defined: {
-								name: 'liquidatePerpRecord';
+								name: 'LiquidatePerpRecord';
 							};
 						};
 					},
@@ -17023,7 +25996,7 @@ export type Drift = {
 						name: 'liquidateSpot';
 						type: {
 							defined: {
-								name: 'liquidateSpotRecord';
+								name: 'LiquidateSpotRecord';
 							};
 						};
 					},
@@ -17031,7 +26004,7 @@ export type Drift = {
 						name: 'liquidateBorrowForPerpPnl';
 						type: {
 							defined: {
-								name: 'liquidateBorrowForPerpPnlRecord';
+								name: 'LiquidateBorrowForPerpPnlRecord';
 							};
 						};
 					},
@@ -17039,7 +26012,7 @@ export type Drift = {
 						name: 'liquidatePerpPnlForDeposit';
 						type: {
 							defined: {
-								name: 'liquidatePerpPnlForDepositRecord';
+								name: 'LiquidatePerpPnlForDepositRecord';
 							};
 						};
 					},
@@ -17047,7 +26020,7 @@ export type Drift = {
 						name: 'perpBankruptcy';
 						type: {
 							defined: {
-								name: 'perpBankruptcyRecord';
+								name: 'PerpBankruptcyRecord';
 							};
 						};
 					},
@@ -17055,7 +26028,7 @@ export type Drift = {
 						name: 'spotBankruptcy';
 						type: {
 							defined: {
-								name: 'spotBankruptcyRecord';
+								name: 'SpotBankruptcyRecord';
 							};
 						};
 					},
@@ -17067,33 +26040,33 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'liquidationType';
+			name: 'LiquidationType';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'liquidatePerp';
+						name: 'LiquidatePerp';
 					},
 					{
-						name: 'liquidateSpot';
+						name: 'LiquidateSpot';
 					},
 					{
-						name: 'liquidateBorrowForPerpPnl';
+						name: 'LiquidateBorrowForPerpPnl';
 					},
 					{
-						name: 'liquidatePerpPnlForDeposit';
+						name: 'LiquidatePerpPnlForDeposit';
 					},
 					{
-						name: 'perpBankruptcy';
+						name: 'PerpBankruptcy';
 					},
 					{
-						name: 'spotBankruptcy';
+						name: 'SpotBankruptcy';
 					},
 				];
 			};
 		},
 		{
-			name: 'lpPoolParams';
+			name: 'LpPoolParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -17137,44 +26110,44 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'marketStatus';
+			name: 'MarketStatus';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'initialized';
+						name: 'Initialized';
 					},
 					{
-						name: 'active';
+						name: 'Active';
 					},
 					{
-						name: 'reduceOnly';
+						name: 'ReduceOnly';
 					},
 					{
-						name: 'settlement';
+						name: 'Settlement';
 					},
 					{
-						name: 'delisted';
+						name: 'Delisted';
 					},
 				];
 			};
 		},
 		{
-			name: 'marketType';
+			name: 'MarketType';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'spot';
+						name: 'Spot';
 					},
 					{
-						name: 'perp';
+						name: 'Perp';
 					},
 				];
 			};
 		},
 		{
-			name: 'modifyOrderParams';
+			name: 'ModifyOrderParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -17183,7 +26156,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'positionDirection';
+									name: 'PositionDirection';
 								};
 							};
 						};
@@ -17211,7 +26184,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'postOnlyParam';
+									name: 'PostOnlyParam';
 								};
 							};
 						};
@@ -17239,7 +26212,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'orderTriggerCondition';
+									name: 'OrderTriggerCondition';
 								};
 							};
 						};
@@ -17278,13 +26251,15 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'newUserRecord';
+			name: 'NewUserRecord';
 			type: {
 				kind: 'struct';
 				fields: [
 					{
 						name: 'ts';
-						docs: ['unix_timestamp of action'];
+						docs: [
+							'unix_timestamp of action',
+						];
 						type: 'i64';
 					},
 					{
@@ -17302,7 +26277,10 @@ export type Drift = {
 					{
 						name: 'name';
 						type: {
-							array: ['u8', 32];
+							array: [
+								'u8',
+								32,
+							];
 						};
 					},
 					{
@@ -17313,7 +26291,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'openbookV2FulfillmentConfig';
+			name: 'OpenbookV2FulfillmentConfig';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -17365,7 +26343,7 @@ export type Drift = {
 						name: 'fulfillmentType';
 						type: {
 							defined: {
-								name: 'spotFulfillmentType';
+								name: 'SpotFulfillmentType';
 							};
 						};
 					},
@@ -17373,21 +26351,24 @@ export type Drift = {
 						name: 'status';
 						type: {
 							defined: {
-								name: 'spotFulfillmentConfigStatus';
+								name: 'SpotFulfillmentConfigStatus';
 							};
 						};
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'oracleGuardRails';
+			name: 'OracleGuardRails';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -17395,7 +26376,7 @@ export type Drift = {
 						name: 'priceDivergence';
 						type: {
 							defined: {
-								name: 'priceDivergenceGuardRails';
+								name: 'PriceDivergenceGuardRails';
 							};
 						};
 					},
@@ -17403,7 +26384,7 @@ export type Drift = {
 						name: 'validity';
 						type: {
 							defined: {
-								name: 'validityGuardRails';
+								name: 'ValidityGuardRails';
 							};
 						};
 					},
@@ -17411,63 +26392,63 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'oracleSource';
+			name: 'OracleSource';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'pyth';
+						name: 'Pyth';
 					},
 					{
-						name: 'deprecatedSwitchboard';
+						name: 'DeprecatedSwitchboard';
 					},
 					{
-						name: 'quoteAsset';
+						name: 'QuoteAsset';
 					},
 					{
-						name: 'pyth1K';
+						name: 'Pyth1K';
 					},
 					{
-						name: 'pyth1M';
+						name: 'Pyth1M';
 					},
 					{
-						name: 'pythStableCoin';
+						name: 'PythStableCoin';
 					},
 					{
-						name: 'prelaunch';
+						name: 'Prelaunch';
 					},
 					{
-						name: 'pythPull';
+						name: 'PythPull';
 					},
 					{
-						name: 'pyth1KPull';
+						name: 'Pyth1KPull';
 					},
 					{
-						name: 'pyth1MPull';
+						name: 'Pyth1MPull';
 					},
 					{
-						name: 'pythStableCoinPull';
+						name: 'PythStableCoinPull';
 					},
 					{
-						name: 'deprecatedSwitchboardOnDemand';
+						name: 'DeprecatedSwitchboardOnDemand';
 					},
 					{
-						name: 'pythLazer';
+						name: 'PythLazer';
 					},
 					{
-						name: 'pythLazer1K';
+						name: 'PythLazer1K';
 					},
 					{
-						name: 'pythLazer1M';
+						name: 'PythLazer1M';
 					},
 					{
-						name: 'pythLazerStableCoin';
+						name: 'PythLazerStableCoin';
 					},
 				];
 			};
 		},
 		{
-			name: 'order';
+			name: 'Order';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -17477,14 +26458,16 @@ export type Drift = {
 				fields: [
 					{
 						name: 'slot';
-						docs: ['The slot the order was placed'];
+						docs: [
+							'The slot the order was placed',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'price';
 						docs: [
 							'The limit price for the order (can be 0 for market orders)',
-							"For orders with an auction, this price isn't used until the auction is complete",
+							'For orders with an auction, this price isn\'t used until the auction is complete',
 							'precision: PRICE_PRECISION',
 						];
 						type: 'u64';
@@ -17541,7 +26524,9 @@ export type Drift = {
 					},
 					{
 						name: 'maxTs';
-						docs: ['The time when the order will expire'];
+						docs: [
+							'The time when the order will expire',
+						];
 						type: 'i64';
 					},
 					{
@@ -17561,33 +26546,41 @@ export type Drift = {
 					},
 					{
 						name: 'marketIndex';
-						docs: ['The perp/spot market index'];
+						docs: [
+							'The perp/spot market index',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'status';
-						docs: ['Whether the order is open or unused'];
+						docs: [
+							'Whether the order is open or unused',
+						];
 						type: {
 							defined: {
-								name: 'orderStatus';
+								name: 'OrderStatus';
 							};
 						};
 					},
 					{
 						name: 'orderType';
-						docs: ['The type of order'];
+						docs: [
+							'The type of order',
+						];
 						type: {
 							defined: {
-								name: 'orderType';
+								name: 'OrderType';
 							};
 						};
 					},
 					{
 						name: 'marketType';
-						docs: ['Whether market is spot or perp'];
+						docs: [
+							'Whether market is spot or perp',
+						];
 						type: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					},
@@ -17600,10 +26593,12 @@ export type Drift = {
 					},
 					{
 						name: 'existingPositionDirection';
-						docs: ['What the users position was when the order was placed'];
+						docs: [
+							'What the users position was when the order was placed',
+						];
 						type: {
 							defined: {
-								name: 'positionDirection';
+								name: 'PositionDirection';
 							};
 						};
 					},
@@ -17614,18 +26609,22 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'positionDirection';
+								name: 'PositionDirection';
 							};
 						};
 					},
 					{
 						name: 'reduceOnly';
-						docs: ['Whether the order is allowed to only reduce position size'];
+						docs: [
+							'Whether the order is allowed to only reduce position size',
+						];
 						type: 'bool';
 					},
 					{
 						name: 'postOnly';
-						docs: ['Whether the order must be a maker'];
+						docs: [
+							'Whether the order must be a maker',
+						];
 						type: 'bool';
 					},
 					{
@@ -17642,13 +26641,15 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'orderTriggerCondition';
+								name: 'OrderTriggerCondition';
 							};
 						};
 					},
 					{
 						name: 'auctionDuration';
-						docs: ['How many slots the auction lasts'];
+						docs: [
+							'How many slots the auction lasts',
+						];
 						type: 'u8';
 					},
 					{
@@ -17669,108 +26670,111 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 1];
+							array: [
+								'u8',
+								1,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'orderAction';
+			name: 'OrderAction';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'place';
+						name: 'Place';
 					},
 					{
-						name: 'cancel';
+						name: 'Cancel';
 					},
 					{
-						name: 'fill';
+						name: 'Fill';
 					},
 					{
-						name: 'trigger';
+						name: 'Trigger';
 					},
 					{
-						name: 'expire';
+						name: 'Expire';
 					},
 				];
 			};
 		},
 		{
-			name: 'orderActionExplanation';
+			name: 'OrderActionExplanation';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'none';
+						name: 'None';
 					},
 					{
-						name: 'insufficientFreeCollateral';
+						name: 'InsufficientFreeCollateral';
 					},
 					{
-						name: 'oraclePriceBreachedLimitPrice';
+						name: 'OraclePriceBreachedLimitPrice';
 					},
 					{
-						name: 'marketOrderFilledToLimitPrice';
+						name: 'MarketOrderFilledToLimitPrice';
 					},
 					{
-						name: 'orderExpired';
+						name: 'OrderExpired';
 					},
 					{
-						name: 'liquidation';
+						name: 'Liquidation';
 					},
 					{
-						name: 'orderFilledWithAmm';
+						name: 'OrderFilledWithAMM';
 					},
 					{
-						name: 'orderFilledWithAmmJit';
+						name: 'OrderFilledWithAMMJit';
 					},
 					{
-						name: 'orderFilledWithMatch';
+						name: 'OrderFilledWithMatch';
 					},
 					{
-						name: 'orderFilledWithMatchJit';
+						name: 'OrderFilledWithMatchJit';
 					},
 					{
-						name: 'marketExpired';
+						name: 'MarketExpired';
 					},
 					{
-						name: 'riskingIncreasingOrder';
+						name: 'RiskingIncreasingOrder';
 					},
 					{
-						name: 'reduceOnlyOrderIncreasedPosition';
+						name: 'ReduceOnlyOrderIncreasedPosition';
 					},
 					{
-						name: 'orderFillWithSerum';
+						name: 'OrderFillWithSerum';
 					},
 					{
-						name: 'noBorrowLiquidity';
+						name: 'NoBorrowLiquidity';
 					},
 					{
-						name: 'orderFillWithPhoenix';
+						name: 'OrderFillWithPhoenix';
 					},
 					{
-						name: 'orderFilledWithAmmJitLpSplit';
+						name: 'OrderFilledWithAMMJitLPSplit';
 					},
 					{
-						name: 'orderFilledWithLpJit';
+						name: 'OrderFilledWithLPJit';
 					},
 					{
-						name: 'deriskLp';
+						name: 'DeriskLp';
 					},
 					{
-						name: 'orderFilledWithOpenbookV2';
+						name: 'OrderFilledWithOpenbookV2';
 					},
 					{
-						name: 'transferPerpPosition';
+						name: 'TransferPerpPosition';
 					},
 				];
 			};
 		},
 		{
-			name: 'orderActionRecord';
+			name: 'OrderActionRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -17782,7 +26786,7 @@ export type Drift = {
 						name: 'action';
 						type: {
 							defined: {
-								name: 'orderAction';
+								name: 'OrderAction';
 							};
 						};
 					},
@@ -17790,7 +26794,7 @@ export type Drift = {
 						name: 'actionExplanation';
 						type: {
 							defined: {
-								name: 'orderActionExplanation';
+								name: 'OrderActionExplanation';
 							};
 						};
 					},
@@ -17802,7 +26806,7 @@ export type Drift = {
 						name: 'marketType';
 						type: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					},
@@ -17814,7 +26818,9 @@ export type Drift = {
 					},
 					{
 						name: 'fillerReward';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
@@ -17827,49 +26833,63 @@ export type Drift = {
 					},
 					{
 						name: 'baseAssetAmountFilled';
-						docs: ['precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)'];
+						docs: [
+							'precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'quoteAssetAmountFilled';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'takerFee';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'makerFee';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'i64';
 						};
 					},
 					{
 						name: 'referrerReward';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u32';
 						};
 					},
 					{
 						name: 'quoteAssetAmountSurplus';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'i64';
 						};
 					},
 					{
 						name: 'spotFulfillmentMethodFee';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
@@ -17891,28 +26911,34 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'positionDirection';
+									name: 'PositionDirection';
 								};
 							};
 						};
 					},
 					{
 						name: 'takerOrderBaseAssetAmount';
-						docs: ['precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)'];
+						docs: [
+							'precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'takerOrderCumulativeBaseAssetAmountFilled';
-						docs: ['precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)'];
+						docs: [
+							'precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'takerOrderCumulativeQuoteAssetAmountFilled';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
@@ -17934,35 +26960,43 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'positionDirection';
+									name: 'PositionDirection';
 								};
 							};
 						};
 					},
 					{
 						name: 'makerOrderBaseAssetAmount';
-						docs: ['precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)'];
+						docs: [
+							'precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'makerOrderCumulativeBaseAssetAmountFilled';
-						docs: ['precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)'];
+						docs: [
+							'precision: BASE_PRECISION (perp) or MINT_PRECISION (spot)',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'makerOrderCumulativeQuoteAssetAmountFilled';
-						docs: ['precision: QUOTE_PRECISION'];
+						docs: [
+							'precision: QUOTE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
 					},
 					{
 						name: 'oraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -18014,7 +27048,9 @@ export type Drift = {
 					},
 					{
 						name: 'triggerPrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: {
 							option: 'u64';
 						};
@@ -18022,7 +27058,7 @@ export type Drift = {
 					{
 						name: 'builderIdx';
 						docs: [
-							"the idx of the builder in the taker's [`RevenueShareEscrow`] account",
+							'the idx of the builder in the taker\'s [`RevenueShareEscrow`] account',
 						];
 						type: {
 							option: 'u8';
@@ -18030,7 +27066,9 @@ export type Drift = {
 					},
 					{
 						name: 'builderFee';
-						docs: ['precision: QUOTE_PRECISION builder fee paid by the taker'];
+						docs: [
+							'precision: QUOTE_PRECISION builder fee paid by the taker',
+						];
 						type: {
 							option: 'u64';
 						};
@@ -18039,7 +27077,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'orderFillerRewardStructure';
+			name: 'OrderFillerRewardStructure';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18059,7 +27097,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'orderParams';
+			name: 'OrderParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18067,7 +27105,7 @@ export type Drift = {
 						name: 'orderType';
 						type: {
 							defined: {
-								name: 'orderType';
+								name: 'OrderType';
 							};
 						};
 					},
@@ -18075,7 +27113,7 @@ export type Drift = {
 						name: 'marketType';
 						type: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					},
@@ -18083,7 +27121,7 @@ export type Drift = {
 						name: 'direction';
 						type: {
 							defined: {
-								name: 'positionDirection';
+								name: 'PositionDirection';
 							};
 						};
 					},
@@ -18111,7 +27149,7 @@ export type Drift = {
 						name: 'postOnly';
 						type: {
 							defined: {
-								name: 'postOnlyParam';
+								name: 'PostOnlyParam';
 							};
 						};
 					},
@@ -18135,7 +27173,7 @@ export type Drift = {
 						name: 'triggerCondition';
 						type: {
 							defined: {
-								name: 'orderTriggerCondition';
+								name: 'OrderTriggerCondition';
 							};
 						};
 					},
@@ -18167,7 +27205,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'orderRecord';
+			name: 'OrderRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18183,7 +27221,7 @@ export type Drift = {
 						name: 'order';
 						type: {
 							defined: {
-								name: 'order';
+								name: 'Order';
 							};
 						};
 					},
@@ -18191,70 +27229,70 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'orderStatus';
+			name: 'OrderStatus';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'init';
+						name: 'Init';
 					},
 					{
-						name: 'open';
+						name: 'Open';
 					},
 					{
-						name: 'filled';
+						name: 'Filled';
 					},
 					{
-						name: 'canceled';
+						name: 'Canceled';
 					},
 				];
 			};
 		},
 		{
-			name: 'orderTriggerCondition';
+			name: 'OrderTriggerCondition';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'above';
+						name: 'Above';
 					},
 					{
-						name: 'below';
+						name: 'Below';
 					},
 					{
-						name: 'triggeredAbove';
+						name: 'TriggeredAbove';
 					},
 					{
-						name: 'triggeredBelow';
+						name: 'TriggeredBelow';
 					},
 				];
 			};
 		},
 		{
-			name: 'orderType';
+			name: 'OrderType';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'market';
+						name: 'Market';
 					},
 					{
-						name: 'limit';
+						name: 'Limit';
 					},
 					{
-						name: 'triggerMarket';
+						name: 'TriggerMarket';
 					},
 					{
-						name: 'triggerLimit';
+						name: 'TriggerLimit';
 					},
 					{
-						name: 'oracle';
+						name: 'Oracle';
 					},
 				];
 			};
 		},
 		{
-			name: 'overrideAmmCacheParams';
+			name: 'OverrideAmmCacheParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18298,7 +27336,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'perpBankruptcyRecord';
+			name: 'PerpBankruptcyRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18334,7 +27372,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'perpMarket';
+			name: 'PerpMarket';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -18345,44 +27383,53 @@ export type Drift = {
 					{
 						name: 'pubkey';
 						docs: [
-							"The perp market's address. It is a pda of the market index",
+							'The perp market\'s address. It is a pda of the market index',
 						];
 						type: 'pubkey';
 					},
 					{
 						name: 'amm';
-						docs: ['The automated market maker'];
+						docs: [
+							'The automated market maker',
+						];
 						type: {
 							defined: {
-								name: 'amm';
+								name: 'AMM';
 							};
 						};
 					},
 					{
 						name: 'pnlPool';
 						docs: [
-							"The market's pnl pool. When users settle negative pnl, the balance increases.",
+							'The market\'s pnl pool. When users settle negative pnl, the balance increases.',
 							'When users settle positive pnl, the balance decreases. Can not go negative.',
 						];
 						type: {
 							defined: {
-								name: 'poolBalance';
+								name: 'PoolBalance';
 							};
 						};
 					},
 					{
 						name: 'name';
-						docs: ['Encoded display name for the perp market e.g. SOL-PERP'];
+						docs: [
+							'Encoded display name for the perp market e.g. SOL-PERP',
+						];
 						type: {
-							array: ['u8', 32];
+							array: [
+								'u8',
+								32,
+							];
 						};
 					},
 					{
 						name: 'insuranceClaim';
-						docs: ["The perp market's claim on the insurance fund"];
+						docs: [
+							'The perp market\'s claim on the insurance fund',
+						];
 						type: {
 							defined: {
-								name: 'insuranceClaim';
+								name: 'InsuranceClaim';
 							};
 						};
 					},
@@ -18390,7 +27437,7 @@ export type Drift = {
 						name: 'unrealizedPnlMaxImbalance';
 						docs: [
 							'The max pnl imbalance before positive pnl asset weight is discounted',
-							"pnl imbalance is the difference between long and short pnl. When it's greater than 0,",
+							'pnl imbalance is the difference between long and short pnl. When it\'s greater than 0,',
 							'the amm has negative pnl and the initial asset weight for positive pnl is discounted',
 							'precision = QUOTE_PRECISION',
 						];
@@ -18501,12 +27548,16 @@ export type Drift = {
 					},
 					{
 						name: 'numberOfUsersWithBase';
-						docs: ['number of users in a position (base)'];
+						docs: [
+							'number of users in a position (base)',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'numberOfUsers';
-						docs: ['number of users in a position (pnl) or pnl (quote)'];
+						docs: [
+							'number of users in a position (pnl) or pnl (quote)',
+						];
 						type: 'u32';
 					},
 					{
@@ -18521,16 +27572,18 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'marketStatus';
+								name: 'MarketStatus';
 							};
 						};
 					},
 					{
 						name: 'contractType';
-						docs: ['Currently only Perpetual markets are supported'];
+						docs: [
+							'Currently only Perpetual markets are supported',
+						];
 						type: {
 							defined: {
-								name: 'contractType';
+								name: 'ContractType';
 							};
 						};
 					},
@@ -18542,7 +27595,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'contractTier';
+								name: 'ContractTier';
 							};
 						};
 					},
@@ -18552,7 +27605,9 @@ export type Drift = {
 					},
 					{
 						name: 'quoteSpotMarketIndex';
-						docs: ['The spot market that pnl is settled in'];
+						docs: [
+							'The spot market that pnl is settled in',
+						];
 						type: 'u16';
 					},
 					{
@@ -18566,17 +27621,26 @@ export type Drift = {
 					},
 					{
 						name: 'fuelBoostPosition';
-						docs: ['fuel multiplier for perp funding', 'precision: 10'];
+						docs: [
+							'fuel multiplier for perp funding',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelBoostTaker';
-						docs: ['fuel multiplier for perp taker', 'precision: 10'];
+						docs: [
+							'fuel multiplier for perp taker',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelBoostMaker';
-						docs: ['fuel multiplier for perp maker', 'precision: 10'];
+						docs: [
+							'fuel multiplier for perp maker',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
@@ -18589,7 +27653,10 @@ export type Drift = {
 							'Deprecated: formerly high_leverage_margin_ratio_initial and high_leverage_margin_ratio_maintenance',
 						];
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 					{
@@ -18631,14 +27698,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 30];
+							array: [
+								'u8',
+								30,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'perpPosition';
+			name: 'PerpPosition';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -18649,7 +27719,7 @@ export type Drift = {
 					{
 						name: 'lastCumulativeFundingRate';
 						docs: [
-							"The perp market's last cumulative funding rate. Used to calculate the funding payment owed to user",
+							'The perp market\'s last cumulative funding rate. Used to calculate the funding payment owed to user',
 							'precision: FUNDING_RATE_PRECISION',
 						];
 						type: 'i64';
@@ -18742,7 +27812,10 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 2];
+							array: [
+								'u8',
+								2,
+							];
 						};
 					},
 					{
@@ -18751,12 +27824,16 @@ export type Drift = {
 					},
 					{
 						name: 'marketIndex';
-						docs: ['The market index for the perp market'];
+						docs: [
+							'The market index for the perp market',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'openOrders';
-						docs: ['The number of open orders'];
+						docs: [
+							'The number of open orders',
+						];
 						type: 'u8';
 					},
 					{
@@ -18767,7 +27844,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'phoenixV1FulfillmentConfig';
+			name: 'PhoenixV1FulfillmentConfig';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -18807,7 +27884,7 @@ export type Drift = {
 						name: 'fulfillmentType';
 						type: {
 							defined: {
-								name: 'spotFulfillmentType';
+								name: 'SpotFulfillmentType';
 							};
 						};
 					},
@@ -18815,21 +27892,24 @@ export type Drift = {
 						name: 'status';
 						type: {
 							defined: {
-								name: 'spotFulfillmentConfigStatus';
+								name: 'SpotFulfillmentConfigStatus';
 							};
 						};
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'poolBalance';
+			name: 'PoolBalance';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -18840,7 +27920,7 @@ export type Drift = {
 					{
 						name: 'scaledBalance';
 						docs: [
-							"To get the pool's token amount, you must multiply the scaled balance by the market's cumulative",
+							'To get the pool\'s token amount, you must multiply the scaled balance by the market\'s cumulative',
 							'deposit interest',
 							'precision: SPOT_BALANCE_PRECISION',
 						];
@@ -18848,54 +27928,59 @@ export type Drift = {
 					},
 					{
 						name: 'marketIndex';
-						docs: ['The spot market the pool is for'];
+						docs: [
+							'The spot market the pool is for',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 14];
+							array: [
+								'u8',
+								14,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'positionDirection';
+			name: 'PositionDirection';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'long';
+						name: 'Long';
 					},
 					{
-						name: 'short';
+						name: 'Short';
 					},
 				];
 			};
 		},
 		{
-			name: 'postOnlyParam';
+			name: 'PostOnlyParam';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'none';
+						name: 'None';
 					},
 					{
-						name: 'mustPostOnly';
+						name: 'MustPostOnly';
 					},
 					{
-						name: 'tryPostOnly';
+						name: 'TryPostOnly';
 					},
 					{
-						name: 'slide';
+						name: 'Slide';
 					},
 				];
 			};
 		},
 		{
-			name: 'prelaunchOracle';
+			name: 'PrelaunchOracle';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -18930,14 +28015,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 70];
+							array: [
+								'u8',
+								70,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'prelaunchOracleParams';
+			name: 'PrelaunchOracleParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18961,7 +28049,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'priceDivergenceGuardRails';
+			name: 'PriceDivergenceGuardRails';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -18977,7 +28065,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'protectedMakerModeConfig';
+			name: 'ProtectedMakerModeConfig';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19000,14 +28088,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 31];
+							array: [
+								'u8',
+								31,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'pythLazerOracle';
+			name: 'PythLazerOracle';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19032,9 +28123,12 @@ export type Drift = {
 						type: 'i32';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 					{
@@ -19045,7 +28139,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'referrerName';
+			name: 'ReferrerName';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19068,14 +28162,17 @@ export type Drift = {
 					{
 						name: 'name';
 						type: {
-							array: ['u8', 32];
+							array: [
+								'u8',
+								32,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'revenueShare';
+			name: 'RevenueShare';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19085,7 +28182,9 @@ export type Drift = {
 				fields: [
 					{
 						name: 'authority';
-						docs: ['the owner of this account, a builder or referrer'];
+						docs: [
+							'the owner of this account, a builder or referrer',
+						];
 						type: 'pubkey';
 					},
 					{
@@ -19099,20 +28198,25 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 24];
+							array: [
+								'u8',
+								24,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'revenueShareEscrow';
+			name: 'RevenueShareEscrow';
 			type: {
 				kind: 'struct';
 				fields: [
 					{
 						name: 'authority';
-						docs: ['the owner of this account, a user'];
+						docs: [
+							'the owner of this account, a user',
+						];
 						type: 'pubkey';
 					},
 					{
@@ -19138,7 +28242,10 @@ export type Drift = {
 					{
 						name: 'reservedFixed';
 						type: {
-							array: ['u8', 17];
+							array: [
+								'u8',
+								17,
+							];
 						};
 					},
 					{
@@ -19150,7 +28257,7 @@ export type Drift = {
 						type: {
 							vec: {
 								defined: {
-									name: 'revenueShareOrder';
+									name: 'RevenueShareOrder';
 								};
 							};
 						};
@@ -19164,7 +28271,7 @@ export type Drift = {
 						type: {
 							vec: {
 								defined: {
-									name: 'builderInfo';
+									name: 'BuilderInfo';
 								};
 							};
 						};
@@ -19173,7 +28280,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'revenueShareOrder';
+			name: 'RevenueShareOrder';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19186,14 +28293,14 @@ export type Drift = {
 						docs: [
 							'fees accrued so far for this order slot. This is not exclusively fees from this order_id',
 							'and may include fees from other orders in the same market. This may be swept to the',
-							"builder's SpotPosition during settle_pnl.",
+							'builder\'s SpotPosition during settle_pnl.',
 						];
 						type: 'u64';
 					},
 					{
 						name: 'orderId';
 						docs: [
-							"the order_id of the current active order in this slot. It's only relevant while bit_flag = Open",
+							'the order_id of the current active order in this slot. It\'s only relevant while bit_flag = Open',
 						];
 						type: 'u32';
 					},
@@ -19211,14 +28318,14 @@ export type Drift = {
 					{
 						name: 'subAccountId';
 						docs: [
-							"the subaccount_id of the user who created this order. It's only relevant while bit_flag = Open",
+							'the subaccount_id of the user who created this order. It\'s only relevant while bit_flag = Open',
 						];
 						type: 'u16';
 					},
 					{
 						name: 'builderIdx';
 						docs: [
-							"the index of the RevenueShareEscrow.approved_builders list, that this order's fee will settle to. Ignored",
+							'the index of the RevenueShareEscrow.approved_builders list, that this order\'s fee will settle to. Ignored',
 							'if bit_flag = Referral.',
 						];
 						type: 'u8';
@@ -19228,9 +28335,9 @@ export type Drift = {
 						docs: [
 							'bitflags that describe the state of the order.',
 							'[`RevenueShareOrderBitFlag::Init`]: this order slot is available for use.',
-							"[`RevenueShareOrderBitFlag::Open`]: this order slot is occupied, `order_id` is the `sub_account_id`'s active order.",
+							'[`RevenueShareOrderBitFlag::Open`]: this order slot is occupied, `order_id` is the `sub_account_id`\'s active order.',
 							'[`RevenueShareOrderBitFlag::Completed`]: this order has been filled or canceled, and is waiting to be settled into.',
-							"the builder's account order_id and sub_account_id are no longer relevant, it may be merged with other orders.",
+							'the builder\'s account order_id and sub_account_id are no longer relevant, it may be merged with other orders.',
 							'[`RevenueShareOrderBitFlag::Referral`]: this order stores referral rewards waiting to be settled for this market.',
 							'If it is set, no other bitflag should be set.',
 						];
@@ -19239,7 +28346,7 @@ export type Drift = {
 					{
 						name: 'userOrderIndex';
 						docs: [
-							"the index into the User's orders list when this RevenueShareOrder was created, make sure to verify that order_id matches.",
+							'the index into the User\'s orders list when this RevenueShareOrder was created, make sure to verify that order_id matches.',
 						];
 						type: 'u8';
 					},
@@ -19247,21 +28354,24 @@ export type Drift = {
 						name: 'marketType';
 						type: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 10];
+							array: [
+								'u8',
+								10,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'revenueShareSettleRecord';
+			name: 'RevenueShareSettleRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19293,7 +28403,7 @@ export type Drift = {
 						name: 'marketType';
 						type: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					},
@@ -19313,7 +28423,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'scaleOrderParams';
+			name: 'ScaleOrderParams';
 			docs: [
 				'Parameters for placing scale orders - multiple limit orders distributed across a price range',
 			];
@@ -19324,7 +28434,7 @@ export type Drift = {
 						name: 'marketType';
 						type: {
 							defined: {
-								name: 'marketType';
+								name: 'MarketType';
 							};
 						};
 					},
@@ -19332,7 +28442,7 @@ export type Drift = {
 						name: 'direction';
 						type: {
 							defined: {
-								name: 'positionDirection';
+								name: 'PositionDirection';
 							};
 						};
 					},
@@ -19342,55 +28452,73 @@ export type Drift = {
 					},
 					{
 						name: 'totalBaseAssetAmount';
-						docs: ['Total base asset amount to distribute across all orders'];
+						docs: [
+							'Total base asset amount to distribute across all orders',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'startPrice';
-						docs: ['Starting price for the scale (in PRICE_PRECISION)'];
+						docs: [
+							'Starting price for the scale (in PRICE_PRECISION)',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'endPrice';
-						docs: ['Ending price for the scale (in PRICE_PRECISION)'];
+						docs: [
+							'Ending price for the scale (in PRICE_PRECISION)',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'orderCount';
-						docs: ['Number of orders to place (min 2, max 32)'];
+						docs: [
+							'Number of orders to place (min 2, max 32)',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'sizeDistribution';
-						docs: ['How to distribute sizes across orders'];
+						docs: [
+							'How to distribute sizes across orders',
+						];
 						type: {
 							defined: {
-								name: 'sizeDistribution';
+								name: 'SizeDistribution';
 							};
 						};
 					},
 					{
 						name: 'reduceOnly';
-						docs: ['Whether orders should be reduce-only'];
+						docs: [
+							'Whether orders should be reduce-only',
+						];
 						type: 'bool';
 					},
 					{
 						name: 'postOnly';
-						docs: ['Post-only setting for all orders'];
+						docs: [
+							'Post-only setting for all orders',
+						];
 						type: {
 							defined: {
-								name: 'postOnlyParam';
+								name: 'PostOnlyParam';
 							};
 						};
 					},
 					{
 						name: 'bitFlags';
-						docs: ['Bit flags (e.g., for high leverage mode)'];
+						docs: [
+							'Bit flags (e.g., for high leverage mode)',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'maxTs';
-						docs: ['Maximum timestamp for orders to be valid'];
+						docs: [
+							'Maximum timestamp for orders to be valid',
+						];
 						type: {
 							option: 'i64';
 						};
@@ -19399,7 +28527,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'serumV3FulfillmentConfig';
+			name: 'SerumV3FulfillmentConfig';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19459,7 +28587,7 @@ export type Drift = {
 						name: 'fulfillmentType';
 						type: {
 							defined: {
-								name: 'spotFulfillmentType';
+								name: 'SpotFulfillmentType';
 							};
 						};
 					},
@@ -19467,49 +28595,52 @@ export type Drift = {
 						name: 'status';
 						type: {
 							defined: {
-								name: 'spotFulfillmentConfigStatus';
+								name: 'SpotFulfillmentConfigStatus';
 							};
 						};
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'settlePnlExplanation';
+			name: 'SettlePnlExplanation';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'none';
+						name: 'None';
 					},
 					{
-						name: 'expiredPosition';
+						name: 'ExpiredPosition';
 					},
 				];
 			};
 		},
 		{
-			name: 'settlePnlMode';
+			name: 'SettlePnlMode';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'mustSettle';
+						name: 'MustSettle';
 					},
 					{
-						name: 'trySettle';
+						name: 'TrySettle';
 					},
 				];
 			};
 		},
 		{
-			name: 'settlePnlRecord';
+			name: 'SettlePnlRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19549,7 +28680,7 @@ export type Drift = {
 						name: 'explanation';
 						type: {
 							defined: {
-								name: 'settlePnlExplanation';
+								name: 'SettlePnlExplanation';
 							};
 						};
 					},
@@ -19557,7 +28688,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgOrderId';
+			name: 'SignedMsgOrderId';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19568,7 +28699,10 @@ export type Drift = {
 					{
 						name: 'uuid';
 						type: {
-							array: ['u8', 8];
+							array: [
+								'u8',
+								8,
+							];
 						};
 					},
 					{
@@ -19587,7 +28721,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgOrderParamsDelegateMessage';
+			name: 'SignedMsgOrderParamsDelegateMessage';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19595,7 +28729,7 @@ export type Drift = {
 						name: 'signedMsgOrderParams';
 						type: {
 							defined: {
-								name: 'orderParams';
+								name: 'OrderParams';
 							};
 						};
 					},
@@ -19610,7 +28744,10 @@ export type Drift = {
 					{
 						name: 'uuid';
 						type: {
-							array: ['u8', 8];
+							array: [
+								'u8',
+								8,
+							];
 						};
 					},
 					{
@@ -19618,7 +28755,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'signedMsgTriggerOrderParams';
+									name: 'SignedMsgTriggerOrderParams';
 								};
 							};
 						};
@@ -19628,7 +28765,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'signedMsgTriggerOrderParams';
+									name: 'SignedMsgTriggerOrderParams';
 								};
 							};
 						};
@@ -19661,7 +28798,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgOrderParamsMessage';
+			name: 'SignedMsgOrderParamsMessage';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19669,7 +28806,7 @@ export type Drift = {
 						name: 'signedMsgOrderParams';
 						type: {
 							defined: {
-								name: 'orderParams';
+								name: 'OrderParams';
 							};
 						};
 					},
@@ -19684,7 +28821,10 @@ export type Drift = {
 					{
 						name: 'uuid';
 						type: {
-							array: ['u8', 8];
+							array: [
+								'u8',
+								8,
+							];
 						};
 					},
 					{
@@ -19692,7 +28832,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'signedMsgTriggerOrderParams';
+									name: 'SignedMsgTriggerOrderParams';
 								};
 							};
 						};
@@ -19702,7 +28842,7 @@ export type Drift = {
 						type: {
 							option: {
 								defined: {
-									name: 'signedMsgTriggerOrderParams';
+									name: 'SignedMsgTriggerOrderParams';
 								};
 							};
 						};
@@ -19735,7 +28875,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgOrderRecord';
+			name: 'SignedMsgOrderRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19751,7 +28891,7 @@ export type Drift = {
 						name: 'matchingOrderParams';
 						type: {
 							defined: {
-								name: 'orderParams';
+								name: 'OrderParams';
 							};
 						};
 					},
@@ -19766,7 +28906,10 @@ export type Drift = {
 					{
 						name: 'signedMsgOrderUuid';
 						type: {
-							array: ['u8', 8];
+							array: [
+								'u8',
+								8,
+							];
 						};
 					},
 					{
@@ -19777,7 +28920,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgTriggerOrderParams';
+			name: 'SignedMsgTriggerOrderParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19793,7 +28936,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgUserOrders';
+			name: 'SignedMsgUserOrders';
 			docs: [
 				'* This struct is a duplicate of SignedMsgUserOrdersZeroCopy\n * It is used to give anchor an struct to generate the idl for clients\n * The struct SignedMsgUserOrdersZeroCopy is used to load the data in efficiently',
 			];
@@ -19813,7 +28956,7 @@ export type Drift = {
 						type: {
 							vec: {
 								defined: {
-									name: 'signedMsgOrderId';
+									name: 'SignedMsgOrderId';
 								};
 							};
 						};
@@ -19822,7 +28965,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgWsDelegates';
+			name: 'SignedMsgWsDelegates';
 			docs: [
 				'* Used to store authenticated delegates for swift-like ws connections',
 			];
@@ -19839,39 +28982,41 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'sizeDistribution';
-			docs: ['How to distribute order sizes across scale orders'];
+			name: 'SizeDistribution';
+			docs: [
+				'How to distribute order sizes across scale orders',
+			];
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'flat';
+						name: 'Flat';
 					},
 					{
-						name: 'ascending';
+						name: 'Ascending';
 					},
 					{
-						name: 'descending';
+						name: 'Descending';
 					},
 				];
 			};
 		},
 		{
-			name: 'spotBalanceType';
+			name: 'SpotBalanceType';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'deposit';
+						name: 'Deposit';
 					},
 					{
-						name: 'borrow';
+						name: 'Borrow';
 					},
 				];
 			};
 		},
 		{
-			name: 'spotBankruptcyRecord';
+			name: 'SpotBankruptcyRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19895,41 +29040,41 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'spotFulfillmentConfigStatus';
+			name: 'SpotFulfillmentConfigStatus';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'enabled';
+						name: 'Enabled';
 					},
 					{
-						name: 'disabled';
+						name: 'Disabled';
 					},
 				];
 			};
 		},
 		{
-			name: 'spotFulfillmentType';
+			name: 'SpotFulfillmentType';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'serumV3';
+						name: 'SerumV3';
 					},
 					{
-						name: 'match';
+						name: 'Match';
 					},
 					{
-						name: 'phoenixV1';
+						name: 'PhoenixV1';
 					},
 					{
-						name: 'openbookV2';
+						name: 'OpenbookV2';
 					},
 				];
 			};
 		},
 		{
-			name: 'spotInterestRecord';
+			name: 'SpotInterestRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -19943,44 +29088,58 @@ export type Drift = {
 					},
 					{
 						name: 'depositBalance';
-						docs: ['precision: SPOT_BALANCE_PRECISION'];
+						docs: [
+							'precision: SPOT_BALANCE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'cumulativeDepositInterest';
-						docs: ['precision: SPOT_CUMULATIVE_INTEREST_PRECISION'];
+						docs: [
+							'precision: SPOT_CUMULATIVE_INTEREST_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'borrowBalance';
-						docs: ['precision: SPOT_BALANCE_PRECISION'];
+						docs: [
+							'precision: SPOT_BALANCE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'cumulativeBorrowInterest';
-						docs: ['precision: SPOT_CUMULATIVE_INTEREST_PRECISION'];
+						docs: [
+							'precision: SPOT_CUMULATIVE_INTEREST_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'optimalUtilization';
-						docs: ['precision: PERCENTAGE_PRECISION'];
+						docs: [
+							'precision: PERCENTAGE_PRECISION',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'optimalBorrowRate';
-						docs: ['precision: PERCENTAGE_PRECISION'];
+						docs: [
+							'precision: PERCENTAGE_PRECISION',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'maxBorrowRate';
-						docs: ['precision: PERCENTAGE_PRECISION'];
+						docs: [
+							'precision: PERCENTAGE_PRECISION',
+						];
 						type: 'u32';
 					},
 				];
 			};
 		},
 		{
-			name: 'spotMarket';
+			name: 'SpotMarket';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -19997,27 +29156,36 @@ export type Drift = {
 					},
 					{
 						name: 'oracle';
-						docs: ['The oracle used to price the markets deposits/borrows'];
+						docs: [
+							'The oracle used to price the markets deposits/borrows',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'mint';
-						docs: ['The token mint of the market'];
+						docs: [
+							'The token mint of the market',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'vault';
 						docs: [
-							"The vault used to store the market's deposits",
+							'The vault used to store the market\'s deposits',
 							'The amount in the vault should be equal to or greater than deposits - borrows',
 						];
 						type: 'pubkey';
 					},
 					{
 						name: 'name';
-						docs: ['The encoded display name for the market e.g. SOL'];
+						docs: [
+							'The encoded display name for the market e.g. SOL',
+						];
 						type: {
-							array: ['u8', 32];
+							array: [
+								'u8',
+								32,
+							];
 						};
 					},
 					{
@@ -20028,7 +29196,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'insuranceFund';
+								name: 'InsuranceFund';
 							};
 						};
 					},
@@ -20079,7 +29247,7 @@ export type Drift = {
 					{
 						name: 'totalSocialLoss';
 						docs: [
-							"The total socialized loss from borrows, in the mint's token",
+							'The total socialized loss from borrows, in the mint\'s token',
 							'precision: token mint precision',
 						];
 						type: 'u128';
@@ -20087,7 +29255,7 @@ export type Drift = {
 					{
 						name: 'totalQuoteSocialLoss';
 						docs: [
-							"The total socialized loss from borrows, in the quote market's token",
+							'The total socialized loss from borrows, in the quote market\'s token',
 							'preicision: QUOTE_PRECISION',
 						];
 						type: 'u128';
@@ -20100,7 +29268,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'poolBalance';
+								name: 'PoolBalance';
 							};
 						};
 					},
@@ -20112,7 +29280,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'poolBalance';
+								name: 'PoolBalance';
 							};
 						};
 					},
@@ -20120,7 +29288,7 @@ export type Drift = {
 						name: 'historicalOracleData';
 						type: {
 							defined: {
-								name: 'historicalOracleData';
+								name: 'HistoricalOracleData';
 							};
 						};
 					},
@@ -20128,7 +29296,7 @@ export type Drift = {
 						name: 'historicalIndexData';
 						type: {
 							defined: {
-								name: 'historicalIndexData';
+								name: 'HistoricalIndexData';
 							};
 						};
 					},
@@ -20213,7 +29381,10 @@ export type Drift = {
 					},
 					{
 						name: 'minOrderSize';
-						docs: ['The minimum order size', 'precision: token mint precision'];
+						docs: [
+							'The minimum order size',
+							'precision: token mint precision',
+						];
 						type: 'u64';
 					},
 					{
@@ -20327,7 +29498,7 @@ export type Drift = {
 					{
 						name: 'decimals';
 						docs: [
-							"The market's token mint's decimals. To from decimals to a precision, 10^decimals",
+							'The market\'s token mint\'s decimals. To from decimals to a precision, 10^decimals',
 						];
 						type: 'u32';
 					},
@@ -20337,14 +29508,16 @@ export type Drift = {
 					},
 					{
 						name: 'ordersEnabled';
-						docs: ['Whether or not spot trading is enabled'];
+						docs: [
+							'Whether or not spot trading is enabled',
+						];
 						type: 'bool';
 					},
 					{
 						name: 'oracleSource';
 						type: {
 							defined: {
-								name: 'oracleSource';
+								name: 'OracleSource';
 							};
 						};
 					},
@@ -20352,7 +29525,7 @@ export type Drift = {
 						name: 'status';
 						type: {
 							defined: {
-								name: 'marketStatus';
+								name: 'MarketStatus';
 							};
 						};
 					},
@@ -20363,7 +29536,7 @@ export type Drift = {
 						];
 						type: {
 							defined: {
-								name: 'assetTier';
+								name: 'AssetTier';
 							};
 						};
 					},
@@ -20433,27 +29606,42 @@ export type Drift = {
 					},
 					{
 						name: 'fuelBoostDeposits';
-						docs: ['fuel multiplier for spot deposits', 'precision: 10'];
+						docs: [
+							'fuel multiplier for spot deposits',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelBoostBorrows';
-						docs: ['fuel multiplier for spot borrows', 'precision: 10'];
+						docs: [
+							'fuel multiplier for spot borrows',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelBoostTaker';
-						docs: ['fuel multiplier for spot taker', 'precision: 10'];
+						docs: [
+							'fuel multiplier for spot taker',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelBoostMaker';
-						docs: ['fuel multiplier for spot maker', 'precision: 10'];
+						docs: [
+							'fuel multiplier for spot maker',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelBoostInsurance';
-						docs: ['fuel multiplier for spot insurance stake', 'precision: 10'];
+						docs: [
+							'fuel multiplier for spot insurance stake',
+							'precision: 10',
+						];
 						type: 'u8';
 					},
 					{
@@ -20467,14 +29655,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 56];
+							array: [
+								'u8',
+								56,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'spotMarketVaultDepositRecord';
+			name: 'SpotMarketVaultDepositRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -20488,17 +29679,23 @@ export type Drift = {
 					},
 					{
 						name: 'depositBalance';
-						docs: ['precision: SPOT_BALANCE_PRECISION'];
+						docs: [
+							'precision: SPOT_BALANCE_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'cumulativeDepositInterestBefore';
-						docs: ['precision: SPOT_CUMULATIVE_INTEREST_PRECISION'];
+						docs: [
+							'precision: SPOT_CUMULATIVE_INTEREST_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
 						name: 'cumulativeDepositInterestAfter';
-						docs: ['precision: SPOT_CUMULATIVE_INTEREST_PRECISION'];
+						docs: [
+							'precision: SPOT_CUMULATIVE_INTEREST_PRECISION',
+						];
 						type: 'u128';
 					},
 					{
@@ -20513,7 +29710,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'spotPosition';
+			name: 'SpotPosition';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -20556,63 +29753,72 @@ export type Drift = {
 					},
 					{
 						name: 'marketIndex';
-						docs: ['The market index of the corresponding spot market'];
+						docs: [
+							'The market index of the corresponding spot market',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'balanceType';
-						docs: ['Whether the position is deposit or borrow'];
+						docs: [
+							'Whether the position is deposit or borrow',
+						];
 						type: {
 							defined: {
-								name: 'spotBalanceType';
+								name: 'SpotBalanceType';
 							};
 						};
 					},
 					{
 						name: 'openOrders';
-						docs: ['Number of open orders'];
+						docs: [
+							'Number of open orders',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'stakeAction';
+			name: 'StakeAction';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'stake';
+						name: 'Stake';
 					},
 					{
-						name: 'unstakeRequest';
+						name: 'UnstakeRequest';
 					},
 					{
-						name: 'unstakeCancelRequest';
+						name: 'UnstakeCancelRequest';
 					},
 					{
-						name: 'unstake';
+						name: 'Unstake';
 					},
 					{
-						name: 'unstakeTransfer';
+						name: 'UnstakeTransfer';
 					},
 					{
-						name: 'stakeTransfer';
+						name: 'StakeTransfer';
 					},
 					{
-						name: 'adminDeposit';
+						name: 'AdminDeposit';
 					},
 				];
 			};
 		},
 		{
-			name: 'state';
+			name: 'State';
 			repr: {
 				kind: 'c';
 			};
@@ -20643,7 +29849,7 @@ export type Drift = {
 						name: 'perpFeeStructure';
 						type: {
 							defined: {
-								name: 'feeStructure';
+								name: 'FeeStructure';
 							};
 						};
 					},
@@ -20651,7 +29857,7 @@ export type Drift = {
 						name: 'spotFeeStructure';
 						type: {
 							defined: {
-								name: 'feeStructure';
+								name: 'FeeStructure';
 							};
 						};
 					},
@@ -20659,7 +29865,7 @@ export type Drift = {
 						name: 'oracleGuardRails';
 						type: {
 							defined: {
-								name: 'oracleGuardRails';
+								name: 'OracleGuardRails';
 							};
 						};
 					},
@@ -20738,14 +29944,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 8];
+							array: [
+								'u8',
+								8,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'swapRecord';
+			name: 'SwapRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -20759,12 +29968,16 @@ export type Drift = {
 					},
 					{
 						name: 'amountOut';
-						docs: ['precision: out market mint precision'];
+						docs: [
+							'precision: out market mint precision',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'amountIn';
-						docs: ['precision: in market mint precision'];
+						docs: [
+							'precision: in market mint precision',
+						];
 						type: 'u64';
 					},
 					{
@@ -20777,12 +29990,16 @@ export type Drift = {
 					},
 					{
 						name: 'outOraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'inOraclePrice';
-						docs: ['precision: PRICE_PRECISION'];
+						docs: [
+							'precision: PRICE_PRECISION',
+						];
 						type: 'i64';
 					},
 					{
@@ -20793,21 +30010,21 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'swapReduceOnly';
+			name: 'SwapReduceOnly';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'in';
+						name: 'In';
 					},
 					{
-						name: 'out';
+						name: 'Out';
 					},
 				];
 			};
 		},
 		{
-			name: 'targetsDatum';
+			name: 'TargetsDatum';
 			serialization: 'bytemuck';
 			repr: {
 				kind: 'c';
@@ -20820,9 +30037,12 @@ export type Drift = {
 						type: 'i32';
 					},
 					{
-						name: 'padding';
+						name: 'Padding';
 						type: {
-							array: ['u8', 4];
+							array: [
+								'u8',
+								4,
+							];
 						};
 					},
 					{
@@ -20841,21 +30061,21 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'transferFeeAndPnlPoolDirection';
+			name: 'TransferFeeAndPnlPoolDirection';
 			type: {
 				kind: 'enum';
 				variants: [
 					{
-						name: 'feeToPnlPool';
+						name: 'FeeToPnlPool';
 					},
 					{
-						name: 'pnlToFeePool';
+						name: 'PnlToFeePool';
 					},
 				];
 			};
 		},
 		{
-			name: 'transferFeeAndPnlPoolRecord';
+			name: 'TransferFeeAndPnlPoolRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -20879,7 +30099,7 @@ export type Drift = {
 						name: 'direction';
 						type: {
 							defined: {
-								name: 'transferFeeAndPnlPoolDirection';
+								name: 'TransferFeeAndPnlPoolDirection';
 							};
 						};
 					},
@@ -20891,7 +30111,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'transferProtocolIfSharesToRevenuePoolRecord';
+			name: 'TransferProtocolIfSharesToRevenuePoolRecord';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -20927,7 +30147,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'updatePerpMarketSummaryStatsParams';
+			name: 'UpdatePerpMarketSummaryStatsParams';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -20959,7 +30179,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'user';
+			name: 'User';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -20969,31 +30189,40 @@ export type Drift = {
 				fields: [
 					{
 						name: 'authority';
-						docs: ['The owner/authority of the account'];
+						docs: [
+							'The owner/authority of the account',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'delegate';
 						docs: [
-							"An addresses that can control the account on the authority's behalf. Has limited power, cant withdraw",
+							'An addresses that can control the account on the authority\'s behalf. Has limited power, cant withdraw',
 						];
 						type: 'pubkey';
 					},
 					{
 						name: 'name';
-						docs: ['Encoded display name e.g. "toly"'];
+						docs: [
+							'Encoded display name e.g. "toly"',
+						];
 						type: {
-							array: ['u8', 32];
+							array: [
+								'u8',
+								32,
+							];
 						};
 					},
 					{
 						name: 'spotPositions';
-						docs: ["The user's spot positions"];
+						docs: [
+							'The user\'s spot positions',
+						];
 						type: {
 							array: [
 								{
 									defined: {
-										name: 'spotPosition';
+										name: 'SpotPosition';
 									};
 								},
 								8,
@@ -21002,12 +30231,14 @@ export type Drift = {
 					},
 					{
 						name: 'perpPositions';
-						docs: ["The user's perp positions"];
+						docs: [
+							'The user\'s perp positions',
+						];
 						type: {
 							array: [
 								{
 									defined: {
-										name: 'perpPosition';
+										name: 'PerpPosition';
 									};
 								},
 								8,
@@ -21016,12 +30247,14 @@ export type Drift = {
 					},
 					{
 						name: 'orders';
-						docs: ["The user's orders"];
+						docs: [
+							'The user\'s orders',
+						];
 						type: {
 							array: [
 								{
 									defined: {
-										name: 'order';
+										name: 'Order';
 									};
 								},
 								32,
@@ -21030,7 +30263,9 @@ export type Drift = {
 					},
 					{
 						name: 'lastAddPerpLpSharesTs';
-						docs: ['The last time the user added perp lp positions'];
+						docs: [
+							'The last time the user added perp lp positions',
+						];
 						type: 'i64';
 					},
 					{
@@ -21106,55 +30341,73 @@ export type Drift = {
 					},
 					{
 						name: 'maxMarginRatio';
-						docs: ['Custom max initial margin ratio for the user'];
+						docs: [
+							'Custom max initial margin ratio for the user',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'nextLiquidationId';
-						docs: ['The next liquidation id to be used for user'];
+						docs: [
+							'The next liquidation id to be used for user',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'subAccountId';
-						docs: ['The sub account id for this user'];
+						docs: [
+							'The sub account id for this user',
+						];
 						type: 'u16';
 					},
 					{
 						name: 'status';
-						docs: ['Whether the user is active, being liquidated or bankrupt'];
+						docs: [
+							'Whether the user is active, being liquidated or bankrupt',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'isMarginTradingEnabled';
-						docs: ['Whether the user has enabled margin trading'];
+						docs: [
+							'Whether the user has enabled margin trading',
+						];
 						type: 'bool';
 					},
 					{
 						name: 'idle';
 						docs: [
-							"User is idle if they haven't interacted with the protocol in 1 week and they have no orders, perp positions or borrows",
+							'User is idle if they haven\'t interacted with the protocol in 1 week and they have no orders, perp positions or borrows',
 							'Off-chain keeper bots can ignore users that are idle',
 						];
 						type: 'bool';
 					},
 					{
 						name: 'openOrders';
-						docs: ['number of open orders'];
+						docs: [
+							'number of open orders',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'hasOpenOrder';
-						docs: ['Whether or not user has open order'];
+						docs: [
+							'Whether or not user has open order',
+						];
 						type: 'bool';
 					},
 					{
 						name: 'openAuctions';
-						docs: ['number of open orders with auction'];
+						docs: [
+							'number of open orders with auction',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'hasOpenAuction';
-						docs: ['Whether or not user has open order with auction'];
+						docs: [
+							'Whether or not user has open order with auction',
+						];
 						type: 'bool';
 					},
 					{
@@ -21168,7 +30421,10 @@ export type Drift = {
 					{
 						name: 'padding1';
 						type: {
-							array: ['u8', 3];
+							array: [
+								'u8',
+								3,
+							];
 						};
 					},
 					{
@@ -21177,20 +30433,25 @@ export type Drift = {
 					},
 					{
 						name: 'specialUserStatus';
-						docs: ['Whether the user is a special user (vamm hedger, etc)'];
+						docs: [
+							'Whether the user is a special user (vamm hedger, etc)',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 11];
+							array: [
+								'u8',
+								11,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'userFees';
+			name: 'UserFees';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -21200,12 +30461,18 @@ export type Drift = {
 				fields: [
 					{
 						name: 'totalFeePaid';
-						docs: ['Total taker fee paid', 'precision: QUOTE_PRECISION'];
+						docs: [
+							'Total taker fee paid',
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'totalFeeRebate';
-						docs: ['Total maker fee rebate', 'precision: QUOTE_PRECISION'];
+						docs: [
+							'Total maker fee rebate',
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
@@ -21226,7 +30493,10 @@ export type Drift = {
 					},
 					{
 						name: 'totalReferrerReward';
-						docs: ['Total reward to referrer', 'precision: QUOTE_PRECISION'];
+						docs: [
+							'Total reward to referrer',
+							'precision: QUOTE_PRECISION',
+						];
 						type: 'u64';
 					},
 					{
@@ -21241,7 +30511,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'userStats';
+			name: 'UserStats';
 			serialization: 'bytemuckunsafe';
 			repr: {
 				kind: 'c';
@@ -21251,20 +30521,26 @@ export type Drift = {
 				fields: [
 					{
 						name: 'authority';
-						docs: ['The authority for all of a users sub accounts'];
+						docs: [
+							'The authority for all of a users sub accounts',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'referrer';
-						docs: ['The address that referred this user'];
+						docs: [
+							'The address that referred this user',
+						];
 						type: 'pubkey';
 					},
 					{
 						name: 'fees';
-						docs: ['Stats on the fees paid by the user'];
+						docs: [
+							'Stats on the fees paid by the user',
+						];
 						type: {
 							defined: {
-								name: 'userFees';
+								name: 'UserFees';
 							};
 						};
 					},
@@ -21302,27 +30578,37 @@ export type Drift = {
 					},
 					{
 						name: 'lastMakerVolume30dTs';
-						docs: ['last time the maker volume was updated'];
+						docs: [
+							'last time the maker volume was updated',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastTakerVolume30dTs';
-						docs: ['last time the taker volume was updated'];
+						docs: [
+							'last time the taker volume was updated',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'lastFillerVolume30dTs';
-						docs: ['last time the filler volume was updated'];
+						docs: [
+							'last time the filler volume was updated',
+						];
 						type: 'i64';
 					},
 					{
 						name: 'ifStakedQuoteAssetAmount';
-						docs: ['The amount of tokens staked in the quote spot markets if'];
+						docs: [
+							'The amount of tokens staked in the quote spot markets if',
+						];
 						type: 'u64';
 					},
 					{
 						name: 'numberOfSubAccounts';
-						docs: ['The current number of sub accounts'];
+						docs: [
+							'The current number of sub accounts',
+						];
 						type: 'u16';
 					},
 					{
@@ -21352,37 +30638,51 @@ export type Drift = {
 					},
 					{
 						name: 'fuelOverflowStatus';
-						docs: ['whether the user has a FuelOverflow account'];
+						docs: [
+							'whether the user has a FuelOverflow account',
+						];
 						type: 'u8';
 					},
 					{
 						name: 'fuelInsurance';
-						docs: ['accumulated fuel for token amounts of insurance'];
+						docs: [
+							'accumulated fuel for token amounts of insurance',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'fuelDeposits';
-						docs: ['accumulated fuel for notional of deposits'];
+						docs: [
+							'accumulated fuel for notional of deposits',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'fuelBorrows';
-						docs: ['accumulate fuel bonus for notional of borrows'];
+						docs: [
+							'accumulate fuel bonus for notional of borrows',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'fuelPositions';
-						docs: ['accumulated fuel for perp open interest'];
+						docs: [
+							'accumulated fuel for perp open interest',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'fuelTaker';
-						docs: ['accumulate fuel bonus for taker volume'];
+						docs: [
+							'accumulate fuel bonus for taker volume',
+						];
 						type: 'u32';
 					},
 					{
 						name: 'fuelMaker';
-						docs: ['accumulate fuel bonus for maker volume'];
+						docs: [
+							'accumulate fuel bonus for maker volume',
+						];
 						type: 'u32';
 					},
 					{
@@ -21402,14 +30702,17 @@ export type Drift = {
 					{
 						name: 'padding';
 						type: {
-							array: ['u8', 12];
+							array: [
+								'u8',
+								12,
+							];
 						};
 					},
 				];
 			};
 		},
 		{
-			name: 'validityGuardRails';
+			name: 'ValidityGuardRails';
 			type: {
 				kind: 'struct';
 				fields: [
@@ -21433,7 +30736,7 @@ export type Drift = {
 			};
 		},
 		{
-			name: 'signedMsgOrderParamsExport';
+			name: 'SignedMsgOrderParamsExport';
 			docs: [
 				'unusued placeholder event to force include signed msg types into drift IDL',
 			];
@@ -21441,20 +30744,126 @@ export type Drift = {
 				kind: 'struct';
 				fields: [
 					{
-						name: 'a';
+						name: 'A';
 						type: {
 							defined: {
-								name: 'signedMsgOrderParamsMessage';
+								name: 'SignedMsgOrderParamsMessage';
 							};
 						};
 					},
 					{
-						name: 'b';
+						name: 'B';
 						type: {
 							defined: {
-								name: 'signedMsgOrderParamsDelegateMessage';
+								name: 'SignedMsgOrderParamsDelegateMessage';
 							};
 						};
+					},
+				];
+			};
+		},
+		{
+			name: 'AdminAuthorityConfig';
+			type: {
+				kind: 'struct';
+				fields: [
+					{
+						name: 'warmAdmin';
+						type: 'pubkey';
+					},
+					{
+						name: 'ammCrank';
+						type: 'pubkey';
+					},
+					{
+						name: 'lpCache';
+						type: 'pubkey';
+					},
+					{
+						name: 'lpSwap';
+						type: 'pubkey';
+					},
+					{
+						name: 'lpSettle';
+						type: 'pubkey';
+					},
+					{
+						name: 'ifRebalance';
+						type: 'pubkey';
+					},
+					{
+						name: 'featureFlag';
+						type: 'pubkey';
+					},
+					{
+						name: 'fuel';
+						type: 'pubkey';
+					},
+					{
+						name: 'userFlag';
+						type: 'pubkey';
+					},
+					{
+						name: 'vaultDeposit';
+						type: 'pubkey';
+					},
+					{
+						name: 'mmOracleCrank';
+						type: 'pubkey';
+					},
+					{
+						name: 'ammSpreadAdjust';
+						type: 'pubkey';
+					},
+					{
+						name: 'padding';
+						type: {
+							array: [
+								'u8',
+								256,
+							];
+						};
+					},
+				];
+			};
+		},
+		{
+			name: 'HotRole';
+			type: {
+				kind: 'enum';
+				variants: [
+					{
+						name: 'AmmCrank';
+					},
+					{
+						name: 'LpCache';
+					},
+					{
+						name: 'LpSwap';
+					},
+					{
+						name: 'LpSettle';
+					},
+					{
+						name: 'IfRebalance';
+					},
+					{
+						name: 'FeatureFlag';
+					},
+					{
+						name: 'Fuel';
+					},
+					{
+						name: 'UserFlag';
+					},
+					{
+						name: 'VaultDeposit';
+					},
+					{
+						name: 'MmOracleCrank';
+					},
+					{
+						name: 'AmmSpreadAdjust';
 					},
 				];
 			};
