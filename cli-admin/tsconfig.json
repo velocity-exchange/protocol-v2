@@ -8,7 +8,13 @@
 		"resolveJsonModule": true,
 		"moduleResolution": "node",
 		"forceConsistentCasingInFileNames": true,
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"outDir": "lib",
+		"rootDir": "src",
 		"types": ["node"]
 	},
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts"],
+	"exclude": ["lib", "node_modules"]
 }

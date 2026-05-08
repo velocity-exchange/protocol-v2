@@ -1,23 +1,18 @@
-# drift-admin
+# @drift-labs/admin-cli
 
 CLI for Drift v2 admin operations. Sign with the right key (or pass a Squads
 V4 multisig); the on-chain program enforces which tier of authority is
 required for the action.
 
-## Setup
+## Install
 
 ```sh
-cd cli-admin
-bun install
+npm install -g @drift-labs/admin-cli
+# or, one-off:
+npx @drift-labs/admin-cli --help
 ```
 
 ## Usage
-
-```sh
-bun run start --help
-```
-
-Or, if linked into your `$PATH`:
 
 ```sh
 drift-admin --help
@@ -90,3 +85,23 @@ The dispatcher does no PDA derivation — every account must be supplied.
 | `-k, --keypair <path>`    | `~/.config/solana/id.json`            |
 | `-e, --env <env>`         | `mainnet-beta` (or `devnet`)          |
 | `-m, --multisig <pubkey>` | (none — direct send)                  |
+
+## Local development
+
+```sh
+cd cli-admin
+bun install
+bun run start --help    # run from src directly via bun
+bun run build           # tsc → lib/
+./lib/index.js --help   # run the compiled binary as the published package would
+```
+
+The committed `package.json` keeps `"@drift-labs/sdk": "file:../sdk"` so
+local edits to the SDK are picked up immediately. Publishing rewrites that
+to a real semver range based on `sdk/package.json`'s version (see
+`scripts/prepare-publish.js`) and restores the `file:` ref afterwards. CI
+handles this automatically; for a manual publish:
+
+```sh
+yarn publish-cli
+```

@@ -8,6 +8,8 @@
 yarn-lock
 sdk/src/**/*.js
 sdk/src/**/*.js.map
+cli-admin/lib
+cli-admin/package.json.bak
 .DS_STORE
 .vscode
 .claude

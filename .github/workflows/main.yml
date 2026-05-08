@@ -214,6 +214,18 @@ jobs:
           filters: |
             sdk:
               - 'sdk/**'
+  check-for-cli-admin-changes:
+    runs-on: ubicloud
+    outputs:
+      cli_admin: ${{ steps.filter.outputs.cli_admin }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2
+        id: filter
+        with:
+          filters: |
+            cli_admin:
+              - 'cli-admin/**'
   release:
     runs-on: ubicloud
     needs:
@@ -296,6 +308,81 @@ jobs:
         with:
           channel-id: '#code-review'
           slack-message: '<!here> ❌ Deployment failed! Check the logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+  release-cli-admin:
+    runs-on: ubicloud
+    needs:
+      [
+        fmt-clippy,
+        unit,
+        yarn-prettier,
+        yarn-lint,
+        check-for-cli-admin-changes,
+        # Optional dep on `release` so the SDK is published *first* when both
+        # change in the same commit, ensuring cli-admin pins to a real version
+        # range that npm can resolve. `always()` lets us run when SDK release
+        # is skipped (cli-admin-only change). The job itself no-ops on its own
+        # `if:` when cli-admin didn't change.
+        release,
+      ]
+    if: ${{ always() && github.ref == 'refs/heads/master' && needs.check-for-cli-admin-changes.outputs.cli_admin == 'true' }}
+    defaults:
+      run:
+        working-directory: ./cli-admin
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # Need full history + token so we can commit the version bump back.
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+      - name: Setup node
+        uses: actions/setup-node@7c12f8017d5436eb855f1ed4399f037a36fbd9e8 # v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+      - name: Pull latest (sdk release may have just pushed)
+        run: git pull --rebase origin master
+      - name: Install + build
+        run: |
+          yarn
+          yarn build
+      - name: Bump cli-admin version
+        run: |
+          VERSION=$(node -e "console.log(require('./package.json').version);")
+          [[ "$VERSION" == *beta* ]] && npm version prerelease --preid=beta --no-git-tag-version || npm version preminor --preid=beta --no-git-tag-version
+          PACKAGE_VERSION=$(node -e "console.log(require('./package.json').version);")
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+      - name: Commit version bump
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add package.json
+          git commit -m "cli-admin: release v$PACKAGE_VERSION"
+          git pull --rebase origin master
+          git push origin HEAD || {
+            echo "Push failed. Retrying after pulling latest changes..."
+            git pull --rebase origin master
+            git push origin HEAD
+          }
+      - name: Pin @drift-labs/sdk dep + publish
+        # `publish-cli` rewrites file:../sdk to a real semver range based on
+        # sdk/package.json before publishing, then restores it after. The
+        # restored file:.. doesn't get committed — it's purely so the local
+        # checkout matches the committed state if anything inspects it.
+        run: |
+          if [[ "$PACKAGE_VERSION" == *beta* ]]; then
+            yarn build && yarn prepare-publish && (npm publish --access=public --tag beta; status=$?; yarn restore-publish; exit $status)
+          else
+            yarn build && yarn prepare-publish && (npm publish --access=public; status=$?; yarn restore-publish; exit $status)
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 # v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: '#code-review'
+          slack-message: '<!here> ❌ cli-admin release failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
   emit-dispatch-events:
     runs-on: ubicloud
     needs: [release, check-for-sdk-changes]
