@@ -256,6 +256,12 @@ export class BankrunConnection {
 					.toString()
 					.includes('This transaction has already been processed')
 			) {
+				console.error(
+					'tx failed:',
+					banksTransactionMeta.result?.toString(),
+					'\nlogs:\n',
+					(banksTransactionMeta.meta?.logMessages ?? []).join('\n')
+				);
 				throw new Error(banksTransactionMeta.result);
 			} else {
 				console.log(
