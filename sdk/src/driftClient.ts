@@ -6712,6 +6712,27 @@ export class DriftClient {
 			}
 		}
 
+		const _ix = (this.program.idl as any).instructions;
+		const _bs = _ix.find(
+			(i: any) => i.name === 'begin_swap' || i.name === 'beginSwap'
+		);
+		const _bif = _ix.find(
+			(i: any) =>
+				i.name === 'begin_insurance_fund_swap' ||
+				i.name === 'beginInsuranceFundSwap'
+		);
+		console.log(
+			'[DRIFT-DEBUG] idl begin_swap name=',
+			_bs?.name,
+			'disc=',
+			_bs?.discriminator
+		);
+		console.log(
+			'[DRIFT-DEBUG] idl begin_insurance_fund_swap name=',
+			_bif?.name,
+			'disc=',
+			_bif?.discriminator
+		);
 		const beginSwapIx = await this.program.instruction.beginSwap(
 			inMarketIndex,
 			outMarketIndex,
