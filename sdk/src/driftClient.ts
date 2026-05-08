@@ -12135,6 +12135,9 @@ export class DriftClient {
 			accounts: {
 				driftSigner: this.getSignerPublicKey(),
 				state: await this.getStatePublicKey(),
+				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
+					this.program.programId
+				),
 				keeper: this.wallet.publicKey,
 				ammCache: getAmmCachePublicKey(this.program.programId),
 				quoteMarket: quoteSpotMarketAccount.pubkey,

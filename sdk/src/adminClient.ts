@@ -1627,9 +1627,6 @@ export class AdminClient extends DriftClient {
 					? this.getStateAccount().admin
 					: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
-				adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
-					this.program.programId
-				),
 			},
 		});
 	}
@@ -4473,9 +4470,6 @@ export class AdminClient extends DriftClient {
 			{
 				accounts: {
 					state: await this.getStatePublicKey(),
-					adminAuthorityConfig: getAdminAuthorityConfigPublicKey(
-						this.program.programId
-					),
 					authority: this.isSubscribed
 						? this.getStateAccount().admin
 						: this.wallet.publicKey,
