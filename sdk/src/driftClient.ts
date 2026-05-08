@@ -78,23 +78,6 @@ import {
 } from './types';
 import driftIDL from './idl/drift.json';
 
-(() => {
-	const ix = (driftIDL as any).instructions;
-	const bs = ix.find(
-		(i: any) => i.name === 'begin_swap' || i.name === 'beginSwap'
-	);
-	const bif = ix.find(
-		(i: any) =>
-			i.name === 'begin_insurance_fund_swap' ||
-			i.name === 'beginInsuranceFundSwap'
-	);
-	process.stderr.write(
-		`[DRIFT-DEBUG] driftIDL loaded ix.len=${ix.length} ` +
-			`begin_swap=${JSON.stringify(bs?.discriminator)} ` +
-			`begin_if_swap=${JSON.stringify(bif?.discriminator)}\n`
-	);
-})();
-
 /** Client-side guardrail; mirrors on-chain `ErrorCode::SpotDlobTradingDisabled`. */
 const SPOT_DLOB_TRADING_DISABLED_MSG =
 	'Spot DLOB trading is disabled; spot balances, deposits, and swaps remain available.';
@@ -6675,33 +6658,6 @@ export class DriftClient {
 		const userAccountPublicKeyToUse =
 			userAccountPublicKey || (await this.getUserAccountPublicKey());
 
-		process.stderr.write(
-			`[DRIFT-DEBUG] getSwapIx entered file=${__filename}\n`
-		);
-		process.stderr.write(
-			`[DRIFT-DEBUG] this.program.idl.instructions.length=${
-				(this.program.idl as any).instructions.length
-			}\n`
-		);
-		const _bsIdl = (this.program.idl as any).instructions.find(
-			(i: any) => i.name === 'begin_swap' || i.name === 'beginSwap'
-		);
-		const _bifsIdl = (this.program.idl as any).instructions.find(
-			(i: any) =>
-				i.name === 'begin_insurance_fund_swap' ||
-				i.name === 'beginInsuranceFundSwap'
-		);
-		process.stderr.write(
-			`[DRIFT-DEBUG] idl.beginSwap name=${_bsIdl?.name} disc=${JSON.stringify(
-				_bsIdl?.discriminator
-			)}\n`
-		);
-		process.stderr.write(
-			`[DRIFT-DEBUG] idl.beginInsuranceFundSwap name=${
-				_bifsIdl?.name
-			} disc=${JSON.stringify(_bifsIdl?.discriminator)}\n`
-		);
-
 		const userAccounts = [];
 		try {
 			if (this.hasUser() && this.getUser().getUserAccountAndSlot()) {
@@ -6756,27 +6712,6 @@ export class DriftClient {
 			}
 		}
 
-		const _ix = (this.program.idl as any).instructions;
-		const _bs = _ix.find(
-			(i: any) => i.name === 'begin_swap' || i.name === 'beginSwap'
-		);
-		const _bif = _ix.find(
-			(i: any) =>
-				i.name === 'begin_insurance_fund_swap' ||
-				i.name === 'beginInsuranceFundSwap'
-		);
-		console.log(
-			'[DRIFT-DEBUG] idl begin_swap name=',
-			_bs?.name,
-			'disc=',
-			_bs?.discriminator
-		);
-		console.log(
-			'[DRIFT-DEBUG] idl begin_insurance_fund_swap name=',
-			_bif?.name,
-			'disc=',
-			_bif?.discriminator
-		);
 		const beginSwapIx = await this.program.instruction.beginSwap(
 			inMarketIndex,
 			outMarketIndex,
@@ -6797,23 +6732,6 @@ export class DriftClient {
 				},
 				remainingAccounts,
 			}
-		);
-		console.log(
-			'[DRIFT-DEBUG] encoded beginSwapIx first8=',
-			Array.from(beginSwapIx.data.subarray(0, 8))
-		);
-		const _coderEntries = Array.from(
-			((this.program.coder.instruction as any).ixLayouts as Map<
-				string,
-				any
-			>).entries()
-		).map(([n, v]: [string, any]) => [n, v.discriminator]);
-		console.log(
-			'[DRIFT-DEBUG] coder begin entries:',
-			_coderEntries
-				.filter(([n]) => /begin/i.test(n))
-				.map(([n, d]) => `${n}=${JSON.stringify(d)}`)
-				.join(', ')
 		);
 
 		const endSwapIx = await this.program.instruction.endSwap(

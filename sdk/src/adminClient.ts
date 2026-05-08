@@ -6274,9 +6274,6 @@ export class AdminClient extends DriftClient {
 		beginSwapIx: TransactionInstruction;
 		endSwapIx: TransactionInstruction;
 	}> {
-		process.stderr.write(
-			`[DRIFT-DEBUG] AdminClient.getSwapIx lpSwap=${lpSwap}\n`
-		);
 		if (!lpSwap) {
 			return super.getSwapIx({
 				outMarketIndex,

@@ -515,54 +515,54 @@ pub fn handle_begin_insurance_fund_swap<'c: 'info, 'info>(
             )?;
 
             validate!(
-                ctx.accounts.authority.key() == ix.accounts[1].pubkey,
+                ctx.accounts.authority.key() == ix.accounts[2].pubkey,
                 ErrorCode::InvalidSwap,
                 "the authority passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.out_insurance_fund_vault.key() == ix.accounts[2].pubkey,
+                ctx.accounts.out_insurance_fund_vault.key() == ix.accounts[3].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out_insurance_fund_vault passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.in_insurance_fund_vault.key() == ix.accounts[3].pubkey,
+                ctx.accounts.in_insurance_fund_vault.key() == ix.accounts[4].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in_insurance_fund_vault passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.out_token_account.key() == ix.accounts[4].pubkey,
+                ctx.accounts.out_token_account.key() == ix.accounts[5].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.in_token_account.key() == ix.accounts[5].pubkey,
+                ctx.accounts.in_token_account.key() == ix.accounts[6].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.if_rebalance_config.key() == ix.accounts[6].pubkey,
+                ctx.accounts.if_rebalance_config.key() == ix.accounts[7].pubkey,
                 ErrorCode::InvalidSwap,
                 "the if_rebalance_config passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.remaining_accounts.len() == ix.accounts.len() - 10,
+                ctx.remaining_accounts.len() == ix.accounts.len() - 11,
                 ErrorCode::InvalidSwap,
                 "begin and end ix must have the same number of accounts"
             )?;
 
-            for i in 10..ix.accounts.len() {
+            for i in 11..ix.accounts.len() {
                 validate!(
-                    *ctx.remaining_accounts[i - 10].key == ix.accounts[i].pubkey,
+                    *ctx.remaining_accounts[i - 11].key == ix.accounts[i].pubkey,
                     ErrorCode::InvalidSwap,
                     "begin and end ix must have the same accounts. {}th account mismatch. begin: {}, end: {}",
                     i,
-                    ctx.remaining_accounts[i - 10].key,
+                    ctx.remaining_accounts[i - 11].key,
                     ix.accounts[i].pubkey
                 )?;
             }

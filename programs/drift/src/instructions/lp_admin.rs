@@ -724,43 +724,43 @@ pub fn handle_begin_lp_swap<'c: 'info, 'info>(
             )?;
 
             validate!(
-                ctx.accounts.signer_out_token_account.key() == ix.accounts[2].pubkey,
+                ctx.accounts.signer_out_token_account.key() == ix.accounts[3].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.signer_in_token_account.key() == ix.accounts[3].pubkey,
+                ctx.accounts.signer_in_token_account.key() == ix.accounts[4].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.constituent_out_token_account.key() == ix.accounts[4].pubkey,
+                ctx.accounts.constituent_out_token_account.key() == ix.accounts[5].pubkey,
                 ErrorCode::InvalidSwap,
                 "the constituent out_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.constituent_in_token_account.key() == ix.accounts[5].pubkey,
+                ctx.accounts.constituent_in_token_account.key() == ix.accounts[6].pubkey,
                 ErrorCode::InvalidSwap,
                 "the constituent in token account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.out_constituent.key() == ix.accounts[6].pubkey,
+                ctx.accounts.out_constituent.key() == ix.accounts[7].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out constituent passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.in_constituent.key() == ix.accounts[7].pubkey,
+                ctx.accounts.in_constituent.key() == ix.accounts[8].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in constituent passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.lp_pool.key() == ix.accounts[8].pubkey,
+                ctx.accounts.lp_pool.key() == ix.accounts[9].pubkey,
                 ErrorCode::InvalidSwap,
                 "the lp pool passed to SwapBegin and End must match"
             )?;
