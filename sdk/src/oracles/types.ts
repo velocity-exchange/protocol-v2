@@ -4,7 +4,7 @@
  * in this directory that fetches and normalises prices into OraclePriceData.
  * Oracle client selection is configured via DriftClientConfig and cached in OracleClientCache.
  */
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { PublicKey } from '@solana/web3.js';
 import { OracleSource } from '../types';
 

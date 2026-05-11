@@ -12,8 +12,8 @@
  *
  * Instruction → on-chain handler mapping: see ARCHITECTURE.md § SDK↔Instruction Mapping.
  */
-import * as anchor from '@coral-xyz/anchor';
-import { AnchorProvider, BN, Program, ProgramAccount } from '@coral-xyz/anchor';
+import { AnchorProvider, BN, Program } from './isomorphic/anchor';
+import type { ProgramAccount } from '@coral-xyz/anchor';
 import bs58 from 'bs58';
 import {
 	ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -76,7 +76,7 @@ import {
 	ConstituentTargetBaseAccount,
 	AmmCache,
 } from './types';
-import driftIDL from './idl/drift.json';
+import { DriftCore } from './core/DriftCore';
 
 /** Client-side guardrail; mirrors on-chain `ErrorCode::SpotDlobTradingDisabled`. */
 const SPOT_DLOB_TRADING_DISABLED_MSG =
@@ -95,6 +95,7 @@ import {
 	SystemProgram,
 	SYSVAR_CLOCK_PUBKEY,
 	SYSVAR_INSTRUCTIONS_PUBKEY,
+	SYSVAR_RENT_PUBKEY,
 	Transaction,
 	TransactionInstruction,
 	TransactionSignature,
@@ -204,8 +205,6 @@ import nacl from 'tweetnacl';
 import { getOracleId } from './oracles/oracleId';
 import { SignedMsgOrderParams } from './types';
 import { TakerInfo } from './types';
-// BN is already imported globally in this file via other imports
-import { sha256 } from '@noble/hashes/sha256';
 import { getOracleConfidenceFromMMOracleData } from './oracles/utils';
 import { ConstituentMap } from './constituentMap/constituentMap';
 import { hasBuilder } from './math/orders';
@@ -222,14 +221,8 @@ import { UnifiedSwapClient } from './swap/UnifiedSwapClient';
  */
 export type SwapClient = TitanClient | JupiterClient;
 
-type RemainingAccountParams = {
-	userAccounts: UserAccount[];
-	writablePerpMarketIndexes?: number[];
-	writableSpotMarketIndexes?: number[];
-	readablePerpMarketIndex?: number | number[];
-	readableSpotMarketIndexes?: number[];
-	useMarketLastSlotCache?: boolean;
-};
+type RemainingAccountParams =
+	import('./core/remainingAccounts').RemainingAccountParams;
 
 /**
  * # DriftClient
@@ -347,7 +340,7 @@ export class DriftClient {
 			this.opts
 		);
 		this.program = new Program<Drift>(
-			driftIDL as Drift,
+			DriftCore.defaultIdl() as unknown as Drift,
 			this.provider,
 			config.coder
 		);
@@ -858,7 +851,10 @@ export class DriftClient {
 			newWallet,
 			this.opts
 		);
-		const newProgram = new Program<Drift>(driftIDL as Drift, newProvider);
+		const newProgram = new Program<Drift>(
+			DriftCore.defaultIdl() as unknown as Drift,
+			newProvider
+		);
 
 		this.skipLoadUsers = false;
 		// Update provider for txSender with new wallet details
@@ -1177,8 +1173,8 @@ export class DriftClient {
 				),
 				authority,
 				payer,
-				rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-				systemProgram: anchor.web3.SystemProgram.programId,
+				rent: SYSVAR_RENT_PUBKEY,
+				systemProgram: SystemProgram.programId,
 				state: await this.getStatePublicKey(),
 			},
 		});
@@ -1225,8 +1221,8 @@ export class DriftClient {
 					signedMsgUserOrders: signedMsgUserAccountPublicKey,
 					authority,
 					payer,
-					rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					rent: SYSVAR_RENT_PUBKEY,
+					systemProgram: SystemProgram.programId,
 				},
 			});
 
@@ -1266,7 +1262,7 @@ export class DriftClient {
 					signedMsgUserOrders: signedMsgUserAccountPublicKey,
 					authority,
 					payer: this.wallet.publicKey,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					systemProgram: SystemProgram.programId,
 					user: await getUserAccountPublicKey(
 						this.program.programId,
 						authority,
@@ -1306,8 +1302,8 @@ export class DriftClient {
 				accounts: {
 					signedMsgWsDelegates,
 					authority: this.wallet.publicKey,
-					rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					rent: SYSVAR_RENT_PUBKEY,
+					systemProgram: SystemProgram.programId,
 				},
 			}
 		);
@@ -1339,8 +1335,8 @@ export class DriftClient {
 				revenueShare,
 				authority,
 				payer: overrides?.payer ?? this.wallet.publicKey,
-				rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-				systemProgram: anchor.web3.SystemProgram.programId,
+				rent: SYSVAR_RENT_PUBKEY,
+				systemProgram: SystemProgram.programId,
 			},
 		});
 	}
@@ -1380,8 +1376,8 @@ export class DriftClient {
 					authority
 				),
 				state: await this.getStatePublicKey(),
-				rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-				systemProgram: anchor.web3.SystemProgram.programId,
+				rent: SYSVAR_RENT_PUBKEY,
+				systemProgram: SystemProgram.programId,
 			},
 		});
 	}
@@ -1444,7 +1440,7 @@ export class DriftClient {
 				escrow,
 				authority,
 				payer: this.wallet.publicKey,
-				systemProgram: anchor.web3.SystemProgram.programId,
+				systemProgram: SystemProgram.programId,
 			},
 		});
 	}
@@ -1508,7 +1504,7 @@ export class DriftClient {
 					escrow,
 					authority,
 					payer,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					systemProgram: SystemProgram.programId,
 				},
 			}
 		);
@@ -1540,7 +1536,7 @@ export class DriftClient {
 				accounts: {
 					signedMsgWsDelegates,
 					authority: this.wallet.publicKey,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					systemProgram: SystemProgram.programId,
 				},
 			}
 		);
@@ -1573,7 +1569,7 @@ export class DriftClient {
 				accounts: {
 					signedMsgWsDelegates,
 					authority: this.wallet.publicKey,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					systemProgram: SystemProgram.programId,
 				},
 			}
 		);
@@ -1642,8 +1638,8 @@ export class DriftClient {
 					userStats: this.getUserStatsAccountPublicKey(),
 					authority: accountAuthority,
 					payer: payer,
-					rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					rent: SYSVAR_RENT_PUBKEY,
+					systemProgram: SystemProgram.programId,
 					state: await this.getStatePublicKey(),
 				},
 				remainingAccounts,
@@ -1692,8 +1688,8 @@ export class DriftClient {
 					authority: this.wallet.publicKey,
 					userStats: this.getUserStatsAccountPublicKey(),
 					payer: this.wallet.publicKey,
-					rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-					systemProgram: anchor.web3.SystemProgram.programId,
+					rent: SYSVAR_RENT_PUBKEY,
+					systemProgram: SystemProgram.programId,
 				},
 			}
 		);
@@ -2350,7 +2346,7 @@ export class DriftClient {
 				userStats: this.getUserStatsAccountPublicKey(),
 				authority: this.wallet.publicKey,
 				state: await this.getStatePublicKey(),
-				rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+				rent: SYSVAR_RENT_PUBKEY,
 			},
 		});
 	}
@@ -2551,132 +2547,7 @@ export class DriftClient {
 		});
 	}
 	getRemainingAccounts(params: RemainingAccountParams): AccountMeta[] {
-		const { oracleAccountMap, spotMarketAccountMap, perpMarketAccountMap } =
-			this.getRemainingAccountMapsForUsers(params.userAccounts);
-
-		if (params.useMarketLastSlotCache) {
-			const lastUserSlot = this.getUserAccountAndSlot(
-				params.userAccounts.length > 0
-					? params.userAccounts[0].subAccountId
-					: this.activeSubAccountId,
-				params.userAccounts.length > 0
-					? params.userAccounts[0].authority
-					: this.authority
-			)?.slot;
-
-			for (const [
-				marketIndex,
-				slot,
-			] of this.perpMarketLastSlotCache.entries()) {
-				// if cache has more recent slot than user positions account slot, add market to remaining accounts
-				// otherwise remove from slot
-				if (slot > lastUserSlot) {
-					this.addPerpMarketToRemainingAccountMaps(
-						marketIndex,
-						false,
-						oracleAccountMap,
-						spotMarketAccountMap,
-						perpMarketAccountMap
-					);
-				} else {
-					this.perpMarketLastSlotCache.delete(marketIndex);
-				}
-			}
-
-			for (const [
-				marketIndex,
-				slot,
-			] of this.spotMarketLastSlotCache.entries()) {
-				// if cache has more recent slot than user positions account slot, add market to remaining accounts
-				// otherwise remove from slot
-				if (slot > lastUserSlot) {
-					this.addSpotMarketToRemainingAccountMaps(
-						marketIndex,
-						false,
-						oracleAccountMap,
-						spotMarketAccountMap
-					);
-				} else {
-					this.spotMarketLastSlotCache.delete(marketIndex);
-				}
-			}
-		}
-
-		if (params.readablePerpMarketIndex !== undefined) {
-			const readablePerpMarketIndexes = Array.isArray(
-				params.readablePerpMarketIndex
-			)
-				? params.readablePerpMarketIndex
-				: [params.readablePerpMarketIndex];
-			for (const marketIndex of readablePerpMarketIndexes) {
-				this.addPerpMarketToRemainingAccountMaps(
-					marketIndex,
-					false,
-					oracleAccountMap,
-					spotMarketAccountMap,
-					perpMarketAccountMap
-				);
-			}
-		}
-
-		for (const perpMarketIndex of this.mustIncludePerpMarketIndexes.values()) {
-			this.addPerpMarketToRemainingAccountMaps(
-				perpMarketIndex,
-				false,
-				oracleAccountMap,
-				spotMarketAccountMap,
-				perpMarketAccountMap
-			);
-		}
-
-		if (params.readableSpotMarketIndexes !== undefined) {
-			for (const readableSpotMarketIndex of params.readableSpotMarketIndexes) {
-				this.addSpotMarketToRemainingAccountMaps(
-					readableSpotMarketIndex,
-					false,
-					oracleAccountMap,
-					spotMarketAccountMap
-				);
-			}
-		}
-
-		for (const spotMarketIndex of this.mustIncludeSpotMarketIndexes.values()) {
-			this.addSpotMarketToRemainingAccountMaps(
-				spotMarketIndex,
-				false,
-				oracleAccountMap,
-				spotMarketAccountMap
-			);
-		}
-
-		if (params.writablePerpMarketIndexes !== undefined) {
-			for (const writablePerpMarketIndex of params.writablePerpMarketIndexes) {
-				this.addPerpMarketToRemainingAccountMaps(
-					writablePerpMarketIndex,
-					true,
-					oracleAccountMap,
-					spotMarketAccountMap,
-					perpMarketAccountMap
-				);
-			}
-		}
-
-		if (params.writableSpotMarketIndexes !== undefined) {
-			for (const writableSpotMarketIndex of params.writableSpotMarketIndexes) {
-				this.addSpotMarketToRemainingAccountMaps(
-					writableSpotMarketIndex,
-					true,
-					oracleAccountMap,
-					spotMarketAccountMap
-				);
-			}
-		}
-
-		return [
-			...oracleAccountMap.values(),
-			...spotMarketAccountMap.values(),
-			...perpMarketAccountMap.values(),
-		];
+		return DriftCore.remainingAccounts.getRemainingAccounts(this, params);
 	}
 
 	addPerpMarketToRemainingAccountMaps(
@@ -2864,7 +2735,7 @@ export class DriftClient {
 				{ pubkey: owner, isSigner: false, isWritable: false },
 				{ pubkey: mint, isSigner: false, isWritable: false },
 				{
-					pubkey: anchor.web3.SystemProgram.programId,
+					pubkey: SystemProgram.programId,
 					isSigner: false,
 					isWritable: false,
 				},
@@ -3116,24 +2987,21 @@ export class DriftClient {
 
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 		const tokenProgram = this.getTokenProgramForSpotMarket(spotMarketAccount);
-		return await (this.program.instruction as any).deposit(
+		return await DriftCore.buildDepositInstruction({
+			program: this.program,
 			marketIndex,
 			amount,
 			reduceOnly,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					spotMarket: spotMarketAccount.pubkey,
-					spotMarketVault: spotMarketAccount.vault,
-					user: userAccountPublicKey,
-					userStats: this.getUserStatsAccountPublicKey(),
-					userTokenAccount: userTokenAccount,
-					authority,
-					tokenProgram,
-				},
-				remainingAccounts,
-			}
-		);
+			state: await this.getStatePublicKey(),
+			spotMarket: spotMarketAccount.pubkey,
+			spotMarketVault: spotMarketAccount.vault,
+			user: userAccountPublicKey,
+			userStats: this.getUserStatsAccountPublicKey(),
+			userTokenAccount,
+			authority,
+			tokenProgram,
+			remainingAccounts,
+		});
 	}
 
 	private async checkIfAccountExists(account: PublicKey): Promise<boolean> {
@@ -3153,7 +3021,7 @@ export class DriftClient {
 			authority?: PublicKey;
 		}
 	): Promise<{
-		ixs: anchor.web3.TransactionInstruction[];
+		ixs: TransactionInstruction[];
 		/** @deprecated - this array is always going to be empty, in the current implementation */
 		signers: Signer[];
 		pubkey: PublicKey;
@@ -3289,7 +3157,7 @@ export class DriftClient {
 		tokenMintAddress: PublicKey,
 		associatedTokenAddress: PublicKey,
 		tokenProgram: PublicKey
-	): anchor.web3.TransactionInstruction {
+	): TransactionInstruction {
 		return createAssociatedTokenAccountInstruction(
 			this.wallet.publicKey,
 			associatedTokenAddress,
@@ -3634,7 +3502,7 @@ export class DriftClient {
 		reduceOnly = false,
 		subAccountId?: number
 	): Promise<TransactionInstruction[]> {
-		const withdrawIxs: anchor.web3.TransactionInstruction[] = [];
+		const withdrawIxs: TransactionInstruction[] = [];
 
 		const spotMarketAccount = this.getSpotMarketAccount(marketIndex);
 
@@ -3757,7 +3625,7 @@ export class DriftClient {
 
 		opts?.dustPositionCountCallback?.(dustPositionSpotMarketAccounts.length);
 
-		let allWithdrawIxs: anchor.web3.TransactionInstruction[] = [];
+		let allWithdrawIxs: TransactionInstruction[] = [];
 
 		for (const position of dustPositionSpotMarketAccounts) {
 			const tokenAccount = await getAssociatedTokenAddress(
@@ -3816,25 +3684,22 @@ export class DriftClient {
 
 		const tokenProgram = this.getTokenProgramForSpotMarket(spotMarketAccount);
 
-		return await (this.program.instruction as any).withdraw(
+		return await DriftCore.buildWithdrawInstruction({
+			program: this.program,
 			marketIndex,
 			amount,
 			reduceOnly,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					spotMarket: spotMarketAccount.pubkey,
-					spotMarketVault: spotMarketAccount.vault,
-					driftSigner: this.getSignerPublicKey(),
-					user,
-					userStats: this.getUserStatsAccountPublicKey(),
-					userTokenAccount: userTokenAccount,
-					authority: this.wallet.publicKey,
-					tokenProgram,
-				},
-				remainingAccounts,
-			}
-		);
+			state: await this.getStatePublicKey(),
+			spotMarket: spotMarketAccount.pubkey,
+			spotMarketVault: spotMarketAccount.vault,
+			driftSigner: this.getSignerPublicKey(),
+			user,
+			userStats: this.getUserStatsAccountPublicKey(),
+			userTokenAccount,
+			authority: this.wallet.publicKey,
+			tokenProgram,
+			remainingAccounts,
+		});
 	}
 
 	/**
@@ -4984,13 +4849,13 @@ export class DriftClient {
 				: undefined,
 		});
 
-		return await (this.program.instruction as any).placePerpOrder(orderParams, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user,
-				userStats: this.getUserStatsAccountPublicKey(),
-				authority: this.wallet.publicKey,
-			},
+		return await DriftCore.buildPlacePerpOrderInstruction({
+			program: this.program,
+			orderParams,
+			state: await this.getStatePublicKey(),
+			user,
+			userStats: this.getUserStatsAccountPublicKey(),
+			authority: this.wallet.publicKey,
 			remainingAccounts,
 		});
 	}
@@ -5166,12 +5031,12 @@ export class DriftClient {
 			useMarketLastSlotCache: true,
 		});
 
-		return await this.program.instruction.cancelOrder(orderId ?? null, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user,
-				authority: this.wallet.publicKey,
-			},
+		return await DriftCore.buildCancelOrderInstruction({
+			program: this.program,
+			orderId: orderId ?? null,
+			state: await this.getStatePublicKey(),
+			user,
+			authority: this.wallet.publicKey,
 			remainingAccounts,
 		});
 	}
@@ -5206,18 +5071,15 @@ export class DriftClient {
 			useMarketLastSlotCache: true,
 		});
 
-		return await (this.program.instruction as any).cancelOrderByUserId(
+		return await DriftCore.buildCancelOrderByUserIdInstruction({
+			program: this.program,
 			userOrderId,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					authority: this.wallet.publicKey,
-					oracle,
-				},
-				remainingAccounts,
-			}
-		);
+			state: await this.getStatePublicKey(),
+			user,
+			authority: this.wallet.publicKey,
+			oracle,
+			remainingAccounts,
+		});
 	}
 
 	/**
@@ -5283,12 +5145,12 @@ export class DriftClient {
 
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 
-		return await this.program.instruction.cancelOrdersByIds(orderIds, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user: userAccountPubKey,
-				authority,
-			},
+		return await DriftCore.buildCancelOrdersByIdsInstruction({
+			program: this.program,
+			orderIds,
+			state: await this.getStatePublicKey(),
+			user: userAccountPubKey,
+			authority,
 			remainingAccounts,
 		});
 	}
@@ -5342,19 +5204,17 @@ export class DriftClient {
 			useMarketLastSlotCache: true,
 		});
 
-		return await this.program.instruction.cancelOrders(
-			marketType ?? null,
-			marketIndex ?? null,
-			direction ?? null,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts,
-			}
-		);
+		return await DriftCore.buildCancelOrdersInstruction({
+			program: this.program,
+			marketType: marketType ?? null,
+			marketIndex: marketIndex ?? null,
+			direction: direction ?? null,
+			user,
+			state: await this.getStatePublicKey(),
+			userStats: this.getUserStatsAccountPublicKey(),
+			authority: this.wallet.publicKey,
+			remainingAccounts,
+		});
 	}
 
 	public async cancelAndPlaceOrders(
@@ -5478,18 +5338,15 @@ export class DriftClient {
 		const formattedParams = params.map((item) => getOrderParams(item));
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 
-		return await (this.program.instruction as any).placeOrders(
+		return await DriftCore.buildPlaceOrdersInstruction({
+			program: this.program,
 			formattedParams,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					userStats: this.getUserStatsAccountPublicKey(),
-					authority,
-				},
-				remainingAccounts,
-			}
-		);
+			state: await this.getStatePublicKey(),
+			user,
+			userStats: this.getUserStatsAccountPublicKey(),
+			authority,
+			remainingAccounts,
+		});
 	}
 
 	public async getPlaceOrdersAndSetPositionMaxLevIx(
@@ -5787,15 +5644,15 @@ export class DriftClient {
 		}
 
 		const orderId = isSignedMsg ? null : order.orderId;
-		return await this.program.instruction.fillPerpOrder(orderId, null, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				filler,
-				fillerStats: fillerStatsPublicKey,
-				user: userAccountPublicKey,
-				userStats: userStatsPublicKey,
-				authority: this.wallet.publicKey,
-			},
+		return await DriftCore.buildFillPerpOrderInstruction({
+			program: this.program,
+			orderId,
+			state: await this.getStatePublicKey(),
+			filler,
+			fillerStats: fillerStatsPublicKey,
+			user: userAccountPublicKey,
+			userStats: userStatsPublicKey,
+			authority: this.wallet.publicKey,
 			remainingAccounts,
 		});
 	}
@@ -6658,7 +6515,7 @@ export class DriftClient {
 					outTokenAccount,
 					tokenProgram: inTokenProgram,
 					driftSigner: this.getStateAccount().signer,
-					instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+					instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
 				},
 				remainingAccounts,
 			}
@@ -6681,7 +6538,7 @@ export class DriftClient {
 					outTokenAccount,
 					tokenProgram: inTokenProgram,
 					driftSigner: this.getStateAccount().signer,
-					instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+					instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
 				},
 				remainingAccounts,
 			}
@@ -6942,13 +6799,13 @@ export class DriftClient {
 		);
 
 		const orderId = order.orderId;
-		return await this.program.instruction.triggerOrder(orderId, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				filler,
-				user: userAccountPublicKey,
-				authority: this.wallet.publicKey,
-			},
+		return await DriftCore.buildTriggerOrderInstruction({
+			program: this.program,
+			orderId,
+			state: await this.getStatePublicKey(),
+			filler,
+			user: userAccountPublicKey,
+			authority: this.wallet.publicKey,
 			remainingAccounts,
 		});
 	}
@@ -7501,19 +7358,16 @@ export class DriftClient {
 
 		const authority = overrides?.authority ?? this.wallet.publicKey;
 
-		return await this.program.instruction.placeAndTakePerpOrder(
+		return await DriftCore.buildPlaceAndTakePerpOrderInstruction({
+			program: this.program,
 			orderParams,
 			optionalParams,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					userStats: userStatsPublicKey,
-					authority,
-				},
-				remainingAccounts,
-			}
-		);
+			state: await this.getStatePublicKey(),
+			user,
+			userStats: userStatsPublicKey,
+			authority,
+			remainingAccounts,
+		});
 	}
 
 	public async placeAndMakePerpOrder(
@@ -7585,21 +7439,18 @@ export class DriftClient {
 				isSigner: false,
 			});
 		}
-		return await this.program.instruction.placeAndMakePerpOrder(
+		return await DriftCore.buildPlaceAndMakePerpOrderInstruction({
+			program: this.program,
 			orderParams,
 			takerOrderId,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					userStats: userStatsPublicKey,
-					taker: takerInfo.taker,
-					takerStats: takerInfo.takerStats,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts,
-			}
-		);
+			state: await this.getStatePublicKey(),
+			user,
+			userStats: userStatsPublicKey,
+			taker: takerInfo.taker,
+			takerStats: takerInfo.takerStats,
+			authority: this.wallet.publicKey,
+			remainingAccounts,
+		});
 	}
 
 	public signSignedMsgOrderParamsMessage(
@@ -7662,43 +7513,11 @@ export class DriftClient {
 			| SignedMsgOrderParamsDelegateMessage,
 		delegateSigner?: boolean
 	): Buffer {
-		if (orderParamsMessage.maxMarginRatio === undefined) {
-			orderParamsMessage.maxMarginRatio = null;
-		}
-		if (orderParamsMessage.isolatedPositionDeposit === undefined) {
-			orderParamsMessage.isolatedPositionDeposit = null;
-		}
-
-		const anchorIxName = delegateSigner
-			? 'global' + ':' + 'SignedMsgOrderParamsDelegateMessage'
-			: 'global' + ':' + 'SignedMsgOrderParamsMessage';
-		const prefix = Buffer.from(sha256(anchorIxName).slice(0, 8));
-
-		// Backwards-compat: normalize optional builder fields to null for encoding
-		const withBuilderDefaults = {
-			...orderParamsMessage,
-			builderIdx:
-				orderParamsMessage.builderIdx !== undefined
-					? orderParamsMessage.builderIdx
-					: null,
-			builderFeeTenthBps:
-				orderParamsMessage.builderFeeTenthBps !== undefined
-					? orderParamsMessage.builderFeeTenthBps
-					: null,
-		};
-		const buf = Buffer.concat([
-			prefix,
-			delegateSigner
-				? this.program.coder.types.encode(
-						'signedMsgOrderParamsDelegateMessage',
-						withBuilderDefaults as SignedMsgOrderParamsDelegateMessage
-				  )
-				: this.program.coder.types.encode(
-						'signedMsgOrderParamsMessage',
-						withBuilderDefaults as SignedMsgOrderParamsMessage
-				  ),
-		]);
-		return buf;
+		return DriftCore.signedMsg.encodeSignedMsgOrderParamsMessage({
+			coderTypes: this.program.coder.types as any,
+			orderParamsMessage,
+			delegateSigner,
+		});
 	}
 
 	/*
@@ -7711,16 +7530,11 @@ export class DriftClient {
 		encodedMessage: Buffer,
 		delegateSigner?: boolean
 	): SignedMsgOrderParamsMessage | SignedMsgOrderParamsDelegateMessage {
-		const decodeStr = delegateSigner
-			? 'signedMsgOrderParamsDelegateMessage'
-			: 'signedMsgOrderParamsMessage';
-		return this.program.coder.types.decode(
-			decodeStr,
-			Buffer.concat([
-				encodedMessage.slice(8), // strip out discriminator
-				Buffer.alloc(128), // pad on 128 bytes, this is most efficient way to messages that are too small
-			])
-		);
+		return DriftCore.signedMsg.decodeSignedMsgOrderParamsMessage({
+			coderTypes: this.program.coder.types as any,
+			encodedMessage,
+			delegateSigner,
+		});
 	}
 
 	public signMessage(
@@ -8251,19 +8065,16 @@ export class DriftClient {
 			overrides?.authority ??
 			overrides?.user?.getUserAccount().authority ??
 			this.wallet.publicKey;
-		return await (this.program.instruction as any).modifyOrder(
+		return await DriftCore.buildModifyOrderInstruction({
+			program: this.program,
 			orderId,
-			orderParams,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user: userPubKey,
-					userStats: this.getUserStatsAccountPublicKey(),
-					authority,
-				},
-				remainingAccounts,
-			}
-		);
+			modifyParams: orderParams,
+			state: await this.getStatePublicKey(),
+			user: userPubKey,
+			userStats: this.getUserStatsAccountPublicKey(),
+			authority,
+			remainingAccounts,
+		});
 	}
 
 	/**
@@ -8376,19 +8187,16 @@ export class DriftClient {
 			maxTs: maxTs || null,
 		};
 
-		return await (this.program.instruction as any).modifyOrderByUserId(
+		return await DriftCore.buildModifyOrderByUserIdInstruction({
+			program: this.program,
 			userOrderId,
-			orderParams,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					userStats: this.getUserStatsAccountPublicKey(),
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts,
-			}
-		);
+			modifyParams: orderParams,
+			state: await this.getStatePublicKey(),
+			user,
+			userStats: this.getUserStatsAccountPublicKey(),
+			authority: this.wallet.publicKey,
+			remainingAccounts,
+		});
 	}
 
 	public async settlePNLs(
@@ -8595,14 +8403,14 @@ export class DriftClient {
 			}
 		}
 
-		return await this.program.instruction.settlePnl(marketIndex, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				authority: this.wallet.publicKey,
-				user: settleeUserAccountPublicKey,
-				spotMarketVault: this.getQuoteSpotMarketAccount().vault,
-			},
-			remainingAccounts: remainingAccounts,
+		return await DriftCore.buildSettlePnlInstruction({
+			program: this.program,
+			marketIndex,
+			state: await this.getStatePublicKey(),
+			authority: this.wallet.publicKey,
+			user: settleeUserAccountPublicKey,
+			spotMarketVault: this.getQuoteSpotMarketAccount().vault,
+			remainingAccounts,
 		});
 	}
 
@@ -8898,22 +8706,19 @@ export class DriftClient {
 			writablePerpMarketIndexes: [marketIndex],
 		});
 
-		return await this.program.instruction.liquidatePerp(
+		return await DriftCore.buildLiquidatePerpInstruction({
+			program: this.program,
 			marketIndex,
 			maxBaseAssetAmount,
-			limitPrice ?? null,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					authority: this.wallet.publicKey,
-					user: userAccountPublicKey,
-					userStats: userStatsPublicKey,
-					liquidator,
-					liquidatorStats: liquidatorStatsPublicKey,
-				},
-				remainingAccounts: remainingAccounts,
-			}
-		);
+			limitPrice: limitPrice ?? null,
+			state: await this.getStatePublicKey(),
+			authority: this.wallet.publicKey,
+			user: userAccountPublicKey,
+			userStats: userStatsPublicKey,
+			liquidator,
+			liquidatorStats: liquidatorStatsPublicKey,
+			remainingAccounts,
+		});
 	}
 
 	public async liquidatePerpWithFill(
@@ -9049,7 +8854,7 @@ export class DriftClient {
 			writableSpotMarketIndexes: [liabilityMarketIndex, assetMarketIndex],
 		});
 
-		return await this.program.instruction.liquidateSpot(
+		return await (this.program.instruction as any).liquidateSpot(
 			assetMarketIndex,
 			liabilityMarketIndex,
 			maxLiabilityTransfer,
@@ -9063,7 +8868,7 @@ export class DriftClient {
 					liquidator,
 					liquidatorStats: liquidatorStatsPublicKey,
 				},
-				remainingAccounts: remainingAccounts,
+				remainingAccounts,
 			}
 		);
 	}
@@ -9316,7 +9121,7 @@ export class DriftClient {
 						liabilityTokenAccount: liabilityTokenAccount,
 						tokenProgram: assetTokenProgram,
 						driftSigner: this.getStateAccount().signer,
-						instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+						instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
 					},
 					remainingAccounts,
 				}
@@ -9339,7 +9144,7 @@ export class DriftClient {
 					liabilityTokenAccount: liabilityTokenAccount,
 					tokenProgram: assetTokenProgram,
 					driftSigner: this.getStateAccount().signer,
-					instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+					instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
 				},
 				remainingAccounts,
 			}
@@ -9418,7 +9223,7 @@ export class DriftClient {
 					ifRebalanceConfig: ifRebalanceConfig,
 					tokenProgram: TOKEN_PROGRAM_ID,
 					driftSigner: this.getStateAccount().signer,
-					instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+					instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
 				},
 				remainingAccounts,
 			}
@@ -9438,7 +9243,7 @@ export class DriftClient {
 					ifRebalanceConfig: ifRebalanceConfig,
 					tokenProgram: TOKEN_PROGRAM_ID,
 					driftSigner: this.getStateAccount().signer,
-					instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+					instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
 				},
 				remainingAccounts,
 			}
@@ -9760,12 +9565,12 @@ export class DriftClient {
 			this.program.programId,
 			perpMarketIndex
 		);
-		return await this.program.instruction.updateFundingRate(perpMarketIndex, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				perpMarket: perpMarketPublicKey,
-				oracle: oracle,
-			},
+		return await DriftCore.buildUpdateFundingRateInstruction({
+			program: this.program,
+			perpMarketIndex,
+			state: await this.getStatePublicKey(),
+			perpMarket: perpMarketPublicKey,
+			oracle,
 		});
 	}
 
@@ -10010,8 +9815,8 @@ export class DriftClient {
 			),
 			authority: this.wallet.publicKey,
 			payer: this.wallet.publicKey,
-			rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-			systemProgram: anchor.web3.SystemProgram.programId,
+			rent: SYSVAR_RENT_PUBKEY,
+			systemProgram: SystemProgram.programId,
 			state: await this.getStatePublicKey(),
 		};
 

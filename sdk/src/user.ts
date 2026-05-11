@@ -60,7 +60,7 @@ import {
 	UserAccountSubscriber,
 } from './accounts/types';
 import { BigNum } from './factory/bigNum';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 import { calculateBaseAssetValue, calculatePositionPNL } from './math/position';
 import {
 	calculateMarketMarginRatio,

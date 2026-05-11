@@ -6,7 +6,7 @@ import {
 	VersionedTransaction,
 	TransactionInstruction,
 } from '@solana/web3.js';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	JupiterClient,
 	QuoteResponse as JupiterQuoteResponse,

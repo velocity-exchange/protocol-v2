@@ -34,7 +34,7 @@ import {
 } from 'solana-bankrun';
 import { BankrunProvider } from 'anchor-bankrun';
 import bs58 from 'bs58';
-import { BN, Wallet } from '@coral-xyz/anchor';
+import { BN, Wallet } from '../isomorphic/anchor';
 import { Account, unpackAccount } from '@solana/spl-token';
 import { isVersionedTransaction } from '../tx/utils';
 

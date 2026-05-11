@@ -16,7 +16,7 @@ import {
 	TransactionVersion,
 	VersionedTransaction,
 } from '@solana/web3.js';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 import { ZERO } from './constants/numericConstants';
 
 // Utility type which lets you denote record with values of type A mapped to a record with the same keys but values of type B

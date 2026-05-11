@@ -1,5 +1,5 @@
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { BigNum } from '../factory/bigNum';
 
 export const ZERO = new BN(0);

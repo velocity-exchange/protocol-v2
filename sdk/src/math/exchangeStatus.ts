@@ -14,7 +14,7 @@ import {
 	InsuranceFundOperation,
 	MarketConfigFlag,
 } from '../types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 
 export function exchangePaused(state: StateAccount): boolean {
 	return state.exchangeStatus !== ExchangeStatus.ACTIVE;

@@ -5,8 +5,8 @@
  * All functions are pure (no RPC calls).
  */
 import { PublicKey } from '@solana/web3.js';
-import * as anchor from '@coral-xyz/anchor';
-import { BN } from '@coral-xyz/anchor';
+import * as anchor from '../isomorphic/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	getAssociatedTokenAddress,
 	TOKEN_2022_PROGRAM_ID,

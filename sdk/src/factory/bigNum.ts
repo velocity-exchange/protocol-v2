@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { assert } from '../assert/assert';
 import { ZERO } from './../constants/numericConstants';
 

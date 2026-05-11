@@ -14,7 +14,7 @@ import {
 	getUserStatsIsReferredFilter,
 	getUserStatsIsReferredOrReferrerFilter,
 } from '../memcmp';
-import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import bs58 from 'bs58';
 
 const DEFAULT_PUBLIC_KEY = PublicKey.default.toBase58();
 

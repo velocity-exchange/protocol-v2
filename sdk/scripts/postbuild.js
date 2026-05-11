@@ -12,7 +12,7 @@ const forceEnv = yargs(hideBin(process.argv))
 	})
 	.argv?.forceEnv;
 
-const isomorphicPackages = ['grpc'];
+const isomorphicPackages = ['grpc', 'anchor', 'anchor29'];
 const environments = ['node', 'browser'];
 
 environments.forEach((environment) => {

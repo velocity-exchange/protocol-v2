@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	AMM_RESERVE_PRECISION,
 	PRICE_PRECISION,

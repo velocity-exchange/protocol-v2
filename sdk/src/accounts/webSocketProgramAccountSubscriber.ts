@@ -1,5 +1,5 @@
 import { BufferAndSlot, ProgramAccountSubscriber, ResubOpts } from './types';
-import { AnchorProvider } from '@coral-xyz/anchor';
+import { AnchorProvider } from '../isomorphic/anchor';
 import {
 	Commitment,
 	Context,

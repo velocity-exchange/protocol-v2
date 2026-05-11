@@ -2,7 +2,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { BulkAccountLoader } from '../accounts/bulkAccountLoader';
 import { Market, Orderbook } from '@project-serum/serum';
 import { SerumMarketSubscriberConfig } from './types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { PRICE_PRECISION } from '../constants/numericConstants';
 import { L2Level, L2OrderBookGenerator } from '../dlob/orderBookLevels';
 

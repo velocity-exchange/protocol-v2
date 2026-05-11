@@ -5,7 +5,7 @@ import {
 	AddressLookupTableAccount,
 	TransactionInstruction,
 } from '@solana/web3.js';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { decode } from '@msgpack/msgpack';
 
 export enum SwapMode {

@@ -15,7 +15,7 @@ import {
 	PRICE_PRECISION,
 	QUOTE_PRECISION,
 } from '../constants/numericConstants';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { OraclePriceData } from '../oracles/types';
 import { calculateMarketMarginRatio } from './market';
 import { calculateScaledInitialAssetWeight } from './spotBalance';

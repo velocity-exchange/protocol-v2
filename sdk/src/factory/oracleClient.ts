@@ -3,7 +3,7 @@ import { Connection } from '@solana/web3.js';
 import { OracleClient } from '../oracles/types';
 import { PythClient } from '../oracles/pythClient';
 import { QuoteAssetOracleClient } from '../oracles/quoteAssetOracleClient';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { DriftProgram } from '../config';
 import { PrelaunchOracleClient } from '../oracles/prelaunchOracleClient';
 import { PythLazerClient } from '../oracles/pythLazerClient';

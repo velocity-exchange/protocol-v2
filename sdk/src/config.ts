@@ -13,7 +13,7 @@ import {
 	MainnetSpotMarkets,
 } from './constants/spotMarkets';
 import { OracleInfo } from './oracles/types';
-import { Program, ProgramAccount } from '@coral-xyz/anchor';
+import { Program, ProgramAccount } from './isomorphic/anchor';
 import { getOracleId } from './oracles/oracleId';
 import { Drift } from './idl/drift';
 

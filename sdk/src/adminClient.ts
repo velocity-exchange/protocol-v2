@@ -35,8 +35,8 @@ import {
 	TransferFeeAndPnlPoolDirection,
 } from './types';
 import { DEFAULT_MARKET_NAME, encodeName } from './userName';
-import { BN } from '@coral-xyz/anchor';
-import * as anchor from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
+import * as anchor from './isomorphic/anchor';
 import {
 	getDriftStateAccountPublicKeyAndNonce,
 	getSpotMarketPublicKey,

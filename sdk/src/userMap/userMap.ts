@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { User } from '../user';
 import { DriftClient } from '../driftClient';
 import {

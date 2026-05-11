@@ -7,7 +7,7 @@ import {
 	VersionedTransaction,
 } from '@solana/web3.js';
 import fetch from 'node-fetch';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { SwapMode } from '../swap/UnifiedSwapClient';
 
 export interface MarketInfo {

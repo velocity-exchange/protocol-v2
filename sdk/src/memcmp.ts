@@ -1,6 +1,6 @@
 import { MemcmpFilter, PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
-import { BorshAccountsCoder } from '@coral-xyz/anchor-29';
+import { BorshAccountsCoder } from './isomorphic/anchor29';
 import { encodeName } from './userName';
 
 export function getUserFilter(): MemcmpFilter {

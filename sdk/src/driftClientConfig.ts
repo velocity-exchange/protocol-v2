@@ -23,7 +23,7 @@ import {
 	ResubOpts,
 	DelistedMarketSetting,
 } from './accounts/types';
-import { Coder, Program } from '@coral-xyz/anchor';
+import { Coder, Program } from './isomorphic/anchor';
 import { WebSocketAccountSubscriber } from './accounts/webSocketAccountSubscriber';
 import { WebSocketAccountSubscriberV2 } from './accounts/webSocketAccountSubscriberV2';
 import { grpcDriftClientAccountSubscriberV2 } from './accounts/grpcDriftClientAccountSubscriberV2';

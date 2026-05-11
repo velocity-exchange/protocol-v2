@@ -4,7 +4,7 @@ import {
 	SPOT_MARKET_WEIGHT_PRECISION,
 	ZERO,
 } from '../constants/numericConstants';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	calculateAssetWeight,
 	calculateLiabilityWeight,

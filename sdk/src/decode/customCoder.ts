@@ -5,7 +5,7 @@ import {
 	BorshEventCoder,
 	BorshInstructionCoder,
 	BorshCoder,
-} from '@coral-xyz/anchor';
+} from '../isomorphic/anchor';
 
 export class CustomBorshCoder<
 	A extends string = string,
