@@ -136,13 +136,10 @@ pub struct User {
     pub open_auctions: u8,
     /// Whether or not user has open order with auction
     pub has_open_auction: bool,
-    pub padding_former_margin_mode: u8,
     pub pool_id: u8,
-    pub padding1: [u8; 3],
-    pub padding2: u32,
     /// Whether the user is a special user (vamm hedger, etc)
     pub special_user_status: u8,
-    pub padding: [u8; 11],
+    pub padding: [u8; 14],
 }
 
 impl User {
@@ -1815,7 +1812,7 @@ pub enum PositionFlag {
 }
 
 #[account(zero_copy(unsafe))]
-#[derive(Eq, PartialEq, Debug, Default)]
+#[derive(Eq, PartialEq, Debug)]
 #[repr(C)]
 pub struct UserStats {
     /// The authority for all of a users sub accounts
@@ -1858,15 +1855,36 @@ pub struct UserStats {
     pub referrer_status: u8,
     pub disable_update_perp_bid_ask_twap: u8,
     pub paused_operations: u8,
-    pub padding2: u8,
-    pub padding3: [u32; 6],
 
     /// The amount of tokens staked in the governance spot markets if
     pub if_staked_gov_token_amount: u64,
 
-    pub padding4: u32,
+    pub padding: [u8; 40],
+}
 
-    pub padding: [u8; 12],
+impl Default for UserStats {
+    fn default() -> Self {
+        Self {
+            authority: Pubkey::default(),
+            referrer: Pubkey::default(),
+            fees: UserFees::default(),
+            next_epoch_ts: 0,
+            maker_volume_30d: 0,
+            taker_volume_30d: 0,
+            filler_volume_30d: 0,
+            last_maker_volume_30d_ts: 0,
+            last_taker_volume_30d_ts: 0,
+            last_filler_volume_30d_ts: 0,
+            if_staked_quote_asset_amount: 0,
+            number_of_sub_accounts: 0,
+            number_of_sub_accounts_created: 0,
+            referrer_status: 0,
+            disable_update_perp_bid_ask_twap: 0,
+            paused_operations: 0,
+            if_staked_gov_token_amount: 0,
+            padding: [0; 40],
+        }
+    }
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]

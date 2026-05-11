@@ -648,10 +648,10 @@ pub enum ErrorCode {
     SignedMsgUserContextUserMismatch,
     /// Deprecated: kept to preserve error code ordering
     #[msg("Deprecated")]
-    DeprecatedFuel1,
+    Deprecated1,
     /// Deprecated: kept to preserve error code ordering
     #[msg("Deprecated")]
-    DeprecatedFuel2,
+    Deprecated2,
     #[msg("Invalid Transfer Perp Position")]
     InvalidTransferPerpPosition,
     #[msg("Invalid SignedMsgUserOrders resize")]

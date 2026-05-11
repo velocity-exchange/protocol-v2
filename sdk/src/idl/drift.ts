@@ -17072,12 +17072,12 @@ export type Drift = {
     },
     {
       "code": 6310,
-      "name": "deprecatedFuel1",
+      "name": "deprecated1",
       "msg": "deprecated"
     },
     {
       "code": 6311,
-      "name": "deprecatedFuel2",
+      "name": "deprecated2",
       "msg": "deprecated"
     },
     {
@@ -22295,29 +22295,12 @@ export type Drift = {
             "type": "i16"
           },
           {
-            "name": "padding2",
-            "type": {
-              "array": [
-                "u8",
-                3
-              ]
-            }
+            "name": "lastFillPrice",
+            "type": "u64"
           },
           {
             "name": "poolId",
             "type": "u8"
-          },
-          {
-            "name": "paddingFormerHlm",
-            "docs": [
-              "Deprecated: formerly high_leverage_margin_ratio_initial and high_leverage_margin_ratio_maintenance"
-            ],
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           },
           {
             "name": "protectedMakerLimitPriceDivisor",
@@ -22342,10 +22325,6 @@ export type Drift = {
           {
             "name": "lpExchangeFeeExcluscionScalar",
             "type": "u8"
-          },
-          {
-            "name": "lastFillPrice",
-            "type": "u64"
           },
           {
             "name": "lpPoolId",
@@ -24265,15 +24244,6 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "padding2",
-            "type": {
-              "array": [
-                "u8",
-                5
-              ]
-            }
-          },
-          {
             "name": "tokenProgramFlag",
             "type": "u8"
           },
@@ -25040,25 +25010,8 @@ export type Drift = {
             "type": "bool"
           },
           {
-            "name": "paddingFormerMarginMode",
-            "type": "u8"
-          },
-          {
             "name": "poolId",
             "type": "u8"
-          },
-          {
-            "name": "padding1",
-            "type": {
-              "array": [
-                "u8",
-                3
-              ]
-            }
-          },
-          {
-            "name": "padding2",
-            "type": "u32"
           },
           {
             "name": "specialUserStatus",
@@ -25072,7 +25025,7 @@ export type Drift = {
             "type": {
               "array": [
                 "u8",
-                11
+                14
               ]
             }
           }
@@ -25266,19 +25219,6 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "padding2",
-            "type": "u8"
-          },
-          {
-            "name": "padding3",
-            "type": {
-              "array": [
-                "u32",
-                6
-              ]
-            }
-          },
-          {
             "name": "ifStakedGovTokenAmount",
             "docs": [
               "The amount of tokens staked in the governance spot markets if"
@@ -25286,15 +25226,11 @@ export type Drift = {
             "type": "u64"
           },
           {
-            "name": "padding4",
-            "type": "u32"
-          },
-          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                12
+                40
               ]
             }
           }

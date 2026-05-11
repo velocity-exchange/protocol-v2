@@ -17066,12 +17066,12 @@
     },
     {
       "code": 6310,
-      "name": "DeprecatedFuel1",
+      "name": "Deprecated1",
       "msg": "Deprecated"
     },
     {
       "code": 6311,
-      "name": "DeprecatedFuel2",
+      "name": "Deprecated2",
       "msg": "Deprecated"
     },
     {
@@ -22289,29 +22289,12 @@
             "type": "i16"
           },
           {
-            "name": "padding2",
-            "type": {
-              "array": [
-                "u8",
-                3
-              ]
-            }
+            "name": "last_fill_price",
+            "type": "u64"
           },
           {
             "name": "pool_id",
             "type": "u8"
-          },
-          {
-            "name": "padding_former_hlm",
-            "docs": [
-              "Deprecated: formerly high_leverage_margin_ratio_initial and high_leverage_margin_ratio_maintenance"
-            ],
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           },
           {
             "name": "protected_maker_limit_price_divisor",
@@ -22336,10 +22319,6 @@
           {
             "name": "lp_exchange_fee_excluscion_scalar",
             "type": "u8"
-          },
-          {
-            "name": "last_fill_price",
-            "type": "u64"
           },
           {
             "name": "lp_pool_id",
@@ -24259,15 +24238,6 @@
             "type": "u8"
           },
           {
-            "name": "padding2",
-            "type": {
-              "array": [
-                "u8",
-                5
-              ]
-            }
-          },
-          {
             "name": "token_program_flag",
             "type": "u8"
           },
@@ -25034,25 +25004,8 @@
             "type": "bool"
           },
           {
-            "name": "padding_former_margin_mode",
-            "type": "u8"
-          },
-          {
             "name": "pool_id",
             "type": "u8"
-          },
-          {
-            "name": "padding1",
-            "type": {
-              "array": [
-                "u8",
-                3
-              ]
-            }
-          },
-          {
-            "name": "padding2",
-            "type": "u32"
           },
           {
             "name": "special_user_status",
@@ -25066,7 +25019,7 @@
             "type": {
               "array": [
                 "u8",
-                11
+                14
               ]
             }
           }
@@ -25260,19 +25213,6 @@
             "type": "u8"
           },
           {
-            "name": "padding2",
-            "type": "u8"
-          },
-          {
-            "name": "padding3",
-            "type": {
-              "array": [
-                "u32",
-                6
-              ]
-            }
-          },
-          {
             "name": "if_staked_gov_token_amount",
             "docs": [
               "The amount of tokens staked in the governance spot markets if"
@@ -25280,15 +25220,11 @@
             "type": "u64"
           },
           {
-            "name": "padding4",
-            "type": "u32"
-          },
-          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                12
+                40
               ]
             }
           }
