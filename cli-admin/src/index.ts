@@ -4,6 +4,7 @@ import { registerAuth } from './commands/auth';
 import { registerCall } from './commands/call';
 import { registerExchange } from './commands/exchange';
 import { registerPerpMarket } from './commands/perpMarket';
+import { registerProgram } from './commands/program';
 import { registerShow } from './commands/show';
 import { registerSpotMarket } from './commands/spotMarket';
 import { registerUser } from './commands/user';
@@ -33,6 +34,7 @@ registerPerpMarket(program);
 registerSpotMarket(program);
 registerExchange(program);
 registerUser(program);
+registerProgram(program);
 registerCall(program);
 
 program.parseAsync(process.argv).catch((err) => {
