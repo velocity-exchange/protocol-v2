@@ -1,0 +1,129 @@
+name: "Buffer Deploy"
+description: >
+  Stages `target/deploy/<program>.so` as a BPF Upgradeable Loader buffer, and
+  `target/idl/<program>.json` as a program-metadata buffer (Anchor 1.0 flow),
+  then transfers both buffer authorities to the multisig vault so the Squads
+  proposal can apply them.
+inputs:
+  program:
+    description: "Program crate name (drift | token_faucet)"
+    required: true
+  rpc-url:
+    description: "Solana RPC URL"
+    required: true
+  keypair:
+    description: "Deployer keypair JSON (raw [..] array string from a secret)"
+    required: true
+  buffer-authority:
+    description: "Address that should own both buffers after upload (the multisig vault PDA)"
+    required: true
+
+outputs:
+  buffer:
+    description: "BPF buffer address"
+    value: ${{ steps.collect.outputs.buffer }}
+  idl-buffer:
+    description: "Program-metadata IDL buffer address"
+    value: ${{ steps.collect.outputs.idl-buffer }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: ./.github/actions/setup-solana/
+
+    - name: Setup node
+      uses: actions/setup-node@7c12f8017d5436eb855f1ed4399f037a36fbd9e8 # v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Write deployer keypair
+      shell: bash
+      env:
+        DEPLOYER_KEYPAIR: ${{ inputs.keypair }}
+      run: |
+        printf '%s' "$DEPLOYER_KEYPAIR" > ./deploy-keypair.json
+        chmod 600 ./deploy-keypair.json
+        solana-keygen pubkey ./deploy-keypair.json
+
+    - name: Upload program buffer
+      id: program-buffer
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 30
+        max_attempts: 5
+        shell: bash
+        # write-buffer prints "Buffer: <pubkey>" on success.
+        command: |
+          set -euo pipefail
+          solana program write-buffer \
+            --max-sign-attempts 50 \
+            --with-compute-unit-price 100000 \
+            --use-rpc \
+            -u "${{ inputs.rpc-url }}" \
+            -k ./deploy-keypair.json \
+            ./target/deploy/${{ inputs.program }}.so > buffer.out
+          cat buffer.out
+
+    - name: Create IDL buffer (program-metadata)
+      id: idl-buffer
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        shell: bash
+        command: |
+          set -euo pipefail
+          npx -y @solana-program/program-metadata@0.5.1 create-buffer \
+            ./target/idl/${{ inputs.program }}.json \
+            --rpc "${{ inputs.rpc-url }}" \
+            --keypair ./deploy-keypair.json 2>&1 | tee idl-buffer.out
+
+    - name: Collect buffer addresses
+      id: collect
+      shell: bash
+      run: |
+        set -euo pipefail
+        BUFFER=$(grep -oE 'Buffer: [1-9A-HJ-NP-Za-km-z]{32,44}' buffer.out | tail -1 | awk '{print $2}')
+        # program-metadata CLI prints colored ANSI; strip then grep for "buffer: <addr>"
+        IDL_BUFFER=$(sed 's/\x1b\[[0-9;]*m//g' idl-buffer.out \
+          | grep -oE 'buffer: [1-9A-HJ-NP-Za-km-z]{32,44}' | tail -1 | awk '{print $2}')
+        if [ -z "$BUFFER" ] || [ -z "$IDL_BUFFER" ]; then
+          echo "Failed to extract buffer addresses." >&2
+          echo "--- buffer.out ---" >&2; cat buffer.out >&2
+          echo "--- idl-buffer.out ---" >&2; cat idl-buffer.out >&2
+          exit 1
+        fi
+        echo "Program buffer: $BUFFER"
+        echo "IDL buffer:     $IDL_BUFFER"
+        echo "buffer=$BUFFER" >> "$GITHUB_OUTPUT"
+        echo "idl-buffer=$IDL_BUFFER" >> "$GITHUB_OUTPUT"
+
+    - name: Transfer program buffer authority to vault
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 5
+        shell: bash
+        command: |
+          solana program set-buffer-authority "${{ steps.collect.outputs.buffer }}" \
+            -k ./deploy-keypair.json \
+            --new-buffer-authority "${{ inputs.buffer-authority }}" \
+            -u "${{ inputs.rpc-url }}"
+
+    - name: Transfer IDL buffer authority to vault
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 5
+        shell: bash
+        command: |
+          npx -y @solana-program/program-metadata@0.5.1 set-buffer-authority \
+            "${{ steps.collect.outputs.idl-buffer }}" \
+            --new-authority "${{ inputs.buffer-authority }}" \
+            --rpc "${{ inputs.rpc-url }}" \
+            --keypair ./deploy-keypair.json
+
+    - name: Clean up keypair
+      if: always()
+      shell: bash
+      run: rm -f ./deploy-keypair.json

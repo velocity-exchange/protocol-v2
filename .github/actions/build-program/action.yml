@@ -1,0 +1,83 @@
+name: "Build Program (verified + IDL)"
+description: >
+  Runs `anchor build` (for the IDL JSON) and `solana-verify build` (for the
+  deployable .so) for one program. Devnet variant strips the `mainnet-beta`
+  cargo feature so drift's cfg-gated declare_id! resolves to the devnet pubkey.
+inputs:
+  program:
+    description: "Program crate name (drift | token_faucet)"
+    required: true
+  devnet:
+    description: "If 'true', strip mainnet-beta feature (drift only)"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
+      with:
+        toolchain: ${{ env.RUST_TOOLCHAIN }}
+        profile: minimal
+        override: true
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@81d053bdb0871dcd3f10763c8cc60d0adc41762b # v1
+      with:
+        cache-on-failure: "true"
+    - uses: ./.github/actions/setup-solana/
+    - uses: ./.github/actions/setup-anchor/
+
+    - name: Cache solana-verify
+      id: cache-solana-verify
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      with:
+        path: ~/.cargo/bin/solana-verify
+        key: ${{ runner.os }}-solana-verify-0.4.11
+
+    - name: Install solana-verify
+      if: steps.cache-solana-verify.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        sudo apt update -y && sudo apt install -y libudev-dev
+        cargo install solana-verify --version 0.4.11 --locked
+
+    - name: Anchor build (produces IDL)
+      shell: bash
+      env:
+        PROGRAM: ${{ inputs.program }}
+        DEVNET: ${{ inputs.devnet }}
+      run: |
+        set -euo pipefail
+        if [ "$PROGRAM" = "drift" ] && [ "$DEVNET" = "true" ]; then
+          anchor build --ignore-keys -p drift -- --no-default-features --features no-entrypoint
+        else
+          anchor build -p "$PROGRAM"
+        fi
+        ls -l target/idl/ target/deploy/
+
+    - name: Verifiable build (produces deployable .so)
+      shell: bash
+      env:
+        PROGRAM: ${{ inputs.program }}
+        DEVNET: ${{ inputs.devnet }}
+      run: |
+        set -euo pipefail
+        if [ "$PROGRAM" = "drift" ] && [ "$DEVNET" = "true" ]; then
+          solana-verify build --library-name drift -b "$VERIFIABLE_BUILD_IMAGE" -- --no-default-features --features no-entrypoint
+        else
+          solana-verify build --library-name "$PROGRAM" -b "$VERIFIABLE_BUILD_IMAGE"
+        fi
+        ls -l target/deploy/
+
+    - name: Upload .so artifact
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.program }}-${{ inputs.devnet == 'true' && 'devnet' || 'mainnet' }}-so
+        path: target/deploy/${{ inputs.program }}.so
+
+    - name: Upload IDL artifact
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.program }}-${{ inputs.devnet == 'true' && 'devnet' || 'mainnet' }}-idl
+        path: target/idl/${{ inputs.program }}.json
