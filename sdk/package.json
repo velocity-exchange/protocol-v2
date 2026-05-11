@@ -23,6 +23,7 @@
 		"test:ci": "mocha -r ts-node/register tests/ci/**/*.ts",
 		"test:dlob": "mocha -r ts-node/register tests/dlob/**/*.ts",
 		"test:events": "mocha -r ts-node/register tests/events/**/*.ts",
+		"test:driftcore": "bun test tests/DriftCore",
 		"patch-and-pub": "npm version patch --force && npm publish",
 		"prettify": "prettier --check './src/***/*.ts'",
 		"prettify:fix": "prettier --write './{src,tests}/***/*.ts'",
@@ -42,7 +43,8 @@
 		"access": "public"
 	},
 	"dependencies": {
-		"@coral-xyz/anchor": "npm:@coral-xyz/anchor@0.32.1",
+		"@anchor-lang/core": "1.0.1",
+		"@coral-xyz/anchor": "npm:@anchor-lang/core@1.0.1",
 		"@coral-xyz/anchor-29": "npm:@coral-xyz/anchor@0.29.0",
 		"@ellipsis-labs/phoenix-sdk": "1.4.5",
 		"@msgpack/msgpack": "^3.1.2",

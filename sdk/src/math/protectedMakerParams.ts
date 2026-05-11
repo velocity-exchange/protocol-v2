@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { ProtectMakerParamsMap } from '../dlob/types';
 import { PerpMarketAccount, ProtectedMakerParams } from '../types';
 

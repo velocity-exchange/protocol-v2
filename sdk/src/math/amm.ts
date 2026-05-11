@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO,
 	PRICE_PRECISION,

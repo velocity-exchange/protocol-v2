@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { PRICE_PRECISION } from '../constants/numericConstants';
 
 export const convertToNumber = (

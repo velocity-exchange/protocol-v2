@@ -1,5 +1,5 @@
 import { BufferAndSlot, ProgramAccountSubscriber, ResubOpts } from './types';
-import { AnchorProvider } from '@coral-xyz/anchor';
+import { AnchorProvider } from '../isomorphic/anchor';
 import { DriftProgram } from '../config';
 import { Commitment, Context, MemcmpFilter, PublicKey } from '@solana/web3.js';
 import {

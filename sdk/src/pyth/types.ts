@@ -1,4 +1,4 @@
-import type { IdlAccounts } from '@coral-xyz/anchor-29';
+import type { IdlAccounts } from '../isomorphic/anchor29';
 
 export type WormholeCoreBridgeSolana = {
 	version: '0.0.1-alpha.5';

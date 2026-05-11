@@ -1,7 +1,7 @@
 import { parsePriceData } from '@pythnetwork/client';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { OracleClient, OraclePriceData } from './types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	ONE,
 	PRICE_PRECISION,

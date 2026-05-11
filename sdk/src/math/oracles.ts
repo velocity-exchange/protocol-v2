@@ -19,7 +19,7 @@ import {
 	FIVE,
 } from '../constants/numericConstants';
 import { assert } from '../assert/assert';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 
 export function oraclePriceBands(
 	market: PerpMarketAccount,

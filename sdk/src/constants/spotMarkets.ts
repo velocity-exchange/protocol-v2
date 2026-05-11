@@ -10,7 +10,7 @@ import {
 	FIVE,
 } from './numericConstants';
 import { OracleSource } from '../types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { DriftEnv } from '../config';
 import { MarketStatus } from '@ellipsis-labs/phoenix-sdk';
 

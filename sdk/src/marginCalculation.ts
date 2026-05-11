@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 import { MARGIN_PRECISION, ZERO } from './constants/numericConstants';
 import { getVariant, isVariant, MarketType } from './types';
 

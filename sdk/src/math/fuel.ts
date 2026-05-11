@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { SpotMarketAccount, PerpMarketAccount } from '../types';
 import {
 	QUOTE_PRECISION,

@@ -5,7 +5,7 @@ import {
 	ProtectedMakerParams,
 } from '../types';
 import { createNode, DLOBNode, DLOBNodeMap } from './DLOBNode';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 
 export type SortDirection = 'asc' | 'desc';
 

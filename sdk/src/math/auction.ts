@@ -7,7 +7,7 @@ import {
 	PositionDirection,
 	StateAccount,
 } from '../types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	ONE,
 	ZERO,

@@ -4,7 +4,7 @@ import {
 	AccountSubscriber,
 	ResubOpts,
 } from './types';
-import { AnchorProvider } from '@coral-xyz/anchor';
+import { AnchorProvider } from '../isomorphic/anchor';
 import { AccountInfo, Commitment, Context, PublicKey } from '@solana/web3.js';
 import { DriftProgram } from '../config';
 import * as Buffer from 'buffer';

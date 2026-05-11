@@ -1,4 +1,4 @@
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { ONE, ZERO } from '../constants/numericConstants';
 
 export function clampBN(x: BN, min: BN, max: BN): BN {

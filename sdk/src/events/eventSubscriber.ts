@@ -7,7 +7,7 @@
  * See `events/types.ts` for the full event type union and `events/parse.ts` for log parsing.
  */
 import { Connection, PublicKey, TransactionSignature } from '@solana/web3.js';
-import { Program } from '@coral-xyz/anchor';
+import { Program } from '../isomorphic/anchor';
 import {
 	DefaultEventSubscriptionOptions,
 	EventSubscriptionOptions,

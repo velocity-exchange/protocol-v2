@@ -8,7 +8,7 @@ import {
 	getMarketLadder,
 } from '@ellipsis-labs/phoenix-sdk';
 import { PRICE_PRECISION } from '../constants/numericConstants';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { L2Level, L2OrderBookGenerator } from '../dlob/orderBookLevels';
 import { fastDecode } from '../decode/phoenix';
 

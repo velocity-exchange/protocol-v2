@@ -18,7 +18,7 @@ import {
 	SPOT_MARKET_IMF_PRECISION,
 	MARGIN_PRECISION,
 } from '../constants/numericConstants';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { MMOraclePriceData, OraclePriceData } from '../oracles/types';
 import {
 	getAuctionPrice,

@@ -11,7 +11,7 @@
  *   `orderBookLevels.ts`    — aggregated L2/L3 book level construction for quoting
  */
 import { getOrderSignature, NodeList } from './NodeList';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	BASE_PRECISION,
 	BN_MAX,

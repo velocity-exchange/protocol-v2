@@ -4,7 +4,7 @@ import {
 	ResubOpts,
 	BufferAndSlot,
 } from './types';
-import { AnchorProvider } from '@coral-xyz/anchor';
+import { AnchorProvider } from '../isomorphic/anchor';
 import { DriftProgram } from '../config';
 import { capitalize } from './utils';
 import {

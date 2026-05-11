@@ -5,7 +5,7 @@ import {
 	OrderTriggerCondition,
 	OrderType,
 } from './types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 
 export function getLimitOrderParams(
 	params: Omit<OptionalOrderParams, 'orderType'> & { price: BN }

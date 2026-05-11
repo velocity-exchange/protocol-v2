@@ -10,7 +10,7 @@
  *
  * Key re-exported namespaces: types, addresses/pda, accounts (subscribers), math, events, oracles, constants.
  */
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 import { PublicKey } from '@solana/web3.js';
 import pyth from '@pythnetwork/client';
 
@@ -150,5 +150,6 @@ export * from './math/userStatus';
 export * from './indicative-quotes/indicativeQuotesSender';
 export * from './constants';
 export * from './constituentMap/constituentMap';
+export * from './core';
 
 export { BN, PublicKey, pyth };

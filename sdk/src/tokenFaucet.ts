@@ -1,5 +1,5 @@
-import * as anchor from '@coral-xyz/anchor-29';
-import { AnchorProvider, Idl, Program } from '@coral-xyz/anchor-29';
+import * as anchor from './isomorphic/anchor29';
+import { AnchorProvider, Idl, Program } from './isomorphic/anchor29';
 import {
 	TOKEN_PROGRAM_ID,
 	Account,
@@ -20,7 +20,7 @@ import tokenFaucet from './idl/token_faucet.json';
 import { IWallet } from './types';
 import { BankrunContextWrapper } from './bankrun/bankrunConnection';
 import { DEFAULT_CONFIRMATION_OPTS } from './config';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 
 export class TokenFaucet {
 	context?: BankrunContextWrapper;

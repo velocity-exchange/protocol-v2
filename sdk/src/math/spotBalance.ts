@@ -4,7 +4,7 @@ import {
 	isVariant,
 	MarginCategory,
 } from '../types';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import {
 	SPOT_MARKET_UTILIZATION_PRECISION,
 	ONE,

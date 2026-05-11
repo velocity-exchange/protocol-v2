@@ -3,8 +3,8 @@ import {
 	Connection,
 	SYSVAR_SLOT_HASHES_PUBKEY,
 } from '@solana/web3.js';
-import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
-import { BN } from '@coral-xyz/anchor';
+import bs58 from 'bs58';
+import { BN } from '../isomorphic/anchor';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type SlothashSubscriberConfig = {

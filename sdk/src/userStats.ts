@@ -21,7 +21,7 @@ import {
 	GOV_SPOT_MARKET_INDEX,
 	QUOTE_SPOT_MARKET_INDEX,
 } from './constants/numericConstants';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from './isomorphic/anchor';
 import { calculateInsuranceFuelBonus } from './math/fuel';
 
 export class UserStats {

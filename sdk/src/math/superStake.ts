@@ -7,7 +7,7 @@ import {
 import { JupiterClient, QuoteResponse } from '../jupiter/jupiterClient';
 import { DriftClient } from '../driftClient';
 import { getMarinadeFinanceProgram, getMarinadeMSolPrice } from '../marinade';
-import { BN } from '@coral-xyz/anchor';
+import { BN } from '../isomorphic/anchor';
 import { User } from '../user';
 import { DepositRecord, isVariant } from '../types';
 import { LAMPORTS_PRECISION, ZERO } from '../constants/numericConstants';
