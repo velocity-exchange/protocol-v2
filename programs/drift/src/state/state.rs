@@ -261,8 +261,7 @@ impl State {
     }
 
     pub fn is_warm(&self, signer: &Pubkey) -> bool {
-        self.is_cold(signer)
-            || (self.warm_admin != Pubkey::default() && self.warm_admin == *signer)
+        self.is_cold(signer) || (self.warm_admin != Pubkey::default() && self.warm_admin == *signer)
     }
 
     pub fn is_hot(&self, signer: &Pubkey, role: HotRole) -> bool {
@@ -291,11 +290,7 @@ impl State {
 
     pub fn require_hot(&self, signer: &Pubkey, role: HotRole) -> DriftResult<()> {
         if !self.is_hot(signer, role) {
-            msg!(
-                "signer {} is not authorized for role {:?}",
-                signer,
-                role
-            );
+            msg!("signer {} is not authorized for role {:?}", signer, role);
             return Err(crate::error::ErrorCode::Unauthorized.into());
         }
         Ok(())

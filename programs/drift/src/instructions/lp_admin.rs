@@ -6,7 +6,6 @@ use crate::instructions::optional_accounts::{get_token_mint, load_maps, AccountM
 use crate::math::constants::{PRICE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX};
 use crate::math::safe_math::SafeMath;
 use crate::perp_market_valid;
-use crate::state::state::HotRole;
 use crate::state::amm_cache::{AmmCache, AMM_POSITIONS_CACHE};
 use crate::state::lp_pool::{
     AmmConstituentDatum, AmmConstituentMapping, Constituent, ConstituentCorrelations,
@@ -17,6 +16,7 @@ use crate::state::lp_pool::{
 use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::MarketSet;
 use crate::state::spot_market::SpotMarket;
+use crate::state::state::HotRole;
 use crate::state::state::State;
 use crate::validate;
 use crate::{controller, load_mut};
@@ -923,11 +923,7 @@ pub fn handle_update_initial_amm_cache_info<'c: 'info, 'info>(
     for (_, perp_market_loader) in perp_market_map.0 {
         let perp_market = perp_market_loader.load()?;
         let oracle_data = oracle_map.get_price_data(&perp_market.oracle_id())?;
-        let mm_oracle_data = perp_market.get_mm_oracle_price_data(
-            *oracle_data,
-            slot,
-            &validity,
-        )?;
+        let mm_oracle_data = perp_market.get_mm_oracle_price_data(*oracle_data, slot, &validity)?;
 
         amm_cache.update_perp_market_fields(&perp_market)?;
         amm_cache.update_oracle_info(

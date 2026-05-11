@@ -1682,10 +1682,7 @@ pub mod drift {
         handle_update_admin(ctx, admin)
     }
 
-    pub fn update_warm_admin(
-        ctx: Context<UpdateWarmAdmin>,
-        new_warm_admin: Pubkey,
-    ) -> Result<()> {
+    pub fn update_warm_admin(ctx: Context<UpdateWarmAdmin>, new_warm_admin: Pubkey) -> Result<()> {
         handle_update_warm_admin(ctx, new_warm_admin)
     }
 

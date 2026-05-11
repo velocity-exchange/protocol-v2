@@ -3,9 +3,9 @@ use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
 use crate::auth::check_hot;
 use crate::math::constants::PRICE_PRECISION_I64;
-use crate::state::state::HotRole;
 use crate::state::events::{DepositDirection, LPBorrowLendDepositRecord};
 use crate::state::paused_operations::ConstituentLpOperation;
+use crate::state::state::HotRole;
 use crate::validation::whitelist::validate_whitelist_token;
 use crate::{
     controller::{

@@ -60,7 +60,6 @@ use crate::optional_accounts::{get_token_interface, get_token_mint};
 use crate::print_error;
 use crate::safe_decrement;
 use crate::safe_increment;
-use crate::state::state::HotRole;
 use crate::state::events::emit_stack;
 use crate::state::events::OrderAction;
 use crate::state::events::OrderActionRecord;
@@ -97,6 +96,7 @@ use crate::state::spot_market::SpotMarket;
 use crate::state::spot_market_map::{
     get_writable_spot_market_set, get_writable_spot_market_set_from_many,
 };
+use crate::state::state::HotRole;
 use crate::state::state::State;
 use crate::state::traits::Size;
 use crate::state::user::OrderStatus;
@@ -554,7 +554,9 @@ pub fn handle_migrate_referrer<'c: 'info, 'info>(
 ) -> Result<()> {
     let state = ctx.accounts.state.load()?;
     if !state.builder_referral_enabled() && state.cold_admin != ctx.accounts.payer.key() {
-        msg!("Only state.cold_admin can migrate referrer until builder referral feature is enabled");
+        msg!(
+            "Only state.cold_admin can migrate referrer until builder referral feature is enabled"
+        );
         return Err(anchor_lang::error::ErrorCode::ConstraintSigner.into());
     }
 

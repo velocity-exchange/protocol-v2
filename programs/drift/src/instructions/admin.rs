@@ -37,7 +37,6 @@ use crate::math::spot_withdraw::validate_spot_market_vault_amount;
 use crate::math::{amm, bn};
 use crate::math_error;
 use crate::optional_accounts::get_token_mint;
-use crate::state::state::HotRole;
 use crate::state::amm_cache::{AmmCache, CacheInfo, AMM_POSITIONS_CACHE};
 use crate::state::events::{
     CurveRecord, DepositDirection, DepositExplanation, DepositRecord, SpotMarketVaultDepositRecord,
@@ -71,6 +70,7 @@ use crate::state::spot_market::{
     TokenProgramFlag,
 };
 use crate::state::spot_market_map::get_writable_spot_market_set;
+use crate::state::state::HotRole;
 use crate::state::state::{
     ExchangeStatus, FeeStructure, LpPoolFeatureBitFlags, OracleGuardRails, State,
 };
@@ -3565,7 +3565,10 @@ pub fn handle_update_liquidation_margin_buffer_ratio(
         liquidation_margin_buffer_ratio
     );
 
-    ctx.accounts.state.load_mut()?.liquidation_margin_buffer_ratio = liquidation_margin_buffer_ratio;
+    ctx.accounts
+        .state
+        .load_mut()?
+        .liquidation_margin_buffer_ratio = liquidation_margin_buffer_ratio;
     Ok(())
 }
 
@@ -4336,7 +4339,11 @@ pub fn handle_update_spot_market_fuel(
 }
 
 pub fn handle_update_admin(ctx: Context<ColdAdminUpdateState>, admin: Pubkey) -> Result<()> {
-    msg!("admin: {:?} -> {:?}", ctx.accounts.state.load()?.cold_admin, admin);
+    msg!(
+        "admin: {:?} -> {:?}",
+        ctx.accounts.state.load()?.cold_admin,
+        admin
+    );
     ctx.accounts.state.load_mut()?.cold_admin = admin;
     Ok(())
 }
@@ -6128,11 +6135,7 @@ pub fn handle_update_warm_admin(
     new_warm_admin: Pubkey,
 ) -> Result<()> {
     let mut state = ctx.accounts.state.load_mut()?;
-    msg!(
-        "warm_admin: {:?} -> {:?}",
-        state.warm_admin,
-        new_warm_admin
-    );
+    msg!("warm_admin: {:?} -> {:?}", state.warm_admin, new_warm_admin);
     state.warm_admin = new_warm_admin;
     Ok(())
 }

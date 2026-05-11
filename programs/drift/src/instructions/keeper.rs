@@ -51,7 +51,6 @@ use crate::math::spot_balance::get_token_amount;
 use crate::math::spot_withdraw::validate_spot_market_vault_amount;
 use crate::optional_accounts::{get_token_mint, update_prelaunch_oracle};
 use crate::signer::get_signer_seeds;
-use crate::state::state::HotRole;
 use crate::state::amm_cache::CacheInfo;
 use crate::state::events::LPSettleRecord;
 use crate::state::events::{DeleteUserRecord, OrderActionExplanation, SignedMsgOrderRecord};
@@ -84,6 +83,7 @@ use crate::state::spot_market::{SpotBalanceType, SpotMarket};
 use crate::state::spot_market_map::{
     get_writable_spot_market_set, get_writable_spot_market_set_from_many, SpotMarketMap,
 };
+use crate::state::state::HotRole;
 use crate::state::state::State;
 use crate::state::user::{
     MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats,
@@ -3392,11 +3392,8 @@ pub fn handle_update_amm_cache<'c: 'info, 'info>(
 
         let oracle_data = oracle_map.get_price_data(&perp_market.oracle_id())?;
         let validity = ctx.accounts.state.load()?.oracle_guard_rails.validity;
-        let mm_oracle_price_data = perp_market.get_mm_oracle_price_data(
-            *oracle_data,
-            slot,
-            &validity,
-        )?;
+        let mm_oracle_price_data =
+            perp_market.get_mm_oracle_price_data(*oracle_data, slot, &validity)?;
 
         cached_info.update_perp_market_fields(&perp_market)?;
         cached_info.try_update_oracle_info(

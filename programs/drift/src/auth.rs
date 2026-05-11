@@ -23,11 +23,7 @@ pub fn check_warm(signer: &Pubkey, state: &AccountLoader<'_, State>) -> Result<b
 
 /// Anchor `constraint = ...` helper for hot-role-gated handlers. Returns
 /// `Ok(true)` iff `signer` is cold, warm, or the configured key for `role`.
-pub fn check_hot(
-    signer: &Pubkey,
-    state: &AccountLoader<'_, State>,
-    role: HotRole,
-) -> Result<bool> {
+pub fn check_hot(signer: &Pubkey, state: &AccountLoader<'_, State>, role: HotRole) -> Result<bool> {
     let state = state.load()?;
     Ok(state.is_hot(signer, role))
 }
