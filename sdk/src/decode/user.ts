@@ -347,8 +347,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 	offset += 1;
 	offset += 3; // padding
 
-	const paddingFormerLastFuelBonusUpdateTs = buffer.readUint32LE(offset);
-	offset += 4;
 	const specialUserStatus = buffer.readUInt8(offset);
 	offset += 1;
 	offset += 11; // padding
@@ -380,7 +378,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		openAuctions,
 		hasOpenAuction,
 		poolId,
-		paddingFormerLastFuelBonusUpdateTs,
 		specialUserStatus,
 	};
 }

@@ -139,7 +139,7 @@ pub struct User {
     pub padding_former_margin_mode: u8,
     pub pool_id: u8,
     pub padding1: [u8; 3],
-    pub padding_former_last_fuel_bonus_update_ts: u32,
+    pub padding2: u32,
     /// Whether the user is a special user (vamm hedger, etc)
     pub special_user_status: u8,
     pub padding: [u8; 11],
@@ -1858,18 +1858,13 @@ pub struct UserStats {
     pub referrer_status: u8,
     pub disable_update_perp_bid_ask_twap: u8,
     pub paused_operations: u8,
-    pub padding_former_fuel_overflow_status: u8,
-    pub padding_former_fuel_insurance: u32,
-    pub padding_former_fuel_deposits: u32,
-    pub padding_former_fuel_borrows: u32,
-    pub padding_former_fuel_positions: u32,
-    pub padding_former_fuel_taker: u32,
-    pub padding_former_fuel_maker: u32,
+    pub padding2: u8,
+    pub padding3: [u32; 6],
 
     /// The amount of tokens staked in the governance spot markets if
     pub if_staked_gov_token_amount: u64,
 
-    pub padding_former_last_fuel_if_bonus_update_ts: u32,
+    pub padding4: u32,
 
     pub padding: [u8; 12],
 }

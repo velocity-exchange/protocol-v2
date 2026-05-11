@@ -193,9 +193,7 @@ pub struct PerpMarket {
     /// E.g. if this is -50 and the fee is 5bps, the new fee will be 2.5bps
     /// if this is 50 and the fee is 5bps, the new fee will be 7.5bps
     pub fee_adjustment: i16,
-    pub padding_former_fuel_boost_position: u8,
-    pub padding_former_fuel_boost_taker: u8,
-    pub padding_former_fuel_boost_maker: u8,
+    pub padding2: [u8; 3],
     pub pool_id: u8,
     /// Deprecated: formerly high_leverage_margin_ratio_initial and high_leverage_margin_ratio_maintenance
     pub padding_former_hlm: [u8; 4],
@@ -242,9 +240,7 @@ impl Default for PerpMarket {
             paused_operations: 0,
             quote_spot_market_index: 0,
             fee_adjustment: 0,
-            padding_former_fuel_boost_position: 0,
-            padding_former_fuel_boost_taker: 0,
-            padding_former_fuel_boost_maker: 0,
+            padding2: [0; 3],
             pool_id: 0,
             padding_former_hlm: [0; 4],
             protected_maker_limit_price_divisor: 0,

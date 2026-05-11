@@ -17072,13 +17072,13 @@ export type Drift = {
     },
     {
       "code": 6310,
-      "name": "userFuelOverflowThresholdNotMet",
-      "msg": "User fuel overflow threshold not met"
+      "name": "deprecatedFuel1",
+      "msg": "deprecated"
     },
     {
       "code": 6311,
-      "name": "fuelOverflowAccountNotFound",
-      "msg": "FuelOverflow account not found"
+      "name": "deprecatedFuel2",
+      "msg": "deprecated"
     },
     {
       "code": 6312,
@@ -22295,16 +22295,13 @@ export type Drift = {
             "type": "i16"
           },
           {
-            "name": "paddingFormerFuelBoostPosition",
-            "type": "u8"
-          },
-          {
-            "name": "paddingFormerFuelBoostTaker",
-            "type": "u8"
-          },
-          {
-            "name": "paddingFormerFuelBoostMaker",
-            "type": "u8"
+            "name": "padding2",
+            "type": {
+              "array": [
+                "u8",
+                3
+              ]
+            }
           },
           {
             "name": "poolId",
@@ -24268,24 +24265,13 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "paddingFormerFuelBoostDeposits",
-            "type": "u8"
-          },
-          {
-            "name": "paddingFormerFuelBoostBorrows",
-            "type": "u8"
-          },
-          {
-            "name": "paddingFormerFuelBoostTaker",
-            "type": "u8"
-          },
-          {
-            "name": "paddingFormerFuelBoostMaker",
-            "type": "u8"
-          },
-          {
-            "name": "paddingFormerFuelBoostInsurance",
-            "type": "u8"
+            "name": "padding2",
+            "type": {
+              "array": [
+                "u8",
+                5
+              ]
+            }
           },
           {
             "name": "tokenProgramFlag",
@@ -25071,7 +25057,7 @@ export type Drift = {
             }
           },
           {
-            "name": "paddingFormerLastFuelBonusUpdateTs",
+            "name": "padding2",
             "type": "u32"
           },
           {
@@ -25280,32 +25266,17 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "paddingFormerFuelOverflowStatus",
+            "name": "padding2",
             "type": "u8"
           },
           {
-            "name": "paddingFormerFuelInsurance",
-            "type": "u32"
-          },
-          {
-            "name": "paddingFormerFuelDeposits",
-            "type": "u32"
-          },
-          {
-            "name": "paddingFormerFuelBorrows",
-            "type": "u32"
-          },
-          {
-            "name": "paddingFormerFuelPositions",
-            "type": "u32"
-          },
-          {
-            "name": "paddingFormerFuelTaker",
-            "type": "u32"
-          },
-          {
-            "name": "paddingFormerFuelMaker",
-            "type": "u32"
+            "name": "padding3",
+            "type": {
+              "array": [
+                "u32",
+                6
+              ]
+            }
           },
           {
             "name": "ifStakedGovTokenAmount",
@@ -25315,7 +25286,7 @@ export type Drift = {
             "type": "u64"
           },
           {
-            "name": "paddingFormerLastFuelIfBonusUpdateTs",
+            "name": "padding4",
             "type": "u32"
           },
           {

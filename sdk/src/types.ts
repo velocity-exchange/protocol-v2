@@ -875,10 +875,6 @@ export type PerpMarketAccount = {
 	feeAdjustment: number;
 	pausedOperations: number;
 
-	paddingFormerFuelBoostTaker: number;
-	paddingFormerFuelBoostMaker: number;
-	paddingFormerFuelBoostPosition: number;
-
 	protectedMakerLimitPriceDivisor: number;
 	protectedMakerDynamicDivisor: number;
 	lastFillPrice: BN;
@@ -987,12 +983,6 @@ export type SpotMarketAccount = {
 
 	maxTokenBorrowsFraction: number;
 	minBorrowRate: number;
-
-	paddingFormerFuelBoostDeposits: number;
-	paddingFormerFuelBoostBorrows: number;
-	paddingFormerFuelBoostTaker: number;
-	paddingFormerFuelBoostMaker: number;
-	paddingFormerFuelBoostInsurance: number;
 
 	tokenProgramFlag: number;
 
@@ -1148,16 +1138,6 @@ export type UserStatsAccount = {
 	referrerStatus: number;
 	authority: PublicKey;
 	ifStakedQuoteAssetAmount: BN;
-	paddingFormerLastFuelIfBonusUpdateTs: number; // u32 onchain
-
-	paddingFormerFuelOverflowStatus: number;
-	paddingFormerFuelInsurance: number;
-	paddingFormerFuelDeposits: number;
-	paddingFormerFuelBorrows: number;
-	paddingFormerFuelPositions: number;
-	paddingFormerFuelTaker: number;
-	paddingFormerFuelMaker: number;
-
 	ifStakedGovTokenAmount: BN;
 };
 
@@ -1188,7 +1168,6 @@ export type UserAccount = {
 	hasOpenOrder: boolean;
 	openAuctions: number;
 	hasOpenAuction: boolean;
-	paddingFormerLastFuelBonusUpdateTs: number;
 	poolId: number;
 	specialUserStatus: number;
 };
