@@ -152,7 +152,6 @@ import {
 	ONE,
 	PERCENTAGE_PRECISION,
 	PRICE_PRECISION,
-	QUOTE_PRECISION,
 	QUOTE_SPOT_MARKET_INDEX,
 	ZERO,
 } from './constants/numericConstants';
