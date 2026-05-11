@@ -95,22 +95,22 @@ mod native_instruction_offsets {
         let amm_start = DISC + std::mem::offset_of!(PerpMarket, amm);
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_slot),
-            840,
+            776,
             "mm_oracle_slot offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_price),
-            920,
+            856,
             "mm_oracle_price offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_sequence_id),
-            944,
+            880,
             "mm_oracle_sequence_id offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, amm_spread_adjustment),
-            942,
+            873,
             "amm_spread_adjustment offset changed — update handle_update_amm_spread_adjustment_native"
         );
     }

@@ -1054,28 +1054,23 @@ pub fn handle_initialize_perp_market(
             last_trade_ts: now,
             curve_update_intensity,
             fee_pool: PoolBalance::default(),
-            padding_baapl: [0; 16],
-            padding_qaapl: [0; 16],
             last_update_slot: clock_slot,
 
-            padding_baawul: [0; 16],
-            padding_user_lp_shares: [0; 16],
             amm_jit_intensity,
 
             last_oracle_valid: false,
-            padding_target_baapl: [0; 4],
-            padding_per_lp_base: [0; 1],
             oracle_slot_delay_override: -1,
             oracle_low_risk_slot_delay_override: 0,
             amm_spread_adjustment: 0,
+            padding_pre_mm_oracle_sequence: [0; 5],
             mm_oracle_sequence_id: 0,
             net_unsettled_funding_pnl: 0,
-            padding_qaawul: [0; 8],
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
             padding: [0; 2],
             last_funding_oracle_twap: 0,
+            padding_trailing: [0; 8],
         },
     };
 
@@ -4828,7 +4823,7 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
 
     let mut perp_market = accounts[0].data.borrow_mut();
     // Account offsets verified via offset_of!(AMM, field) + 8 discriminator bytes.
-    let perp_market_sequence_id = u64::from_le_bytes(perp_market[944..952].try_into().unwrap());
+    let perp_market_sequence_id = u64::from_le_bytes(perp_market[880..888].try_into().unwrap());
     let incoming_sequence_id = u64::from_le_bytes(data[8..16].try_into().unwrap());
 
     if &data[0..8] == &[0u8; 8] {
@@ -4840,9 +4835,9 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
         let clock_account = &accounts[2];
         let clock_data = clock_account.data.borrow();
 
-        perp_market[840..848].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
-        perp_market[920..928].copy_from_slice(&data[0..8]); // mm_oracle_price
-        perp_market[944..952].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
+        perp_market[776..784].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
+        perp_market[856..864].copy_from_slice(&data[0..8]); // mm_oracle_price
+        perp_market[880..888].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
     }
 
     Ok(())
@@ -4861,7 +4856,7 @@ pub fn handle_update_amm_spread_adjustment_native(
         amm_spread_adjust_wallet::id()
     );
     let mut perp_market = accounts[0].data.borrow_mut();
-    perp_market[942..943].copy_from_slice(&[data[0]]); // amm_spread_adjustment
+    perp_market[873..874].copy_from_slice(&[data[0]]); // amm_spread_adjustment
 
     Ok(())
 }

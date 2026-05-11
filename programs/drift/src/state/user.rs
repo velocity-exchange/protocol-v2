@@ -69,7 +69,7 @@ pub enum SpecialUserStatus {
 
 // implement SIZE const for User
 impl Size for User {
-    const SIZE: usize = 4376;
+    const SIZE: usize = 4240;
 }
 
 #[account(zero_copy(unsafe))]
@@ -88,8 +88,6 @@ pub struct User {
     pub perp_positions: [PerpPosition; 8],
     /// The user's orders
     pub orders: [Order; 32],
-    /// Reserved: previously last_add_perp_lp_shares_ts (vAMM LP removed).
-    pub padding_lp_ts: [u8; 8],
     /// The total values of deposits the user has made
     /// precision: QUOTE_PRECISION
     pub total_deposits: u64,
@@ -1185,13 +1183,9 @@ pub struct PerpPosition {
     /// The amount of pnl settled in this market since opening the position
     /// precision: QUOTE_PRECISION
     pub settled_pnl: i64,
-    /// Reserved: previously lp_shares (vAMM LP removed).
-    pub padding_lp_shares: [u8; 8],
     /// The scaled balance of the isolated position
     /// precision: SPOT_BALANCE_PRECISION
     pub isolated_position_scaled_balance: u64,
-    /// Reserved: previously last_quote_asset_amount_per_lp (vAMM LP removed).
-    pub padding_last_qaapl: [u8; 8],
     pub padding: [u8; 2],
     // custom max margin ratio for perp market
     pub max_margin_ratio: u16,

@@ -17475,30 +17475,6 @@
             }
           },
           {
-            "name": "padding_baapl",
-            "docs": [
-              "Reserved: previously base_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
-            "name": "padding_qaapl",
-            "docs": [
-              "Reserved: previously quote_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
             "name": "fee_pool",
             "docs": [
               "partition of fees from perp market trading moved from pnl settlements"
@@ -17599,18 +17575,6 @@
             "type": "i128"
           },
           {
-            "name": "padding_baawul",
-            "docs": [
-              "Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
             "name": "max_open_interest",
             "docs": [
               "max allowed open interest, blocks trades that breach this value",
@@ -17657,18 +17621,6 @@
               "precision: QUOTE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "padding_user_lp_shares",
-            "docs": [
-              "Reserved: previously user_lp_shares (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
           },
           {
             "name": "last_funding_rate",
@@ -18053,30 +18005,6 @@
             "type": "bool"
           },
           {
-            "name": "padding_target_baapl",
-            "docs": [
-              "Reserved: previously target_base_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
-          },
-          {
-            "name": "padding_per_lp_base",
-            "docs": [
-              "Reserved: previously per_lp_base (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                1
-              ]
-            }
-          },
-          {
             "name": "oracle_low_risk_slot_delay_override",
             "docs": [
               "the override for the state.min_perp_auction_duration",
@@ -18096,24 +18024,24 @@
             "type": "i8"
           },
           {
+            "name": "padding_pre_mm_oracle_sequence",
+            "docs": [
+              "alignment padding for the following u64 (Rust would otherwise insert 5 implicit bytes here)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                5
+              ]
+            }
+          },
+          {
             "name": "mm_oracle_sequence_id",
             "type": "u64"
           },
           {
             "name": "net_unsettled_funding_pnl",
             "type": "i64"
-          },
-          {
-            "name": "padding_qaawul",
-            "docs": [
-              "Reserved: previously quote_asset_amount_with_unsettled_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
           },
           {
             "name": "reference_price_offset",
@@ -18142,6 +18070,18 @@
           {
             "name": "last_funding_oracle_twap",
             "type": "i64"
+          },
+          {
+            "name": "padding_trailing",
+            "docs": [
+              "trailing alignment padding (struct alignment is 16 due to u128 fields)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           }
         ]
       }
@@ -19603,18 +19543,6 @@
               "precision: BASE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "padding_baawul",
-            "docs": [
-              "Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
           }
         ]
       }
@@ -20905,18 +20833,6 @@
           {
             "name": "quote_asset_amount",
             "type": "i64"
-          },
-          {
-            "name": "padding_lp_shares",
-            "docs": [
-              "Reserved: previously lp_shares (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
           },
           {
             "name": "fill_record_id",
@@ -22840,36 +22756,12 @@
             "type": "i64"
           },
           {
-            "name": "padding_lp_shares",
-            "docs": [
-              "Reserved: previously lp_shares (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
-          },
-          {
             "name": "isolated_position_scaled_balance",
             "docs": [
               "The scaled balance of the isolated position",
               "precision: SPOT_BALANCE_PRECISION"
             ],
             "type": "u64"
-          },
-          {
-            "name": "padding_last_qaapl",
-            "docs": [
-              "Reserved: previously last_quote_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
           },
           {
             "name": "padding",
@@ -25314,18 +25206,6 @@
                   }
                 },
                 32
-              ]
-            }
-          },
-          {
-            "name": "padding_lp_ts",
-            "docs": [
-              "Reserved: previously last_add_perp_lp_shares_ts (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
               ]
             }
           },

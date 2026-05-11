@@ -17481,30 +17481,6 @@ export type Drift = {
             }
           },
           {
-            "name": "paddingBaapl",
-            "docs": [
-              "Reserved: previously base_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
-            "name": "paddingQaapl",
-            "docs": [
-              "Reserved: previously quote_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
             "name": "feePool",
             "docs": [
               "partition of fees from perp market trading moved from pnl settlements"
@@ -17605,18 +17581,6 @@ export type Drift = {
             "type": "i128"
           },
           {
-            "name": "paddingBaawul",
-            "docs": [
-              "Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
             "name": "maxOpenInterest",
             "docs": [
               "max allowed open interest, blocks trades that breach this value",
@@ -17663,18 +17627,6 @@ export type Drift = {
               "precision: QUOTE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "paddingUserLpShares",
-            "docs": [
-              "Reserved: previously user_lp_shares (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
           },
           {
             "name": "lastFundingRate",
@@ -18059,30 +18011,6 @@ export type Drift = {
             "type": "bool"
           },
           {
-            "name": "paddingTargetBaapl",
-            "docs": [
-              "Reserved: previously target_base_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
-          },
-          {
-            "name": "paddingPerLpBase",
-            "docs": [
-              "Reserved: previously per_lp_base (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                1
-              ]
-            }
-          },
-          {
             "name": "oracleLowRiskSlotDelayOverride",
             "docs": [
               "the override for the state.min_perp_auction_duration",
@@ -18102,24 +18030,24 @@ export type Drift = {
             "type": "i8"
           },
           {
+            "name": "paddingPreMmOracleSequence",
+            "docs": [
+              "alignment padding for the following u64 (Rust would otherwise insert 5 implicit bytes here)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                5
+              ]
+            }
+          },
+          {
             "name": "mmOracleSequenceId",
             "type": "u64"
           },
           {
             "name": "netUnsettledFundingPnl",
             "type": "i64"
-          },
-          {
-            "name": "paddingQaawul",
-            "docs": [
-              "Reserved: previously quote_asset_amount_with_unsettled_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
           },
           {
             "name": "referencePriceOffset",
@@ -18148,6 +18076,18 @@ export type Drift = {
           {
             "name": "lastFundingOracleTwap",
             "type": "i64"
+          },
+          {
+            "name": "paddingTrailing",
+            "docs": [
+              "trailing alignment padding (struct alignment is 16 due to u128 fields)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           }
         ]
       }
@@ -19609,18 +19549,6 @@ export type Drift = {
               "precision: BASE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "paddingBaawul",
-            "docs": [
-              "Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
           }
         ]
       }
@@ -20911,18 +20839,6 @@ export type Drift = {
           {
             "name": "quoteAssetAmount",
             "type": "i64"
-          },
-          {
-            "name": "paddingLpShares",
-            "docs": [
-              "Reserved: previously lp_shares (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
           },
           {
             "name": "fillRecordId",
@@ -22846,36 +22762,12 @@ export type Drift = {
             "type": "i64"
           },
           {
-            "name": "paddingLpShares",
-            "docs": [
-              "Reserved: previously lp_shares (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
-          },
-          {
             "name": "isolatedPositionScaledBalance",
             "docs": [
               "The scaled balance of the isolated position",
               "precision: SPOT_BALANCE_PRECISION"
             ],
             "type": "u64"
-          },
-          {
-            "name": "paddingLastQaapl",
-            "docs": [
-              "Reserved: previously last_quote_asset_amount_per_lp (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
-              ]
-            }
           },
           {
             "name": "padding",
@@ -25320,18 +25212,6 @@ export type Drift = {
                   }
                 },
                 32
-              ]
-            }
-          },
-          {
-            "name": "paddingLpTs",
-            "docs": [
-              "Reserved: previously last_add_perp_lp_shares_ts (vAMM LP removed)."
-            ],
-            "type": {
-              "array": [
-                "u8",
-                8
               ]
             }
           },

@@ -268,7 +268,7 @@ impl Default for PerpMarket {
 }
 
 impl Size for PerpMarket {
-    const SIZE: usize = 1240;
+    const SIZE: usize = 1176;
 }
 
 impl MarketIndexOffset for PerpMarket {
@@ -279,7 +279,7 @@ impl MarketIndexOffset for PerpMarket {
     // declared content is 1232 bytes (a multiple of 16), making sizeof(PerpMarket)
     // == 1232 on both architectures.  market_index is at struct byte 1168,
     // account byte 1176 on both.
-    const MARKET_INDEX_OFFSET: usize = 1176;
+    const MARKET_INDEX_OFFSET: usize = 1112;
 }
 
 impl PerpMarket {
@@ -964,10 +964,6 @@ pub struct AMM {
     pub oracle: Pubkey,
     /// stores historically witnessed oracle data
     pub historical_oracle_data: HistoricalOracleData,
-    /// Reserved: previously base_asset_amount_per_lp (vAMM LP removed).
-    pub padding_baapl: [u8; 16],
-    /// Reserved: previously quote_asset_amount_per_lp (vAMM LP removed).
-    pub padding_qaapl: [u8; 16],
     /// partition of fees from perp market trading moved from pnl settlements
     pub fee_pool: PoolBalance,
     /// `x` reserves for constant product mm formula (x * y = k)
@@ -1004,8 +1000,6 @@ pub struct AMM {
     /// tracks net position (longs-shorts) in market with AMM as counterparty
     /// precision: BASE_PRECISION
     pub base_asset_amount_with_amm: i128,
-    /// Reserved: previously base_asset_amount_with_unsettled_lp (vAMM LP removed).
-    pub padding_baawul: [u8; 16],
     /// max allowed open interest, blocks trades that breach this value
     /// precision: BASE_PRECISION
     pub max_open_interest: u128,
@@ -1024,8 +1018,6 @@ pub struct AMM {
     /// sum of all short user's quote_break_even_amount in market
     /// precision: QUOTE_PRECISION
     pub quote_break_even_amount_short: i128,
-    /// Reserved: previously user_lp_shares (vAMM LP removed).
-    pub padding_user_lp_shares: [u8; 16],
     /// last funding rate in this perp market (unit is quote per base)
     /// precision: FUNDING_RATE_PRECISION
     pub last_funding_rate: i64,
@@ -1154,26 +1146,24 @@ pub struct AMM {
     pub oracle_source: OracleSource,
     /// tracks whether the oracle was considered valid at the last AMM update
     pub last_oracle_valid: bool,
-    /// Reserved: previously target_base_asset_amount_per_lp (vAMM LP removed).
-    pub padding_target_baapl: [u8; 4],
-    /// Reserved: previously per_lp_base (vAMM LP removed).
-    pub padding_per_lp_base: [u8; 1],
     /// the override for the state.min_perp_auction_duration
     /// 0 is no override, -1 is disable speed bump, 1-100 is literal speed bump
     pub oracle_low_risk_slot_delay_override: i8,
     /// signed scale amm_spread similar to fee_adjustment logic (-100 = 0, 100 = double)
     pub amm_spread_adjustment: i8,
     pub oracle_slot_delay_override: i8,
+    /// alignment padding for the following u64 (Rust would otherwise insert 5 implicit bytes here)
+    pub padding_pre_mm_oracle_sequence: [u8; 5],
     pub mm_oracle_sequence_id: u64,
     pub net_unsettled_funding_pnl: i64,
-    /// Reserved: previously quote_asset_amount_with_unsettled_lp (vAMM LP removed).
-    pub padding_qaawul: [u8; 8],
     pub reference_price_offset: i32,
     /// signed scale amm_spread similar to fee_adjustment logic (-100 = 0, 100 = double)
     pub amm_inventory_spread_adjustment: i8,
     pub reference_price_offset_deadband_pct: u8,
     pub padding: [u8; 2],
     pub last_funding_oracle_twap: i64,
+    /// trailing alignment padding (struct alignment is 16 due to u128 fields)
+    pub padding_trailing: [u8; 8],
 }
 
 impl Default for AMM {
@@ -1181,8 +1171,6 @@ impl Default for AMM {
         AMM {
             oracle: Pubkey::default(),
             historical_oracle_data: HistoricalOracleData::default(),
-            padding_baapl: [0; 16],
-            padding_qaapl: [0; 16],
             fee_pool: PoolBalance::default(),
             base_asset_reserve: 0,
             quote_asset_reserve: 0,
@@ -1195,14 +1183,12 @@ impl Default for AMM {
             base_asset_amount_long: 0,
             base_asset_amount_short: 0,
             base_asset_amount_with_amm: 0,
-            padding_baawul: [0; 16],
             max_open_interest: 0,
             quote_asset_amount: 0,
             quote_entry_amount_long: 0,
             quote_entry_amount_short: 0,
             quote_break_even_amount_long: 0,
             quote_break_even_amount_short: 0,
-            padding_user_lp_shares: [0; 16],
             last_funding_rate: 0,
             last_funding_rate_long: 0,
             last_funding_rate_short: 0,
@@ -1253,19 +1239,18 @@ impl Default for AMM {
             amm_jit_intensity: 0,
             oracle_source: OracleSource::default(),
             last_oracle_valid: false,
-            padding_target_baapl: [0; 4],
-            padding_per_lp_base: [0; 1],
             oracle_low_risk_slot_delay_override: 0,
             amm_spread_adjustment: 0,
             oracle_slot_delay_override: -1,
+            padding_pre_mm_oracle_sequence: [0; 5],
             mm_oracle_sequence_id: 0,
             net_unsettled_funding_pnl: 0,
-            padding_qaawul: [0; 8],
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
             padding: [0; 2],
             last_funding_oracle_twap: 0,
+            padding_trailing: [0; 8],
         }
     }
 }

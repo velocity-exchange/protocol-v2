@@ -84,10 +84,10 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		const quoteAssetAmount = readSignedBigInt64LE(buffer, offset + 16);
 		const isolatedPositionScaledBalance = readUnsignedBigInt64LE(
 			buffer,
-			offset + 72
+			offset + 64
 		);
-		const openOrders = buffer.readUInt8(offset + 94);
-		const positionFlag = buffer.readUInt8(offset + 95);
+		const openOrders = buffer.readUInt8(offset + 78);
+		const positionFlag = buffer.readUInt8(offset + 79);
 
 		if (
 			baseAssetAmount.eq(ZERO) &&
@@ -100,7 +100,7 @@ export function decodeUser(buffer: Buffer): UserAccount {
 				0
 			)
 		) {
-			offset += 96;
+			offset += 80;
 			continue;
 		}
 
@@ -116,13 +116,11 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		offset += 8;
 		const settledPnl = readSignedBigInt64LE(buffer, offset);
 		offset += 8;
-		offset += 8; // padding_lp_shares (was lp_shares: u64)
 		offset += 8; // isolated_position_scaled_balance (already pre-read above)
-		offset += 8; // padding_last_qaapl (was last_quote_asset_amount_per_lp: i64)
 		offset += 2; // skip padding[u8; 2]
-		const maxMarginRatio = buffer.readUInt16LE(offset); // offset+90
+		const maxMarginRatio = buffer.readUInt16LE(offset); // offset+74
 		offset += 2;
-		const marketIndex = buffer.readUInt16LE(offset); // offset+92
+		const marketIndex = buffer.readUInt16LE(offset); // offset+76
 		offset += 4; // advance past marketIndex(2) + openOrders(1) + positionFlag(1)
 		perpPositions.push({
 			lastCumulativeFundingRate,
@@ -277,8 +275,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 			postedSlotTail,
 		});
 	}
-
-	offset += 8; // padding_lp_ts (was last_add_perp_lp_shares_ts: i64)
 
 	const totalDeposits = readUnsignedBigInt64LE(buffer, offset);
 	offset += 8;
