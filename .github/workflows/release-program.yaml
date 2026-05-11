@@ -9,6 +9,9 @@ on:
     tags:
       - "program-drift-*"
 
+permissions:
+  contents: write   # needed to attach the IDL JSON to the GitHub release
+
 env:
   RUST_TOOLCHAIN: 1.91.1
   SOLANA_VERSION: 2.3.11
