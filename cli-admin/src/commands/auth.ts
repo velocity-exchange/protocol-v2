@@ -20,14 +20,14 @@ export function registerAuth(parent: Command): void {
 	const auth = parent
 		.command('auth')
 		.description(
-			'Authority management: rotate the admin keys held by State and AdminAuthorityConfig.'
+			'Authority management: rotate the cold/warm/hot admin keys held on State.'
 		);
 
 	withGlobalOptions(
 		auth
-			.command('set-admin <newAdmin>')
+			.command('set-cold-admin <newAdmin>')
 			.description(
-				'Rotate state.admin (cold). On-chain check requires the existing cold admin to sign.'
+				'Rotate state.cold_admin. On-chain check requires the existing cold admin to sign.'
 			)
 	).action(async (newAdmin: string, _flags, cmd: Command) => {
 		const opts = readGlobalOpts(cmd);
@@ -51,7 +51,7 @@ export function registerAuth(parent: Command): void {
 		auth
 			.command('set-warm-admin <newWarmAdmin>')
 			.description(
-				'Rotate AdminAuthorityConfig.warm_admin (the multisig+timelock pubkey). On-chain check requires cold to sign.'
+				'Rotate state.warm_admin (the multisig+timelock pubkey). On-chain check requires cold to sign.'
 			)
 	).action(async (newWarmAdmin: string, _flags, cmd: Command) => {
 		const opts = readGlobalOpts(cmd);
@@ -98,38 +98,4 @@ export function registerAuth(parent: Command): void {
 		}
 	});
 
-	withGlobalOptions(
-		auth
-			.command('init-config')
-			.description(
-				'One-time creation of the AdminAuthorityConfig PDA (post-program-upgrade migration). On-chain check requires cold (or warm via the cold-path on existing deployments).'
-			)
-			.option(
-				'--initial-warm <pubkey>',
-				'initial warm_admin pubkey (defaults to current state.admin)'
-			)
-	).action(async (_flags, cmd: Command) => {
-		const opts = readGlobalOpts(cmd);
-		const local = cmd.opts() as { initialWarm?: string };
-		const provider = buildProvider(opts);
-		const client = await buildAdminClient(opts);
-		try {
-			const initialWarm = local.initialWarm
-				? new PublicKey(local.initialWarm)
-				: client.getStateAccount().admin;
-			const ix = await client.getInitializeAdminAuthorityConfigIx(initialWarm);
-			const result = await sendOrPropose(
-				provider,
-				[ix],
-				opts.multisig ? new PublicKey(opts.multisig) : undefined,
-				'drift-admin auth init-config'
-			);
-			reportDispatch(
-				`init-config (warm=${initialWarm.toBase58()})`,
-				result
-			);
-		} finally {
-			await client.unsubscribe();
-		}
-	});
 }

@@ -27,40 +27,6 @@ export type Drift = {
       ],
       "accounts": [
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "writable": true,
           "signer": true
@@ -330,40 +296,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -422,40 +354,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "user",
@@ -535,40 +433,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -710,40 +574,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "authority",
           "writable": true,
           "signer": true
@@ -878,40 +708,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -1580,40 +1376,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -1665,40 +1427,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         },
@@ -1731,40 +1459,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -1876,40 +1570,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "openbookV2FulfillmentConfig",
           "writable": true
         },
@@ -1938,40 +1598,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "prelaunchOracle",
@@ -2035,40 +1661,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "serumFulfillmentConfig",
@@ -2268,40 +1860,6 @@ export type Drift = {
         230
       ],
       "accounts": [
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
         {
           "name": "signer",
           "signer": true
@@ -2579,40 +2137,6 @@ export type Drift = {
           "writable": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         },
@@ -2797,40 +2321,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "spotMarket",
           "writable": true
         },
@@ -2872,40 +2362,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -2960,40 +2416,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "authority",
@@ -3126,40 +2548,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -3534,40 +2922,6 @@ export type Drift = {
           "writable": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "authority",
           "writable": true,
           "relations": [
@@ -3629,47 +2983,6 @@ export type Drift = {
           }
         },
         {
-          "name": "adminAuthorityConfig",
-          "docs": [
-            "Created here so subsequent admin ixs can load this PDA without each test",
-            "having to call `initialize_admin_authority_config` separately. `warm_admin`",
-            "defaults to the cold admin (state.admin) until rotated; all hot roles",
-            "start unset (`Pubkey::default()`)."
-          ],
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "quoteAssetMint"
         },
         {
@@ -3690,77 +3003,6 @@ export type Drift = {
       "args": []
     },
     {
-      "name": "initializeAdminAuthorityConfig",
-      "discriminator": [
-        40,
-        145,
-        37,
-        114,
-        103,
-        155,
-        194,
-        7
-      ],
-      "accounts": [
-        {
-          "name": "adminAuthorityConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state"
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "initialWarmAdmin",
-          "type": "pubkey"
-        }
-      ]
-    },
-    {
       "name": "initializeAmmCache",
       "discriminator": [
         38,
@@ -3777,40 +3019,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -3868,40 +3076,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -4269,40 +3443,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "ifRebalanceConfig",
           "writable": true,
           "pda": {
@@ -4498,40 +3638,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "lpPool",
@@ -4820,40 +3926,6 @@ export type Drift = {
           "writable": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "openbookV2Program"
         },
         {
@@ -4949,40 +4021,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         },
@@ -5009,8 +4047,7 @@ export type Drift = {
               },
               {
                 "kind": "account",
-                "path": "state.number_of_markets",
-                "account": "state"
+                "path": "state"
               }
             ]
           }
@@ -5222,40 +4259,6 @@ export type Drift = {
           "writable": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "phoenixProgram"
         },
         {
@@ -5347,40 +4350,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "prelaunchOracle",
           "writable": true,
           "pda": {
@@ -5453,40 +4422,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "protectedMakerModeConfig",
@@ -5564,40 +4499,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "lazerOracle",
@@ -5933,40 +4834,6 @@ export type Drift = {
           "writable": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "serumProgram"
         },
         {
@@ -6237,8 +5104,7 @@ export type Drift = {
               },
               {
                 "kind": "account",
-                "path": "state.number_of_spot_markets",
-                "account": "state"
+                "path": "state"
               }
             ]
           }
@@ -6275,8 +5141,7 @@ export type Drift = {
               },
               {
                 "kind": "account",
-                "path": "state.number_of_spot_markets",
-                "account": "state"
+                "path": "state"
               }
             ]
           }
@@ -6313,8 +5178,7 @@ export type Drift = {
               },
               {
                 "kind": "account",
-                "path": "state.number_of_spot_markets",
-                "account": "state"
+                "path": "state"
               }
             ]
           }
@@ -6333,40 +5197,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "rent",
@@ -7832,40 +6662,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -7900,40 +6696,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "openbookV2FulfillmentConfig",
@@ -7972,40 +6734,6 @@ export type Drift = {
         {
           "name": "state",
           "writable": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -8129,40 +6857,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "phoenixFulfillmentConfig",
@@ -8607,40 +7301,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -8675,40 +7335,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -8806,40 +7432,6 @@ export type Drift = {
         115
       ],
       "accounts": [
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
         {
           "name": "admin",
           "writable": true,
@@ -9023,40 +7615,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         },
@@ -9208,40 +7766,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "signer": true
         }
@@ -9263,40 +7787,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -9875,40 +8365,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -9935,40 +8391,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -10128,40 +8550,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "lpPool",
@@ -10628,40 +9016,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "signer": true
         },
@@ -11105,40 +9459,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "authority",
           "writable": true,
           "signer": true
@@ -11291,10 +9611,7 @@ export type Drift = {
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         }
       ],
       "args": [
@@ -11376,40 +9693,6 @@ export type Drift = {
       ],
       "accounts": [
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "writable": true,
           "signer": true
@@ -11483,40 +9766,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -11571,40 +9820,6 @@ export type Drift = {
         109
       ],
       "accounts": [
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
         {
           "name": "admin",
           "writable": true,
@@ -11769,40 +9984,6 @@ export type Drift = {
           }
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "writable": true,
           "signer": true
@@ -11840,40 +10021,6 @@ export type Drift = {
       ],
       "accounts": [
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "writable": true,
           "signer": true
@@ -11906,40 +10053,6 @@ export type Drift = {
         15
       ],
       "accounts": [
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
         {
           "name": "admin",
           "writable": true,
@@ -12016,40 +10129,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "insuranceFundVault",
           "writable": true,
           "pda": {
@@ -12113,40 +10192,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -12174,40 +10219,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -12239,40 +10250,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -12300,40 +10277,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -12365,40 +10308,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -12426,40 +10335,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -12491,40 +10366,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -12552,40 +10393,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -12644,42 +10451,8 @@ export type Drift = {
       ],
       "accounts": [
         {
-          "name": "adminAuthorityConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state"
+          "name": "state",
+          "writable": true
         },
         {
           "name": "admin",
@@ -12720,40 +10493,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "ifRebalanceConfig",
           "writable": true
         },
@@ -12788,40 +10527,6 @@ export type Drift = {
         {
           "name": "state",
           "writable": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -12875,40 +10580,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -12936,40 +10607,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -13002,40 +10639,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -13073,40 +10676,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -13134,40 +10703,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -13272,40 +10807,6 @@ export type Drift = {
           "writable": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "writable": true,
           "signer": true
@@ -13343,40 +10844,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -13408,40 +10875,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -13506,40 +10939,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -13570,40 +10969,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -13638,40 +11003,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -13712,40 +11043,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -13814,40 +11111,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -13878,40 +11141,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -13946,40 +11175,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14010,40 +11205,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -14082,40 +11243,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14146,40 +11273,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -14214,40 +11307,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14280,40 +11339,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14344,40 +11369,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -14416,40 +11407,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14478,40 +11435,6 @@ export type Drift = {
         81
       ],
       "accounts": [
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
         {
           "name": "admin",
           "signer": true
@@ -14560,40 +11483,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14626,40 +11515,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14687,40 +11542,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -14785,40 +11606,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14855,40 +11642,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -14919,40 +11672,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -14995,40 +11714,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15059,40 +11744,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -15127,40 +11778,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15193,40 +11810,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15257,40 +11840,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -15330,40 +11879,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15399,40 +11914,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -15515,40 +11996,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15579,40 +12026,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -15647,40 +12060,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15707,40 +12086,6 @@ export type Drift = {
       "accounts": [
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "admin",
@@ -15847,40 +12192,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15921,40 +12232,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -15985,40 +12262,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -16057,40 +12300,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -16125,40 +12334,6 @@ export type Drift = {
         },
         {
           "name": "state"
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "perpMarket",
@@ -16219,40 +12394,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "prelaunchOracle",
@@ -16323,40 +12464,6 @@ export type Drift = {
           "name": "admin",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "protectedMakerModeConfig",
@@ -16436,40 +12543,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "serumFulfillmentConfig",
           "writable": true
         },
@@ -16508,40 +12581,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -16574,40 +12613,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -16635,40 +12640,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -16702,40 +12673,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -16772,40 +12709,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -16913,40 +12816,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -16979,40 +12848,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -17043,40 +12878,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17119,40 +12920,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -17183,40 +12950,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17253,40 +12986,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17337,40 +13036,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -17401,40 +13066,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17469,40 +13100,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -17533,40 +13130,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17604,40 +13167,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17690,40 +13219,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -17754,40 +13249,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17822,40 +13283,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -17886,40 +13313,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -17954,40 +13347,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -18018,40 +13377,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -18090,40 +13415,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state"
         },
         {
@@ -18160,40 +13451,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -18223,40 +13480,6 @@ export type Drift = {
           "signer": true
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "state",
           "writable": true
         }
@@ -18284,40 +13507,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state",
@@ -19013,49 +14202,12 @@ export type Drift = {
       ],
       "accounts": [
         {
-          "name": "adminAuthorityConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state"
+          "name": "state",
+          "writable": true
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         }
       ],
       "args": [
@@ -19081,40 +14233,6 @@ export type Drift = {
         {
           "name": "admin",
           "signer": true
-        },
-        {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "state"
@@ -19613,40 +14731,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "admin",
           "writable": true,
           "signer": true
@@ -19708,40 +14792,6 @@ export type Drift = {
           "name": "state"
         },
         {
-          "name": "adminAuthorityConfig",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  100,
-                  109,
-                  105,
-                  110,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
           "name": "perpMarket",
           "writable": true
         }
@@ -19750,19 +14800,6 @@ export type Drift = {
     }
   ],
   "accounts": [
-    {
-      "name": "adminAuthorityConfig",
-      "discriminator": [
-        42,
-        166,
-        90,
-        40,
-        218,
-        150,
-        7,
-        199
-      ]
-    },
     {
       "name": "ammCache",
       "discriminator": [
@@ -22918,75 +17955,6 @@ export type Drift = {
       }
     },
     {
-      "name": "adminAuthorityConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "warmAdmin",
-            "type": "pubkey"
-          },
-          {
-            "name": "ammCrank",
-            "type": "pubkey"
-          },
-          {
-            "name": "lpCache",
-            "type": "pubkey"
-          },
-          {
-            "name": "lpSwap",
-            "type": "pubkey"
-          },
-          {
-            "name": "lpSettle",
-            "type": "pubkey"
-          },
-          {
-            "name": "ifRebalance",
-            "type": "pubkey"
-          },
-          {
-            "name": "featureFlag",
-            "type": "pubkey"
-          },
-          {
-            "name": "fuel",
-            "type": "pubkey"
-          },
-          {
-            "name": "userFlag",
-            "type": "pubkey"
-          },
-          {
-            "name": "vaultDeposit",
-            "type": "pubkey"
-          },
-          {
-            "name": "mmOracleCrank",
-            "type": "pubkey"
-          },
-          {
-            "name": "ammSpreadAdjust",
-            "type": "pubkey"
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                256
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "adminWithdrawFromInsuranceFundRecord",
       "type": {
         "kind": "struct",
@@ -24042,6 +19010,9 @@ export type Drift = {
     },
     {
       "name": "feeStructure",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -24079,6 +19050,9 @@ export type Drift = {
     },
     {
       "name": "feeTier",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -24529,6 +19503,10 @@ export type Drift = {
     },
     {
       "name": "hotRole",
+      "docs": [
+        "Purpose-specific hot role keys held on `State`. Each variant maps to one of the",
+        "`hot_*` pubkey fields and is used by `State::require_hot` / `hot_key`."
+      ],
       "type": {
         "kind": "enum",
         "variants": [
@@ -26276,6 +21254,9 @@ export type Drift = {
     },
     {
       "name": "oracleGuardRails",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -26985,9 +21966,22 @@ export type Drift = {
     },
     {
       "name": "orderFillerRewardStructure",
+      "docs": [
+        "`u128` is placed first so `#[repr(C)]` layout matches between host (x86_64,",
+        "align 16 in Rust ≥ 1.77) and the SBF VM (align 8). Trailing `_padding`",
+        "rounds the struct to a host-portable 32 bytes. See",
+        "`docs/alignment-and-native-offsets.md`."
+      ],
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "timeBasedRewardLowerBound",
+            "type": "u128"
+          },
           {
             "name": "rewardNumerator",
             "type": "u32"
@@ -26997,8 +21991,13 @@ export type Drift = {
             "type": "u32"
           },
           {
-            "name": "timeBasedRewardLowerBound",
-            "type": "u128"
+            "name": "padding",
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           }
         ]
       }
@@ -27957,6 +22956,9 @@ export type Drift = {
     },
     {
       "name": "priceDivergenceGuardRails",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -29726,6 +24728,7 @@ export type Drift = {
     },
     {
       "name": "state",
+      "serialization": "bytemuckunsafe",
       "repr": {
         "kind": "c"
       },
@@ -29733,7 +24736,66 @@ export type Drift = {
         "kind": "struct",
         "fields": [
           {
-            "name": "admin",
+            "name": "coldAdmin",
+            "docs": [
+              "Root authority. Set at `initialize`; only this key can rotate `warm_admin`."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "warmAdmin",
+            "docs": [
+              "Operational authority (e.g. multisig+timelock). Can rotate the 11 hot keys",
+              "below. `Pubkey::default()` means unset — only `cold_admin` can act in that case."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "hotAmmCrank",
+            "docs": [
+              "Purpose-specific bot keys. `Pubkey::default()` means the role is unassigned",
+              "and only warm/cold can call handlers gated on that role."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "hotLpCache",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotLpSwap",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotLpSettle",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotIfRebalance",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotFeatureFlag",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotFuel",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotUserFlag",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotVaultDeposit",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotMmOracleCrank",
+            "type": "pubkey"
+          },
+          {
+            "name": "hotAmmSpreadAdjust",
             "type": "pubkey"
           },
           {
@@ -29853,7 +24915,7 @@ export type Drift = {
             "type": {
               "array": [
                 "u8",
-                8
+                264
               ]
             }
           }
@@ -30620,6 +25682,9 @@ export type Drift = {
     },
     {
       "name": "validityGuardRails",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -30671,3 +25736,4 @@ export type Drift = {
     }
   ]
 };
+

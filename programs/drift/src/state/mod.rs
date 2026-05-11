@@ -6,7 +6,6 @@
 //! `events.rs` = all emitted program events (OrderRecord, FillRecord, LiquidationRecord, etc.).
 //! `margin_calculation.rs` = margin calculation context and result types.
 
-pub mod admin_authority_config;
 pub mod amm_cache;
 pub mod constituent_map;
 pub mod events;

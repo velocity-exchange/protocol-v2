@@ -2,16 +2,14 @@ use anchor_lang::prelude::*;
 use anchor_lang::Discriminator;
 use anchor_spl::token_interface::{TokenAccount, TokenInterface};
 
-use crate::auth::check_hot_loader;
+use crate::auth::check_hot;
 use crate::error::ErrorCode;
 use crate::instructions::constraints::*;
 use crate::instructions::optional_accounts::{load_maps, AccountMaps};
 use crate::load_mut;
 use crate::math::constants::QUOTE_SPOT_MARKET_INDEX;
 use crate::optional_accounts::get_token_mint;
-use crate::state::admin_authority_config::{
-    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
-};
+use crate::state::state::HotRole;
 use crate::state::insurance_fund_stake::{InsuranceFundStake, ProtocolIfSharesTransferConfig};
 use crate::state::market_status::MarketStatus;
 use crate::state::paused_operations::InsuranceFundOperation;
@@ -73,7 +71,7 @@ pub fn handle_add_insurance_fund_stake<'c: 'info, 'info>(
     let insurance_fund_stake = &mut load_mut!(ctx.accounts.insurance_fund_stake)?;
     let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let mint = get_token_mint(remaining_accounts_iter)?;
@@ -113,7 +111,7 @@ pub fn handle_add_insurance_fund_stake<'c: 'info, 'info>(
                 now,
                 &ctx.accounts.token_program,
                 &ctx.accounts.drift_signer,
-                state,
+                &state,
                 &mint,
                 Some(&mut remaining_accounts_iter.clone()),
             )?;
@@ -125,7 +123,7 @@ pub fn handle_add_insurance_fund_stake<'c: 'info, 'info>(
                 now,
                 &ctx.accounts.token_program,
                 &ctx.accounts.drift_signer,
-                state,
+                &state,
                 &mint,
                 None,
             )?;
@@ -267,7 +265,7 @@ pub fn handle_remove_insurance_fund_stake<'c: 'info, 'info>(
     let insurance_fund_stake = &mut load_mut!(ctx.accounts.insurance_fund_stake)?;
     let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let mint = get_token_mint(remaining_accounts_iter)?;
@@ -359,7 +357,7 @@ pub fn handle_transfer_protocol_if_shares(
         &mut user_stats,
         &mut spot_market,
         Clock::get()?.unix_timestamp,
-        ctx.accounts.state.signer,
+        ctx.accounts.state.load()?.signer,
     )?;
 
     Ok(())
@@ -374,7 +372,7 @@ pub fn handle_begin_insurance_fund_swap<'c: 'info, 'info>(
     out_market_index: u16,
     amount_in: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
 
@@ -515,54 +513,54 @@ pub fn handle_begin_insurance_fund_swap<'c: 'info, 'info>(
             )?;
 
             validate!(
-                ctx.accounts.authority.key() == ix.accounts[2].pubkey,
+                ctx.accounts.authority.key() == ix.accounts[1].pubkey,
                 ErrorCode::InvalidSwap,
                 "the authority passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.out_insurance_fund_vault.key() == ix.accounts[3].pubkey,
+                ctx.accounts.out_insurance_fund_vault.key() == ix.accounts[2].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out_insurance_fund_vault passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.in_insurance_fund_vault.key() == ix.accounts[4].pubkey,
+                ctx.accounts.in_insurance_fund_vault.key() == ix.accounts[3].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in_insurance_fund_vault passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.out_token_account.key() == ix.accounts[5].pubkey,
+                ctx.accounts.out_token_account.key() == ix.accounts[4].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.in_token_account.key() == ix.accounts[6].pubkey,
+                ctx.accounts.in_token_account.key() == ix.accounts[5].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.if_rebalance_config.key() == ix.accounts[7].pubkey,
+                ctx.accounts.if_rebalance_config.key() == ix.accounts[6].pubkey,
                 ErrorCode::InvalidSwap,
                 "the if_rebalance_config passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.remaining_accounts.len() == ix.accounts.len() - 11,
+                ctx.remaining_accounts.len() == ix.accounts.len() - 10,
                 ErrorCode::InvalidSwap,
                 "begin and end ix must have the same number of accounts"
             )?;
 
-            for i in 11..ix.accounts.len() {
+            for i in 10..ix.accounts.len() {
                 validate!(
-                    *ctx.remaining_accounts[i - 11].key == ix.accounts[i].pubkey,
+                    *ctx.remaining_accounts[i - 10].key == ix.accounts[i].pubkey,
                     ErrorCode::InvalidSwap,
                     "begin and end ix must have the same accounts. {}th account mismatch. begin: {}, end: {}",
                     i,
-                    ctx.remaining_accounts[i - 11].key,
+                    ctx.remaining_accounts[i - 10].key,
                     ix.accounts[i].pubkey
                 )?;
             }
@@ -603,7 +601,7 @@ pub fn handle_end_insurance_fund_swap<'c: 'info, 'info>(
     in_market_index: u16,
     out_market_index: u16,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
 
@@ -771,7 +769,7 @@ pub fn handle_transfer_protocol_if_shares_to_revenue_pool<'c: 'info, 'info>(
     market_index: u16,
     amount: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
 
@@ -840,7 +838,7 @@ pub fn handle_deposit_into_insurance_fund_stake<'c: 'info, 'info>(
     let insurance_fund_stake = &mut load_mut!(ctx.accounts.insurance_fund_stake)?;
     let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let mint = get_token_mint(remaining_accounts_iter)?;
@@ -880,7 +878,7 @@ pub fn handle_deposit_into_insurance_fund_stake<'c: 'info, 'info>(
                 now,
                 &ctx.accounts.token_program,
                 &ctx.accounts.drift_signer,
-                state,
+                &state,
                 &mint,
                 Some(&mut remaining_accounts_iter.clone()),
             )?;
@@ -892,7 +890,7 @@ pub fn handle_deposit_into_insurance_fund_stake<'c: 'info, 'info>(
                 now,
                 &ctx.accounts.token_program,
                 &ctx.accounts.drift_signer,
-                state,
+                &state,
                 &mint,
                 None,
             )?;
@@ -957,7 +955,7 @@ pub struct InitializeInsuranceFundStake<'info> {
         has_one = authority
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub authority: Signer<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -968,7 +966,7 @@ pub struct InitializeInsuranceFundStake<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16)]
 pub struct AddInsuranceFundStake<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
@@ -1000,7 +998,7 @@ pub struct AddInsuranceFundStake<'info> {
     pub insurance_fund_vault: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -1044,7 +1042,7 @@ pub struct RequestRemoveInsuranceFundStake<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16,)]
 pub struct RemoveInsuranceFundStake<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
@@ -1069,7 +1067,7 @@ pub struct RemoveInsuranceFundStake<'info> {
     )]
     pub insurance_fund_vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -1088,7 +1086,7 @@ pub struct TransferProtocolIfShares<'info> {
     pub signer: Signer<'info>,
     #[account(mut)]
     pub transfer_config: AccountLoader<'info, ProtocolIfSharesTransferConfig>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
@@ -1118,12 +1116,10 @@ pub struct TransferProtocolIfShares<'info> {
 #[derive(Accounts)]
 #[instruction(in_market_index: u16, out_market_index: u16, )]
 pub struct InsuranceFundSwap<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = check_hot_loader(&authority.key(), &state, &admin_authority_config, HotRole::IfRebalance)?
+        constraint = check_hot(&authority.key(), &state, HotRole::IfRebalance)?
     )]
     pub authority: Signer<'info>,
     #[account(
@@ -1154,7 +1150,7 @@ pub struct InsuranceFundSwap<'info> {
     pub if_rebalance_config: AccountLoader<'info, IfRebalanceConfig>,
     pub token_program: Interface<'info, TokenInterface>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -1167,12 +1163,10 @@ pub struct InsuranceFundSwap<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16)]
 pub struct TransferProtocolIfSharesToRevenuePool<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = check_hot_loader(&authority.key(), &state, &admin_authority_config, HotRole::IfRebalance)?
+        constraint = check_hot(&authority.key(), &state, HotRole::IfRebalance)?
     )]
     pub authority: Signer<'info>,
     #[account(
@@ -1194,7 +1188,7 @@ pub struct TransferProtocolIfSharesToRevenuePool<'info> {
     pub if_rebalance_config: AccountLoader<'info, IfRebalanceConfig>,
     pub token_program: Interface<'info, TokenInterface>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -1203,14 +1197,12 @@ pub struct TransferProtocolIfSharesToRevenuePool<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16,)]
 pub struct DepositIntoInsuranceFundStake<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
-        constraint = check_hot_loader(&signer.key(), &state, &admin_authority_config, HotRole::IfRebalance)?
+        constraint = check_hot(&signer.key(), &state, HotRole::IfRebalance)?
     )]
     pub signer: Signer<'info>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
@@ -1253,7 +1245,7 @@ pub fn handle_admin_withdraw_from_insurance_fund_vault<'c: 'info, 'info>(
     market_index: u16,
     amount: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
 
     let insurance_fund_vault_amount_before = ctx.accounts.insurance_fund_vault.amount;
@@ -1351,10 +1343,10 @@ pub fn handle_admin_withdraw_from_insurance_fund_vault<'c: 'info, 'info>(
 #[derive(Accounts)]
 #[instruction(market_index: u16)]
 pub struct AdminWithdrawFromInsuranceFundVault<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = authority.key() == state.admin
+        constraint = authority.key() == state.load()?.cold_admin
     )]
     pub authority: Signer<'info>,
     #[account(
@@ -1377,7 +1369,7 @@ pub struct AdminWithdrawFromInsuranceFundVault<'info> {
     pub recipient_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     pub token_program: Interface<'info, TokenInterface>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,

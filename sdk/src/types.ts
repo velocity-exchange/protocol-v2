@@ -843,7 +843,19 @@ export type LPBorrowLendDepositRecord = {
 };
 
 export type StateAccount = {
-	admin: PublicKey;
+	coldAdmin: PublicKey;
+	warmAdmin: PublicKey;
+	hotAmmCrank: PublicKey;
+	hotLpCache: PublicKey;
+	hotLpSwap: PublicKey;
+	hotLpSettle: PublicKey;
+	hotIfRebalance: PublicKey;
+	hotFeatureFlag: PublicKey;
+	hotFuel: PublicKey;
+	hotUserFlag: PublicKey;
+	hotVaultDeposit: PublicKey;
+	hotMmOracleCrank: PublicKey;
+	hotAmmSpreadAdjust: PublicKey;
 	exchangeStatus: number;
 	whitelistMint: PublicKey;
 	discountMint: PublicKey;

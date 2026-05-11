@@ -1,4 +1,4 @@
-use crate::auth::{check_hot_loader, check_warm_loader};
+use crate::auth::{check_hot, check_warm};
 use crate::controller::token::{receive, send_from_program_vault_with_signature_seeds};
 use crate::error::ErrorCode;
 use crate::ids::WHITELISTED_SWAP_PROGRAMS;
@@ -6,9 +6,7 @@ use crate::instructions::optional_accounts::{get_token_mint, load_maps, AccountM
 use crate::math::constants::{PRICE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX};
 use crate::math::safe_math::SafeMath;
 use crate::perp_market_valid;
-use crate::state::admin_authority_config::{
-    AdminAuthorityConfig, HotRole, ADMIN_AUTHORITY_CONFIG_SEED,
-};
+use crate::state::state::HotRole;
 use crate::state::amm_cache::{AmmCache, AMM_POSITIONS_CACHE};
 use crate::state::lp_pool::{
     AmmConstituentDatum, AmmConstituentMapping, Constituent, ConstituentCorrelations,
@@ -557,7 +555,7 @@ pub fn handle_add_amm_constituent_data<'info>(
 ) -> Result<()> {
     let amm_mapping = &mut ctx.accounts.amm_constituent_mapping;
     let constituent_target_base = &ctx.accounts.constituent_target_base;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let mut current_len = amm_mapping.weights.len();
 
     for init_datum in init_amm_constituent_mapping_data {
@@ -631,7 +629,7 @@ pub fn handle_begin_lp_swap<'c: 'info, 'info>(
     out_market_index: u16,
     amount_in: u64,
 ) -> Result<()> {
-    // Tier check is enforced at the Anchor context level via check_hot_loader(LpSwap).
+    // Tier check is enforced at the Anchor context level via check_hot(LpSwap).
 
     let ixs = ctx.accounts.instructions.as_ref();
     let current_index = instructions::load_current_index_checked(ixs)? as usize;
@@ -724,43 +722,43 @@ pub fn handle_begin_lp_swap<'c: 'info, 'info>(
             )?;
 
             validate!(
-                ctx.accounts.signer_out_token_account.key() == ix.accounts[3].pubkey,
+                ctx.accounts.signer_out_token_account.key() == ix.accounts[2].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.signer_in_token_account.key() == ix.accounts[4].pubkey,
+                ctx.accounts.signer_in_token_account.key() == ix.accounts[3].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.constituent_out_token_account.key() == ix.accounts[5].pubkey,
+                ctx.accounts.constituent_out_token_account.key() == ix.accounts[4].pubkey,
                 ErrorCode::InvalidSwap,
                 "the constituent out_token_account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.constituent_in_token_account.key() == ix.accounts[6].pubkey,
+                ctx.accounts.constituent_in_token_account.key() == ix.accounts[5].pubkey,
                 ErrorCode::InvalidSwap,
                 "the constituent in token account passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.out_constituent.key() == ix.accounts[7].pubkey,
+                ctx.accounts.out_constituent.key() == ix.accounts[6].pubkey,
                 ErrorCode::InvalidSwap,
                 "the out constituent passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.in_constituent.key() == ix.accounts[8].pubkey,
+                ctx.accounts.in_constituent.key() == ix.accounts[7].pubkey,
                 ErrorCode::InvalidSwap,
                 "the in constituent passed to SwapBegin and End must match"
             )?;
 
             validate!(
-                ctx.accounts.lp_pool.key() == ix.accounts[9].pubkey,
+                ctx.accounts.lp_pool.key() == ix.accounts[8].pubkey,
                 ErrorCode::InvalidSwap,
                 "the lp pool passed to SwapBegin and End must match"
             )?;
@@ -907,7 +905,7 @@ pub fn handle_update_initial_amm_cache_info<'c: 'info, 'info>(
 ) -> Result<()> {
     let amm_cache = &mut ctx.accounts.amm_cache;
     let slot = Clock::get()?.slot;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -921,13 +919,14 @@ pub fn handle_update_initial_amm_cache_info<'c: 'info, 'info>(
         None,
     )?;
 
+    let validity = ctx.accounts.state.load()?.oracle_guard_rails.validity;
     for (_, perp_market_loader) in perp_market_map.0 {
         let perp_market = perp_market_loader.load()?;
         let oracle_data = oracle_map.get_price_data(&perp_market.oracle_id())?;
         let mm_oracle_data = perp_market.get_mm_oracle_price_data(
             *oracle_data,
             slot,
-            &ctx.accounts.state.oracle_guard_rails.validity,
+            &validity,
         )?;
 
         amm_cache.update_perp_market_fields(&perp_market)?;
@@ -1006,11 +1005,9 @@ pub fn handle_override_amm_cache_info<'c: 'info, 'info>(
 pub struct InitializeLpPool<'info> {
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         init,
         seeds = [b"lp_pool", id.to_le_bytes().as_ref()],
@@ -1058,7 +1055,7 @@ pub struct InitializeLpPool<'info> {
     )]
     pub constituent_correlations: Box<Account<'info, ConstituentCorrelations>>,
 
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub token_program: Program<'info, Token>,
 
     pub rent: Sysvar<'info, Rent>,
@@ -1070,12 +1067,10 @@ pub struct InitializeLpPool<'info> {
     spot_market_index: u16,
 )]
 pub struct InitializeConstituent<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
 
@@ -1143,42 +1138,36 @@ pub struct UpdateConstituentParams<'info> {
         constraint = constituent.load()?.lp_pool == lp_pool.key()
     )]
     pub constituent_target_base: Box<Account<'info, ConstituentTargetBase>>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub constituent: AccountLoader<'info, Constituent>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateConstituentStatus<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub constituent: AccountLoader<'info, Constituent>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateConstituentPausedOperations<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub constituent: AccountLoader<'info, Constituent>,
 }
@@ -1187,14 +1176,12 @@ pub struct UpdateConstituentPausedOperations<'info> {
 pub struct UpdateLpPoolParams<'info> {
     #[account(mut)]
     pub lp_pool: AccountLoader<'info, LPPool>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -1209,11 +1196,9 @@ pub struct AddAmmConstituentMappingDatum {
     amm_constituent_mapping_data:  Vec<AddAmmConstituentMappingDatum>,
 )]
 pub struct AddAmmConstituentMappingData<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
     pub lp_pool: AccountLoader<'info, LPPool>,
@@ -1236,7 +1221,7 @@ pub struct AddAmmConstituentMappingData<'info> {
         realloc::zero = false,
     )]
     pub constituent_target_base: Box<Account<'info, ConstituentTargetBase>>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub system_program: Program<'info, System>,
 }
 
@@ -1245,11 +1230,9 @@ pub struct AddAmmConstituentMappingData<'info> {
     amm_constituent_mapping_data:  Vec<AddAmmConstituentMappingDatum>,
 )]
 pub struct UpdateAmmConstituentMappingData<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
     pub lp_pool: AccountLoader<'info, LPPool>,
@@ -1261,16 +1244,14 @@ pub struct UpdateAmmConstituentMappingData<'info> {
     )]
     pub amm_constituent_mapping: Box<Account<'info, AmmConstituentMapping>>,
     pub system_program: Program<'info, System>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct RemoveAmmConstituentMappingData<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
     pub lp_pool: AccountLoader<'info, LPPool>,
@@ -1285,16 +1266,14 @@ pub struct RemoveAmmConstituentMappingData<'info> {
     )]
     pub amm_constituent_mapping: Box<Account<'info, AmmConstituentMapping>>,
     pub system_program: Program<'info, System>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateConstituentCorrelation<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
     pub lp_pool: AccountLoader<'info, LPPool>,
@@ -1305,16 +1284,14 @@ pub struct UpdateConstituentCorrelation<'info> {
         bump = constituent_correlations.bump,
     )]
     pub constituent_correlations: Box<Account<'info, ConstituentCorrelations>>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct HotAdminUpdatePerpMarketDlp<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
-    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
 }
@@ -1325,12 +1302,10 @@ pub struct HotAdminUpdatePerpMarketDlp<'info> {
     out_market_index: u16,
 )]
 pub struct LPTakerSwap<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::LpSwap)?
+        constraint = check_hot(&admin.key(), &state, HotRole::LpSwap)?
     )]
     pub admin: Signer<'info>,
     /// Signer token accounts
@@ -1383,11 +1358,9 @@ pub struct LPTakerSwap<'info> {
 
 #[derive(Accounts)]
 pub struct UpdatePerpMarketLpPoolStatus<'info> {
-    #[account(constraint = check_warm_loader(&admin.key(), &state, &admin_authority_config)?)]
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     #[account(mut,  seeds = [AMM_POSITIONS_CACHE.as_bytes()],
@@ -1398,10 +1371,8 @@ pub struct UpdatePerpMarketLpPoolStatus<'info> {
 #[derive(Accounts)]
 pub struct UpdateInitialAmmCacheInfo<'info> {
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
-    #[account(constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::LpCache)?)]
+    pub state: AccountLoader<'info, State>,
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::LpCache)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -1413,19 +1384,17 @@ pub struct UpdateInitialAmmCacheInfo<'info> {
 
 #[derive(Accounts)]
 pub struct ResetAmmCache<'info> {
-    #[account(seeds = [ADMIN_AUTHORITY_CONFIG_SEED], bump)]
-    pub admin_authority_config: AccountLoader<'info, AdminAuthorityConfig>,
     #[account(
         mut,
-        constraint = check_hot_loader(&admin.key(), &state, &admin_authority_config, HotRole::LpCache)?
+        constraint = check_hot(&admin.key(), &state, HotRole::LpCache)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [AMM_POSITIONS_CACHE.as_bytes()],
         bump = amm_cache.bump,
-        realloc = AmmCache::space(state.number_of_markets as usize),
+        realloc = AmmCache::space(state.load()?.number_of_markets as usize),
         realloc::payer = admin,
         realloc::zero = false,
     )]

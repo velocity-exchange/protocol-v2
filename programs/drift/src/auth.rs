@@ -1,84 +1,48 @@
 //! Tiered admin authority predicates.
 //!
-//! Three tiers, additive: `cold ⊇ warm ⊇ hot(role)`. `state.admin` is cold.
-//! `AdminAuthorityConfig.warm_admin` is the warm multisig+timelock pubkey.
-//! Each `HotRole` field on `AdminAuthorityConfig` is a purpose-specific bot key.
+//! Three tiers, additive: `cold ⊇ warm ⊇ hot(role)`. All three live on `State`:
+//! `state.cold_admin` is the root authority (set at `initialize`), `state.warm_admin`
+//! is the operational multisig+timelock pubkey, and `state.hot_*` fields hold one
+//! purpose-specific bot key per `HotRole`.
 //!
-//! `Pubkey::default()` in any role field means the role is unassigned and
-//! falls through to warm-or-cold only.
+//! `Pubkey::default()` in any role field means the role is unassigned and falls
+//! through to warm-or-cold only.
 
 use anchor_lang::prelude::*;
 
 use crate::error::ErrorCode;
-use crate::state::admin_authority_config::{AdminAuthorityConfig, HotRole};
-use crate::state::state::State;
+use crate::state::state::{HotRole, State};
 
-pub fn admin_is_cold(signer: &Pubkey, state: &State) -> bool {
-    *signer == state.admin
+/// Anchor `constraint = ...` helper. Loads State via the AccountLoader so the
+/// constraint can be expressed as `check_warm(&signer.key(), &state)?` inside
+/// `#[derive(Accounts)]`. Returns `Ok(true)` iff the signer is cold or warm.
+pub fn check_warm(signer: &Pubkey, state: &AccountLoader<'_, State>) -> Result<bool> {
+    let state = state.load()?;
+    Ok(state.is_warm(signer))
 }
 
-pub fn admin_is_warm(signer: &Pubkey, state: &State, config: &AdminAuthorityConfig) -> bool {
-    admin_is_cold(signer, state)
-        || (config.warm_admin != Pubkey::default() && *signer == config.warm_admin)
-}
-
-pub fn admin_is_hot(
+/// Anchor `constraint = ...` helper for hot-role-gated handlers. Returns
+/// `Ok(true)` iff `signer` is cold, warm, or the configured key for `role`.
+pub fn check_hot(
     signer: &Pubkey,
-    state: &State,
-    config: &AdminAuthorityConfig,
+    state: &AccountLoader<'_, State>,
     role: HotRole,
-) -> bool {
-    if admin_is_warm(signer, state, config) {
-        return true;
-    }
-    let role_key = config.role_key(role);
-    role_key != Pubkey::default() && *signer == role_key
+) -> Result<bool> {
+    let state = state.load()?;
+    Ok(state.is_hot(signer, role))
 }
 
 pub fn require_cold(signer: &Pubkey, state: &State) -> Result<()> {
-    require!(admin_is_cold(signer, state), ErrorCode::Unauthorized);
+    require!(state.is_cold(signer), ErrorCode::Unauthorized);
     Ok(())
 }
 
-pub fn require_warm(signer: &Pubkey, state: &State, config: &AdminAuthorityConfig) -> Result<()> {
-    require!(
-        admin_is_warm(signer, state, config),
-        ErrorCode::Unauthorized
-    );
+pub fn require_warm(signer: &Pubkey, state: &State) -> Result<()> {
+    require!(state.is_warm(signer), ErrorCode::Unauthorized);
     Ok(())
 }
 
-pub fn require_hot(
-    signer: &Pubkey,
-    state: &State,
-    config: &AdminAuthorityConfig,
-    role: HotRole,
-) -> Result<()> {
-    require!(
-        admin_is_hot(signer, state, config, role),
-        ErrorCode::Unauthorized
-    );
+pub fn require_hot(signer: &Pubkey, state: &State, role: HotRole) -> Result<()> {
+    require!(state.is_hot(signer, role), ErrorCode::Unauthorized);
     Ok(())
-}
-
-// AccountLoader-taking variants for use directly inside Anchor `constraint = ...`
-// clauses. These call `.load()` internally and propagate the result.
-
-pub fn check_warm_loader(
-    signer: &Pubkey,
-    state: &State,
-    config_loader: &AccountLoader<'_, AdminAuthorityConfig>,
-) -> Result<bool> {
-    let config = config_loader.load()?;
-    Ok(admin_is_warm(signer, state, &config))
-}
-
-pub fn check_hot_loader(
-    signer: &Pubkey,
-    state: &State,
-    config_loader: &AccountLoader<'_, AdminAuthorityConfig>,
-    role: HotRole,
-) -> Result<bool> {
-    let config = config_loader.load()?;
-    Ok(admin_is_hot(signer, state, &config, role))
 }

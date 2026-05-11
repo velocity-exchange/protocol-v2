@@ -529,8 +529,8 @@ describe('admin', () => {
 		const state = driftClient.getStateAccount();
 
 		assert(
-			state.admin.equals(newAdminKey),
-			`admin does not match \n actual: ${state.admin} \n expected: ${newAdminKey}`
+			state.coldAdmin.equals(newAdminKey),
+			`admin does not match \n actual: ${state.coldAdmin} \n expected: ${newAdminKey}`
 		);
 	});
 
