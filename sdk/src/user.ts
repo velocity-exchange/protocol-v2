@@ -88,7 +88,6 @@ import {
 	SpotMarketAccount,
 } from './types';
 import { standardizeBaseAssetAmount } from './math/orders';
-import { UserStats } from './userStats';
 import { WebSocketProgramUserAccountSubscriber } from './accounts/websocketProgramUserAccountSubscriber';
 import {
 	calculateAssetWeight,

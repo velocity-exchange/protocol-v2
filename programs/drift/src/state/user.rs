@@ -1915,11 +1915,7 @@ impl Size for UserStats {
 }
 
 impl UserStats {
-    pub fn update_maker_volume_30d(
-        &mut self,
-        quote_asset_amount: u64,
-        now: i64,
-    ) -> DriftResult {
+    pub fn update_maker_volume_30d(&mut self, quote_asset_amount: u64, now: i64) -> DriftResult {
         let since_last = max(1_i64, now.safe_sub(self.last_maker_volume_30d_ts)?);
 
         self.maker_volume_30d = calculate_rolling_sum(
@@ -1933,11 +1929,7 @@ impl UserStats {
         Ok(())
     }
 
-    pub fn update_taker_volume_30d(
-        &mut self,
-        quote_asset_amount: u64,
-        now: i64,
-    ) -> DriftResult {
+    pub fn update_taker_volume_30d(&mut self, quote_asset_amount: u64, now: i64) -> DriftResult {
         let since_last = max(1_i64, now.safe_sub(self.last_taker_volume_30d_ts)?);
 
         self.taker_volume_30d = calculate_rolling_sum(
