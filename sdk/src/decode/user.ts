@@ -347,7 +347,7 @@ export function decodeUser(buffer: Buffer): UserAccount {
 	const specialUserStatus = buffer.readUInt8(offset);
 	offset += 1;
 
-	offset += 24; // padding
+	offset += 12; // padding
 	return {
 		authority,
 		delegate,
