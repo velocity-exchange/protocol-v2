@@ -7,7 +7,7 @@ use phoenix::quantities::WrapperU64;
 use std::convert::{identity, TryInto};
 use std::mem::size_of;
 
-use crate::auth::{check_hot, check_warm};
+use crate::auth::{check_hot, check_pause, check_warm, require_pause_only_added};
 use crate::controller;
 use crate::controller::token::{close_vault, initialize_immutable_owner, initialize_token_account};
 use crate::error::ErrorCode;
@@ -114,6 +114,7 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
     *state = State {
         cold_admin: *ctx.accounts.admin.key,
         warm_admin: *ctx.accounts.admin.key,
+        pause_admin: Pubkey::default(),
         hot_amm_crank: Pubkey::default(),
         hot_lp_cache: Pubkey::default(),
         hot_lp_swap: Pubkey::default(),
@@ -2973,11 +2974,16 @@ pub fn handle_update_spot_market_status(
 spot_market_valid(&ctx.accounts.spot_market)
 )]
 pub fn handle_update_spot_market_paused_operations(
-    ctx: Context<AdminUpdateSpotMarket>,
+    ctx: Context<PauseAdminUpdateSpotMarket>,
     paused_operations: u8,
 ) -> Result<()> {
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
     msg!("spot market {}", spot_market.market_index);
+
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    require_pause_only_added(&signer, &state, spot_market.paused_operations, paused_operations)?;
+    drop(state);
 
     spot_market.paused_operations = paused_operations;
 
@@ -3231,10 +3237,14 @@ pub fn handle_update_spot_market_orders_enabled(
     spot_market_valid(&ctx.accounts.spot_market)
 )]
 pub fn handle_update_spot_market_if_paused_operations(
-    ctx: Context<AdminUpdateSpotMarket>,
+    ctx: Context<PauseAdminUpdateSpotMarket>,
     paused_operations: u8,
 ) -> Result<()> {
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    require_pause_only_added(&signer, &state, spot_market.if_paused_operations, paused_operations)?;
+    drop(state);
     spot_market.if_paused_operations = paused_operations;
     msg!("spot market {}", spot_market.market_index);
     InsuranceFundOperation::log_all_operations_paused(paused_operations);
@@ -3272,20 +3282,31 @@ pub fn handle_update_perp_market_status(
     perp_market_valid(&ctx.accounts.perp_market)
 )]
 pub fn handle_update_perp_market_paused_operations(
-    ctx: Context<HotAdminUpdatePerpMarket>,
+    ctx: Context<PauseAdminUpdatePerpMarket>,
     paused_operations: u8,
 ) -> Result<()> {
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
     msg!("perp market {}", perp_market.market_index);
 
-    if *ctx.accounts.admin.key != ctx.accounts.state.load()?.cold_admin {
+    // Authority matrix for perp paused_operations:
+    //   * cold       — may set any value (full unpause + pause)
+    //   * warm       — historically limited to UpdateFunding / SettleRevPool only
+    //   * pause_admin — may set any bit but only *add* bits (no unpause)
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    let is_cold = state.is_cold(&signer);
+    let is_pause_admin =
+        state.pause_admin != Pubkey::default() && state.pause_admin == signer;
+    if !is_cold && !is_pause_admin {
         validate!(
             paused_operations == PerpOperation::UpdateFunding as u8
                 || paused_operations == PerpOperation::SettleRevPool as u8,
             ErrorCode::DefaultError,
-            "signer must be admin",
+            "warm admin may only pause UpdateFunding or SettleRevPool",
         )?;
     }
+    require_pause_only_added(&signer, &state, perp_market.paused_operations, paused_operations)?;
+    drop(state);
 
     perp_market.paused_operations = paused_operations;
 
@@ -4153,11 +4174,20 @@ pub fn handle_update_perp_market_protected_maker_params(
 }
 
 pub fn handle_update_perp_market_lp_pool_paused_operations(
-    ctx: Context<AdminUpdatePerpMarket>,
+    ctx: Context<PauseAdminUpdatePerpMarket>,
     lp_paused_operations: u8,
 ) -> Result<()> {
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
     msg!("perp market {}", perp_market.market_index);
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        perp_market.lp_paused_operations,
+        lp_paused_operations,
+    )?;
+    drop(state);
     perp_market.lp_paused_operations = lp_paused_operations;
     Ok(())
 }
@@ -4377,16 +4407,18 @@ pub fn handle_update_discount_mint(
 }
 
 pub fn handle_update_exchange_status(
-    ctx: Context<AdminUpdateState>,
+    ctx: Context<PauseAdminUpdateState>,
     exchange_status: u8,
 ) -> Result<()> {
+    let signer = ctx.accounts.admin.key();
+    let mut state = ctx.accounts.state.load_mut()?;
+    require_pause_only_added(&signer, &state, state.exchange_status, exchange_status)?;
     msg!(
         "exchange_status: {:?} -> {:?}",
-        ctx.accounts.state.load()?.exchange_status,
+        state.exchange_status,
         exchange_status
     );
-
-    ctx.accounts.state.load_mut()?.exchange_status = exchange_status;
+    state.exchange_status = exchange_status;
     Ok(())
 }
 
@@ -4419,10 +4451,27 @@ pub fn handle_update_spot_auction_duration(
 }
 
 pub fn handle_admin_update_user_stats_paused_operations(
-    ctx: Context<AdminDisableBidAskTwapUpdate>,
+    ctx: Context<PauseAdminUpdateUserStats>,
     paused_operations: u8,
 ) -> Result<()> {
     let mut user_stats = load_mut!(ctx.accounts.user_stats)?;
+
+    // Authority matrix for user_stats.paused_operations:
+    //   * cold / warm / hot_user_flag — full control (pause + unpause)
+    //   * pause_admin                 — pause-only (may not clear bits)
+    //
+    // `is_hot(.., UserFlag)` already returns true for cold/warm; the negation
+    // therefore isolates pause_admin specifically.
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    if !state.is_hot(&signer, HotRole::UserFlag) {
+        validate!(
+            (user_stats.paused_operations & paused_operations) == user_stats.paused_operations,
+            ErrorCode::Unauthorized,
+            "pause_admin may not clear pause bits",
+        )?;
+    }
+    drop(state);
 
     msg!(
         "user_stats.paused_operations: {:?} -> {:?}",
@@ -4851,16 +4900,16 @@ pub fn handle_zero_mm_oracle_fields(ctx: Context<HotAdminUpdatePerpMarket>) -> R
 
 pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> Result<()> {
     // Verify this ix is allowed. State byte offsets (from discriminator start):
-    //   hot_mm_oracle_crank: 360..392
-    //   feature_bit_flags:   1382
+    //   hot_mm_oracle_crank: 392..424
+    //   feature_bit_flags:   1414
     let state = &accounts[3].data.borrow();
-    assert!(state[1382] & 1 > 0, "ix disabled by admin state");
+    assert!(state[1414] & 1 > 0, "ix disabled by admin state");
 
     let signer_account = &accounts[1];
     #[cfg(not(feature = "anchor-test"))]
     {
         let mut hot_mm_oracle_crank = [0u8; 32];
-        hot_mm_oracle_crank.copy_from_slice(&state[360..392]);
+        hot_mm_oracle_crank.copy_from_slice(&state[392..424]);
         let hot_key = anchor_lang::prelude::Pubkey::new_from_array(hot_mm_oracle_crank);
         assert!(
             signer_account.is_signer && *signer_account.key == hot_key,
@@ -4897,13 +4946,13 @@ pub fn handle_update_amm_spread_adjustment_native(
     data: &[u8],
 ) -> Result<()> {
     // Accounts: [0] perp_market (mut), [1] signer, [2] state.
-    // hot_amm_spread_adjust lives at bytes 392..424 of State (after disc).
+    // hot_amm_spread_adjust lives at bytes 424..456 of State (after disc).
     let signer_account = &accounts[1];
     #[cfg(not(feature = "anchor-test"))]
     {
         let state = &accounts[2].data.borrow();
         let mut hot_amm_spread_adjust = [0u8; 32];
-        hot_amm_spread_adjust.copy_from_slice(&state[392..424]);
+        hot_amm_spread_adjust.copy_from_slice(&state[424..456]);
         let hot_key = anchor_lang::prelude::Pubkey::new_from_array(hot_amm_spread_adjust);
         assert!(
             signer_account.is_signer && *signer_account.key == hot_key,
@@ -6128,7 +6177,8 @@ pub struct UpdateSpecialUserStatus<'info> {
 //
 // cold/warm/hot pubkeys now live directly on `State`. `handle_initialize`
 // seeds `cold_admin = warm_admin = signer` at deploy time; the handlers below
-// rotate `warm_admin` (cold-only) and individual hot-role keys (warm-only).
+// rotate `warm_admin` (cold-only), `pause_admin` (cold-only), and individual
+// hot-role keys (warm-only).
 
 pub fn handle_update_warm_admin(
     ctx: Context<UpdateWarmAdmin>,
@@ -6137,6 +6187,20 @@ pub fn handle_update_warm_admin(
     let mut state = ctx.accounts.state.load_mut()?;
     msg!("warm_admin: {:?} -> {:?}", state.warm_admin, new_warm_admin);
     state.warm_admin = new_warm_admin;
+    Ok(())
+}
+
+pub fn handle_update_pause_admin(
+    ctx: Context<UpdatePauseAdmin>,
+    new_pause_admin: Pubkey,
+) -> Result<()> {
+    let mut state = ctx.accounts.state.load_mut()?;
+    msg!(
+        "pause_admin: {:?} -> {:?}",
+        state.pause_admin,
+        new_pause_admin
+    );
+    state.pause_admin = new_pause_admin;
     Ok(())
 }
 
@@ -6168,6 +6232,15 @@ pub struct UpdateWarmAdmin<'info> {
     pub admin: Signer<'info>,
 }
 
+/// Cold-only mutation of `pause_admin`. The pause admin is the no-timelock
+/// emergency-pause key; only the root (cold) authority can rotate it.
+#[derive(Accounts)]
+pub struct UpdatePauseAdmin<'info> {
+    #[account(mut, constraint = state.load()?.cold_admin == admin.key() @ ErrorCode::Unauthorized)]
+    pub state: AccountLoader<'info, State>,
+    pub admin: Signer<'info>,
+}
+
 /// Warm-or-cold gated mutation of an individual hot-role key.
 #[derive(Accounts)]
 pub struct UpdateHotAdmin<'info> {
@@ -6177,4 +6250,51 @@ pub struct UpdateHotAdmin<'info> {
     )]
     pub state: AccountLoader<'info, State>,
     pub admin: Signer<'info>,
+}
+
+// ----- Pause-admin gated contexts -----
+//
+// Pause flags can be flipped by cold, warm, or the dedicated `pause_admin`
+// (which has no on-chain timelock). pause_admin is restricted *inside* the
+// handlers to bit-additions only — it can never clear a pause bit.
+
+#[derive(Accounts)]
+pub struct PauseAdminUpdateState<'info> {
+    #[account(constraint = check_pause(&admin.key(), &state)?)]
+    pub admin: Signer<'info>,
+    #[account(mut)]
+    pub state: AccountLoader<'info, State>,
+}
+
+#[derive(Accounts)]
+pub struct PauseAdminUpdateSpotMarket<'info> {
+    #[account(constraint = check_pause(&admin.key(), &state)?)]
+    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub spot_market: AccountLoader<'info, SpotMarket>,
+}
+
+#[derive(Accounts)]
+pub struct PauseAdminUpdatePerpMarket<'info> {
+    #[account(constraint = check_pause(&admin.key(), &state)?)]
+    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub perp_market: AccountLoader<'info, PerpMarket>,
+}
+
+/// Per-user pause flips are reachable by cold/warm, the existing
+/// `HotRole::UserFlag` bot, or the pause_admin (pause-only — see handler).
+#[derive(Accounts)]
+pub struct PauseAdminUpdateUserStats<'info> {
+    #[account(
+        constraint =
+            check_pause(&admin.key(), &state)?
+                || check_hot(&admin.key(), &state, HotRole::UserFlag)?
+    )]
+    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub user_stats: AccountLoader<'info, UserStats>,
 }

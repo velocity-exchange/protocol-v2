@@ -5,6 +5,11 @@
 //! is the operational multisig+timelock pubkey, and `state.hot_*` fields hold one
 //! purpose-specific bot key per `HotRole`.
 //!
+//! Orthogonal to the tier hierarchy is `state.pause_admin`: a dedicated
+//! emergency-pause key with no on-chain timelock. It is authorised in addition
+//! to cold/warm for handlers that flip pause flags (exchange status, per-market
+//! paused operations, per-user paused operations).
+//!
 //! `Pubkey::default()` in any role field means the role is unassigned and falls
 //! through to warm-or-cold only.
 
@@ -28,6 +33,13 @@ pub fn check_hot(signer: &Pubkey, state: &AccountLoader<'_, State>, role: HotRol
     Ok(state.is_hot(signer, role))
 }
 
+/// Anchor `constraint = ...` helper for emergency-pause handlers. Returns
+/// `Ok(true)` iff `signer` is cold, warm, or the configured `pause_admin`.
+pub fn check_pause(signer: &Pubkey, state: &AccountLoader<'_, State>) -> Result<bool> {
+    let state = state.load()?;
+    Ok(state.is_pause(signer))
+}
+
 pub fn require_cold(signer: &Pubkey, state: &State) -> Result<()> {
     require!(state.is_cold(signer), ErrorCode::Unauthorized);
     Ok(())
@@ -35,6 +47,32 @@ pub fn require_cold(signer: &Pubkey, state: &State) -> Result<()> {
 
 pub fn require_warm(signer: &Pubkey, state: &State) -> Result<()> {
     require!(state.is_warm(signer), ErrorCode::Unauthorized);
+    Ok(())
+}
+
+pub fn require_pause(signer: &Pubkey, state: &State) -> Result<()> {
+    require!(state.is_pause(signer), ErrorCode::Unauthorized);
+    Ok(())
+}
+
+/// Enforce that a caller acting via `pause_admin` (i.e. authorised by
+/// `check_pause` but not by `check_warm`) may only *add* pause bits to a
+/// bitmask, never clear them. Cold/warm callers can still set any value.
+///
+/// `old_mask` is the on-account value before the write; `new_mask` is the
+/// value the caller is trying to install.
+pub fn require_pause_only_added(
+    signer: &Pubkey,
+    state: &State,
+    old_mask: u8,
+    new_mask: u8,
+) -> Result<()> {
+    if !state.is_warm(signer) {
+        require!(
+            (old_mask & new_mask) == old_mask,
+            ErrorCode::Unauthorized
+        );
+    }
     Ok(())
 }
 

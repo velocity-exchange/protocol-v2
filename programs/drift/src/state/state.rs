@@ -17,11 +17,17 @@ mod tests;
 #[repr(C)]
 #[derive(Debug)]
 pub struct State {
-    /// Root authority. Set at `initialize`; only this key can rotate `warm_admin`.
+    /// Root authority. Set at `initialize`; only this key can rotate `warm_admin`
+    /// and `pause_admin`. Expected to sit behind a (small) timelocked multisig.
     pub cold_admin: Pubkey,
     /// Operational authority (e.g. multisig+timelock). Can rotate the 11 hot keys
     /// below. `Pubkey::default()` means unset — only `cold_admin` can act in that case.
     pub warm_admin: Pubkey,
+    /// Emergency-pause authority. No on-chain timelock — intended to live behind a
+    /// fast-acting multisig that can flip pause flags without delay. May only *add*
+    /// pause bits (never clear them); cold/warm retain full pause + unpause power.
+    /// `Pubkey::default()` means unassigned (only cold/warm can pause).
+    pub pause_admin: Pubkey,
     /// Purpose-specific bot keys. `Pubkey::default()` means the role is unassigned
     /// and only warm/cold can call handlers gated on that role.
     pub hot_amm_crank: Pubkey,
@@ -106,6 +112,7 @@ impl Default for State {
         State {
             cold_admin: Pubkey::default(),
             warm_admin: Pubkey::default(),
+            pause_admin: Pubkey::default(),
             hot_amm_crank: Pubkey::default(),
             hot_lp_cache: Pubkey::default(),
             hot_lp_swap: Pubkey::default(),
@@ -264,6 +271,14 @@ impl State {
         self.is_cold(signer) || (self.warm_admin != Pubkey::default() && self.warm_admin == *signer)
     }
 
+    /// True if `signer` can flip pause flags: cold, warm, or the dedicated
+    /// fast-path pause admin. The pause path intentionally bypasses any warm
+    /// timelock so a compromised market can be halted without delay.
+    pub fn is_pause(&self, signer: &Pubkey) -> bool {
+        self.is_warm(signer)
+            || (self.pause_admin != Pubkey::default() && self.pause_admin == *signer)
+    }
+
     pub fn is_hot(&self, signer: &Pubkey, role: HotRole) -> bool {
         if self.is_warm(signer) {
             return true;
@@ -283,6 +298,14 @@ impl State {
     pub fn require_warm(&self, signer: &Pubkey) -> DriftResult<()> {
         if !self.is_warm(signer) {
             msg!("signer {} is neither cold nor warm admin", signer);
+            return Err(crate::error::ErrorCode::Unauthorized.into());
+        }
+        Ok(())
+    }
+
+    pub fn require_pause(&self, signer: &Pubkey) -> DriftResult<()> {
+        if !self.is_pause(signer) {
+            msg!("signer {} is not authorized to flip pause flags", signer);
             return Err(crate::error::ErrorCode::Unauthorized.into());
         }
         Ok(())
@@ -313,10 +336,10 @@ pub enum LpPoolFeatureBitFlags {
 }
 
 impl Size for State {
-    // 8 (disc) + 13 Pubkey (cold + warm + 11 hot, 416 B) + 4 Pubkey (mint/signer, 128 B)
-    // + 2*FeeStructure + OracleGuardRails + scalars + padding[264] = 1656 B.
+    // 8 (disc) + 14 Pubkey (cold + warm + pause + 11 hot, 448 B) + 4 Pubkey (mint/signer, 128 B)
+    // + 2*FeeStructure + OracleGuardRails + scalars + padding[264] = 1688 B.
     // Sized so (SIZE - 8) % 16 == 0 for the zero-copy alignment invariant.
-    const SIZE: usize = 1656;
+    const SIZE: usize = 1688;
 }
 
 #[derive(Copy, AnchorSerialize, AnchorDeserialize, Clone, Debug)]

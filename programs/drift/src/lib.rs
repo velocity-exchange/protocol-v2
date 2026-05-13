@@ -526,7 +526,7 @@ pub mod drift {
     // }
 
     pub fn admin_update_user_stats_paused_operations(
-        ctx: Context<AdminDisableBidAskTwapUpdate>,
+        ctx: Context<PauseAdminUpdateUserStats>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_admin_update_user_stats_paused_operations(ctx, paused_operations)
@@ -1079,7 +1079,7 @@ pub mod drift {
     }
 
     pub fn update_perp_market_lp_pool_paused_operations(
-        ctx: Context<AdminUpdatePerpMarket>,
+        ctx: Context<PauseAdminUpdatePerpMarket>,
         lp_paused_operations: u8,
     ) -> Result<()> {
         handle_update_perp_market_lp_pool_paused_operations(ctx, lp_paused_operations)
@@ -1251,7 +1251,7 @@ pub mod drift {
     }
 
     pub fn update_spot_market_paused_operations(
-        ctx: Context<AdminUpdateSpotMarket>,
+        ctx: Context<PauseAdminUpdateSpotMarket>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_update_spot_market_paused_operations(ctx, paused_operations)
@@ -1354,7 +1354,7 @@ pub mod drift {
     }
 
     pub fn update_spot_market_if_paused_operations(
-        ctx: Context<AdminUpdateSpotMarket>,
+        ctx: Context<PauseAdminUpdateSpotMarket>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_update_spot_market_if_paused_operations(ctx, paused_operations)
@@ -1375,7 +1375,7 @@ pub mod drift {
     }
 
     pub fn update_perp_market_paused_operations(
-        ctx: Context<HotAdminUpdatePerpMarket>,
+        ctx: Context<PauseAdminUpdatePerpMarket>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_update_perp_market_paused_operations(ctx, paused_operations)
@@ -1686,6 +1686,13 @@ pub mod drift {
         handle_update_warm_admin(ctx, new_warm_admin)
     }
 
+    pub fn update_pause_admin(
+        ctx: Context<UpdatePauseAdmin>,
+        new_pause_admin: Pubkey,
+    ) -> Result<()> {
+        handle_update_pause_admin(ctx, new_pause_admin)
+    }
+
     pub fn update_hot_admin(
         ctx: Context<UpdateHotAdmin>,
         role: crate::state::state::HotRole,
@@ -1709,7 +1716,7 @@ pub mod drift {
     }
 
     pub fn update_exchange_status(
-        ctx: Context<AdminUpdateState>,
+        ctx: Context<PauseAdminUpdateState>,
         exchange_status: u8,
     ) -> Result<()> {
         handle_update_exchange_status(ctx, exchange_status)
