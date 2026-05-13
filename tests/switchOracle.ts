@@ -250,6 +250,70 @@ describe('switch oracles', () => {
 		});
 		await driftClient.subscribe();
 
+		// DEBUG: dump WS subscriber state after subscribe() returns
+		const sub: any = (driftClient as any).accountSubscriber;
+		console.log('[ws-debug] isSubscribed:', sub.isSubscribed);
+		console.log(
+			'[ws-debug] perpMarketAccountSubscribers keys:',
+			Array.from(sub.perpMarketAccountSubscribers?.keys?.() ?? [])
+		);
+		for (const [idx, s] of (sub.perpMarketAccountSubscribers ??
+			new Map()) as Map<number, any>) {
+			console.log(
+				`[ws-debug] perp[${idx}].dataAndSlot:`,
+				s.dataAndSlot
+					? {
+							hasData: !!s.dataAndSlot.data,
+							slot: s.dataAndSlot.slot,
+							oracle: s.dataAndSlot.data?.amm?.oracle?.toBase58?.(),
+							oracleSource: s.dataAndSlot.data?.amm?.oracleSource,
+					  }
+					: 'undefined'
+			);
+		}
+		for (const [idx, s] of (sub.spotMarketAccountSubscribers ??
+			new Map()) as Map<number, any>) {
+			console.log(
+				`[ws-debug] spot[${idx}].dataAndSlot:`,
+				s.dataAndSlot
+					? {
+							hasData: !!s.dataAndSlot.data,
+							slot: s.dataAndSlot.slot,
+							oracle: s.dataAndSlot.data?.oracle?.toBase58?.(),
+							oracleSource: s.dataAndSlot.data?.oracleSource,
+					  }
+					: 'undefined'
+			);
+		}
+		console.log(
+			'[ws-debug] oracleSubscribers keys:',
+			Array.from(sub.oracleSubscribers?.keys?.() ?? [])
+		);
+		for (const [id, s] of (sub.oracleSubscribers ?? new Map()) as Map<
+			string,
+			any
+		>) {
+			console.log(
+				`[ws-debug] oracle[${id}].dataAndSlot:`,
+				s.dataAndSlot
+					? {
+							hasData: !!s.dataAndSlot.data,
+							slot: s.dataAndSlot.slot,
+							price: s.dataAndSlot.data?.price?.toString?.(),
+					  }
+					: 'undefined'
+			);
+		}
+		console.log(
+			'[ws-debug] perpOracleStringMap:',
+			Array.from((sub.perpOracleStringMap ?? new Map()).entries())
+		);
+		console.log(
+			'[ws-debug] spotOracleStringMap:',
+			Array.from((sub.spotOracleStringMap ?? new Map()).entries())
+		);
+		console.log('[ws-debug] solOracle:', solOracle.toBase58());
+
 		const newSolOracle = await mockOracleNoProgram(bankrunContextWrapper, 100);
 
 		await waitForOraclePrice(
