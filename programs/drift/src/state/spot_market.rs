@@ -650,13 +650,6 @@ pub trait SpotBalance {
     fn update_balance_type(&mut self, balance_type: SpotBalanceType) -> DriftResult;
 }
 
-#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
-pub enum SpotFulfillmentConfigStatus {
-    #[default]
-    Enabled,
-    Disabled,
-}
-
 #[derive(
     Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, PartialOrd, Ord, Default,
 )]

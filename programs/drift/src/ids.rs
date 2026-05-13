@@ -45,16 +45,6 @@ pub mod serum_program {
     declare_id!("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY");
 }
 
-pub mod srm_mint {
-    use solana_program::declare_id;
-    declare_id!("SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt");
-}
-
-pub mod msrm_mint {
-    use solana_program::declare_id;
-    declare_id!("MSRMcoVyrFxnSgo5uXwone5SKcGhT1KEJMFEkMEWf9L");
-}
-
 pub mod jupiter_mainnet_6 {
     use solana_program::declare_id;
     declare_id!("JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4");

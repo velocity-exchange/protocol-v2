@@ -221,15 +221,6 @@ pub fn handle_revert_fill<'info>(ctx: Context<RevertFill>) -> Result<()> {
     Ok(())
 }
 
-#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Eq, Default)]
-pub enum SpotFulfillmentType {
-    #[default]
-    SerumV3,
-    Match,
-    PhoenixV1,
-    OpenbookV2,
-}
-
 #[access_control(
     exchange_not_paused(&ctx.accounts.state)
 )]

@@ -73,14 +73,7 @@ describe('Reference Price Offset E2E', () => {
 	beforeEach(async () => {
 		const context = await startAnchor(
 			'',
-			[
-				{
-					name: 'serum_dex',
-					programId: new PublicKey(
-						'srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'
-					),
-				},
-			],
+			[],
 			[
 				{
 					address: marketPubkey,

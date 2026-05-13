@@ -292,16 +292,22 @@ pub enum ErrorCode {
     InvalidSpotMarketVault,
     #[msg("Invalid Spot Market State")]
     InvalidSpotMarketState,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumProgram")]
     InvalidSerumProgram,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumMarket")]
     InvalidSerumMarket,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumBids")]
     InvalidSerumBids,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumAsks")]
     InvalidSerumAsks,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumOpenOrders")]
     InvalidSerumOpenOrders,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedSerumCPI")]
     FailedSerumCPI,
     #[msg("FailedToFillOnExternalMarket")]
@@ -508,14 +514,18 @@ pub enum ErrorCode {
     InvalidSpotFulfillmentParams,
     #[msg("Failed to Get Mint")]
     FailedToGetMint,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedPhoenixCPI")]
     FailedPhoenixCPI,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedToDeserializePhoenixMarket")]
     FailedToDeserializePhoenixMarket,
     #[msg("InvalidPricePrecision")]
     InvalidPricePrecision,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidPhoenixProgram")]
     InvalidPhoenixProgram,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidPhoenixMarket")]
     InvalidPhoenixMarket,
     #[msg("InvalidSwap")]
@@ -581,10 +591,13 @@ pub enum ErrorCode {
     OracleMismatchedVaaAndPriceUpdates,
     #[msg("Remaining account passed does not match oracle update derived pda")]
     OracleBadRemainingAccountPublicKey,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedOpenbookV2CPI")]
     FailedOpenbookV2CPI,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidOpenbookV2Program")]
     InvalidOpenbookV2Program,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidOpenbookV2Market")]
     InvalidOpenbookV2Market,
     #[msg("Non zero transfer fee")]

@@ -267,15 +267,6 @@ export class OrderActionExplanation {
 	static readonly RISK_INCREASING_ORDER = {
 		riskingIncreasingOrder: {},
 	};
-	static readonly ORDER_FILLED_WITH_SERUM = {
-		orderFillWithSerum: {},
-	};
-	static readonly ORDER_FILLED_WITH_OPENBOOK_V2 = {
-		orderFilledWithOpenbookV2: {},
-	};
-	static readonly ORDER_FILLED_WITH_PHOENIX = {
-		orderFillWithPhoenix: {},
-	};
 	static readonly REDUCE_ONLY_ORDER_INCREASED_POSITION = {
 		reduceOnlyOrderIncreasedPosition: {},
 	};
@@ -294,16 +285,6 @@ export class OrderTriggerCondition {
 	static readonly TRIGGERED_BELOW = { triggeredBelow: {} }; // below condition has been triggered
 }
 
-export class SpotFulfillmentType {
-	static readonly EXTERNAL = { external: {} };
-	static readonly MATCH = { match: {} };
-}
-
-export class SpotFulfillmentStatus {
-	static readonly ENABLED = { enabled: {} };
-	static readonly DISABLED = { disabled: {} };
-}
-
 export class DepositExplanation {
 	static readonly NONE = { none: {} };
 	static readonly TRANSFER = { transfer: {} };
@@ -315,11 +296,6 @@ export class DepositExplanation {
 export class SettlePnlExplanation {
 	static readonly NONE = { none: {} };
 	static readonly EXPIRED_POSITION = { expiredPosition: {} };
-}
-
-export class SpotFulfillmentConfigStatus {
-	static readonly ENABLED = { enabled: {} };
-	static readonly DISABLED = { disabled: {} };
 }
 
 export class StakeAction {
@@ -1503,52 +1479,6 @@ export type InsuranceFundStake = {
 	lastWithdrawRequestShares: BN;
 	lastWithdrawRequestValue: BN;
 	lastWithdrawRequestTs: BN;
-};
-
-export type SerumV3FulfillmentConfigAccount = {
-	fulfillmentType: SpotFulfillmentType;
-	status: SpotFulfillmentStatus;
-	pubkey: PublicKey;
-	marketIndex: number;
-	serumProgramId: PublicKey;
-	serumMarket: PublicKey;
-	serumRequestQueue: PublicKey;
-	serumEventQueue: PublicKey;
-	serumBids: PublicKey;
-	serumAsks: PublicKey;
-	serumBaseVault: PublicKey;
-	serumQuoteVault: PublicKey;
-	serumOpenOrders: PublicKey;
-	serumSignerNonce: BN;
-};
-
-export type PhoenixV1FulfillmentConfigAccount = {
-	pubkey: PublicKey;
-	phoenixProgramId: PublicKey;
-	phoenixLogAuthority: PublicKey;
-	phoenixMarket: PublicKey;
-	phoenixBaseVault: PublicKey;
-	phoenixQuoteVault: PublicKey;
-	marketIndex: number;
-	fulfillmentType: SpotFulfillmentType;
-	status: SpotFulfillmentStatus;
-};
-
-export type OpenbookV2FulfillmentConfigAccount = {
-	pubkey: PublicKey;
-	openbookV2ProgramId: PublicKey;
-	openbookV2Market: PublicKey;
-	openbookV2MarketAuthority: PublicKey;
-	openbookV2EventHeap: PublicKey;
-	openbookV2Bids: PublicKey;
-	openbookV2Asks: PublicKey;
-	openbookV2BaseVault: PublicKey;
-	openbookV2QuoteVault: PublicKey;
-	marketIndex: number;
-	fulfillmentType: SpotFulfillmentType;
-	status: SpotFulfillmentStatus;
-	// not actually on the account, just used to pass around remaining accounts in ts
-	remainingAccounts?: PublicKey[];
 };
 
 export type ReferrerNameAccount = {

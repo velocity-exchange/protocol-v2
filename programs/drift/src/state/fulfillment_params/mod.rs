@@ -1,7 +1,5 @@
-//! Fulfillment parameter types for routing spot orders to external DEX venues
-//! (Drift AMM, OpenBook, Phoenix, Serum). Each variant carries the venue-specific accounts needed at fill time.
+//! Fulfillment parameter types for spot order routing. The remaining venue is
+//! the internal Drift AMM/DLOB; external venue support (Serum, Phoenix, OpenBook)
+//! was removed when spot DLOB trading was disabled.
 
 pub mod drift;
-pub mod openbook_v2;
-pub mod phoenix;
-pub mod serum;

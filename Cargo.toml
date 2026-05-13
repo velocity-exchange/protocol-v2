@@ -1,13 +1,9 @@
 [workspace]
 members = [
 	"programs/drift",
-	"programs/openbook_v2",
 	"programs/pyth",
 	"programs/pyth-lazer",
 	"programs/token_faucet",
-]
-exclude = [
-	"deps/serum-dex"
 ]
 resolver = "2"
 
