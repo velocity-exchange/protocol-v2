@@ -1919,7 +1919,7 @@ export class User {
 	 */
 	public getMaxLeverageForPerp(
 		perpMarketIndex: number,
-		_marginCategory: MarginCategory = 'Initial',
+		_marginCategory: MarginCategory = 'Initial'
 	): BN {
 		const { perpLiabilityValue, perpPnl, spotAssetValue, spotLiabilityValue } =
 			this.getLeverageComponents();
@@ -1937,13 +1937,11 @@ export class User {
 		// absolute max fesible size (upper bound)
 		const maxSizeQuote = BN.max(
 			BN.min(
+				this.getMaxTradeSizeUSDCForPerp(perpMarketIndex, PositionDirection.LONG)
+					.tradeSize,
 				this.getMaxTradeSizeUSDCForPerp(
 					perpMarketIndex,
-					PositionDirection.LONG,
-				).tradeSize,
-				this.getMaxTradeSizeUSDCForPerp(
-					perpMarketIndex,
-					PositionDirection.SHORT,
+					PositionDirection.SHORT
 				).tradeSize
 			),
 			ZERO

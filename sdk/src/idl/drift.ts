@@ -15487,19 +15487,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "lpRecord",
-      "discriminator": [
-        101,
-        22,
-        54,
-        38,
-        178,
-        13,
-        142,
-        111
-      ]
-    },
-    {
       "name": "lpSettleRecord",
       "discriminator": [
         208,
@@ -17988,7 +17975,7 @@ export type Drift = {
             "name": "ammJitIntensity",
             "docs": [
               "the jit intensity of AMM. larger intensity means larger participation in jit. 0 means no jit participation.",
-              "(0, 100] is intensity for protocol-owned AMM. (100, 200] is intensity for user LP-owned AMM."
+              "(0, 100] is intensity for protocol-owned AMM."
             ],
             "type": "u8"
           },
@@ -18065,7 +18052,7 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "padding",
+            "name": "paddingPreLastFunding",
             "type": {
               "array": [
                 "u8",
@@ -20176,26 +20163,6 @@ export type Drift = {
       }
     },
     {
-      "name": "lpAction",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "addLiquidity"
-          },
-          {
-            "name": "removeLiquidity"
-          },
-          {
-            "name": "settleLiquidity"
-          },
-          {
-            "name": "removeLiquidityDerisk"
-          }
-        ]
-      }
-    },
-    {
       "name": "lpBorrowLendDepositRecord",
       "type": {
         "kind": "struct",
@@ -20509,63 +20476,6 @@ export type Drift = {
                 182
               ]
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "lpRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "user",
-            "type": "pubkey"
-          },
-          {
-            "name": "action",
-            "type": {
-              "defined": {
-                "name": "lpAction"
-              }
-            }
-          },
-          {
-            "name": "nShares",
-            "docs": [
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "marketIndex",
-            "type": "u16"
-          },
-          {
-            "name": "deltaBaseAssetAmount",
-            "docs": [
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "deltaQuoteAssetAmount",
-            "docs": [
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "pnl",
-            "docs": [
-              "realized pnl of the position settlement",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
           }
         ]
       }
@@ -24835,10 +24745,6 @@ export type Drift = {
           },
           {
             "name": "numberOfSubAccounts",
-            "type": "u64"
-          },
-          {
-            "name": "lpCooldownTime",
             "type": "u64"
           },
           {

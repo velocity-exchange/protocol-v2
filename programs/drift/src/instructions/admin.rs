@@ -4825,7 +4825,7 @@ pub fn handle_zero_mm_oracle_fields(ctx: Context<HotAdminUpdatePerpMarket>) -> R
 pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> Result<()> {
     // Verify this ix is allowed
     let state = &accounts[3].data.borrow();
-    assert!(state[982] & 1 > 0, "ix disabled by admin state");
+    assert!(state[974] & 1 > 0, "ix disabled by admin state");
 
     let signer_account = &accounts[1];
     #[cfg(not(feature = "anchor-test"))]

@@ -125,7 +125,7 @@ mod native_instruction_offsets {
         let borsh_pos = buf.iter().position(|&b| b == 0xFF).unwrap();
         assert_eq!(
             borsh_pos + DISC,
-            982,
+            974,
             "State::feature_bit_flags borsh offset changed — update handle_update_mm_oracle_native"
         );
     }

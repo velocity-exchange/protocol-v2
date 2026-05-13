@@ -162,7 +162,7 @@ pub enum LpPoolFeatureBitFlags {
 }
 
 impl Size for State {
-    const SIZE: usize = 1016;
+    const SIZE: usize = 1000;
 }
 
 #[derive(Copy, AnchorSerialize, AnchorDeserialize, Clone, Debug)]

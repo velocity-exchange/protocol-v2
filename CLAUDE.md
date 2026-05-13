@@ -30,6 +30,9 @@ cd sdk/ && bun install && bun run build
 ```
 
 **Update IDL after program changes:**
+
+NEVER hand-edit `sdk/src/idl/drift.json` or `sdk/src/idl/drift.ts` — they are generated artifacts. To change them, modify the Rust program and regenerate. Manual edits will silently drift from on-chain layout and break clients.
+
 ```bash
 anchor build -- --features anchor-test && cp target/idl/drift.json sdk/src/idl/drift.json
 ```
