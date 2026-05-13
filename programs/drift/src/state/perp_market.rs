@@ -1,47 +1,53 @@
-use crate::msg;
-use crate::state::fill_mode::FillMode;
-use crate::state::market_status::MarketStatus;
-use crate::state::pyth_lazer_oracle::PythLazerOracle;
-use crate::state::user::{MarketType, Order};
-use anchor_lang::prelude::*;
-
-use crate::state::state::{State, ValidityGuardRails};
 use std::cmp::max;
 
-use crate::controller::position::PositionDirection;
-use crate::error::{DriftResult, ErrorCode};
-use crate::math::amm::{self};
-use crate::math::casting::Cast;
+use anchor_lang::prelude::{
+    borsh::{BorshDeserialize, BorshSerialize},
+    *,
+};
+
+use super::{oracle_map::OracleIdentifier, protected_maker_mode_config::ProtectedMakerParams};
 #[cfg(test)]
 use crate::math::constants::{AMM_RESERVE_PRECISION, MAX_CONCENTRATION_COEFFICIENT};
-use crate::math::constants::{
-    AMM_TO_QUOTE_PRECISION_RATIO, BID_ASK_SPREAD_PRECISION, BID_ASK_SPREAD_PRECISION_I128,
-    BID_ASK_SPREAD_PRECISION_U128, DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT,
-    FUNDING_RATE_BUFFER_I128, FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
-    MARGIN_PRECISION, MARGIN_PRECISION_U128, MAX_LIQUIDATION_MULTIPLIER, PERCENTAGE_PRECISION,
-    PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_I64, PERCENTAGE_PRECISION_U64, PRICE_PRECISION,
-    PRICE_PRECISION_I128, SPOT_WEIGHT_PRECISION, TWENTY_FOUR_HOUR,
-};
-use crate::math::margin::{
-    calculate_size_discount_asset_weight, calculate_size_premium_liability_weight,
-    MarginRequirementType,
-};
-use crate::math::safe_math::SafeMath;
-use crate::math::stats;
-
-use crate::state::oracle::{
-    get_prelaunch_price, HistoricalOracleData, MMOraclePriceData, OraclePriceData, OracleSource,
-};
-use crate::state::spot_market::{AssetTier, SpotBalance, SpotBalanceType};
-use crate::state::traits::{MarketIndexOffset, Size};
-use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
-
-use crate::state::paused_operations::PerpOperation;
-
-use super::oracle_map::OracleIdentifier;
-use super::protected_maker_mode_config::ProtectedMakerParams;
-use crate::math::oracle::{
-    is_oracle_valid_for_action, oracle_validity, DriftAction, LogMode, OracleValidity,
+use crate::{
+    controller::position::PositionDirection,
+    error::{DriftResult, ErrorCode},
+    math::{
+        amm::{self},
+        casting::Cast,
+        constants::{
+            AMM_TO_QUOTE_PRECISION_RATIO, BID_ASK_SPREAD_PRECISION, BID_ASK_SPREAD_PRECISION_I128,
+            BID_ASK_SPREAD_PRECISION_U128, DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT,
+            FUNDING_RATE_BUFFER_I128, FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
+            MARGIN_PRECISION, MARGIN_PRECISION_U128, MAX_LIQUIDATION_MULTIPLIER,
+            PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_I64,
+            PERCENTAGE_PRECISION_U64, PRICE_PRECISION, PRICE_PRECISION_I128, SPOT_WEIGHT_PRECISION,
+            TWENTY_FOUR_HOUR,
+        },
+        margin::{
+            calculate_size_discount_asset_weight, calculate_size_premium_liability_weight,
+            MarginRequirementType,
+        },
+        oracle::{
+            is_oracle_valid_for_action, oracle_validity, DriftAction, LogMode, OracleValidity,
+        },
+        safe_math::SafeMath,
+        stats,
+    },
+    msg,
+    state::{
+        fill_mode::FillMode,
+        market_status::MarketStatus,
+        oracle::{
+            get_prelaunch_price, HistoricalOracleData, MMOraclePriceData, OraclePriceData,
+            OracleSource,
+        },
+        paused_operations::PerpOperation,
+        pyth_lazer_oracle::PythLazerOracle,
+        spot_market::{AssetTier, SpotBalance, SpotBalanceType},
+        state::{State, ValidityGuardRails},
+        traits::{MarketIndexOffset, Size},
+        user::{MarketType, Order},
+    },
 };
 
 #[cfg(test)]
@@ -1140,7 +1146,7 @@ pub struct AMM {
     /// the update intensity of AMM formulaic updates (adjusting k). 0-100
     pub curve_update_intensity: u8,
     /// the jit intensity of AMM. larger intensity means larger participation in jit. 0 means no jit participation.
-    /// (0, 100] is intensity for protocol-owned AMM. (100, 200] is intensity for user LP-owned AMM.
+    /// (0, 100] is intensity for protocol-owned AMM.
     pub amm_jit_intensity: u8,
     /// the oracle provider information. used to decode/scale the oracle public key
     pub oracle_source: OracleSource,
@@ -1160,7 +1166,7 @@ pub struct AMM {
     /// signed scale amm_spread similar to fee_adjustment logic (-100 = 0, 100 = double)
     pub amm_inventory_spread_adjustment: i8,
     pub reference_price_offset_deadband_pct: u8,
-    pub padding: [u8; 2],
+    pub padding_pre_last_funding: [u8; 2],
     pub last_funding_oracle_twap: i64,
     /// trailing alignment padding (struct alignment is 16 due to u128 fields)
     pub padding_trailing: [u8; 8],
@@ -1248,7 +1254,7 @@ impl Default for AMM {
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
-            padding: [0; 2],
+            padding_pre_last_funding: [0; 2],
             last_funding_oracle_twap: 0,
             padding_trailing: [0; 8],
         }

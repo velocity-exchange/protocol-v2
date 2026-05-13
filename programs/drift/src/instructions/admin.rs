@@ -1,92 +1,108 @@
-use crate::controller::spot_balance::execute_transfer_between_pools;
-use crate::{msg, FeatureBitFlags};
+use std::{
+    convert::{identity, TryInto},
+    mem::size_of,
+};
+
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::Token2022;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
+use anchor_spl::{
+    token_2022::{
+        spl_token_2022::{
+            extension::{
+                transfer_hook::TransferHook, BaseStateWithExtensions, StateWithExtensions,
+            },
+            state::Mint as MintInner,
+        },
+        Token2022,
+    },
+    token_interface::{Mint, TokenAccount, TokenInterface},
+};
 use phoenix::quantities::WrapperU64;
-use std::convert::{identity, TryInto};
-use std::mem::size_of;
 
-use crate::controller;
-use crate::controller::token::{close_vault, initialize_immutable_owner, initialize_token_account};
-use crate::error::ErrorCode;
-use crate::get_then_update_id;
-use crate::ids::{admin_hot_wallet, amm_spread_adjust_wallet, mm_oracle_crank_wallet};
-use crate::instructions::constraints::*;
-use crate::instructions::optional_accounts::{load_maps, AccountMaps};
-use crate::load;
-use crate::load_mut;
-use crate::math::casting::Cast;
-use crate::math::constants::{
-    AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, DEFAULT_LIQUIDATION_MARGIN_BUFFER_RATIO,
-    EPOCH_DURATION, FEE_ADJUSTMENT_MAX, FEE_POOL_TO_REVENUE_POOL_THRESHOLD, GOV_SPOT_MARKET_INDEX,
-    IF_FACTOR_PRECISION, INSURANCE_A_MAX, INSURANCE_B_MAX, INSURANCE_C_MAX,
-    INSURANCE_SPECULATIVE_MAX, LIQUIDATION_FEE_PRECISION, MAX_CONCENTRATION_COEFFICIENT,
-    MAX_SQRT_K, MAX_UPDATE_K_PRICE_CHANGE, PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I64,
-    QUOTE_PRECISION_I64, QUOTE_SPOT_MARKET_INDEX, SPOT_BALANCE_PRECISION,
-    SPOT_CUMULATIVE_INTEREST_PRECISION, SPOT_IMF_PRECISION, SPOT_WEIGHT_PRECISION, THIRTEEN_DAY,
-    TWENTY_FOUR_HOUR,
+use crate::{
+    controller,
+    controller::{
+        spot_balance::execute_transfer_between_pools,
+        token::{close_vault, initialize_immutable_owner, initialize_token_account},
+    },
+    error::ErrorCode,
+    get_then_update_id,
+    ids::{admin_hot_wallet, amm_spread_adjust_wallet, mm_oracle_crank_wallet},
+    instructions::{
+        constraints::*,
+        optional_accounts::{load_maps, AccountMaps},
+    },
+    load, load_mut, math,
+    math::{
+        amm, bn,
+        casting::Cast,
+        constants::{
+            AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, DEFAULT_LIQUIDATION_MARGIN_BUFFER_RATIO,
+            EPOCH_DURATION, FEE_ADJUSTMENT_MAX, FEE_POOL_TO_REVENUE_POOL_THRESHOLD,
+            GOV_SPOT_MARKET_INDEX, IF_FACTOR_PRECISION, INSURANCE_A_MAX, INSURANCE_B_MAX,
+            INSURANCE_C_MAX, INSURANCE_SPECULATIVE_MAX, LIQUIDATION_FEE_PRECISION,
+            MAX_CONCENTRATION_COEFFICIENT, MAX_SQRT_K, MAX_UPDATE_K_PRICE_CHANGE,
+            PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I64, QUOTE_PRECISION_I64,
+            QUOTE_SPOT_MARKET_INDEX, SPOT_BALANCE_PRECISION, SPOT_CUMULATIVE_INTEREST_PRECISION,
+            SPOT_IMF_PRECISION, SPOT_WEIGHT_PRECISION, THIRTEEN_DAY, TWENTY_FOUR_HOUR,
+        },
+        cp_curve::get_update_k_result,
+        helpers::get_proportion_u128,
+        orders::is_multiple_of_step_size,
+        repeg::get_total_fee_lower_bound,
+        safe_math::SafeMath,
+        spot_balance::get_token_amount,
+        spot_withdraw::validate_spot_market_vault_amount,
+    },
+    math_error, msg,
+    optional_accounts::get_token_mint,
+    safe_decrement, safe_increment,
+    state::{
+        amm_cache::{AmmCache, CacheInfo, AMM_POSITIONS_CACHE},
+        events::{
+            CurveRecord, DepositDirection, DepositExplanation, DepositRecord,
+            SpotMarketVaultDepositRecord, TransferFeeAndPnlPoolDirection,
+            TransferFeeAndPnlPoolRecord,
+        },
+        fulfillment_params::{
+            openbook_v2::{OpenbookV2Context, OpenbookV2FulfillmentConfig},
+            phoenix::{PhoenixMarketContext, PhoenixV1FulfillmentConfig},
+            serum::{SerumContext, SerumV3FulfillmentConfig},
+        },
+        if_rebalance_config::{IfRebalanceConfig, IfRebalanceConfigParams},
+        insurance_fund_stake::{InsuranceFundStake, ProtocolIfSharesTransferConfig},
+        market_status::MarketStatus,
+        oracle::{
+            get_oracle_price, get_prelaunch_price, get_pyth_price, HistoricalIndexData,
+            HistoricalOracleData, OraclePriceData, OracleSource, PrelaunchOracle,
+            PrelaunchOracleParams,
+        },
+        oracle_map::OracleMap,
+        paused_operations::{InsuranceFundOperation, PerpOperation, SpotOperation},
+        perp_market::{
+            ContractTier, ContractType, InsuranceClaim, MarketConfigFlag, PerpMarket, PoolBalance,
+            AMM,
+        },
+        perp_market_map::{get_writable_perp_market_set, MarketSet},
+        protected_maker_mode_config::ProtectedMakerModeConfig,
+        pyth_lazer_oracle::{PythLazerOracle, PYTH_LAZER_ORACLE_SEED},
+        spot_market::{
+            AssetTier, InsuranceFund, SpotBalanceType, SpotFulfillmentConfigStatus, SpotMarket,
+            TokenProgramFlag,
+        },
+        spot_market_map::get_writable_spot_market_set,
+        state::{ExchangeStatus, FeeStructure, LpPoolFeatureBitFlags, OracleGuardRails, State},
+        traits::Size,
+        user::{SpecialUserStatus, User, UserStats},
+    },
+    validate,
+    validation::{
+        fee_structure::validate_fee_structure,
+        margin::{validate_margin, validate_margin_weights},
+        perp_market::validate_perp_market,
+        spot_market::validate_borrow_rate,
+    },
+    FeatureBitFlags,
 };
-use crate::math::cp_curve::get_update_k_result;
-use crate::math::helpers::get_proportion_u128;
-use crate::math::orders::is_multiple_of_step_size;
-use crate::math::repeg::get_total_fee_lower_bound;
-use crate::math::safe_math::SafeMath;
-use crate::math::spot_balance::get_token_amount;
-use crate::math::spot_withdraw::validate_spot_market_vault_amount;
-use crate::math::{amm, bn};
-use crate::math_error;
-use crate::optional_accounts::get_token_mint;
-use crate::state::amm_cache::{AmmCache, CacheInfo, AMM_POSITIONS_CACHE};
-use crate::state::events::{
-    CurveRecord, DepositDirection, DepositExplanation, DepositRecord, SpotMarketVaultDepositRecord,
-    TransferFeeAndPnlPoolDirection, TransferFeeAndPnlPoolRecord,
-};
-use crate::state::fulfillment_params::openbook_v2::{
-    OpenbookV2Context, OpenbookV2FulfillmentConfig,
-};
-use crate::state::fulfillment_params::phoenix::PhoenixMarketContext;
-use crate::state::fulfillment_params::phoenix::PhoenixV1FulfillmentConfig;
-use crate::state::fulfillment_params::serum::SerumContext;
-use crate::state::fulfillment_params::serum::SerumV3FulfillmentConfig;
-use crate::state::if_rebalance_config::{IfRebalanceConfig, IfRebalanceConfigParams};
-use crate::state::insurance_fund_stake::InsuranceFundStake;
-use crate::state::insurance_fund_stake::ProtocolIfSharesTransferConfig;
-use crate::state::market_status::MarketStatus;
-use crate::state::oracle::{
-    get_oracle_price, get_prelaunch_price, get_pyth_price, HistoricalIndexData,
-    HistoricalOracleData, OraclePriceData, OracleSource, PrelaunchOracle, PrelaunchOracleParams,
-};
-use crate::state::oracle_map::OracleMap;
-use crate::state::paused_operations::{InsuranceFundOperation, PerpOperation, SpotOperation};
-use crate::state::perp_market::{
-    ContractTier, ContractType, InsuranceClaim, MarketConfigFlag, PerpMarket, PoolBalance, AMM,
-};
-use crate::state::perp_market_map::{get_writable_perp_market_set, MarketSet};
-use crate::state::protected_maker_mode_config::ProtectedMakerModeConfig;
-use crate::state::pyth_lazer_oracle::{PythLazerOracle, PYTH_LAZER_ORACLE_SEED};
-use crate::state::spot_market::{
-    AssetTier, InsuranceFund, SpotBalanceType, SpotFulfillmentConfigStatus, SpotMarket,
-    TokenProgramFlag,
-};
-use crate::state::spot_market_map::get_writable_spot_market_set;
-use crate::state::state::{
-    ExchangeStatus, FeeStructure, LpPoolFeatureBitFlags, OracleGuardRails, State,
-};
-use crate::state::traits::Size;
-use crate::state::user::{SpecialUserStatus, User, UserStats};
-use crate::validate;
-use crate::validation::fee_structure::validate_fee_structure;
-use crate::validation::margin::{validate_margin, validate_margin_weights};
-use crate::validation::perp_market::validate_perp_market;
-use crate::validation::spot_market::validate_borrow_rate;
-use crate::{math, safe_decrement, safe_increment};
-
-use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHook;
-use anchor_spl::token_2022::spl_token_2022::extension::{
-    BaseStateWithExtensions, StateWithExtensions,
-};
-use anchor_spl::token_2022::spl_token_2022::state::Mint as MintInner;
 
 fn validate_supported_market_oracle_source(oracle_source: OracleSource) -> Result<()> {
     if matches!(
@@ -126,7 +142,6 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
         srm_vault: Pubkey::default(),
         perp_fee_structure: FeeStructure::perps_default(),
         spot_fee_structure: FeeStructure::spot_default(),
-        lp_cooldown_time: 0,
         liquidation_duration: 0,
         initial_pct_to_liquidate: 0,
         max_number_of_sub_accounts: 0,
@@ -1068,7 +1083,7 @@ pub fn handle_initialize_perp_market(
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
-            padding: [0; 2],
+            padding_pre_last_funding: [0; 2],
             last_funding_oracle_twap: 0,
             padding_trailing: [0; 8],
         },
@@ -3735,7 +3750,7 @@ pub fn handle_update_amm_jit_intensity(
     amm_jit_intensity: u8,
 ) -> Result<()> {
     validate!(
-        (0..=200).contains(&amm_jit_intensity),
+        (0..=100).contains(&amm_jit_intensity),
         ErrorCode::DefaultError,
         "invalid amm_jit_intensity",
     )?;

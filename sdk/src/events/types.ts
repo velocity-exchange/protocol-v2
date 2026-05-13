@@ -8,7 +8,6 @@ import {
 	OrderActionRecord,
 	OrderRecord,
 	SettlePnlRecord,
-	LPRecord,
 	InsuranceFundRecord,
 	SpotInterestRecord,
 	InsuranceFundStakeRecord,
@@ -52,7 +51,6 @@ export const DefaultEventSubscriptionOptions: EventSubscriptionOptions = {
 		'FundingRateRecord',
 		'NewUserRecord',
 		'SettlePnlRecord',
-		'LPRecord',
 		'InsuranceFundRecord',
 		'SpotInterestRecord',
 		'InsuranceFundStakeRecord',
@@ -104,7 +102,6 @@ export type EventMap = {
 	OrderActionRecord: Event<OrderActionRecord>;
 	SettlePnlRecord: Event<SettlePnlRecord>;
 	NewUserRecord: Event<NewUserRecord>;
-	LPRecord: Event<LPRecord>;
 	InsuranceFundRecord: Event<InsuranceFundRecord>;
 	SpotInterestRecord: Event<SpotInterestRecord>;
 	InsuranceFundStakeRecord: Event<InsuranceFundStakeRecord>;
@@ -133,7 +130,6 @@ export type DriftEvent =
 	| Event<OrderActionRecord>
 	| Event<SettlePnlRecord>
 	| Event<NewUserRecord>
-	| Event<LPRecord>
 	| Event<InsuranceFundRecord>
 	| Event<SpotInterestRecord>
 	| Event<InsuranceFundStakeRecord>

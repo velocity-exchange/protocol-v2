@@ -1,14 +1,18 @@
 use anchor_lang::prelude::*;
 use enumflags2::BitFlags;
 
-use crate::error::DriftResult;
-use crate::math::constants::{
-    FEE_DENOMINATOR, FEE_PERCENTAGE_DENOMINATOR, LAMPORTS_PER_SOL_U64,
-    MAX_REFERRER_REWARD_EPOCH_UPPER_BOUND, PERCENTAGE_PRECISION_U64,
+use crate::{
+    error::DriftResult,
+    math::{
+        constants::{
+            FEE_DENOMINATOR, FEE_PERCENTAGE_DENOMINATOR, LAMPORTS_PER_SOL_U64,
+            MAX_REFERRER_REWARD_EPOCH_UPPER_BOUND, PERCENTAGE_PRECISION_U64,
+        },
+        safe_math::SafeMath,
+        safe_unwrap::SafeUnwrap,
+    },
+    state::traits::Size,
 };
-use crate::math::safe_math::SafeMath;
-use crate::math::safe_unwrap::SafeUnwrap;
-use crate::state::traits::Size;
 
 #[cfg(test)]
 mod tests;
@@ -27,7 +31,6 @@ pub struct State {
     pub oracle_guard_rails: OracleGuardRails,
     pub number_of_authorities: u64,
     pub number_of_sub_accounts: u64,
-    pub lp_cooldown_time: u64,
     pub liquidation_margin_buffer_ratio: u32,
     pub settlement_duration: u16,
     pub number_of_markets: u16,

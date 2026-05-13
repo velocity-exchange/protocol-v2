@@ -460,24 +460,6 @@ export declare type InsuranceFundStakeRecord = {
 	totalIfSharesAfter: BN;
 };
 
-export type LPRecord = {
-	ts: BN;
-	user: PublicKey;
-	action: LPAction;
-	nShares: BN;
-	marketIndex: number;
-	deltaBaseAssetAmount: BN;
-	deltaQuoteAssetAmount: BN;
-	pnl: BN;
-};
-
-export class LPAction {
-	static readonly ADD_LIQUIDITY = { addLiquidity: {} };
-	static readonly REMOVE_LIQUIDITY = { removeLiquidity: {} };
-	static readonly SETTLE_LIQUIDITY = { settleLiquidity: {} };
-	static readonly REMOVE_LIQUIDITY_DERISK = { removeLiquidityDerisk: {} };
-}
-
 export type FundingRateRecord = {
 	ts: BN;
 	recordId: BN;
