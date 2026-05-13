@@ -68,10 +68,7 @@ pub fn require_pause_only_added(
     new_mask: u8,
 ) -> Result<()> {
     if !state.is_warm(signer) {
-        require!(
-            (old_mask & new_mask) == old_mask,
-            ErrorCode::Unauthorized
-        );
+        require!((old_mask & new_mask) == old_mask, ErrorCode::Unauthorized);
     }
     Ok(())
 }

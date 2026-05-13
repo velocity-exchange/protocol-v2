@@ -1,14 +1,18 @@
 use anchor_lang::prelude::*;
 use enumflags2::BitFlags;
 
-use crate::error::DriftResult;
-use crate::math::constants::{
-    FEE_DENOMINATOR, FEE_PERCENTAGE_DENOMINATOR, LAMPORTS_PER_SOL_U64,
-    MAX_REFERRER_REWARD_EPOCH_UPPER_BOUND, PERCENTAGE_PRECISION_U64,
+use crate::{
+    error::DriftResult,
+    math::{
+        constants::{
+            FEE_DENOMINATOR, FEE_PERCENTAGE_DENOMINATOR, LAMPORTS_PER_SOL_U64,
+            MAX_REFERRER_REWARD_EPOCH_UPPER_BOUND, PERCENTAGE_PRECISION_U64,
+        },
+        safe_math::SafeMath,
+        safe_unwrap::SafeUnwrap,
+    },
+    state::traits::Size,
 };
-use crate::math::safe_math::SafeMath;
-use crate::math::safe_unwrap::SafeUnwrap;
-use crate::state::traits::Size;
 
 #[cfg(test)]
 mod tests;
@@ -264,7 +268,7 @@ impl State {
     }
 
     pub fn is_cold(&self, signer: &Pubkey) -> bool {
-        self.cold_admin == *signer
+        self.cold_admin == *signer && self.warm_admin == Pubkey::default()
     }
 
     pub fn is_warm(&self, signer: &Pubkey) -> bool {

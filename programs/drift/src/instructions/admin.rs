@@ -2982,7 +2982,12 @@ pub fn handle_update_spot_market_paused_operations(
 
     let signer = ctx.accounts.admin.key();
     let state = ctx.accounts.state.load()?;
-    require_pause_only_added(&signer, &state, spot_market.paused_operations, paused_operations)?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        spot_market.paused_operations,
+        paused_operations,
+    )?;
     drop(state);
 
     spot_market.paused_operations = paused_operations;
@@ -3243,7 +3248,12 @@ pub fn handle_update_spot_market_if_paused_operations(
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
     let signer = ctx.accounts.admin.key();
     let state = ctx.accounts.state.load()?;
-    require_pause_only_added(&signer, &state, spot_market.if_paused_operations, paused_operations)?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        spot_market.if_paused_operations,
+        paused_operations,
+    )?;
     drop(state);
     spot_market.if_paused_operations = paused_operations;
     msg!("spot market {}", spot_market.market_index);
@@ -3295,8 +3305,7 @@ pub fn handle_update_perp_market_paused_operations(
     let signer = ctx.accounts.admin.key();
     let state = ctx.accounts.state.load()?;
     let is_cold = state.is_cold(&signer);
-    let is_pause_admin =
-        state.pause_admin != Pubkey::default() && state.pause_admin == signer;
+    let is_pause_admin = state.pause_admin != Pubkey::default() && state.pause_admin == signer;
     if !is_cold && !is_pause_admin {
         validate!(
             paused_operations == PerpOperation::UpdateFunding as u8
@@ -3305,7 +3314,12 @@ pub fn handle_update_perp_market_paused_operations(
             "warm admin may only pause UpdateFunding or SettleRevPool",
         )?;
     }
-    require_pause_only_added(&signer, &state, perp_market.paused_operations, paused_operations)?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        perp_market.paused_operations,
+        paused_operations,
+    )?;
     drop(state);
 
     perp_market.paused_operations = paused_operations;

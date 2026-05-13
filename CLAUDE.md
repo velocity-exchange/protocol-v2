@@ -66,6 +66,12 @@ cargo fmt                        # Rust
 cd sdk/ && yarn prettify:fix     # SDK (TypeScript)
 ```
 
+**Always run `cargo fmt` and `cargo clippy -p drift` before declaring Rust work complete.** CI runs `cargo fmt -- --check` and `cargo clippy -p drift` (see `.github/workflows/main.yml`) and will fail the PR otherwise. The equivalent SDK gate is `cd sdk/ && yarn prettify` + `yarn lint`. Do not hand off a change until those commands are clean.
+
+## Git / commit conventions
+
+**Never add Claude (or any AI assistant) as a `Co-Authored-By` on commits, PR bodies, or anywhere else in version control.** Write commit messages and PR descriptions as the human author. No `🤖 Generated with …` footers either.
+
 ## Architecture
 
 This is **Drift Protocol v2** — a Solana perpetuals and spot trading protocol.
