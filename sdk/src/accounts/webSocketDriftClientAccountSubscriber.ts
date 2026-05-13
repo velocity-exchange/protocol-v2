@@ -336,9 +336,11 @@ export class WebSocketDriftClientAccountSubscriber
 			this.resubOpts,
 			this.commitment
 		);
-		accountSubscriber.setData(
-			this.initialPerpMarketAccountData.get(marketIndex)
-		);
+		const initialPerpMarketData =
+			this.initialPerpMarketAccountData.get(marketIndex);
+		if (initialPerpMarketData) {
+			accountSubscriber.setData(initialPerpMarketData);
+		}
 		await accountSubscriber.subscribe((data: PerpMarketAccount) => {
 			this.eventEmitter.emit('perpMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
@@ -369,9 +371,11 @@ export class WebSocketDriftClientAccountSubscriber
 			this.resubOpts,
 			this.commitment
 		);
-		accountSubscriber.setData(
-			this.initialSpotMarketAccountData.get(marketIndex)
-		);
+		const initialSpotMarketData =
+			this.initialSpotMarketAccountData.get(marketIndex);
+		if (initialSpotMarketData) {
+			accountSubscriber.setData(initialSpotMarketData);
+		}
 		await accountSubscriber.subscribe((data: SpotMarketAccount) => {
 			this.eventEmitter.emit('spotMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
