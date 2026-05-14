@@ -31,7 +31,8 @@ import { BankrunContextWrapper } from '../sdk/src/bankrun/bankrunConnection';
 async function waitForOraclePrice(
 	getOraclePrice: () => { price: BN },
 	expectedPrice: BN,
-	timeoutMs = 10000
+	timeoutMs = 10000,
+	dumpOnFail?: () => void
 ) {
 	const start = Date.now();
 	let lastPrice: BN | undefined;
@@ -49,6 +50,14 @@ async function waitForOraclePrice(
 		}
 
 		await sleep(250);
+	}
+
+	if (dumpOnFail) {
+		try {
+			dumpOnFail();
+		} catch (e) {
+			console.log('[ws-debug] dumpOnFail threw:', (e as Error).message);
+		}
 	}
 
 	assert(
@@ -250,11 +259,58 @@ describe('switch oracles', () => {
 		});
 		await driftClient.subscribe();
 
+		const dumpWsState = () => {
+			const sub: any = (driftClient as any).accountSubscriber;
+			console.log(
+				'[ws-debug] isSubscribed=',
+				sub.isSubscribed,
+				'solOracle=',
+				solOracle.toBase58()
+			);
+			for (const [idx, s] of (sub.perpMarketAccountSubscribers ??
+				new Map()) as Map<number, any>) {
+				const d = s.dataAndSlot;
+				console.log(
+					`[ws-debug] perp[${idx}] hasData=${!!d?.data} oracle=${d?.data?.amm?.oracle?.toBase58?.()} oracleSource=${JSON.stringify(
+						d?.data?.amm?.oracleSource
+					)}`
+				);
+			}
+			for (const [idx, s] of (sub.spotMarketAccountSubscribers ??
+				new Map()) as Map<number, any>) {
+				const d = s.dataAndSlot;
+				console.log(
+					`[ws-debug] spot[${idx}] hasData=${!!d?.data} oracle=${d?.data?.oracle?.toBase58?.()} oracleSource=${JSON.stringify(
+						d?.data?.oracleSource
+					)}`
+				);
+			}
+			for (const [id, s] of (sub.oracleSubscribers ?? new Map()) as Map<
+				string,
+				any
+			>) {
+				const d = s.dataAndSlot;
+				console.log(
+					`[ws-debug] oracle[${id}] hasData=${!!d?.data} price=${d?.data?.price?.toString?.()}`
+				);
+			}
+			console.log(
+				'[ws-debug] perpOracleStringMap=',
+				Array.from((sub.perpOracleStringMap ?? new Map()).entries())
+			);
+			console.log(
+				'[ws-debug] spotOracleStringMap=',
+				Array.from((sub.spotOracleStringMap ?? new Map()).entries())
+			);
+		};
+
 		const newSolOracle = await mockOracleNoProgram(bankrunContextWrapper, 100);
 
 		await waitForOraclePrice(
 			() => driftClient.getOracleDataForPerpMarket(0),
-			PRICE_PRECISION.muln(30)
+			PRICE_PRECISION.muln(30),
+			10000,
+			dumpWsState
 		);
 
 		await admin.updatePerpMarketOracle(
