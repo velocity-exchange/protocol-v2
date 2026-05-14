@@ -265,8 +265,13 @@ impl State {
         }
     }
 
+    /// True if `signer` is the root (cold) admin. Mirrors the
+    /// `cold_admin == admin.key()` constraint used by the cold-only Accounts
+    /// structs (`ColdAdminUpdateState`, `UpdateWarmAdmin`, `UpdatePauseAdmin`),
+    /// so a cold signer is recognised even when `warm_admin` is set — including
+    /// the post-`handle_initialize` state where `warm_admin == cold_admin`.
     pub fn is_cold(&self, signer: &Pubkey) -> bool {
-        self.cold_admin == *signer && self.warm_admin == Pubkey::default()
+        self.cold_admin == *signer && self.cold_admin != Pubkey::default()
     }
 
     pub fn is_warm(&self, signer: &Pubkey) -> bool {
