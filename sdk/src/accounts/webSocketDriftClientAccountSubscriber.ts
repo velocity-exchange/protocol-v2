@@ -36,41 +36,23 @@ const ORACLE_DEFAULT_ID = getOracleId(
 
 async function ensureAccountFetched<T>(
 	subscriber: AccountSubscriber<T>,
-	logName: string,
-	maxAttempts = 10,
-	delayMs = 250
+	maxAttempts = 5,
+	delayMs = 200
 ): Promise<void> {
 	for (let attempt = 0; attempt < maxAttempts; attempt++) {
 		if (subscriber.dataAndSlot?.data !== undefined) {
-			if (attempt > 0) {
-				console.log(
-					`[ws-ensure] ${logName} ready after ${attempt} retry(ies)`
-				);
-			}
 			return;
 		}
 		try {
 			await subscriber.fetch();
-		} catch (e) {
-			console.log(
-				`[ws-ensure] ${logName} fetch threw on attempt ${attempt}:`,
-				(e as Error).message
-			);
+		} catch {
+			// retry below
 		}
 		if (subscriber.dataAndSlot?.data !== undefined) {
-			if (attempt > 0) {
-				console.log(
-					`[ws-ensure] ${logName} ready after fetch on attempt ${attempt}`
-				);
-			}
 			return;
 		}
 		await new Promise((resolve) => setTimeout(resolve, delayMs));
 	}
-	console.log(
-		`[ws-ensure] ${logName} GAVE UP after ${maxAttempts} attempts; dataAndSlot=`,
-		subscriber.dataAndSlot
-	);
 }
 
 export class WebSocketDriftClientAccountSubscriber
@@ -365,26 +347,6 @@ export class WebSocketDriftClientAccountSubscriber
 			this.program.programId,
 			marketIndex
 		);
-		console.log(
-			`[ws-pda] perpMarket[${marketIndex}] programId=${this.program.programId.toBase58()} pda=${perpMarketPublicKey.toBase58()}`
-		);
-		// Pre-check what bankrun reports for this pubkey before we even subscribe.
-		try {
-			const pre = await this.program.provider.connection.getAccountInfoAndContext(
-				perpMarketPublicKey,
-				'confirmed' as any
-			);
-			console.log(
-				`[ws-pda] perpMarket[${marketIndex}] pre-fetch value=${
-					pre?.value === null ? 'null' : 'present'
-				} slot=${pre?.context?.slot}`
-			);
-		} catch (e) {
-			console.log(
-				`[ws-pda] perpMarket[${marketIndex}] pre-fetch threw:`,
-				(e as Error).message
-			);
-		}
 		const AccountSubscriberClass =
 			this.customPerpMarketAccountSubscriber || WebSocketAccountSubscriber;
 		const accountSubscriber = new AccountSubscriberClass<PerpMarketAccount>(
@@ -404,7 +366,7 @@ export class WebSocketDriftClientAccountSubscriber
 			this.eventEmitter.emit('perpMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
 		});
-		await ensureAccountFetched(accountSubscriber, `perpMarket[${marketIndex}]`);
+		await ensureAccountFetched(accountSubscriber);
 		this.perpMarketAccountSubscribers.set(marketIndex, accountSubscriber);
 		return true;
 	}
@@ -440,7 +402,7 @@ export class WebSocketDriftClientAccountSubscriber
 			this.eventEmitter.emit('spotMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
 		});
-		await ensureAccountFetched(accountSubscriber, `spotMarket[${marketIndex}]`);
+		await ensureAccountFetched(accountSubscriber);
 		this.spotMarketAccountSubscribers.set(marketIndex, accountSubscriber);
 		return true;
 	}
@@ -487,10 +449,7 @@ export class WebSocketDriftClientAccountSubscriber
 			);
 			this.eventEmitter.emit('update');
 		});
-		await ensureAccountFetched(
-			accountSubscriber,
-			`oracle[${oracleInfo.publicKey.toBase58().slice(0, 8)}/${oracleInfo.source}]`
-		);
+		await ensureAccountFetched(accountSubscriber);
 
 		this.oracleSubscribers.set(oracleId, accountSubscriber);
 		return true;

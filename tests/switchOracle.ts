@@ -11,6 +11,10 @@ import {
 	EventSubscriber,
 	OracleSource,
 	OracleInfo,
+	PRICE_PRECISION,
+	PEG_PRECISION,
+	Wallet,
+	DriftClient,
 } from '../sdk/src';
 
 import {
@@ -23,7 +27,6 @@ import {
 	mockUserUSDCAccount,
 	sleep,
 } from './testHelpers';
-import { PRICE_PRECISION, PEG_PRECISION, Wallet, DriftClient } from '../sdk';
 import { startAnchor } from 'solana-bankrun';
 import { TestBulkAccountLoader } from '../sdk/src/accounts/testBulkAccountLoader';
 import { BankrunContextWrapper } from '../sdk/src/bankrun/bankrunConnection';
@@ -31,8 +34,7 @@ import { BankrunContextWrapper } from '../sdk/src/bankrun/bankrunConnection';
 async function waitForOraclePrice(
 	getOraclePrice: () => { price: BN },
 	expectedPrice: BN,
-	timeoutMs = 10000,
-	dumpOnFail?: () => void
+	timeoutMs = 10000
 ) {
 	const start = Date.now();
 	let lastPrice: BN | undefined;
@@ -50,14 +52,6 @@ async function waitForOraclePrice(
 		}
 
 		await sleep(250);
-	}
-
-	if (dumpOnFail) {
-		try {
-			dumpOnFail();
-		} catch (e) {
-			console.log('[ws-debug] dumpOnFail threw:', (e as Error).message);
-		}
 	}
 
 	assert(
@@ -240,32 +234,6 @@ describe('switch oracles', () => {
 	});
 
 	it('ws', async () => {
-		// Pre-flight: confirm that the perp/spot market PDAs that the WS
-		// subscriber will fetch are actually findable in bankrun right now.
-		const adminProgramId = admin.program.programId;
-		const { getPerpMarketPublicKey, getSpotMarketPublicKey } = await import(
-			'../sdk/src/addresses/pda'
-		);
-		const perp0Pda = await getPerpMarketPublicKey(adminProgramId, 0);
-		const spot0Pda = await getSpotMarketPublicKey(adminProgramId, 0);
-		const spot1Pda = await getSpotMarketPublicKey(adminProgramId, 1);
-		const conn = bankrunContextWrapper.connection.toConnection();
-		const perp0 = await conn.getAccountInfo(perp0Pda);
-		const spot0 = await conn.getAccountInfo(spot0Pda);
-		const spot1 = await conn.getAccountInfo(spot1Pda);
-		console.log(
-			`[ws-preflight] admin.program.programId=${adminProgramId.toBase58()}`
-		);
-		console.log(
-			`[ws-preflight] perp0Pda=${perp0Pda.toBase58()} present=${perp0 !== null}`
-		);
-		console.log(
-			`[ws-preflight] spot0Pda=${spot0Pda.toBase58()} present=${spot0 !== null}`
-		);
-		console.log(
-			`[ws-preflight] spot1Pda=${spot1Pda.toBase58()} present=${spot1 !== null}`
-		);
-
 		const userKeyPair = await createFundedKeyPair(bankrunContextWrapper);
 		const driftClient = new DriftClient({
 			connection: bankrunContextWrapper.connection.toConnection(),
@@ -283,63 +251,13 @@ describe('switch oracles', () => {
 				type: 'websocket',
 			},
 		});
-		console.log(
-			`[ws-preflight] new driftClient.program.programId=${driftClient.program.programId.toBase58()}`
-		);
 		await driftClient.subscribe();
-
-		const dumpWsState = () => {
-			const sub: any = (driftClient as any).accountSubscriber;
-			console.log(
-				'[ws-debug] isSubscribed=',
-				sub.isSubscribed,
-				'solOracle=',
-				solOracle.toBase58()
-			);
-			for (const [idx, s] of (sub.perpMarketAccountSubscribers ??
-				new Map()) as Map<number, any>) {
-				const d = s.dataAndSlot;
-				console.log(
-					`[ws-debug] perp[${idx}] hasData=${!!d?.data} oracle=${d?.data?.amm?.oracle?.toBase58?.()} oracleSource=${JSON.stringify(
-						d?.data?.amm?.oracleSource
-					)}`
-				);
-			}
-			for (const [idx, s] of (sub.spotMarketAccountSubscribers ??
-				new Map()) as Map<number, any>) {
-				const d = s.dataAndSlot;
-				console.log(
-					`[ws-debug] spot[${idx}] hasData=${!!d?.data} oracle=${d?.data?.oracle?.toBase58?.()} oracleSource=${JSON.stringify(
-						d?.data?.oracleSource
-					)}`
-				);
-			}
-			for (const [id, s] of (sub.oracleSubscribers ?? new Map()) as Map<
-				string,
-				any
-			>) {
-				const d = s.dataAndSlot;
-				console.log(
-					`[ws-debug] oracle[${id}] hasData=${!!d?.data} price=${d?.data?.price?.toString?.()}`
-				);
-			}
-			console.log(
-				'[ws-debug] perpOracleStringMap=',
-				Array.from((sub.perpOracleStringMap ?? new Map()).entries())
-			);
-			console.log(
-				'[ws-debug] spotOracleStringMap=',
-				Array.from((sub.spotOracleStringMap ?? new Map()).entries())
-			);
-		};
 
 		const newSolOracle = await mockOracleNoProgram(bankrunContextWrapper, 100);
 
 		await waitForOraclePrice(
 			() => driftClient.getOracleDataForPerpMarket(0),
-			PRICE_PRECISION.muln(30),
-			10000,
-			dumpWsState
+			PRICE_PRECISION.muln(30)
 		);
 
 		await admin.updatePerpMarketOracle(
