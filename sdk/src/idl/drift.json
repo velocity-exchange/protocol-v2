@@ -1548,34 +1548,6 @@
       ]
     },
     {
-      "name": "delete_openbook_v2_fulfillment_config",
-      "discriminator": [
-        18,
-        198,
-        138,
-        142,
-        138,
-        48,
-        79,
-        187
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "openbook_v2_fulfillment_config",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "delete_prelaunch_oracle",
       "discriminator": [
         59,
@@ -1639,34 +1611,6 @@
           "type": "u16"
         }
       ]
-    },
-    {
-      "name": "delete_serum_fulfillment_config",
-      "discriminator": [
-        30,
-        143,
-        88,
-        48,
-        249,
-        103,
-        154,
-        255
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "serum_fulfillment_config",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": []
     },
     {
       "name": "delete_signed_msg_user_orders",
@@ -3350,75 +3294,6 @@
       ]
     },
     {
-      "name": "initialize_fuel_overflow",
-      "discriminator": [
-        88,
-        223,
-        132,
-        161,
-        208,
-        88,
-        142,
-        42
-      ],
-      "accounts": [
-        {
-          "name": "fuel_overflow",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  102,
-                  117,
-                  101,
-                  108,
-                  95,
-                  111,
-                  118,
-                  101,
-                  114,
-                  102,
-                  108,
-                  111,
-                  119
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "authority"
-              }
-            ]
-          }
-        },
-        {
-          "name": "user_stats",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "user_stats"
-          ]
-        },
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "initialize_if_rebalance_config",
       "discriminator": [
         8,
@@ -3846,157 +3721,6 @@
       ]
     },
     {
-      "name": "initialize_openbook_v2_fulfillment_config",
-      "discriminator": [
-        7,
-        221,
-        103,
-        153,
-        107,
-        57,
-        27,
-        197
-      ],
-      "accounts": [
-        {
-          "name": "base_spot_market",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "market_index"
-              }
-            ]
-          }
-        },
-        {
-          "name": "quote_spot_market",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  0,
-                  0
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state",
-          "writable": true
-        },
-        {
-          "name": "openbook_v2_program"
-        },
-        {
-          "name": "openbook_v2_market"
-        },
-        {
-          "name": "drift_signer"
-        },
-        {
-          "name": "openbook_v2_fulfillment_config",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  111,
-                  112,
-                  101,
-                  110,
-                  98,
-                  111,
-                  111,
-                  107,
-                  95,
-                  118,
-                  50,
-                  95,
-                  102,
-                  117,
-                  108,
-                  102,
-                  105,
-                  108,
-                  108,
-                  109,
-                  101,
-                  110,
-                  116,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "openbook_v2_market"
-              }
-            ]
-          }
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "market_index",
-          "type": "u16"
-        }
-      ]
-    },
-    {
       "name": "initialize_perp_market",
       "discriminator": [
         132,
@@ -4175,153 +3899,6 @@
         {
           "name": "lp_pool_id",
           "type": "u8"
-        }
-      ]
-    },
-    {
-      "name": "initialize_phoenix_fulfillment_config",
-      "discriminator": [
-        135,
-        132,
-        110,
-        107,
-        185,
-        160,
-        169,
-        154
-      ],
-      "accounts": [
-        {
-          "name": "base_spot_market",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "market_index"
-              }
-            ]
-          }
-        },
-        {
-          "name": "quote_spot_market",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  0,
-                  0
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state",
-          "writable": true
-        },
-        {
-          "name": "phoenix_program"
-        },
-        {
-          "name": "phoenix_market"
-        },
-        {
-          "name": "drift_signer"
-        },
-        {
-          "name": "phoenix_fulfillment_config",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  104,
-                  111,
-                  101,
-                  110,
-                  105,
-                  120,
-                  95,
-                  102,
-                  117,
-                  108,
-                  102,
-                  105,
-                  108,
-                  108,
-                  109,
-                  101,
-                  110,
-                  116,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "phoenix_market"
-              }
-            ]
-          }
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "market_index",
-          "type": "u16"
         }
       ]
     },
@@ -4749,185 +4326,6 @@
       "args": [
         {
           "name": "num_orders",
-          "type": "u16"
-        }
-      ]
-    },
-    {
-      "name": "initialize_serum_fulfillment_config",
-      "discriminator": [
-        193,
-        211,
-        132,
-        172,
-        70,
-        171,
-        7,
-        94
-      ],
-      "accounts": [
-        {
-          "name": "base_spot_market",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "market_index"
-              }
-            ]
-          }
-        },
-        {
-          "name": "quote_spot_market",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  0,
-                  0
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state",
-          "writable": true
-        },
-        {
-          "name": "serum_program"
-        },
-        {
-          "name": "serum_market"
-        },
-        {
-          "name": "serum_open_orders",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  114,
-                  117,
-                  109,
-                  95,
-                  111,
-                  112,
-                  101,
-                  110,
-                  95,
-                  111,
-                  114,
-                  100,
-                  101,
-                  114,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "serum_market"
-              }
-            ]
-          }
-        },
-        {
-          "name": "drift_signer"
-        },
-        {
-          "name": "serum_fulfillment_config",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  114,
-                  117,
-                  109,
-                  95,
-                  102,
-                  117,
-                  108,
-                  102,
-                  105,
-                  108,
-                  108,
-                  109,
-                  101,
-                  110,
-                  116,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "serum_market"
-              }
-            ]
-          }
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "market_index",
           "type": "u16"
         }
       ]
@@ -6676,43 +6074,6 @@
       ]
     },
     {
-      "name": "openbook_v2_fulfillment_config_status",
-      "discriminator": [
-        25,
-        173,
-        19,
-        189,
-        4,
-        211,
-        64,
-        238
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "openbook_v2_fulfillment_config",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "status",
-          "type": {
-            "defined": {
-              "name": "SpotFulfillmentConfigStatus"
-            }
-          }
-        }
-      ]
-    },
-    {
       "name": "override_amm_cache_info",
       "discriminator": [
         189,
@@ -6835,43 +6196,6 @@
         }
       ],
       "args": []
-    },
-    {
-      "name": "phoenix_fulfillment_config_status",
-      "discriminator": [
-        96,
-        31,
-        113,
-        32,
-        12,
-        203,
-        7,
-        154
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "phoenix_fulfillment_config",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "status",
-          "type": {
-            "defined": {
-              "name": "SpotFulfillmentConfigStatus"
-            }
-          }
-        }
-      ]
     },
     {
       "name": "place_and_make_perp_order",
@@ -7732,39 +7056,6 @@
           "type": "u64"
         }
       ]
-    },
-    {
-      "name": "reset_fuel_season",
-      "discriminator": [
-        199,
-        122,
-        192,
-        255,
-        32,
-        99,
-        63,
-        200
-      ],
-      "accounts": [
-        {
-          "name": "user_stats",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "user_stats"
-          ]
-        },
-        {
-          "name": "state"
-        },
-        {
-          "name": "admin",
-          "signer": true
-        }
-      ],
-      "args": []
     },
     {
       "name": "reset_perp_market_amm_oracle_twap",
@@ -8875,41 +8166,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "sweep_fuel",
-      "discriminator": [
-        175,
-        107,
-        19,
-        56,
-        165,
-        241,
-        43,
-        69
-      ],
-      "accounts": [
-        {
-          "name": "fuel_overflow",
-          "writable": true
-        },
-        {
-          "name": "user_stats",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "fuel_overflow",
-            "user_stats"
-          ]
-        },
-        {
-          "name": "signer",
-          "signer": true
-        }
-      ],
-      "args": []
     },
     {
       "name": "transfer_deposit",
@@ -10854,6 +10110,35 @@
       ]
     },
     {
+      "name": "update_pause_admin",
+      "discriminator": [
+        25,
+        157,
+        60,
+        228,
+        42,
+        96,
+        133,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_pause_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "update_perp_auction_duration",
       "discriminator": [
         126,
@@ -12516,43 +11801,6 @@
           "name": "current_users",
           "type": {
             "option": "u32"
-          }
-        }
-      ]
-    },
-    {
-      "name": "update_serum_fulfillment_config_status",
-      "discriminator": [
-        171,
-        109,
-        240,
-        251,
-        95,
-        1,
-        149,
-        89
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "serum_fulfillment_config",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "status",
-          "type": {
-            "defined": {
-              "name": "SpotFulfillmentConfigStatus"
-            }
           }
         }
       ]
@@ -14860,19 +14108,6 @@
       ]
     },
     {
-      "name": "FuelOverflow",
-      "discriminator": [
-        182,
-        64,
-        231,
-        177,
-        226,
-        142,
-        69,
-        58
-      ]
-    },
-    {
       "name": "IfRebalanceConfig",
       "discriminator": [
         214,
@@ -14912,19 +14147,6 @@
       ]
     },
     {
-      "name": "OpenbookV2FulfillmentConfig",
-      "discriminator": [
-        3,
-        43,
-        58,
-        106,
-        131,
-        132,
-        199,
-        171
-      ]
-    },
-    {
       "name": "PerpMarket",
       "discriminator": [
         10,
@@ -14935,19 +14157,6 @@
         245,
         55,
         247
-      ]
-    },
-    {
-      "name": "PhoenixV1FulfillmentConfig",
-      "discriminator": [
-        233,
-        45,
-        62,
-        40,
-        35,
-        129,
-        48,
-        72
       ]
     },
     {
@@ -15026,19 +14235,6 @@
         177,
         173,
         252
-      ]
-    },
-    {
-      "name": "SerumV3FulfillmentConfig",
-      "discriminator": [
-        65,
-        160,
-        197,
-        112,
-        239,
-        168,
-        103,
-        185
       ]
     },
     {
@@ -15171,32 +14367,6 @@
         135,
         44,
         134
-      ]
-    },
-    {
-      "name": "FuelSeasonRecord",
-      "discriminator": [
-        19,
-        137,
-        119,
-        33,
-        224,
-        249,
-        6,
-        87
-      ]
-    },
-    {
-      "name": "FuelSweepRecord",
-      "discriminator": [
-        41,
-        84,
-        37,
-        246,
-        132,
-        240,
-        131,
-        8
       ]
     },
     {
@@ -17039,13 +16209,13 @@
     },
     {
       "code": 6310,
-      "name": "UserFuelOverflowThresholdNotMet",
-      "msg": "User fuel overflow threshold not met"
+      "name": "Deprecated1",
+      "msg": "Deprecated"
     },
     {
       "code": 6311,
-      "name": "FuelOverflowAccountNotFound",
-      "msg": "FuelOverflow account not found"
+      "name": "Deprecated2",
+      "msg": "Deprecated"
     },
     {
       "code": 6312,
@@ -19046,174 +18216,6 @@
       }
     },
     {
-      "name": "FuelOverflow",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "authority",
-            "docs": [
-              "The authority of this overflow account"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "fuel_insurance",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_deposits",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_borrows",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_positions",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_taker",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_maker",
-            "type": "u128"
-          },
-          {
-            "name": "last_fuel_sweep_ts",
-            "type": "u32"
-          },
-          {
-            "name": "last_reset_ts",
-            "type": "u32"
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u128",
-                6
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "FuelSeasonRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "authority",
-            "type": "pubkey"
-          },
-          {
-            "name": "fuel_insurance",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_deposits",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_borrows",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_positions",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_taker",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_maker",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_total",
-            "type": "u128"
-          }
-        ]
-      }
-    },
-    {
-      "name": "FuelSweepRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "authority",
-            "type": "pubkey"
-          },
-          {
-            "name": "user_stats_fuel_insurance",
-            "type": "u32"
-          },
-          {
-            "name": "user_stats_fuel_deposits",
-            "type": "u32"
-          },
-          {
-            "name": "user_stats_fuel_borrows",
-            "type": "u32"
-          },
-          {
-            "name": "user_stats_fuel_positions",
-            "type": "u32"
-          },
-          {
-            "name": "user_stats_fuel_taker",
-            "type": "u32"
-          },
-          {
-            "name": "user_stats_fuel_maker",
-            "type": "u32"
-          },
-          {
-            "name": "fuel_overflow_fuel_insurance",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_overflow_fuel_deposits",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_overflow_fuel_borrows",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_overflow_fuel_positions",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_overflow_fuel_taker",
-            "type": "u128"
-          },
-          {
-            "name": "fuel_overflow_fuel_maker",
-            "type": "u128"
-          }
-        ]
-      }
-    },
-    {
       "name": "FundingPaymentRecord",
       "type": {
         "kind": "struct",
@@ -21039,83 +20041,6 @@
       }
     },
     {
-      "name": "OpenbookV2FulfillmentConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_program_id",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_market",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_market_authority",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_event_heap",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_bids",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_asks",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_base_vault",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbook_v2_quote_vault",
-            "type": "pubkey"
-          },
-          {
-            "name": "market_index",
-            "type": "u16"
-          },
-          {
-            "name": "fulfillment_type",
-            "type": {
-              "defined": {
-                "name": "SpotFulfillmentType"
-              }
-            }
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "SpotFulfillmentConfigStatus"
-              }
-            }
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "OracleGuardRails",
       "repr": {
         "kind": "c"
@@ -22389,44 +21314,12 @@
             "type": "i16"
           },
           {
-            "name": "fuel_boost_position",
-            "docs": [
-              "fuel multiplier for perp funding",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_boost_taker",
-            "docs": [
-              "fuel multiplier for perp taker",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_boost_maker",
-            "docs": [
-              "fuel multiplier for perp maker",
-              "precision: 10"
-            ],
-            "type": "u8"
+            "name": "last_fill_price",
+            "type": "u64"
           },
           {
             "name": "pool_id",
             "type": "u8"
-          },
-          {
-            "name": "padding_former_hlm",
-            "docs": [
-              "Deprecated: formerly high_leverage_margin_ratio_initial and high_leverage_margin_ratio_maintenance"
-            ],
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           },
           {
             "name": "protected_maker_limit_price_divisor",
@@ -22451,10 +21344,6 @@
           {
             "name": "lp_exchange_fee_excluscion_scalar",
             "type": "u8"
-          },
-          {
-            "name": "last_fill_price",
-            "type": "u64"
           },
           {
             "name": "lp_pool_id",
@@ -22590,71 +21479,6 @@
           {
             "name": "position_flag",
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "PhoenixV1FulfillmentConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenix_program_id",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenix_log_authority",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenix_market",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenix_base_vault",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenix_quote_vault",
-            "type": "pubkey"
-          },
-          {
-            "name": "market_index",
-            "type": "u16"
-          },
-          {
-            "name": "fulfillment_type",
-            "type": {
-              "defined": {
-                "name": "SpotFulfillmentType"
-              }
-            }
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "SpotFulfillmentConfigStatus"
-              }
-            }
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           }
         ]
       }
@@ -23281,91 +22105,6 @@
       }
     },
     {
-      "name": "SerumV3FulfillmentConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_program_id",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_market",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_request_queue",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_event_queue",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_bids",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_asks",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_base_vault",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_quote_vault",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_open_orders",
-            "type": "pubkey"
-          },
-          {
-            "name": "serum_signer_nonce",
-            "type": "u64"
-          },
-          {
-            "name": "market_index",
-            "type": "u16"
-          },
-          {
-            "name": "fulfillment_type",
-            "type": {
-              "defined": {
-                "name": "SpotFulfillmentType"
-              }
-            }
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "SpotFulfillmentConfigStatus"
-              }
-            }
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "SettlePnlExplanation",
       "type": {
         "kind": "enum",
@@ -23789,40 +22528,6 @@
           {
             "name": "cumulative_deposit_interest_delta",
             "type": "u128"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SpotFulfillmentConfigStatus",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Enabled"
-          },
-          {
-            "name": "Disabled"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SpotFulfillmentType",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "SerumV3"
-          },
-          {
-            "name": "Match"
-          },
-          {
-            "name": "PhoenixV1"
-          },
-          {
-            "name": "OpenbookV2"
           }
         ]
       }
@@ -24359,46 +23064,6 @@
             "type": "u8"
           },
           {
-            "name": "fuel_boost_deposits",
-            "docs": [
-              "fuel multiplier for spot deposits",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_boost_borrows",
-            "docs": [
-              "fuel multiplier for spot borrows",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_boost_taker",
-            "docs": [
-              "fuel multiplier for spot taker",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_boost_maker",
-            "docs": [
-              "fuel multiplier for spot maker",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_boost_insurance",
-            "docs": [
-              "fuel multiplier for spot insurance stake",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
             "name": "token_program_flag",
             "type": "u8"
           },
@@ -24583,7 +23248,8 @@
           {
             "name": "cold_admin",
             "docs": [
-              "Root authority. Set at `initialize`; only this key can rotate `warm_admin`."
+              "Root authority. Set at `initialize`; only this key can rotate `warm_admin`",
+              "and `pause_admin`. Expected to sit behind a (small) timelocked multisig."
             ],
             "type": "pubkey"
           },
@@ -24592,6 +23258,16 @@
             "docs": [
               "Operational authority (e.g. multisig+timelock). Can rotate the 11 hot keys",
               "below. `Pubkey::default()` means unset — only `cold_admin` can act in that case."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pause_admin",
+            "docs": [
+              "Emergency-pause authority. No on-chain timelock — intended to live behind a",
+              "fast-acting multisig that can flip pause flags without delay. May only *add*",
+              "pause bits (never clear them); cold/warm retain full pause + unpause power.",
+              "`Pubkey::default()` means unassigned (only cold/warm can pause)."
             ],
             "type": "pubkey"
           },
@@ -24756,7 +23432,7 @@
             "type": {
               "array": [
                 "u8",
-                264
+                272
               ]
             }
           }
@@ -25208,25 +23884,8 @@
             "type": "bool"
           },
           {
-            "name": "padding_former_margin_mode",
-            "type": "u8"
-          },
-          {
             "name": "pool_id",
             "type": "u8"
-          },
-          {
-            "name": "padding1",
-            "type": {
-              "array": [
-                "u8",
-                3
-              ]
-            }
-          },
-          {
-            "name": "last_fuel_bonus_update_ts",
-            "type": "u32"
           },
           {
             "name": "special_user_status",
@@ -25240,7 +23899,7 @@
             "type": {
               "array": [
                 "u8",
-                11
+                14
               ]
             }
           }
@@ -25434,55 +24093,6 @@
             "type": "u8"
           },
           {
-            "name": "fuel_overflow_status",
-            "docs": [
-              "whether the user has a FuelOverflow account"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuel_insurance",
-            "docs": [
-              "accumulated fuel for token amounts of insurance"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuel_deposits",
-            "docs": [
-              "accumulated fuel for notional of deposits"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuel_borrows",
-            "docs": [
-              "accumulate fuel bonus for notional of borrows"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuel_positions",
-            "docs": [
-              "accumulated fuel for perp open interest"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuel_taker",
-            "docs": [
-              "accumulate fuel bonus for taker volume"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuel_maker",
-            "docs": [
-              "accumulate fuel bonus for maker volume"
-            ],
-            "type": "u32"
-          },
-          {
             "name": "if_staked_gov_token_amount",
             "docs": [
               "The amount of tokens staked in the governance spot markets if"
@@ -25490,18 +24100,11 @@
             "type": "u64"
           },
           {
-            "name": "last_fuel_if_bonus_update_ts",
-            "docs": [
-              "last unix ts user stats data was used to update if fuel (u32 to save space)"
-            ],
-            "type": "u32"
-          },
-          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                12
+                40
               ]
             }
           }

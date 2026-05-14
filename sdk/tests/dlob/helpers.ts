@@ -566,7 +566,6 @@ export const mockStateAccount: StateAccount = {
 	discountMint: PublicKey.default,
 	exchangeStatus: 0,
 	liquidationMarginBufferRatio: 0,
-	lpCooldownTime: new BN(0),
 	minPerpAuctionDuration: 0,
 	numberOfMarkets: 0,
 	numberOfSpotMarkets: 0,

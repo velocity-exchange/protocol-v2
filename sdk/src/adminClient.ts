@@ -2329,36 +2329,6 @@ export class AdminClient extends DriftClient {
 		);
 	}
 
-	public async updateLpCooldownTime(
-		cooldownTime: BN
-	): Promise<TransactionSignature> {
-		const updateLpCooldownTimeIx = await this.getUpdateLpCooldownTimeIx(
-			cooldownTime
-		);
-
-		const tx = await this.buildTransaction(updateLpCooldownTimeIx);
-
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getUpdateLpCooldownTimeIx(
-		cooldownTime: BN
-	): Promise<TransactionInstruction> {
-		return await (this.program.instruction as any).updateLpCooldownTime(
-			cooldownTime,
-			{
-				accounts: {
-					admin: this.isSubscribed
-						? this.getStateAccount().coldAdmin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-				},
-			}
-		);
-	}
-
 	public async updatePerpMarketOracle(
 		perpMarketIndex: number,
 		oracle: PublicKey,

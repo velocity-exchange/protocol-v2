@@ -1554,34 +1554,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "deleteOpenbookV2FulfillmentConfig",
-      "discriminator": [
-        18,
-        198,
-        138,
-        142,
-        138,
-        48,
-        79,
-        187
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "openbookV2FulfillmentConfig",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "deletePrelaunchOracle",
       "discriminator": [
         59,
@@ -1645,34 +1617,6 @@ export type Drift = {
           "type": "u16"
         }
       ]
-    },
-    {
-      "name": "deleteSerumFulfillmentConfig",
-      "discriminator": [
-        30,
-        143,
-        88,
-        48,
-        249,
-        103,
-        154,
-        255
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "serumFulfillmentConfig",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": []
     },
     {
       "name": "deleteSignedMsgUserOrders",
@@ -3356,75 +3300,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "initializeFuelOverflow",
-      "discriminator": [
-        88,
-        223,
-        132,
-        161,
-        208,
-        88,
-        142,
-        42
-      ],
-      "accounts": [
-        {
-          "name": "fuelOverflow",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  102,
-                  117,
-                  101,
-                  108,
-                  95,
-                  111,
-                  118,
-                  101,
-                  114,
-                  102,
-                  108,
-                  111,
-                  119
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "authority"
-              }
-            ]
-          }
-        },
-        {
-          "name": "userStats",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "userStats"
-          ]
-        },
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "initializeIfRebalanceConfig",
       "discriminator": [
         8,
@@ -3852,157 +3727,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "initializeOpenbookV2FulfillmentConfig",
-      "discriminator": [
-        7,
-        221,
-        103,
-        153,
-        107,
-        57,
-        27,
-        197
-      ],
-      "accounts": [
-        {
-          "name": "baseSpotMarket",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "marketIndex"
-              }
-            ]
-          }
-        },
-        {
-          "name": "quoteSpotMarket",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  0,
-                  0
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state",
-          "writable": true
-        },
-        {
-          "name": "openbookV2Program"
-        },
-        {
-          "name": "openbookV2Market"
-        },
-        {
-          "name": "driftSigner"
-        },
-        {
-          "name": "openbookV2FulfillmentConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  111,
-                  112,
-                  101,
-                  110,
-                  98,
-                  111,
-                  111,
-                  107,
-                  95,
-                  118,
-                  50,
-                  95,
-                  102,
-                  117,
-                  108,
-                  102,
-                  105,
-                  108,
-                  108,
-                  109,
-                  101,
-                  110,
-                  116,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "openbookV2Market"
-              }
-            ]
-          }
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "marketIndex",
-          "type": "u16"
-        }
-      ]
-    },
-    {
       "name": "initializePerpMarket",
       "discriminator": [
         132,
@@ -4181,153 +3905,6 @@ export type Drift = {
         {
           "name": "lpPoolId",
           "type": "u8"
-        }
-      ]
-    },
-    {
-      "name": "initializePhoenixFulfillmentConfig",
-      "discriminator": [
-        135,
-        132,
-        110,
-        107,
-        185,
-        160,
-        169,
-        154
-      ],
-      "accounts": [
-        {
-          "name": "baseSpotMarket",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "marketIndex"
-              }
-            ]
-          }
-        },
-        {
-          "name": "quoteSpotMarket",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  0,
-                  0
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state",
-          "writable": true
-        },
-        {
-          "name": "phoenixProgram"
-        },
-        {
-          "name": "phoenixMarket"
-        },
-        {
-          "name": "driftSigner"
-        },
-        {
-          "name": "phoenixFulfillmentConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  104,
-                  111,
-                  101,
-                  110,
-                  105,
-                  120,
-                  95,
-                  102,
-                  117,
-                  108,
-                  102,
-                  105,
-                  108,
-                  108,
-                  109,
-                  101,
-                  110,
-                  116,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "phoenixMarket"
-              }
-            ]
-          }
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "marketIndex",
-          "type": "u16"
         }
       ]
     },
@@ -4755,185 +4332,6 @@ export type Drift = {
       "args": [
         {
           "name": "numOrders",
-          "type": "u16"
-        }
-      ]
-    },
-    {
-      "name": "initializeSerumFulfillmentConfig",
-      "discriminator": [
-        193,
-        211,
-        132,
-        172,
-        70,
-        171,
-        7,
-        94
-      ],
-      "accounts": [
-        {
-          "name": "baseSpotMarket",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "marketIndex"
-              }
-            ]
-          }
-        },
-        {
-          "name": "quoteSpotMarket",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  112,
-                  111,
-                  116,
-                  95,
-                  109,
-                  97,
-                  114,
-                  107,
-                  101,
-                  116
-                ]
-              },
-              {
-                "kind": "const",
-                "value": [
-                  0,
-                  0
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state",
-          "writable": true
-        },
-        {
-          "name": "serumProgram"
-        },
-        {
-          "name": "serumMarket"
-        },
-        {
-          "name": "serumOpenOrders",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  114,
-                  117,
-                  109,
-                  95,
-                  111,
-                  112,
-                  101,
-                  110,
-                  95,
-                  111,
-                  114,
-                  100,
-                  101,
-                  114,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "serumMarket"
-              }
-            ]
-          }
-        },
-        {
-          "name": "driftSigner"
-        },
-        {
-          "name": "serumFulfillmentConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  114,
-                  117,
-                  109,
-                  95,
-                  102,
-                  117,
-                  108,
-                  102,
-                  105,
-                  108,
-                  108,
-                  109,
-                  101,
-                  110,
-                  116,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "serumMarket"
-              }
-            ]
-          }
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "marketIndex",
           "type": "u16"
         }
       ]
@@ -6682,43 +6080,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "openbookV2FulfillmentConfigStatus",
-      "discriminator": [
-        25,
-        173,
-        19,
-        189,
-        4,
-        211,
-        64,
-        238
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "openbookV2FulfillmentConfig",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "status",
-          "type": {
-            "defined": {
-              "name": "spotFulfillmentConfigStatus"
-            }
-          }
-        }
-      ]
-    },
-    {
       "name": "overrideAmmCacheInfo",
       "discriminator": [
         189,
@@ -6841,43 +6202,6 @@ export type Drift = {
         }
       ],
       "args": []
-    },
-    {
-      "name": "phoenixFulfillmentConfigStatus",
-      "discriminator": [
-        96,
-        31,
-        113,
-        32,
-        12,
-        203,
-        7,
-        154
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "phoenixFulfillmentConfig",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "status",
-          "type": {
-            "defined": {
-              "name": "spotFulfillmentConfigStatus"
-            }
-          }
-        }
-      ]
     },
     {
       "name": "placeAndMakePerpOrder",
@@ -7738,39 +7062,6 @@ export type Drift = {
           "type": "u64"
         }
       ]
-    },
-    {
-      "name": "resetFuelSeason",
-      "discriminator": [
-        199,
-        122,
-        192,
-        255,
-        32,
-        99,
-        63,
-        200
-      ],
-      "accounts": [
-        {
-          "name": "userStats",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "userStats"
-          ]
-        },
-        {
-          "name": "state"
-        },
-        {
-          "name": "admin",
-          "signer": true
-        }
-      ],
-      "args": []
     },
     {
       "name": "resetPerpMarketAmmOracleTwap",
@@ -8881,41 +8172,6 @@ export type Drift = {
           }
         }
       ]
-    },
-    {
-      "name": "sweepFuel",
-      "discriminator": [
-        175,
-        107,
-        19,
-        56,
-        165,
-        241,
-        43,
-        69
-      ],
-      "accounts": [
-        {
-          "name": "fuelOverflow",
-          "writable": true
-        },
-        {
-          "name": "userStats",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "relations": [
-            "fuelOverflow",
-            "userStats"
-          ]
-        },
-        {
-          "name": "signer",
-          "signer": true
-        }
-      ],
-      "args": []
     },
     {
       "name": "transferDeposit",
@@ -10860,6 +10116,35 @@ export type Drift = {
       ]
     },
     {
+      "name": "updatePauseAdmin",
+      "discriminator": [
+        25,
+        157,
+        60,
+        228,
+        42,
+        96,
+        133,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "newPauseAdmin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "updatePerpAuctionDuration",
       "discriminator": [
         126,
@@ -12522,43 +11807,6 @@ export type Drift = {
           "name": "currentUsers",
           "type": {
             "option": "u32"
-          }
-        }
-      ]
-    },
-    {
-      "name": "updateSerumFulfillmentConfigStatus",
-      "discriminator": [
-        171,
-        109,
-        240,
-        251,
-        95,
-        1,
-        149,
-        89
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "serumFulfillmentConfig",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "status",
-          "type": {
-            "defined": {
-              "name": "spotFulfillmentConfigStatus"
-            }
           }
         }
       ]
@@ -14866,19 +14114,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "fuelOverflow",
-      "discriminator": [
-        182,
-        64,
-        231,
-        177,
-        226,
-        142,
-        69,
-        58
-      ]
-    },
-    {
       "name": "ifRebalanceConfig",
       "discriminator": [
         214,
@@ -14918,19 +14153,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "openbookV2FulfillmentConfig",
-      "discriminator": [
-        3,
-        43,
-        58,
-        106,
-        131,
-        132,
-        199,
-        171
-      ]
-    },
-    {
       "name": "perpMarket",
       "discriminator": [
         10,
@@ -14941,19 +14163,6 @@ export type Drift = {
         245,
         55,
         247
-      ]
-    },
-    {
-      "name": "phoenixV1FulfillmentConfig",
-      "discriminator": [
-        233,
-        45,
-        62,
-        40,
-        35,
-        129,
-        48,
-        72
       ]
     },
     {
@@ -15032,19 +14241,6 @@ export type Drift = {
         177,
         173,
         252
-      ]
-    },
-    {
-      "name": "serumV3FulfillmentConfig",
-      "discriminator": [
-        65,
-        160,
-        197,
-        112,
-        239,
-        168,
-        103,
-        185
       ]
     },
     {
@@ -15180,32 +14376,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "fuelSeasonRecord",
-      "discriminator": [
-        19,
-        137,
-        119,
-        33,
-        224,
-        249,
-        6,
-        87
-      ]
-    },
-    {
-      "name": "fuelSweepRecord",
-      "discriminator": [
-        41,
-        84,
-        37,
-        246,
-        132,
-        240,
-        131,
-        8
-      ]
-    },
-    {
       "name": "fundingPaymentRecord",
       "discriminator": [
         8,
@@ -15294,19 +14464,6 @@ export type Drift = {
         91,
         91,
         8
-      ]
-    },
-    {
-      "name": "lpRecord",
-      "discriminator": [
-        101,
-        22,
-        54,
-        38,
-        178,
-        13,
-        142,
-        111
       ]
     },
     {
@@ -17058,13 +16215,13 @@ export type Drift = {
     },
     {
       "code": 6310,
-      "name": "userFuelOverflowThresholdNotMet",
-      "msg": "User fuel overflow threshold not met"
+      "name": "deprecated1",
+      "msg": "deprecated"
     },
     {
       "code": 6311,
-      "name": "fuelOverflowAccountNotFound",
-      "msg": "FuelOverflow account not found"
+      "name": "deprecated2",
+      "msg": "deprecated"
     },
     {
       "code": 6312,
@@ -17296,22 +16453,6 @@ export type Drift = {
             }
           },
           {
-            "name": "baseAssetAmountPerLp",
-            "docs": [
-              "accumulated base asset amount since inception per lp share",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
-            "name": "quoteAssetAmountPerLp",
-            "docs": [
-              "accumulated quote asset amount since inception per lp share",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
             "name": "feePool",
             "docs": [
               "partition of fees from perp market trading moved from pnl settlements"
@@ -17412,14 +16553,6 @@ export type Drift = {
             "type": "i128"
           },
           {
-            "name": "baseAssetAmountWithUnsettledLp",
-            "docs": [
-              "tracks net position (longs-shorts) in market with LPs as counterparty",
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
             "name": "maxOpenInterest",
             "docs": [
               "max allowed open interest, blocks trades that breach this value",
@@ -17466,14 +16599,6 @@ export type Drift = {
               "precision: QUOTE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "userLpShares",
-            "docs": [
-              "total user lp shares of sqrt_k (protocol owned liquidity = sqrt_k - last_funding_rate)",
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u128"
           },
           {
             "name": "lastFundingRate",
@@ -17835,7 +16960,7 @@ export type Drift = {
             "name": "ammJitIntensity",
             "docs": [
               "the jit intensity of AMM. larger intensity means larger participation in jit. 0 means no jit participation.",
-              "(0, 100] is intensity for protocol-owned AMM. (100, 200] is intensity for user LP-owned AMM."
+              "(0, 100] is intensity for protocol-owned AMM."
             ],
             "type": "u8"
           },
@@ -17858,21 +16983,6 @@ export type Drift = {
             "type": "bool"
           },
           {
-            "name": "targetBaseAssetAmountPerLp",
-            "docs": [
-              "the target value for `base_asset_amount_per_lp`, used during AMM JIT with LP split",
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i32"
-          },
-          {
-            "name": "perLpBase",
-            "docs": [
-              "expo for unit of per_lp, base 10 (if per_lp_base=X, then per_lp unit is 10^X)"
-            ],
-            "type": "i8"
-          },
-          {
             "name": "oracleLowRiskSlotDelayOverride",
             "docs": [
               "the override for the state.min_perp_auction_duration",
@@ -17892,15 +17002,23 @@ export type Drift = {
             "type": "i8"
           },
           {
+            "name": "paddingPreMmOracleSequence",
+            "docs": [
+              "alignment padding for the following u64 (Rust would otherwise insert 5 implicit bytes here)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                5
+              ]
+            }
+          },
+          {
             "name": "mmOracleSequenceId",
             "type": "u64"
           },
           {
             "name": "netUnsettledFundingPnl",
-            "type": "i64"
-          },
-          {
-            "name": "quoteAssetAmountWithUnsettledLp",
             "type": "i64"
           },
           {
@@ -17919,7 +17037,7 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "padding",
+            "name": "paddingPreLastFunding",
             "type": {
               "array": [
                 "u8",
@@ -17930,6 +17048,18 @@ export type Drift = {
           {
             "name": "lastFundingOracleTwap",
             "type": "i64"
+          },
+          {
+            "name": "paddingTrailing",
+            "docs": [
+              "trailing alignment padding (struct alignment is 16 due to u128 fields)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           }
         ]
       }
@@ -19092,174 +18222,6 @@ export type Drift = {
       }
     },
     {
-      "name": "fuelOverflow",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "authority",
-            "docs": [
-              "The authority of this overflow account"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "fuelInsurance",
-            "type": "u128"
-          },
-          {
-            "name": "fuelDeposits",
-            "type": "u128"
-          },
-          {
-            "name": "fuelBorrows",
-            "type": "u128"
-          },
-          {
-            "name": "fuelPositions",
-            "type": "u128"
-          },
-          {
-            "name": "fuelTaker",
-            "type": "u128"
-          },
-          {
-            "name": "fuelMaker",
-            "type": "u128"
-          },
-          {
-            "name": "lastFuelSweepTs",
-            "type": "u32"
-          },
-          {
-            "name": "lastResetTs",
-            "type": "u32"
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u128",
-                6
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "fuelSeasonRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "authority",
-            "type": "pubkey"
-          },
-          {
-            "name": "fuelInsurance",
-            "type": "u128"
-          },
-          {
-            "name": "fuelDeposits",
-            "type": "u128"
-          },
-          {
-            "name": "fuelBorrows",
-            "type": "u128"
-          },
-          {
-            "name": "fuelPositions",
-            "type": "u128"
-          },
-          {
-            "name": "fuelTaker",
-            "type": "u128"
-          },
-          {
-            "name": "fuelMaker",
-            "type": "u128"
-          },
-          {
-            "name": "fuelTotal",
-            "type": "u128"
-          }
-        ]
-      }
-    },
-    {
-      "name": "fuelSweepRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "authority",
-            "type": "pubkey"
-          },
-          {
-            "name": "userStatsFuelInsurance",
-            "type": "u32"
-          },
-          {
-            "name": "userStatsFuelDeposits",
-            "type": "u32"
-          },
-          {
-            "name": "userStatsFuelBorrows",
-            "type": "u32"
-          },
-          {
-            "name": "userStatsFuelPositions",
-            "type": "u32"
-          },
-          {
-            "name": "userStatsFuelTaker",
-            "type": "u32"
-          },
-          {
-            "name": "userStatsFuelMaker",
-            "type": "u32"
-          },
-          {
-            "name": "fuelOverflowFuelInsurance",
-            "type": "u128"
-          },
-          {
-            "name": "fuelOverflowFuelDeposits",
-            "type": "u128"
-          },
-          {
-            "name": "fuelOverflowFuelBorrows",
-            "type": "u128"
-          },
-          {
-            "name": "fuelOverflowFuelPositions",
-            "type": "u128"
-          },
-          {
-            "name": "fuelOverflowFuelTaker",
-            "type": "u128"
-          },
-          {
-            "name": "fuelOverflowFuelMaker",
-            "type": "u128"
-          }
-        ]
-      }
-    },
-    {
       "name": "fundingPaymentRecord",
       "type": {
         "kind": "struct",
@@ -19393,13 +18355,6 @@ export type Drift = {
           },
           {
             "name": "baseAssetAmountWithAmm",
-            "docs": [
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
-            "name": "baseAssetAmountWithUnsettledLp",
             "docs": [
               "precision: BASE_PRECISION"
             ],
@@ -20076,26 +19031,6 @@ export type Drift = {
       }
     },
     {
-      "name": "lpAction",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "addLiquidity"
-          },
-          {
-            "name": "removeLiquidity"
-          },
-          {
-            "name": "settleLiquidity"
-          },
-          {
-            "name": "removeLiquidityDerisk"
-          }
-        ]
-      }
-    },
-    {
       "name": "lpBorrowLendDepositRecord",
       "type": {
         "kind": "struct",
@@ -20414,63 +19349,6 @@ export type Drift = {
       }
     },
     {
-      "name": "lpRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "user",
-            "type": "pubkey"
-          },
-          {
-            "name": "action",
-            "type": {
-              "defined": {
-                "name": "lpAction"
-              }
-            }
-          },
-          {
-            "name": "nShares",
-            "docs": [
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "marketIndex",
-            "type": "u16"
-          },
-          {
-            "name": "deltaBaseAssetAmount",
-            "docs": [
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "deltaQuoteAssetAmount",
-            "docs": [
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "pnl",
-            "docs": [
-              "realized pnl of the position settlement",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
       "name": "lpSettleRecord",
       "type": {
         "kind": "struct",
@@ -20739,13 +19617,6 @@ export type Drift = {
           {
             "name": "quoteAssetAmount",
             "type": "i64"
-          },
-          {
-            "name": "lpShares",
-            "docs": [
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u64"
           },
           {
             "name": "fillRecordId",
@@ -21171,83 +20042,6 @@ export type Drift = {
           {
             "name": "referrer",
             "type": "pubkey"
-          }
-        ]
-      }
-    },
-    {
-      "name": "openbookV2FulfillmentConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2ProgramId",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2Market",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2MarketAuthority",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2EventHeap",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2Bids",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2Asks",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2BaseVault",
-            "type": "pubkey"
-          },
-          {
-            "name": "openbookV2QuoteVault",
-            "type": "pubkey"
-          },
-          {
-            "name": "marketIndex",
-            "type": "u16"
-          },
-          {
-            "name": "fulfillmentType",
-            "type": {
-              "defined": {
-                "name": "spotFulfillmentType"
-              }
-            }
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "spotFulfillmentConfigStatus"
-              }
-            }
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           }
         ]
       }
@@ -22526,44 +21320,12 @@ export type Drift = {
             "type": "i16"
           },
           {
-            "name": "fuelBoostPosition",
-            "docs": [
-              "fuel multiplier for perp funding",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelBoostTaker",
-            "docs": [
-              "fuel multiplier for perp taker",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelBoostMaker",
-            "docs": [
-              "fuel multiplier for perp maker",
-              "precision: 10"
-            ],
-            "type": "u8"
+            "name": "lastFillPrice",
+            "type": "u64"
           },
           {
             "name": "poolId",
             "type": "u8"
-          },
-          {
-            "name": "paddingFormerHlm",
-            "docs": [
-              "Deprecated: formerly high_leverage_margin_ratio_initial and high_leverage_margin_ratio_maintenance"
-            ],
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           },
           {
             "name": "protectedMakerLimitPriceDivisor",
@@ -22588,10 +21350,6 @@ export type Drift = {
           {
             "name": "lpExchangeFeeExcluscionScalar",
             "type": "u8"
-          },
-          {
-            "name": "lastFillPrice",
-            "type": "u64"
           },
           {
             "name": "lpPoolId",
@@ -22690,30 +21448,12 @@ export type Drift = {
             "type": "i64"
           },
           {
-            "name": "lpShares",
-            "docs": [
-              "The number of lp (liquidity provider) shares the user has in this perp market",
-              "LP shares allow users to provide liquidity via the AMM",
-              "precision: BASE_PRECISION"
-            ],
-            "type": "u64"
-          },
-          {
             "name": "isolatedPositionScaledBalance",
             "docs": [
               "The scaled balance of the isolated position",
               "precision: SPOT_BALANCE_PRECISION"
             ],
             "type": "u64"
-          },
-          {
-            "name": "lastQuoteAssetAmountPerLp",
-            "docs": [
-              "The last quote asset amount per lp the amm had",
-              "Used to settle the users lp position",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
           },
           {
             "name": "padding",
@@ -22745,71 +21485,6 @@ export type Drift = {
           {
             "name": "positionFlag",
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "phoenixV1FulfillmentConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenixProgramId",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenixLogAuthority",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenixMarket",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenixBaseVault",
-            "type": "pubkey"
-          },
-          {
-            "name": "phoenixQuoteVault",
-            "type": "pubkey"
-          },
-          {
-            "name": "marketIndex",
-            "type": "u16"
-          },
-          {
-            "name": "fulfillmentType",
-            "type": {
-              "defined": {
-                "name": "spotFulfillmentType"
-              }
-            }
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "spotFulfillmentConfigStatus"
-              }
-            }
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
           }
         ]
       }
@@ -23436,91 +22111,6 @@ export type Drift = {
       }
     },
     {
-      "name": "serumV3FulfillmentConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumProgramId",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumMarket",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumRequestQueue",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumEventQueue",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumBids",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumAsks",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumBaseVault",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumQuoteVault",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumOpenOrders",
-            "type": "pubkey"
-          },
-          {
-            "name": "serumSignerNonce",
-            "type": "u64"
-          },
-          {
-            "name": "marketIndex",
-            "type": "u16"
-          },
-          {
-            "name": "fulfillmentType",
-            "type": {
-              "defined": {
-                "name": "spotFulfillmentType"
-              }
-            }
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "spotFulfillmentConfigStatus"
-              }
-            }
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                4
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "settlePnlExplanation",
       "type": {
         "kind": "enum",
@@ -23944,40 +22534,6 @@ export type Drift = {
           {
             "name": "cumulativeDepositInterestDelta",
             "type": "u128"
-          }
-        ]
-      }
-    },
-    {
-      "name": "spotFulfillmentConfigStatus",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "enabled"
-          },
-          {
-            "name": "disabled"
-          }
-        ]
-      }
-    },
-    {
-      "name": "spotFulfillmentType",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "serumV3"
-          },
-          {
-            "name": "match"
-          },
-          {
-            "name": "phoenixV1"
-          },
-          {
-            "name": "openbookV2"
           }
         ]
       }
@@ -24514,46 +23070,6 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "fuelBoostDeposits",
-            "docs": [
-              "fuel multiplier for spot deposits",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelBoostBorrows",
-            "docs": [
-              "fuel multiplier for spot borrows",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelBoostTaker",
-            "docs": [
-              "fuel multiplier for spot taker",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelBoostMaker",
-            "docs": [
-              "fuel multiplier for spot maker",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelBoostInsurance",
-            "docs": [
-              "fuel multiplier for spot insurance stake",
-              "precision: 10"
-            ],
-            "type": "u8"
-          },
-          {
             "name": "tokenProgramFlag",
             "type": "u8"
           },
@@ -24738,7 +23254,8 @@ export type Drift = {
           {
             "name": "coldAdmin",
             "docs": [
-              "Root authority. Set at `initialize`; only this key can rotate `warm_admin`."
+              "Root authority. Set at `initialize`; only this key can rotate `warm_admin`",
+              "and `pause_admin`. Expected to sit behind a (small) timelocked multisig."
             ],
             "type": "pubkey"
           },
@@ -24747,6 +23264,16 @@ export type Drift = {
             "docs": [
               "Operational authority (e.g. multisig+timelock). Can rotate the 11 hot keys",
               "below. `Pubkey::default()` means unset — only `cold_admin` can act in that case."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pauseAdmin",
+            "docs": [
+              "Emergency-pause authority. No on-chain timelock — intended to live behind a",
+              "fast-acting multisig that can flip pause flags without delay. May only *add*",
+              "pause bits (never clear them); cold/warm retain full pause + unpause power.",
+              "`Pubkey::default()` means unassigned (only cold/warm can pause)."
             ],
             "type": "pubkey"
           },
@@ -24847,10 +23374,6 @@ export type Drift = {
             "type": "u64"
           },
           {
-            "name": "lpCooldownTime",
-            "type": "u64"
-          },
-          {
             "name": "liquidationMarginBufferRatio",
             "type": "u32"
           },
@@ -24915,7 +23438,7 @@ export type Drift = {
             "type": {
               "array": [
                 "u8",
-                264
+                272
               ]
             }
           }
@@ -25121,12 +23644,6 @@ export type Drift = {
         "kind": "struct",
         "fields": [
           {
-            "name": "quoteAssetAmountWithUnsettledLp",
-            "type": {
-              "option": "i64"
-            }
-          },
-          {
             "name": "netUnsettledFundingPnl",
             "type": {
               "option": "i64"
@@ -25229,13 +23746,6 @@ export type Drift = {
                 32
               ]
             }
-          },
-          {
-            "name": "lastAddPerpLpSharesTs",
-            "docs": [
-              "The last time the user added perp lp positions"
-            ],
-            "type": "i64"
           },
           {
             "name": "totalDeposits",
@@ -25380,25 +23890,8 @@ export type Drift = {
             "type": "bool"
           },
           {
-            "name": "paddingFormerMarginMode",
-            "type": "u8"
-          },
-          {
             "name": "poolId",
             "type": "u8"
-          },
-          {
-            "name": "padding1",
-            "type": {
-              "array": [
-                "u8",
-                3
-              ]
-            }
-          },
-          {
-            "name": "lastFuelBonusUpdateTs",
-            "type": "u32"
           },
           {
             "name": "specialUserStatus",
@@ -25412,7 +23905,7 @@ export type Drift = {
             "type": {
               "array": [
                 "u8",
-                11
+                14
               ]
             }
           }
@@ -25606,55 +24099,6 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "fuelOverflowStatus",
-            "docs": [
-              "whether the user has a FuelOverflow account"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "fuelInsurance",
-            "docs": [
-              "accumulated fuel for token amounts of insurance"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuelDeposits",
-            "docs": [
-              "accumulated fuel for notional of deposits"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuelBorrows",
-            "docs": [
-              "accumulate fuel bonus for notional of borrows"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuelPositions",
-            "docs": [
-              "accumulated fuel for perp open interest"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuelTaker",
-            "docs": [
-              "accumulate fuel bonus for taker volume"
-            ],
-            "type": "u32"
-          },
-          {
-            "name": "fuelMaker",
-            "docs": [
-              "accumulate fuel bonus for maker volume"
-            ],
-            "type": "u32"
-          },
-          {
             "name": "ifStakedGovTokenAmount",
             "docs": [
               "The amount of tokens staked in the governance spot markets if"
@@ -25662,18 +24106,11 @@ export type Drift = {
             "type": "u64"
           },
           {
-            "name": "lastFuelIfBonusUpdateTs",
-            "docs": [
-              "last unix ts user stats data was used to update if fuel (u32 to save space)"
-            ],
-            "type": "u32"
-          },
-          {
             "name": "padding",
             "type": {
               "array": [
                 "u8",
-                12
+                40
               ]
             }
           }
@@ -25736,4 +24173,3 @@ export type Drift = {
     }
   ]
 };
-

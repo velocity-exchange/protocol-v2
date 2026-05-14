@@ -30,7 +30,7 @@ import {
 } from './amm';
 import { squareRootBN } from './utils';
 import { isVariant } from '../types';
-import { MMOraclePriceData, OraclePriceData } from '../oracles/types';
+import { MMOraclePriceData } from '../oracles/types';
 import { DLOB } from '../dlob/DLOB';
 import { PublicKey } from '@solana/web3.js';
 import { L2OrderBook } from '../dlob/orderBookLevels';

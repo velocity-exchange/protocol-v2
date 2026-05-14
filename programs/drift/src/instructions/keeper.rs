@@ -32,8 +32,8 @@ use crate::{
     error::ErrorCode,
     get_then_update_id,
     ids::{
-        admin_hot_wallet, dflow_mainnet_aggregator_4, jupiter_mainnet_3, jupiter_mainnet_4,
-        jupiter_mainnet_6, serum_program, titan_mainnet_argos_v1,
+        dflow_mainnet_aggregator_4, jupiter_mainnet_3, jupiter_mainnet_4, jupiter_mainnet_6,
+        serum_program, titan_mainnet_argos_v1,
     },
     instructions::{
         constraints::*,
