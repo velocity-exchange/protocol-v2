@@ -2,15 +2,17 @@
 
 Devnet deployment scripts for the drift program. The devnet quote token is **dUSDT** — a drift-controlled SPL mint created in Phase 0 and distributed via the `token_faucet` program. Internal env vars and identifiers still use `USDT` (e.g. `USDT_MINT`, `usdtMint`) for brevity; on-chain ticker / spot market name is `dUSDT`.
 
+The devnet program id is read from `[programs.devnet].drift` in `Anchor.toml` — that and the `declare_id!` in `programs/drift/src/lib.rs` (Anchor enforces they match) are the source of truth. Override with `DRIFT_DEVNET_PROGRAM_ID=…` only for one-off testing.
+
 ## Runbook
 
 1. **Build** both programs (x86_64 toolchain; see root `CLAUDE.md`):
    ```
    bash deploy-scripts/build-devnet.sh
    ```
-   Builds `drift` (no default features, no mainnet-beta gate) and `token_faucet` (used to distribute devnet dUSDT).
+   Builds `drift` (no default features, no mainnet-beta gate, devnet `declare_id!`) and `token_faucet` (used to distribute devnet dUSDT). The deploy scripts read the devnet program id from `Anchor.toml`; you do not need to set `DRIFT_DEVNET_PROGRAM_ID` unless overriding for one-off testing.
 2. **Deploy** (first time — fresh programs):
-   - **Vanity program id + buffer (recommended for large drift.so uploads):** Build (`bash deploy-scripts/build-devnet.sh`), save your **program keypair JSON** whose pubkey is `DRIFT_DEVNET_PROGRAM_ID` under `deploy-scripts/out/` (gitignored). If you only have a recovery phrase / seed words, recover once:
+   - **Vanity program id + buffer (recommended for large drift.so uploads):** Build (`bash deploy-scripts/build-devnet.sh`), save your **program keypair JSON** whose pubkey matches `[programs.devnet].drift` in `Anchor.toml` under `deploy-scripts/out/` (gitignored). If you only have a recovery phrase / seed words, recover once:
      ```
      solana-keygen recover ASK -o deploy-scripts/out/drift-program-devnet.json --skip-seed-phrase-validation
      ```
@@ -22,12 +24,12 @@ Devnet deployment scripts for the drift program. The devnet quote token is **dUS
      BUFFER_ACCOUNT_KEYPAIR=$PWD/deploy-scripts/out/drift-so-write-buffer-keypair.json \
        PROGRAM_KEYPAIR=$PROGRAM_KEYPAIR bash deploy-scripts/deploy-from-buffer-devnet.sh
      ```
-     If your vanity run only printed a short “seed” (e.g. `6IPs6rIASB0S38TO`), treat it as the custom word or passphrase your tool uses with the rest of its output; the on-chain program id must be `vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P` — confirm with `solana-keygen pubkey` on the recovered JSON.
+     If your vanity run only printed a short “seed” (e.g. `6IPs6rIASB0S38TO`), treat it as the custom word or passphrase your tool uses with the rest of its output; the recovered pubkey must equal `[programs.devnet].drift` from `Anchor.toml` — confirm with `solana-keygen pubkey` on the recovered JSON. The deploy scripts will reject a mismatching `PROGRAM_KEYPAIR`.
      Prefer a **private devnet RPC** via `SOLANA_RPC` or `RPC_URL` so `write-buffer` does not hit rate limits.
 
    - **Alternatively:** `anchor deploy --program-name drift` … `anchor deploy --program-name token_faucet` with devnet and `PROGRAM_KEYPAIR` / `--program-keypair`.
 
-   For **subsequent upgrades** (same program id): `bash deploy-scripts/deploy-devnet.sh`. Export `DRIFT_DEVNET_PROGRAM_ID` if it differs from the default in `deploy-scripts/deploy-devnet.sh`, and `DRIFT_DEVNET_UPGRADE_KEYPAIR` (path to the upgrade authority keypair), or legacy `SOLANA_PATH` + `DEVNET_ADMIN`.
+   For **subsequent upgrades** (same program id): `bash deploy-scripts/deploy-devnet.sh`. The script reads the program id from `Anchor.toml`; set `DRIFT_DEVNET_UPGRADE_KEYPAIR` (path to the upgrade authority keypair), or legacy `SOLANA_PATH` + `DEVNET_ADMIN`. Override `DRIFT_DEVNET_PROGRAM_ID=…` only for one-off testing against a non-canonical id.
 3. **Sync IDL** into the SDK so the init script sees current instruction shapes:
    ```
    anchor build -- --features anchor-test && cp target/idl/drift.json sdk/src/idl/drift.json
@@ -41,7 +43,7 @@ Devnet deployment scripts for the drift program. The devnet quote token is **dUS
    ```
    Phase 0 creates a fresh 6-decimal dUSDT SPL mint, pre-mints `USDT_INITIAL_SUPPLY` (default 10M) to the admin ATA, then initializes the `token_faucet` for that mint — transferring mint authority to the faucet PDA so anyone can call `mint_to_user` for devnet dUSDT. The mint keypair is saved to `deploy-scripts/out/usdt-mint.json` (override via `USDT_MINT_KEYPAIR`); the resolved mint pubkey is persisted to the receipt. Re-runs reuse the same mint. To skip mint creation and reuse an existing mint, set `dUSDT_MINT=<pubkey>`.
 
-   Phase C+ subscribes to Pyth Lazer over WSS and posts an initial signed price update for both feeds (SOL + USDT) — required because phase C2 (SOL spot) and phase D (SOL-PERP) call `get_oracle_price` at init, and so does phase H. Phase H runs `update_spot_market_oracle` to switch dUSDT from `QuoteAsset` (the program-mandated init source for spot[0]) to `PythLazerStableCoin` pointing at the USDT lazer PDA.
+   Phase C+ subscribes to Pyth Lazer over WSS and posts an initial signed price update for both feeds (SOL + USDT) — required because phase C2 (SOL spot) and phase D (SOL-PERP) call `get_oracle_price` at init, and so does phase E. Phase E runs `update_spot_market_oracle` to switch dUSDT from `QuoteAsset` (the program-mandated init source for spot[0]) to `PythLazerStableCoin` pointing at the USDT lazer PDA. **Phases F–H are optional** and can be skipped individually (`SKIP_PHASE_F/G/H=1`); a minimal functional devnet deploy is complete after Phase E.
 
    Writes a receipt to `deploy-scripts/out/devnet-deployment.json` with every created PDA, the dUSDT mint, the token_faucet config PDA, and tx signatures.
 
@@ -61,10 +63,10 @@ After Phase 0 the `token_faucet` program owns the dUSDT mint authority. Any wall
 Required:
 - `DEVNET_ADMIN` — path to admin keypair file; becomes `State.admin` **immutably** and the initial dUSDT mint authority (until Phase 0 hands it to the faucet PDA).
 - `SOL_LAZER_FEED_ID` — Pyth Lazer u32 feed id for SOL/USD.
-- `PYTH_LAZER_TOKEN` — auth token for the Pyth Lazer relay. Required because non-quote spot markets and perp markets call `get_oracle_price` at init, and `update_spot_market_oracle` (Phase H) does too — Phase C+ subscribes to the relay and posts a signed price update before the dependent phases run.
+- `PYTH_LAZER_TOKEN` — auth token for the Pyth Lazer relay. Required because non-quote spot markets and perp markets call `get_oracle_price` at init, and `update_spot_market_oracle` (Phase E) does too — Phase C+ subscribes to the relay and posts a signed price update before the dependent phases run.
 
 Optional:
-- `USDT_LAZER_FEED_ID` — Pyth Lazer u32 feed id for USDT/USD (default `8`). The PythLazerOracle PDA for this feed becomes the dUSDT spot[0] oracle after Phase H.
+- `USDT_LAZER_FEED_ID` — Pyth Lazer u32 feed id for USDT/USD (default `8`). The PythLazerOracle PDA for this feed becomes the dUSDT spot[0] oracle after Phase E.
 - `PYTH_LAZER_ENDPOINTS` — comma-separated WSS endpoints (default `wss://pyth-lazer.dourolabs.app/v1/stream`).
 - `PYTH_LAZER_WAIT_MS` — milliseconds to wait for the first signed price message before failing (default `30000`).
 - `USDT_MINT` — reuse an existing dUSDT SPL mint (6 decimals) instead of creating one.
@@ -76,7 +78,7 @@ Optional:
 - `LP_MAX_AUM` (default `1_000_000`, multiplied by `QUOTE_PRECISION`)
 - `PROTECTED_MAKER_MAX_USERS` (default `200`)
 - `RECEIPT_PATH` (default `deploy-scripts/out/devnet-deployment.json`)
-- `SKIP_PHASE_C2=1`, `SKIP_PHASE_D=1`, `SKIP_PHASE_E=1`, `SKIP_PHASE_H=1` — bypass individual phases. Phase E's program entrypoint (`initialize_protocol_if_shares_transfer_config`) is currently commented out in `programs/drift/src/lib.rs`, so set `SKIP_PHASE_E=1` until it's re-enabled.
+- `SKIP_PHASE_C2=1`, `SKIP_PHASE_D=1`, `SKIP_PHASE_E=1`, `SKIP_PHASE_F=1`, `SKIP_PHASE_G=1`, `SKIP_PHASE_H=1` — bypass individual phases. **Phases F/G/H are optional** (IF shares transfer config / LP pool / protected maker mode) — skip freely. Phase F's program entrypoint (`initialize_protocol_if_shares_transfer_config`) is currently commented out in `programs/drift/src/lib.rs`, so set `SKIP_PHASE_F=1` until it's re-enabled. Phase E (oracle switch) is **required** for a functional dUSDT spot[0] — only skip during partial re-runs.
 - `NON_INTERACTIVE=1` (or `YES=1`) — skip every confirmation prompt; useful for CI
 
 By default the script pauses before pre-flight and before each phase (0 + A–H), printing the resolved inputs (mint, oracle, LP id, etc.) and waiting for `y` to continue. Pre-flight verifies both the drift and token_faucet programs are deployed/executable, and that any caller-supplied `USDT_MINT` is a real token mint, before any state is touched.
@@ -85,6 +87,8 @@ By default the script pauses before pre-flight and before each phase (0 + A–H)
 
 See `.claude/plans/drift-devnet-deployment.md` for the authoritative plan. Summary:
 
+Required phases (0 → E):
+
 - **0**  dUSDT SPL mint (6 dec) + `token_faucet` initialized for that mint
 - **A**  global `State` + `AmmCache`
 - **B**  dUSDT spot market at index 0 (oracle source forced by program to `QuoteAsset`)
@@ -92,10 +96,13 @@ See `.claude/plans/drift-devnet-deployment.md` for the authoritative plan. Summa
 - **C+** post initial Pyth Lazer signed price update for both feeds (one tx)
 - **C2** SOL spot market at index 1 (uses SOL Pyth Lazer oracle)
 - **D**  SOL-PERP at index 0 (uses SOL Pyth Lazer oracle)
-- **E**  `ProtocolIfSharesTransferConfig` *(currently disabled in `lib.rs`; set `SKIP_PHASE_E=1`)*
-- **F**  LP pool + dUSDT constituent
-- **G**  `ProtectedMakerModeConfig`
-- **H**  switch dUSDT spot market oracle to `PythLazerStableCoin` pointing at the USDT lazer PDA — required because the program forces `QuoteAsset` at init for spot[0] (`admin.rs:217-228`); the only path to `PythLazerStableCoin` is the post-init `update_spot_market_oracle` ix.
+- **E**  switch dUSDT spot market oracle to `PythLazerStableCoin` pointing at the USDT lazer PDA — required because the program forces `QuoteAsset` at init for spot[0] (`admin.rs:217-228`); the only path to `PythLazerStableCoin` is the post-init `update_spot_market_oracle` ix.
+
+Optional phases (skip individually with `SKIP_PHASE_F/G/H=1`):
+
+- **F**  `ProtocolIfSharesTransferConfig` *(currently disabled in `lib.rs`; set `SKIP_PHASE_F=1`)*
+- **G**  LP pool + dUSDT constituent
+- **H**  `ProtectedMakerModeConfig`
 
 Skipped by design (left for later):
 - Additional spot markets beyond dUSDT/SOL (BTC, ETH, …)
@@ -105,10 +112,10 @@ Skipped by design (left for later):
 
 ## Verification
 
-After the script finishes, confirm the program is live:
+After the script finishes, confirm the program is live (program id from `Anchor.toml`):
 
 ```
-solana program show vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P --url devnet
+solana program show "$(sh -c '. deploy-scripts/_lib.sh; drift_devnet_program_id')" --url devnet
 ```
 
 Then run the read-only verifier — derives every expected PDA and reports which exist:
@@ -129,4 +136,4 @@ End-to-end smoke: use a second wallet to call `DriftClient.initializeUserAccount
 - **`anchor build` for the drift keypair mismatch:** the checked-in `target/deploy/drift-keypair.json` is a placeholder, so `anchor build` fails with "Program ID mismatch" on a clean checkout. Pass `--ignore-keys` — the deployed program id is hard-coded in source and the local keypair is unused for upgrade.
 - **`bun` strict type-only re-exports:** `bun run deploy-scripts/init-devnet.ts` fails if the SDK re-exports a type without the `type` keyword (e.g. `export { PythLazerPriceFeedArray }`). This was fixed in `sdk/src/index.ts` and `sdk/src/pyth/index.ts`; keep an eye on it when adding new SDK exports.
 - **Pyth Lazer message must include `feedUpdateTimestamp`.** The on-chain `post_pyth_lazer_oracle_update` ix silently skips updates whose payload lacks `FeedUpdateTimestamp` (`programs/drift/src/instructions/pyth_lazer_oracle.rs:99-102`) — the tx returns Ok with no on-chain write, and the next phase fails with `Unable to read oracle price`. Phase C+ subscribes with `feedUpdateTimestamp` plus `bestBid/AskPrice` (used for confidence) and `exponent`; do not strip these properties.
-- **dUSDT oracle is a two-step init.** `handle_initialize_spot_market` (`admin.rs:217-228`) hard-requires the quote spot market to be `OracleSource::QuoteAsset` with `oracle = Pubkey::default()`. Switching to `PythLazerStableCoin` afterwards is done in Phase H via `update_spot_market_oracle`, which itself reads the new oracle (`admin.rs:1295-1300`) — so the USDT lazer PDA must already have a posted price. This is why Phase C+ runs before Phase H and must succeed.
+- **dUSDT oracle is a two-step init.** `handle_initialize_spot_market` (`admin.rs:217-228`) hard-requires the quote spot market to be `OracleSource::QuoteAsset` with `oracle = Pubkey::default()`. Switching to `PythLazerStableCoin` afterwards is done in Phase E via `update_spot_market_oracle`, which itself reads the new oracle (`admin.rs:1295-1300`) — so the USDT lazer PDA must already have a posted price. This is why Phase C+ runs before Phase E and must succeed.

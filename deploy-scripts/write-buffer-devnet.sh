@@ -5,7 +5,7 @@
 # Prerequisites: bash deploy-scripts/build-devnet.sh
 #
 # Env (see deploy-scripts/.env.example):
-#   DRIFT_DEVNET_PROGRAM_ID     must match programs/drift non-mainnet declare_id!
+#   DRIFT_DEVNET_PROGRAM_ID   override; default reads [programs.devnet].drift from Anchor.toml
 #   DRIFT_DEVNET_UPGRADE_KEYPAIR  (or SOLANA_PATH + DEVNET_ADMIN) — buffer authority
 #   BUFFER_AUTHORITY   override (defaults to upgrade keypair path)
 #   FEE_PAYER          override (defaults to same)
@@ -16,18 +16,13 @@
 
 set -eu
 
-DRIFT_DEVNET_PROGRAM_ID="${DRIFT_DEVNET_PROGRAM_ID:-vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P}"
+. "$(dirname "$0")/_lib.sh"
+
+resolve_drift_devnet_program_id DRIFT_DEVNET_PROGRAM_ID
 PROGRAM_SO="${PROGRAM_SO:-target/deploy/drift.so}"
 SOLANA_RPC="${SOLANA_RPC:-${RPC_URL:-https://api.devnet.solana.com}}"
 
-if [ -n "${DRIFT_DEVNET_UPGRADE_KEYPAIR:-}" ]; then
-	UPGRADE_KEYPAIR="$DRIFT_DEVNET_UPGRADE_KEYPAIR"
-elif [ -n "${SOLANA_PATH:-}" ] && [ -n "${DEVNET_ADMIN:-}" ]; then
-	UPGRADE_KEYPAIR="$SOLANA_PATH/$DEVNET_ADMIN"
-else
-	echo "Set DRIFT_DEVNET_UPGRADE_KEYPAIR, or both SOLANA_PATH and DEVNET_ADMIN" >&2
-	exit 1
-fi
+resolve_upgrade_keypair UPGRADE_KEYPAIR
 
 BUFFER_AUTHORITY="${BUFFER_AUTHORITY:-$UPGRADE_KEYPAIR}"
 FEE_PAYER="${FEE_PAYER:-$UPGRADE_KEYPAIR}"
@@ -46,6 +41,8 @@ if [ -n "$PROGRAM_KEYPAIR" ] && [ -f "$PROGRAM_KEYPAIR" ]; then
 		exit 1
 	fi
 fi
+
+confirm_program_id "$DRIFT_DEVNET_PROGRAM_ID" "write-buffer for upcoming deploy"
 
 mkdir -p "$(dirname "$BUFFER_ACCOUNT_KEYPAIR")"
 if [ ! -f "$BUFFER_ACCOUNT_KEYPAIR" ]; then

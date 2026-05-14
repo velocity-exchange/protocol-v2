@@ -6,14 +6,16 @@
 # Env:
 #   BUFFER_ACCOUNT_KEYPAIR   required — same file passed to write-buffer-devnet.sh
 #   PROGRAM_KEYPAIR          required — JSON keypair whose pubkey is DRIFT_DEVNET_PROGRAM_ID
-#   DRIFT_DEVNET_PROGRAM_ID  default matches declare_id! / Anchor.toml devnet
+#   DRIFT_DEVNET_PROGRAM_ID  override; default reads [programs.devnet].drift from Anchor.toml
 #   PROGRAM_SO               default target/deploy/drift.so (ELF sanity check)
 #   DRIFT_DEVNET_UPGRADE_KEYPAIR | SOLANA_PATH+DEVNET_ADMIN — upgrade authority
 #   SOLANA_RPC / RPC_URL
 
 set -eu
 
-DRIFT_DEVNET_PROGRAM_ID="${DRIFT_DEVNET_PROGRAM_ID:-vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P}"
+. "$(dirname "$0")/_lib.sh"
+
+resolve_drift_devnet_program_id DRIFT_DEVNET_PROGRAM_ID
 PROGRAM_SO="${PROGRAM_SO:-target/deploy/drift.so}"
 SOLANA_RPC="${SOLANA_RPC:-${RPC_URL:-https://api.devnet.solana.com}}"
 
@@ -39,14 +41,9 @@ if [ "$KP" != "$DRIFT_DEVNET_PROGRAM_ID" ]; then
 	exit 1
 fi
 
-if [ -n "${DRIFT_DEVNET_UPGRADE_KEYPAIR:-}" ]; then
-	UPGRADE_KEYPAIR="$DRIFT_DEVNET_UPGRADE_KEYPAIR"
-elif [ -n "${SOLANA_PATH:-}" ] && [ -n "${DEVNET_ADMIN:-}" ]; then
-	UPGRADE_KEYPAIR="$SOLANA_PATH/$DEVNET_ADMIN"
-else
-	echo "Set DRIFT_DEVNET_UPGRADE_KEYPAIR, or both SOLANA_PATH and DEVNET_ADMIN" >&2
-	exit 1
-fi
+resolve_upgrade_keypair UPGRADE_KEYPAIR
+
+confirm_program_id "$DRIFT_DEVNET_PROGRAM_ID" "first-time program deploy from buffer"
 
 solana program deploy "$PROGRAM_SO" \
 	-u "$SOLANA_RPC" \

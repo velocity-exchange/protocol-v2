@@ -11,10 +11,14 @@
  *   C+) post initial Pyth Lazer signed price update for SOL + USDT (one tx)
  *   C2) SOL spot market at index 1 (uses SOL Pyth Lazer oracle)
  *   D)  SOL-PERP at index 0 (uses SOL Pyth Lazer oracle)
- *   E)  ProtocolIfSharesTransferConfig
- *   F)  LP pool + dUSDT constituent
- *   G)  ProtectedMakerModeConfig
- *   H)  switch dUSDT spot market oracle to PythLazerStableCoin pointing at USDT lazer PDA
+ *   E)  switch dUSDT spot market oracle to PythLazerStableCoin pointing at USDT lazer PDA
+ *
+ * Phases F–H below are OPTIONAL follow-ons. A minimal functional devnet deploy
+ * is complete after Phase E. Skip individually with SKIP_PHASE_F/G/H=1:
+ *
+ *   F)  ProtocolIfSharesTransferConfig                  (optional)
+ *   G)  LP pool + dUSDT constituent                     (optional)
+ *   H)  ProtectedMakerModeConfig                        (optional)
  *
  * Idempotent: every phase checks whether its destination PDA already exists on
  * chain and skips if so. Safe to re-run after partial failure. Phase 0 reuses
@@ -628,7 +632,7 @@ async function main() {
 	// Required because:
 	//   - Phase C2 (SOL spot market) calls `get_oracle_price` on the SOL oracle.
 	//   - Phase D  (SOL-PERP)        calls `get_oracle_price` on the SOL oracle.
-	//   - Phase H  (dUSDT switch)    calls `get_oracle_price` on the USDT oracle.
+	//   - Phase E  (dUSDT switch)    calls `get_oracle_price` on the USDT oracle.
 	// All three fail if the oracle account has no published price yet.
 	await confirm(
 		'Begin Phase C+ — post initial Pyth Lazer prices for SOL + USDT?',
@@ -798,16 +802,85 @@ async function main() {
 		await client.fetchAccounts();
 	}
 
+	// === Phase E: switch dUSDT spot market oracle to PythLazerStableCoin ===
+	// The program forces quote spot market init with OracleSource::QuoteAsset
+	// (admin.rs:217-228). After init we switch via update_spot_market_oracle so
+	// downstream code paths that expect a stable-coin oracle work. Required for
+	// a functional dUSDT spot market — run immediately after Phase D so the
+	// optional Phases F–H below operate against the final oracle config.
+	// Idempotent: re-runs detect the existing source and skip.
 	const skipPhaseE = process.env.SKIP_PHASE_E === '1';
-	await confirm('Begin Phase E — ProtocolIfSharesTransferConfig?', [
-		'Global one-time PDA that gates IF share transfers.',
-		skipPhaseE ? '*** SKIP_PHASE_E=1 set — phase will be SKIPPED ***' : '',
-	]);
-	// === Phase E: ProtocolIfSharesTransferConfig ===
-	const ifCfgPk = getProtocolIfSharesTransferConfigPublicKey(programId);
+	await confirm(
+		'Begin Phase E — switch dUSDT spot market oracle to PythLazerStableCoin?',
+		[
+			`new oracle = ${usdtLazerPk.toBase58()} (USDT Pyth Lazer PDA, feed ${usdtLazerFeedId})`,
+			'oracleSource = PYTH_LAZER_STABLE_COIN',
+			'Required because the program forces QuoteAsset at init for spot[0]; this is the post-init swap.',
+			skipPhaseE ? '*** SKIP_PHASE_E=1 set — phase will be SKIPPED ***' : '',
+		]
+	);
 	if (skipPhaseE) {
+		logStep('dUSDT oracle switch SKIPPED via SKIP_PHASE_E=1');
+	} else {
+		// `client` was constructed with spotMarketIndexes=[], so it doesn't carry
+		// the spot[0] account we need to read `oracleSource`/`oracle` from. Spin up
+		// a one-shot client subscribed to spot[0] (mirrors Phase G.2's pattern).
+		await client.unsubscribe();
+		const phaseEClient = new AdminClient({
+			connection,
+			wallet,
+			programID: programId,
+			env: 'devnet',
+			accountSubscription: { type: 'websocket', commitment: 'confirmed' },
+			perpMarketIndexes: [],
+			spotMarketIndexes: [0],
+			oracleInfos: [],
+			skipLoadUsers: true,
+		});
+		await phaseEClient.subscribe();
+		const spot0 = phaseEClient.getSpotMarketAccount(0);
+		if (!spot0) {
+			throw new Error('spot market 0 not found after subscribe');
+		}
+		// OracleSource is a tagged variant; pythLazerStableCoin tag means already-switched.
+		const alreadySwitched =
+			(spot0.oracleSource as any)?.pythLazerStableCoin !== undefined &&
+			spot0.oracle.equals(usdtLazerPk);
+		if (alreadySwitched) {
+			logStep(
+				'dUSDT oracle already PythLazerStableCoin',
+				spot0.oracle.toBase58()
+			);
+		} else {
+			logStep(
+				'updateSpotMarketOracle spot=0 -> PythLazerStableCoin',
+				usdtLazerPk.toBase58()
+			);
+			const txSig = await phaseEClient.updateSpotMarketOracle(
+				0,
+				usdtLazerPk,
+				OracleSource.PYTH_LAZER_STABLE_COIN
+			);
+			console.log(`  tx: ${txSig}`);
+		}
+		await phaseEClient.unsubscribe();
+		await client.subscribe();
+	}
+
+	// Phases F–H below are optional follow-ons. A minimal devnet deploy is
+	// complete after Phase E. Set SKIP_PHASE_F / SKIP_PHASE_G / SKIP_PHASE_H=1
+	// (individually) to bypass any of them; the receipt still gets written.
+
+	const skipPhaseF = process.env.SKIP_PHASE_F === '1';
+	await confirm('Begin Phase F — ProtocolIfSharesTransferConfig? (optional)', [
+		'Global one-time PDA that gates IF share transfers.',
+		skipPhaseF ? '*** SKIP_PHASE_F=1 set — phase will be SKIPPED ***' : '',
+	]);
+	// === Phase F: ProtocolIfSharesTransferConfig (optional) ===
+	const ifCfgPk = getProtocolIfSharesTransferConfigPublicKey(programId);
+	if (skipPhaseF) {
 		logStep(
-			'ProtocolIfSharesTransferConfig SKIPPED via SKIP_PHASE_E=1',
+			'ProtocolIfSharesTransferConfig SKIPPED via SKIP_PHASE_F=1',
 			ifCfgPk.toBase58()
 		);
 	} else if (await pdaExists(connection, ifCfgPk)) {
@@ -825,16 +898,20 @@ async function main() {
 		};
 	}
 
-	await confirm('Begin Phase F — LP pool + USDT constituent?', [
+	const skipPhaseG = process.env.SKIP_PHASE_G === '1';
+	await confirm('Begin Phase G — LP pool + USDT constituent? (optional)', [
 		`lpPoolId = ${lpPoolId}`,
 		`maxAum = ${lpMaxAum.toString()} (raw, QUOTE_PRECISION units)`,
 		'A fresh 6-decimal LP token mint is generated; authority = LP pool PDA.',
 		'USDT (spot index 0) is added as the first constituent.',
+		skipPhaseG ? '*** SKIP_PHASE_G=1 set — phase will be SKIPPED ***' : '',
 	]);
-	// === Phase F.1: LpPool ===
+	// === Phase G.1: LpPool (optional) ===
 	const lpPoolPk = getLpPoolPublicKey(programId, lpPoolId);
 	let lpMintPk: PublicKey | null = null;
-	if (await pdaExists(connection, lpPoolPk)) {
+	if (skipPhaseG) {
+		logStep(`LpPool SKIPPED via SKIP_PHASE_G=1`, lpPoolPk.toBase58());
+	} else if (await pdaExists(connection, lpPoolPk)) {
 		logStep(`LpPool ${lpPoolId} already initialized`, lpPoolPk.toBase58());
 		// recover the mint pubkey from the on-chain account so the receipt stays
 		// correct on re-runs.
@@ -871,9 +948,14 @@ async function main() {
 		};
 	}
 
-	// === Phase F.2: dUSDT constituent (spot index 0) ===
+	// === Phase G.2: dUSDT constituent (spot index 0) (optional) ===
 	const constituent0Pk = getConstituentPublicKey(programId, lpPoolPk, 0);
-	if (await pdaExists(connection, constituent0Pk)) {
+	if (skipPhaseG) {
+		logStep(
+			`Constituent (pool=${lpPoolId}, spot=0) SKIPPED via SKIP_PHASE_G=1`,
+			constituent0Pk.toBase58()
+		);
+	} else if (await pdaExists(connection, constituent0Pk)) {
 		logStep(
 			`Constituent (pool=${lpPoolId}, spot=0) already initialized`,
 			constituent0Pk.toBase58()
@@ -921,12 +1003,19 @@ async function main() {
 		await client.subscribe();
 	}
 
-	await confirm('Begin Phase G — ProtectedMakerModeConfig?', [
+	const skipPhaseH = process.env.SKIP_PHASE_H === '1';
+	await confirm('Begin Phase H — ProtectedMakerModeConfig? (optional)', [
 		`maxUsers = ${protectedMakerMaxUsers}`,
+		skipPhaseH ? '*** SKIP_PHASE_H=1 set — phase will be SKIPPED ***' : '',
 	]);
-	// === Phase G: ProtectedMakerModeConfig ===
+	// === Phase H: ProtectedMakerModeConfig (optional) ===
 	const pmCfgPk = getProtectedMakerModeConfigPublicKey(programId);
-	if (await pdaExists(connection, pmCfgPk)) {
+	if (skipPhaseH) {
+		logStep(
+			'ProtectedMakerModeConfig SKIPPED via SKIP_PHASE_H=1',
+			pmCfgPk.toBase58()
+		);
+	} else if (await pdaExists(connection, pmCfgPk)) {
 		logStep(
 			'ProtectedMakerModeConfig already initialized',
 			pmCfgPk.toBase58()
@@ -940,66 +1029,6 @@ async function main() {
 			protectedMakerMaxUsers
 		);
 		receipt.protectedMakerModeConfig = { pubkey: pmCfgPk.toBase58(), txSig };
-	}
-
-	// === Phase H: switch dUSDT spot market oracle to PythLazerStableCoin ===
-	// The program forces quote spot market init with OracleSource::QuoteAsset
-	// (admin.rs:217-228). After init we switch via update_spot_market_oracle so
-	// downstream code paths that expect a stable-coin oracle work. Idempotent:
-	// re-runs detect the existing source and skip.
-	const skipPhaseH = process.env.SKIP_PHASE_H === '1';
-	await confirm('Begin Phase H — switch dUSDT spot market oracle to PythLazerStableCoin?', [
-		`new oracle = ${usdtLazerPk.toBase58()} (USDT Pyth Lazer PDA, feed ${usdtLazerFeedId})`,
-		'oracleSource = PYTH_LAZER_STABLE_COIN',
-		'Required because the program forces QuoteAsset at init for spot[0]; this is the post-init swap.',
-		skipPhaseH ? '*** SKIP_PHASE_H=1 set — phase will be SKIPPED ***' : '',
-	]);
-	if (skipPhaseH) {
-		logStep('dUSDT oracle switch SKIPPED via SKIP_PHASE_H=1');
-	} else {
-		// `client` was constructed with spotMarketIndexes=[], so it doesn't carry
-		// the spot[0] account we need to read `oracleSource`/`oracle` from. Spin up
-		// a one-shot client subscribed to spot[0] (mirrors Phase F.2's pattern).
-		await client.unsubscribe();
-		const phaseHClient = new AdminClient({
-			connection,
-			wallet,
-			programID: programId,
-			env: 'devnet',
-			accountSubscription: { type: 'websocket', commitment: 'confirmed' },
-			perpMarketIndexes: [],
-			spotMarketIndexes: [0],
-			oracleInfos: [],
-			skipLoadUsers: true,
-		});
-		await phaseHClient.subscribe();
-		const spot0 = phaseHClient.getSpotMarketAccount(0);
-		if (!spot0) {
-			throw new Error('spot market 0 not found after subscribe');
-		}
-		// OracleSource is a tagged variant; pythLazerStableCoin tag means already-switched.
-		const alreadySwitched =
-			(spot0.oracleSource as any)?.pythLazerStableCoin !== undefined &&
-			spot0.oracle.equals(usdtLazerPk);
-		if (alreadySwitched) {
-			logStep(
-				'dUSDT oracle already PythLazerStableCoin',
-				spot0.oracle.toBase58()
-			);
-		} else {
-			logStep(
-				'updateSpotMarketOracle spot=0 -> PythLazerStableCoin',
-				usdtLazerPk.toBase58()
-			);
-			const txSig = await phaseHClient.updateSpotMarketOracle(
-				0,
-				usdtLazerPk,
-				OracleSource.PYTH_LAZER_STABLE_COIN
-			);
-			console.log(`  tx: ${txSig}`);
-		}
-		await phaseHClient.unsubscribe();
-		await client.subscribe();
 	}
 
 	// === Persist receipt ===
