@@ -240,6 +240,32 @@ describe('switch oracles', () => {
 	});
 
 	it('ws', async () => {
+		// Pre-flight: confirm that the perp/spot market PDAs that the WS
+		// subscriber will fetch are actually findable in bankrun right now.
+		const adminProgramId = admin.program.programId;
+		const { getPerpMarketPublicKey, getSpotMarketPublicKey } = await import(
+			'../sdk/src/addresses/pda'
+		);
+		const perp0Pda = await getPerpMarketPublicKey(adminProgramId, 0);
+		const spot0Pda = await getSpotMarketPublicKey(adminProgramId, 0);
+		const spot1Pda = await getSpotMarketPublicKey(adminProgramId, 1);
+		const conn = bankrunContextWrapper.connection.toConnection();
+		const perp0 = await conn.getAccountInfo(perp0Pda);
+		const spot0 = await conn.getAccountInfo(spot0Pda);
+		const spot1 = await conn.getAccountInfo(spot1Pda);
+		console.log(
+			`[ws-preflight] admin.program.programId=${adminProgramId.toBase58()}`
+		);
+		console.log(
+			`[ws-preflight] perp0Pda=${perp0Pda.toBase58()} present=${perp0 !== null}`
+		);
+		console.log(
+			`[ws-preflight] spot0Pda=${spot0Pda.toBase58()} present=${spot0 !== null}`
+		);
+		console.log(
+			`[ws-preflight] spot1Pda=${spot1Pda.toBase58()} present=${spot1 !== null}`
+		);
+
 		const userKeyPair = await createFundedKeyPair(bankrunContextWrapper);
 		const driftClient = new DriftClient({
 			connection: bankrunContextWrapper.connection.toConnection(),
@@ -257,6 +283,9 @@ describe('switch oracles', () => {
 				type: 'websocket',
 			},
 		});
+		console.log(
+			`[ws-preflight] new driftClient.program.programId=${driftClient.program.programId.toBase58()}`
+		);
 		await driftClient.subscribe();
 
 		const dumpWsState = () => {

@@ -365,6 +365,26 @@ export class WebSocketDriftClientAccountSubscriber
 			this.program.programId,
 			marketIndex
 		);
+		console.log(
+			`[ws-pda] perpMarket[${marketIndex}] programId=${this.program.programId.toBase58()} pda=${perpMarketPublicKey.toBase58()}`
+		);
+		// Pre-check what bankrun reports for this pubkey before we even subscribe.
+		try {
+			const pre = await this.program.provider.connection.getAccountInfoAndContext(
+				perpMarketPublicKey,
+				'confirmed' as any
+			);
+			console.log(
+				`[ws-pda] perpMarket[${marketIndex}] pre-fetch value=${
+					pre?.value === null ? 'null' : 'present'
+				} slot=${pre?.context?.slot}`
+			);
+		} catch (e) {
+			console.log(
+				`[ws-pda] perpMarket[${marketIndex}] pre-fetch threw:`,
+				(e as Error).message
+			);
+		}
 		const AccountSubscriberClass =
 			this.customPerpMarketAccountSubscriber || WebSocketAccountSubscriber;
 		const accountSubscriber = new AccountSubscriberClass<PerpMarketAccount>(
