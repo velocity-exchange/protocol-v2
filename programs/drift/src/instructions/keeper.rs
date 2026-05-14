@@ -419,49 +419,6 @@ pub fn handle_log_user_balances<'c: 'info, 'info>(
 #[access_control(
     exchange_not_paused(&ctx.accounts.state)
 )]
-pub fn handle_update_user_fuel_bonus<'c: 'info, 'info>(
-    ctx: Context<'info, UpdateUserFuelBonus<'info>>,
-) -> Result<()> {
-    let mut user = load_mut!(ctx.accounts.user)?;
-    let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
-    let clock = Clock::get()?;
-    let now = clock.unix_timestamp;
-
-    let AccountMaps {
-        perp_market_map,
-        spot_market_map,
-        mut oracle_map,
-    } = load_maps(
-        &mut ctx.remaining_accounts.iter().peekable(),
-        &MarketSet::new(),
-        &MarketSet::new(),
-        clock.slot,
-        None,
-    )?;
-
-    let user_margin_calculation =
-        calculate_margin_requirement_and_total_collateral_and_liability_info(
-            &user,
-            &perp_market_map,
-            &spot_market_map,
-            &mut oracle_map,
-            MarginContext::standard(MarginRequirementType::Initial).fuel_numerator(&user, now),
-        )?;
-
-    user_stats.update_fuel_bonus(
-        &mut user,
-        user_margin_calculation.fuel_deposits,
-        user_margin_calculation.fuel_borrows,
-        user_margin_calculation.fuel_positions,
-        now,
-    )?;
-
-    Ok(())
-}
-
-#[access_control(
-    exchange_not_paused(&ctx.accounts.state)
-)]
 pub fn handle_update_user_stats_referrer_info<'c: 'info, 'info>(
     ctx: Context<'info, UpdateUserStatsReferrerInfo<'info>>,
 ) -> Result<()> {
@@ -2827,16 +2784,12 @@ pub fn handle_update_user_quote_asset_insurance_stake(
     )?;
 
     if insurance_fund_stake.market_index == 0 && spot_market.market_index == 0 {
-        let clock = Clock::get()?;
-        let now = clock.unix_timestamp;
-
         update_user_stats_if_stake_amount(
             0,
             ctx.accounts.insurance_fund_vault.amount,
             insurance_fund_stake,
             user_stats,
             spot_market,
-            now,
         )?;
     }
 
@@ -2860,16 +2813,12 @@ pub fn handle_update_user_gov_token_insurance_stake(
     if insurance_fund_stake.market_index == GOV_SPOT_MARKET_INDEX
         && spot_market.market_index == GOV_SPOT_MARKET_INDEX
     {
-        let clock = Clock::get()?;
-        let now = clock.unix_timestamp;
-
         update_user_stats_if_stake_amount(
             0,
             ctx.accounts.insurance_fund_vault.amount,
             insurance_fund_stake,
             user_stats,
             spot_market,
-            now,
         )?;
     }
 
@@ -3564,19 +3513,6 @@ pub struct LogUserBalances<'info> {
     pub authority: Signer<'info>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateUserFuelBonus<'info> {
-    pub state: AccountLoader<'info, State>,
-    pub authority: Signer<'info>,
-    #[account(mut)]
-    pub user: AccountLoader<'info, User>,
-    #[account(
-        mut,
-        constraint = is_stats_for_user(&user, &user_stats)?
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
 }
 
 #[derive(Accounts)]

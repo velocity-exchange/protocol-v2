@@ -34,6 +34,27 @@ const ORACLE_DEFAULT_ID = getOracleId(
 	OracleSource.QUOTE_ASSET
 );
 
+async function ensureAccountFetched<T>(
+	subscriber: AccountSubscriber<T>,
+	maxAttempts = 5,
+	delayMs = 200
+): Promise<void> {
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		if (subscriber.dataAndSlot?.data !== undefined) {
+			return;
+		}
+		try {
+			await subscriber.fetch();
+		} catch {
+			// retry below
+		}
+		if (subscriber.dataAndSlot?.data !== undefined) {
+			return;
+		}
+		await new Promise((resolve) => setTimeout(resolve, delayMs));
+	}
+}
+
 export class WebSocketDriftClientAccountSubscriber
 	implements DriftClientAccountSubscriber
 {
@@ -336,13 +357,16 @@ export class WebSocketDriftClientAccountSubscriber
 			this.resubOpts,
 			this.commitment
 		);
-		accountSubscriber.setData(
-			this.initialPerpMarketAccountData.get(marketIndex)
-		);
+		const initialPerpMarketData =
+			this.initialPerpMarketAccountData.get(marketIndex);
+		if (initialPerpMarketData) {
+			accountSubscriber.setData(initialPerpMarketData);
+		}
 		await accountSubscriber.subscribe((data: PerpMarketAccount) => {
 			this.eventEmitter.emit('perpMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
 		});
+		await ensureAccountFetched(accountSubscriber);
 		this.perpMarketAccountSubscribers.set(marketIndex, accountSubscriber);
 		return true;
 	}
@@ -369,13 +393,16 @@ export class WebSocketDriftClientAccountSubscriber
 			this.resubOpts,
 			this.commitment
 		);
-		accountSubscriber.setData(
-			this.initialSpotMarketAccountData.get(marketIndex)
-		);
+		const initialSpotMarketData =
+			this.initialSpotMarketAccountData.get(marketIndex);
+		if (initialSpotMarketData) {
+			accountSubscriber.setData(initialSpotMarketData);
+		}
 		await accountSubscriber.subscribe((data: SpotMarketAccount) => {
 			this.eventEmitter.emit('spotMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
 		});
+		await ensureAccountFetched(accountSubscriber);
 		this.spotMarketAccountSubscribers.set(marketIndex, accountSubscriber);
 		return true;
 	}
@@ -422,6 +449,7 @@ export class WebSocketDriftClientAccountSubscriber
 			);
 			this.eventEmitter.emit('update');
 		});
+		await ensureAccountFetched(accountSubscriber);
 
 		this.oracleSubscribers.set(oracleId, accountSubscriber);
 		return true;

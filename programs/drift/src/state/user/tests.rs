@@ -1867,40 +1867,6 @@ mod get_user_stats_age_ts {
     }
 }
 
-mod fuel {
-    use crate::state::user::UserStats;
-    use crate::QUOTE_PRECISION_U64;
-
-    #[test]
-    fn test() {
-        let mut user_stats = UserStats::default();
-
-        user_stats
-            .update_fuel_maker_bonus(0, QUOTE_PRECISION_U64)
-            .unwrap();
-
-        assert_eq!(user_stats.fuel_maker, 0);
-
-        user_stats
-            .update_fuel_maker_bonus(1, QUOTE_PRECISION_U64)
-            .unwrap();
-
-        assert_eq!(user_stats.fuel_maker, 1);
-
-        user_stats
-            .update_fuel_taker_bonus(0, QUOTE_PRECISION_U64)
-            .unwrap();
-
-        assert_eq!(user_stats.fuel_taker, 0);
-
-        user_stats
-            .update_fuel_taker_bonus(1, QUOTE_PRECISION_U64)
-            .unwrap();
-
-        assert_eq!(user_stats.fuel_taker, 1);
-    }
-}
-
 mod worst_case_liability_value {
     use crate::state::perp_market::ContractType;
     use crate::state::user::PerpPosition;
@@ -2283,8 +2249,7 @@ mod force_get_isolated_perp_position_mut {
     }
 }
 
-pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
-    use crate::state::state::State;
+pub mod meets_withdraw_margin_requirement {
     use std::collections::BTreeSet;
     use std::str::FromStr;
 
@@ -2295,9 +2260,8 @@ pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
     use crate::error::ErrorCode;
     use crate::math::constants::{
         AMM_RESERVE_PRECISION, BASE_PRECISION_I128, BASE_PRECISION_I64, BASE_PRECISION_U64,
-        LIQUIDATION_FEE_PRECISION, LIQUIDATION_PCT_PRECISION, PEG_PRECISION, QUOTE_PRECISION_I128,
-        QUOTE_PRECISION_I64, SPOT_BALANCE_PRECISION_U64, SPOT_CUMULATIVE_INTEREST_PRECISION,
-        SPOT_WEIGHT_PRECISION,
+        LIQUIDATION_FEE_PRECISION, PEG_PRECISION, QUOTE_PRECISION_I128, QUOTE_PRECISION_I64,
+        SPOT_BALANCE_PRECISION_U64, SPOT_CUMULATIVE_INTEREST_PRECISION, SPOT_WEIGHT_PRECISION,
     };
     use crate::math::margin::MarginRequirementType;
     use crate::state::market_status::MarketStatus;
@@ -2309,14 +2273,13 @@ pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
     use crate::state::spot_market::{SpotBalanceType, SpotMarket};
     use crate::state::spot_market_map::SpotMarketMap;
     use crate::state::user::{
-        Order, OrderStatus, OrderType, PerpPosition, PositionFlag, SpotPosition, User, UserStats,
+        Order, OrderStatus, OrderType, PerpPosition, PositionFlag, SpotPosition, User,
     };
     use crate::test_utils::{get_orders, get_positions, get_pyth_price, get_spot_positions};
     use crate::PRICE_PRECISION_I64;
 
     #[test]
     pub fn unhealthy_isolated_perp_blocks_withdraw() {
-        let now = 0_i64;
         let slot = 0_u64;
 
         let mut oracle_price = get_pyth_price(100, 6);
@@ -2449,54 +2412,21 @@ pub mod meets_withdraw_margin_requirement_and_increment_fuel_bonus {
             ..PerpPosition::default()
         };
 
-        let mut liquidator = User {
-            spot_positions: get_spot_positions(SpotPosition {
-                market_index: 0,
-                balance_type: SpotBalanceType::Deposit,
-                scaled_balance: 50 * SPOT_BALANCE_PRECISION_U64,
-                ..SpotPosition::default()
-            }),
-            ..User::default()
-        };
-
-        let user_key = Pubkey::default();
-        let liquidator_key = Pubkey::default();
-
-        let mut user_stats = UserStats::default();
-        let mut liquidator_stats = UserStats::default();
-        let state = State {
-            liquidation_margin_buffer_ratio: 10,
-            initial_pct_to_liquidate: LIQUIDATION_PCT_PRECISION as u16,
-            liquidation_duration: 150,
-            ..Default::default()
-        };
-
-        let result = user.meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+        let result = user.meets_withdraw_margin_requirement(
             &perp_market_map,
             &spot_market_map,
             &mut oracle_map,
             MarginRequirementType::Initial,
-            1,
-            0,
-            &mut user_stats,
-            now,
         );
 
         assert_eq!(result, Err(ErrorCode::InsufficientCollateral));
 
-        let result: Result<bool, ErrorCode> = user
-            .meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
-                &perp_market_map,
-                &spot_market_map,
-                &mut oracle_map,
-                MarginRequirementType::Initial,
-                0,
-                0,
-                0,
-                0,
-                &mut user_stats,
-                now,
-            );
+        let result: Result<bool, ErrorCode> = user.meets_withdraw_margin_requirement_swap(
+            &perp_market_map,
+            &spot_market_map,
+            &mut oracle_map,
+            MarginRequirementType::Initial,
+        );
 
         assert_eq!(result, Err(ErrorCode::InsufficientCollateral));
     }

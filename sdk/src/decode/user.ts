@@ -333,17 +333,13 @@ export function decodeUser(buffer: Buffer): UserAccount {
 	const hasOpenAuction = buffer.readUInt8(offset) === 1;
 	offset += 1;
 
-	offset += 1; // marginMode (removed)
-
 	const poolId = buffer.readUint8(offset);
 	offset += 1;
-	offset += 3; // padding
 
-	const lastFuelBonusUpdateTs = buffer.readUint32LE(offset);
-	offset += 4;
 	const specialUserStatus = buffer.readUInt8(offset);
 	offset += 1;
-	offset += 11; // padding
+
+	offset += 14; // padding
 	return {
 		authority,
 		delegate,
@@ -371,7 +367,6 @@ export function decodeUser(buffer: Buffer): UserAccount {
 		openAuctions,
 		hasOpenAuction,
 		poolId,
-		lastFuelBonusUpdateTs,
 		specialUserStatus,
 	};
 }

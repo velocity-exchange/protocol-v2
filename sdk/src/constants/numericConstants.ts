@@ -112,9 +112,6 @@ export const SLOT_TIME_ESTIMATE_MS = 400;
 
 export const DUST_POSITION_SIZE = QUOTE_PRECISION.divn(100); // Dust position is any position smaller than 1c
 
-export const FUEL_WINDOW = new BN(60 * 60 * 24 * 28); // 28 days
-export const FUEL_START_TS = new BN(1723147200); // unix timestamp
-
 export const GET_MULTIPLE_ACCOUNTS_CHUNK_SIZE = 99;
 
 // integer constants

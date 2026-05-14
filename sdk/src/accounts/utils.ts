@@ -14,7 +14,7 @@ export function findDelistedPerpMarketsAndOracles(
 	const delistedPerpMarketIndexes = [];
 	const delistedOracles: OracleInfo[] = [];
 	for (const perpMarket of perpMarkets) {
-		if (!perpMarket.data) {
+		if (!perpMarket || !perpMarket.data) {
 			continue;
 		}
 
@@ -32,7 +32,7 @@ export function findDelistedPerpMarketsAndOracles(
 	for (const delistedOracle of delistedOracles) {
 		let isUsedBySpotMarket = false;
 		for (const spotMarket of spotMarkets) {
-			if (!spotMarket.data) {
+			if (!spotMarket || !spotMarket.data) {
 				continue;
 			}
 

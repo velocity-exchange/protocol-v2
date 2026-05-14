@@ -386,11 +386,6 @@ pub fn handle_initialize_spot_market(
         total_swap_fee: 0,
         scale_initial_asset_weight_start,
         min_borrow_rate: 0,
-        fuel_boost_deposits: 0,
-        fuel_boost_borrows: 0,
-        fuel_boost_taker: 1,
-        fuel_boost_maker: 1,
-        fuel_boost_insurance: 0,
         token_program_flag: token_program,
         pool_id: 0,
         padding: [0; 56],
@@ -988,11 +983,7 @@ pub fn handle_initialize_perp_market(
         paused_operations: 0,
         quote_spot_market_index: QUOTE_SPOT_MARKET_INDEX,
         fee_adjustment: 0,
-        fuel_boost_position: 0,
-        fuel_boost_taker: 1,
-        fuel_boost_maker: 1,
         pool_id: 0,
-        padding_former_hlm: [0; 4],
         protected_maker_limit_price_divisor: 0,
         protected_maker_dynamic_divisor: 0,
         lp_fee_transfer_scalar: 1,
@@ -1398,83 +1389,6 @@ pub fn handle_update_spot_market_expiry(
     // automatically enter reduce only
     spot_market.status = MarketStatus::ReduceOnly;
     spot_market.expiry_ts = expiry_ts;
-
-    Ok(())
-}
-
-pub fn handle_init_user_fuel(
-    ctx: Context<InitUserFuel>,
-    fuel_bonus_deposits: Option<i32>,
-    fuel_bonus_borrows: Option<u32>,
-    fuel_bonus_taker: Option<u32>,
-    fuel_bonus_maker: Option<u32>,
-    fuel_bonus_insurance: Option<u32>,
-) -> Result<()> {
-    let clock: Clock = Clock::get()?;
-    let now_u32 = clock.unix_timestamp as u32;
-
-    let user = &mut load_mut!(ctx.accounts.user)?;
-    let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
-
-    if let Some(fuel_bonus_deposits) = fuel_bonus_deposits {
-        let new_fuel_bonus_deposits = if fuel_bonus_deposits >= 0 {
-            user_stats
-                .fuel_deposits
-                .saturating_add(fuel_bonus_deposits.cast()?)
-        } else {
-            user_stats
-                .fuel_deposits
-                .saturating_sub(fuel_bonus_deposits.unsigned_abs())
-        };
-
-        msg!(
-            "user_stats.fuel_deposits {:?} -> {:?}",
-            user_stats.fuel_deposits,
-            new_fuel_bonus_deposits
-        );
-        user_stats.fuel_deposits = new_fuel_bonus_deposits;
-    }
-    if let Some(fuel_bonus_borrows) = fuel_bonus_borrows {
-        msg!(
-            "user_stats.fuel_borrows {:?} -> {:?}",
-            user_stats.fuel_borrows,
-            user_stats.fuel_borrows.saturating_add(fuel_bonus_borrows)
-        );
-        user_stats.fuel_borrows = user_stats.fuel_borrows.saturating_add(fuel_bonus_borrows);
-    }
-
-    if let Some(fuel_bonus_taker) = fuel_bonus_taker {
-        msg!(
-            "user_stats.fuel_taker {:?} -> {:?}",
-            user_stats.fuel_taker,
-            user_stats.fuel_taker.saturating_add(fuel_bonus_taker)
-        );
-        user_stats.fuel_taker = user_stats.fuel_taker.saturating_add(fuel_bonus_taker);
-    }
-    if let Some(fuel_bonus_maker) = fuel_bonus_maker {
-        msg!(
-            "user_stats.fuel_maker {:?} -> {:?}",
-            user_stats.fuel_maker,
-            user_stats.fuel_maker.saturating_add(fuel_bonus_maker)
-        );
-        user_stats.fuel_maker = user_stats.fuel_maker.saturating_add(fuel_bonus_maker);
-    }
-
-    if let Some(fuel_bonus_insurance) = fuel_bonus_insurance {
-        msg!(
-            "user_stats.fuel_insurance {:?} -> {:?}",
-            user_stats.fuel_insurance,
-            user_stats
-                .fuel_insurance
-                .saturating_add(fuel_bonus_insurance)
-        );
-        user_stats.fuel_insurance = user_stats
-            .fuel_insurance
-            .saturating_add(fuel_bonus_insurance);
-    }
-
-    user.last_fuel_bonus_update_ts = now_u32;
-    user_stats.last_fuel_if_bonus_update_ts = now_u32;
 
     Ok(())
 }
@@ -4097,51 +4011,6 @@ pub fn handle_update_perp_market_number_of_users(
     Ok(())
 }
 
-pub fn handle_update_perp_market_fuel(
-    ctx: Context<HotAdminUpdatePerpMarket>,
-    fuel_boost_taker: Option<u8>,
-    fuel_boost_maker: Option<u8>,
-    fuel_boost_position: Option<u8>,
-) -> Result<()> {
-    let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
-    msg!("perp market {}", perp_market.market_index);
-
-    if let Some(fuel_boost_taker) = fuel_boost_taker {
-        msg!(
-            "perp_market.fuel_boost_taker: {:?} -> {:?}",
-            perp_market.fuel_boost_taker,
-            fuel_boost_taker
-        );
-        perp_market.fuel_boost_taker = fuel_boost_taker;
-    } else {
-        msg!("perp_market.fuel_boost_taker: unchanged");
-    }
-
-    if let Some(fuel_boost_maker) = fuel_boost_maker {
-        msg!(
-            "perp_market.fuel_boost_maker: {:?} -> {:?}",
-            perp_market.fuel_boost_maker,
-            fuel_boost_maker
-        );
-        perp_market.fuel_boost_maker = fuel_boost_maker;
-    } else {
-        msg!("perp_market.fuel_boost_maker: unchanged");
-    }
-
-    if let Some(fuel_boost_position) = fuel_boost_position {
-        msg!(
-            "perp_market.fuel_boost_position: {:?} -> {:?}",
-            perp_market.fuel_boost_position,
-            fuel_boost_position
-        );
-        perp_market.fuel_boost_position = fuel_boost_position;
-    } else {
-        msg!("perp_market.fuel_boost_position: unchanged");
-    }
-
-    Ok(())
-}
-
 pub fn handle_update_perp_market_protected_maker_params(
     ctx: Context<AdminUpdatePerpMarket>,
     protected_maker_limit_price_divisor: Option<u8>,
@@ -4298,75 +4167,6 @@ pub fn handle_update_spot_market_fee_adjustment(
     );
 
     spot.fee_adjustment = fee_adjustment;
-    Ok(())
-}
-
-pub fn handle_update_spot_market_fuel(
-    ctx: Context<AdminUpdateSpotMarketFuel>,
-    fuel_boost_deposits: Option<u8>,
-    fuel_boost_borrows: Option<u8>,
-    fuel_boost_taker: Option<u8>,
-    fuel_boost_maker: Option<u8>,
-    fuel_boost_insurance: Option<u8>,
-) -> Result<()> {
-    let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
-    msg!("spot market {}", spot_market.market_index);
-
-    if let Some(fuel_boost_taker) = fuel_boost_taker {
-        msg!(
-            "spot_market.fuel_boost_taker: {:?} -> {:?}",
-            spot_market.fuel_boost_taker,
-            fuel_boost_taker
-        );
-        spot_market.fuel_boost_taker = fuel_boost_taker;
-    } else {
-        msg!("spot_market.fuel_boost_taker: unchanged");
-    }
-
-    if let Some(fuel_boost_maker) = fuel_boost_maker {
-        msg!(
-            "spot_market.fuel_boost_maker: {:?} -> {:?}",
-            spot_market.fuel_boost_maker,
-            fuel_boost_maker
-        );
-        spot_market.fuel_boost_maker = fuel_boost_maker;
-    } else {
-        msg!("spot_market.fuel_boost_maker: unchanged");
-    }
-
-    if let Some(fuel_boost_deposits) = fuel_boost_deposits {
-        msg!(
-            "spot_market.fuel_boost_deposits: {:?} -> {:?}",
-            spot_market.fuel_boost_deposits,
-            fuel_boost_deposits
-        );
-        spot_market.fuel_boost_deposits = fuel_boost_deposits;
-    } else {
-        msg!("spot_market.fuel_boost_deposits: unchanged");
-    }
-
-    if let Some(fuel_boost_borrows) = fuel_boost_borrows {
-        msg!(
-            "spot_market.fuel_boost_borrows: {:?} -> {:?}",
-            spot_market.fuel_boost_borrows,
-            fuel_boost_borrows
-        );
-        spot_market.fuel_boost_borrows = fuel_boost_borrows;
-    } else {
-        msg!("spot_market.fuel_boost_borrows: unchanged");
-    }
-
-    if let Some(fuel_boost_insurance) = fuel_boost_insurance {
-        msg!(
-            "spot_market.fuel_boost_insurance: {:?} -> {:?}",
-            spot_market.fuel_boost_insurance,
-            fuel_boost_insurance
-        );
-        spot_market.fuel_boost_insurance = fuel_boost_insurance;
-    } else {
-        msg!("spot_market.fuel_boost_insurance: unchanged");
-    }
-
     Ok(())
 }
 
@@ -5031,16 +4831,12 @@ pub fn handle_update_delegate_user_gov_token_insurance_stake(
     if insurance_fund_stake.market_index == GOV_SPOT_MARKET_INDEX
         && spot_market.market_index == GOV_SPOT_MARKET_INDEX
     {
-        let clock = Clock::get()?;
-        let now = clock.unix_timestamp;
-
         crate::controller::insurance::update_user_stats_if_stake_amount(
             0,
             ctx.accounts.insurance_fund_vault.amount,
             insurance_fund_stake,
             user_stats,
             spot_market,
-            now,
         )?;
     }
 
@@ -5823,15 +5619,6 @@ pub struct AdminUpdateSpotMarket<'info> {
 }
 
 #[derive(Accounts)]
-pub struct AdminUpdateSpotMarketFuel<'info> {
-    #[account(constraint = check_hot(&admin.key(), &state, HotRole::Fuel)?)]
-    pub admin: Signer<'info>,
-    pub state: AccountLoader<'info, State>,
-    #[account(mut)]
-    pub spot_market: AccountLoader<'info, SpotMarket>,
-}
-
-#[derive(Accounts)]
 pub struct AdminUpdateSpotMarketOracle<'info> {
     #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
@@ -5868,17 +5655,6 @@ pub struct AdminDisableBidAskTwapUpdate<'info> {
     #[account(constraint = check_hot(&admin.key(), &state, HotRole::UserFlag)?)]
     pub admin: Signer<'info>,
     pub state: AccountLoader<'info, State>,
-    #[account(mut)]
-    pub user_stats: AccountLoader<'info, UserStats>,
-}
-
-#[derive(Accounts)]
-pub struct InitUserFuel<'info> {
-    #[account(constraint = check_hot(&admin.key(), &state, HotRole::Fuel)?)]
-    pub admin: Signer<'info>,
-    pub state: AccountLoader<'info, State>,
-    #[account(mut)]
-    pub user: AccountLoader<'info, User>,
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
 }

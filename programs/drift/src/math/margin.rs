@@ -303,8 +303,6 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
                 )?;
             }
 
-            calculation.update_fuel_spot_bonus(&spot_market, token_amount, &strict_oracle_price)?;
-
             let mut token_value =
                 get_strict_token_value(token_amount, spot_market.decimals, &strict_oracle_price)?;
 
@@ -356,12 +354,6 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
             }
         } else {
             let signed_token_amount = spot_position.get_signed_token_amount(&spot_market)?;
-
-            calculation.update_fuel_spot_bonus(
-                &spot_market,
-                signed_token_amount,
-                &strict_oracle_price,
-            )?;
 
             let OrderFillSimulation {
                 token_amount: worst_case_token_amount,
@@ -582,13 +574,6 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
                 perp_user_custom_margin_ratio.max(perp_position_custom_margin_ratio),
             )?;
 
-        calculation.update_fuel_perp_bonus(
-            market,
-            market_position,
-            base_asset_value,
-            oracle_price_data.price,
-        )?;
-
         if market_position.is_isolated() {
             let quote_spot_market = spot_market_map.get_ref(&market.quote_spot_market_index)?;
             let quote_token_amount = get_token_amount(
@@ -654,36 +639,6 @@ pub fn calculate_margin_requirement_and_total_collateral_and_liability_info(
     }
 
     calculation.validate_num_spot_liabilities()?;
-
-    // update fuel to account for spot market deltas where there is no spot position
-    let spot_fuel_deltas = calculation.context.fuel_spot_deltas;
-    for (market_index, delta) in spot_fuel_deltas.iter() {
-        if *delta == 0 {
-            continue;
-        }
-
-        if user
-            .spot_positions
-            .iter()
-            .any(|p| p.market_index == *market_index && !p.is_available())
-        {
-            continue;
-        }
-
-        let spot_market = spot_market_map.get_ref(market_index)?;
-        let oracle_price_data = oracle_map.get_price_data(&spot_market.oracle_id())?;
-
-        let strict_oracle_price = StrictOraclePrice::new(
-            oracle_price_data.price,
-            spot_market
-                .historical_oracle_data
-                .last_oracle_price_twap_5min,
-            calculation.context.strict,
-        );
-        strict_oracle_price.validate()?;
-
-        calculation.update_fuel_spot_bonus(&spot_market, 0, &strict_oracle_price)?;
-    }
 
     Ok(calculation)
 }

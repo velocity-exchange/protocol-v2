@@ -125,22 +125,6 @@ pub mod drift {
         handle_change_signed_msg_ws_delegate_status(ctx, delegate, add)
     }
 
-    pub fn initialize_fuel_overflow<'c: 'info, 'info>(
-        ctx: Context<'info, InitializeFuelOverflow<'info>>,
-    ) -> Result<()> {
-        handle_initialize_fuel_overflow(ctx)
-    }
-
-    pub fn sweep_fuel<'c: 'info, 'info>(ctx: Context<'info, SweepFuel<'info>>) -> Result<()> {
-        handle_sweep_fuel(ctx)
-    }
-
-    pub fn reset_fuel_season<'c: 'info, 'info>(
-        ctx: Context<'info, ResetFuelSeason<'info>>,
-    ) -> Result<()> {
-        handle_reset_fuel_season(ctx)
-    }
-
     pub fn initialize_referrer_name(
         ctx: Context<InitializeReferrerName>,
         name: [u8; 32],
@@ -508,12 +492,6 @@ pub mod drift {
     ) -> Result<()> {
         handle_log_user_balances(ctx)
     }
-
-    // pub fn update_user_fuel_bonus<'c: 'info, 'info>(
-    //     ctx: Context<'info, UpdateUserFuelBonus<'info>>,
-    // ) -> Result<()> {
-    //     handle_update_user_fuel_bonus(ctx)
-    // }
 
     pub fn update_user_stats_referrer_status<'c: 'info, 'info>(
         ctx: Context<'info, UpdateUserStatsReferrerInfo<'info>>,
@@ -1590,15 +1568,6 @@ pub mod drift {
         handle_update_spot_market_fee_adjustment(ctx, fee_adjustment)
     }
 
-    // pub fn update_perp_market_fuel(
-    //     ctx: Context<HotAdminUpdatePerpMarket>,
-    //     fuel_boost_taker: Option<u8>,
-    //     fuel_boost_maker: Option<u8>,
-    //     fuel_boost_position: Option<u8>,
-    // ) -> Result<()> {
-    //     handle_update_perp_market_fuel(ctx, fuel_boost_taker, fuel_boost_maker, fuel_boost_position)
-    // }
-
     pub fn update_perp_market_protected_maker_params(
         ctx: Context<AdminUpdatePerpMarket>,
         protected_maker_limit_price_divisor: Option<u8>,
@@ -1641,42 +1610,6 @@ pub mod drift {
     ) -> Result<()> {
         handle_update_perp_market_oracle_slot_delay_override(ctx, oracle_slot_delay_override)
     }
-
-    // pub fn update_spot_market_fuel(
-    //     ctx: Context<AdminUpdateSpotMarketFuel>,
-    //     fuel_boost_deposits: Option<u8>,
-    //     fuel_boost_borrows: Option<u8>,
-    //     fuel_boost_taker: Option<u8>,
-    //     fuel_boost_maker: Option<u8>,
-    //     fuel_boost_insurance: Option<u8>,
-    // ) -> Result<()> {
-    //     handle_update_spot_market_fuel(
-    //         ctx,
-    //         fuel_boost_deposits,
-    //         fuel_boost_borrows,
-    //         fuel_boost_taker,
-    //         fuel_boost_maker,
-    //         fuel_boost_insurance,
-    //     )
-    // }
-
-    // pub fn init_user_fuel(
-    //     ctx: Context<InitUserFuel>,
-    //     fuel_boost_deposits: Option<i32>,
-    //     fuel_boost_borrows: Option<u32>,
-    //     fuel_boost_taker: Option<u32>,
-    //     fuel_boost_maker: Option<u32>,
-    //     fuel_boost_insurance: Option<u32>,
-    // ) -> Result<()> {
-    //     handle_init_user_fuel(
-    //         ctx,
-    //         fuel_boost_deposits,
-    //         fuel_boost_borrows,
-    //         fuel_boost_taker,
-    //         fuel_boost_maker,
-    //         fuel_boost_insurance,
-    //     )
-    // }
 
     pub fn update_admin(ctx: Context<ColdAdminUpdateState>, admin: Pubkey) -> Result<()> {
         handle_update_admin(ctx, admin)

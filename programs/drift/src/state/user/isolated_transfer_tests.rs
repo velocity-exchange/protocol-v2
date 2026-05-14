@@ -130,10 +130,6 @@ fn can_transfer_to_isolated_when_cross_still_meets_after_withdraw() {
             margin_requirement_type: MarginRequirementType::Initial,
             default_margin_requirement_type: MarginRequirementType::Maintenance,
         },
-        0,
-        transfer_amount,
-        &mut user_stats,
-        now,
         true,
         0,
     );
@@ -262,10 +258,6 @@ fn cannot_transfer_to_isolated_when_cross_would_fail_after_withdraw() {
             margin_requirement_type: MarginRequirementType::Initial,
             default_margin_requirement_type: MarginRequirementType::Maintenance,
         },
-        0,
-        transfer_amount,
-        &mut user_stats,
-        now,
         true,
         0,
     );
@@ -374,10 +366,6 @@ fn can_transfer_from_isolated_when_isolated_still_meets_after_withdraw() {
             cross_margin_requirement_type: MarginRequirementType::Maintenance,
             market_index: 0,
         },
-        0,
-        0,
-        &mut user_stats,
-        now,
         false,
         0,
     );
@@ -486,10 +474,6 @@ fn cannot_transfer_from_isolated_when_isolated_would_fail() {
             default_isolated_margin_requirement_type: MarginRequirementType::Maintenance,
             cross_margin_requirement_type: MarginRequirementType::Maintenance,
         },
-        0,
-        0,
-        &mut user_stats,
-        now,
         false,
         0,
     );

@@ -51,7 +51,6 @@ import {
 	TEN_THOUSAND,
 	TWO,
 	ZERO,
-	FUEL_START_TS,
 	ACCOUNT_AGE_DELETION_CUTOFF_SECONDS,
 } from './constants/numericConstants';
 import {
@@ -88,7 +87,6 @@ import {
 	SpotMarketAccount,
 } from './types';
 import { standardizeBaseAssetAmount } from './math/orders';
-import { UserStats } from './userStats';
 import { WebSocketProgramUserAccountSubscriber } from './accounts/websocketProgramUserAccountSubscriber';
 import {
 	calculateAssetWeight,
@@ -120,7 +118,6 @@ import {
 import { getPerpMarketTierNumber, getSpotMarketTierNumber } from './math/tiers';
 import { StrictOraclePrice } from './oracles/strictOraclePrice';
 
-import { calculateSpotFuelBonus, calculatePerpFuelBonus } from './math/fuel';
 import { grpcUserAccountSubscriber } from './accounts/grpcUserAccountSubscriber';
 import {
 	IsolatedMarginCalculation,
@@ -881,140 +878,6 @@ export class User {
 				);
 				return pnl.add(calculateUnsettledFundingPnl(market, perpPosition));
 			}, ZERO);
-	}
-
-	public getFuelBonus(
-		now: BN,
-		includeSettled = true,
-		includeUnsettled = true,
-		givenUserStats?: UserStats
-	): {
-		depositFuel: BN;
-		borrowFuel: BN;
-		positionFuel: BN;
-		takerFuel: BN;
-		makerFuel: BN;
-		insuranceFuel: BN;
-	} {
-		const userAccount: UserAccount = this.getUserAccount();
-
-		const result = {
-			insuranceFuel: ZERO,
-			takerFuel: ZERO,
-			makerFuel: ZERO,
-			depositFuel: ZERO,
-			borrowFuel: ZERO,
-			positionFuel: ZERO,
-		};
-
-		const userStats = givenUserStats ?? this.driftClient.getUserStats();
-		const userStatsAccount: UserStatsAccount = userStats.getAccount();
-
-		if (includeSettled) {
-			result.takerFuel = result.takerFuel.add(
-				new BN(userStatsAccount.fuelTaker)
-			);
-			result.makerFuel = result.makerFuel.add(
-				new BN(userStatsAccount.fuelMaker)
-			);
-			result.depositFuel = result.depositFuel.add(
-				new BN(userStatsAccount.fuelDeposits)
-			);
-			result.borrowFuel = result.borrowFuel.add(
-				new BN(userStatsAccount.fuelBorrows)
-			);
-			result.positionFuel = result.positionFuel.add(
-				new BN(userStatsAccount.fuelPositions)
-			);
-		}
-
-		if (includeUnsettled) {
-			const fuelBonusNumerator = BN.max(
-				now.sub(
-					BN.max(new BN(userAccount.lastFuelBonusUpdateTs), FUEL_START_TS)
-				),
-				ZERO
-			);
-
-			if (fuelBonusNumerator.gt(ZERO)) {
-				for (const spotPosition of this.getActiveSpotPositions()) {
-					const spotMarketAccount: SpotMarketAccount =
-						this.driftClient.getSpotMarketAccount(spotPosition.marketIndex);
-
-					const tokenAmount = this.getTokenAmount(spotPosition.marketIndex);
-					const oraclePriceData = this.getOracleDataForSpotMarket(
-						spotPosition.marketIndex
-					);
-
-					const twap5min = calculateLiveOracleTwap(
-						spotMarketAccount.historicalOracleData,
-						oraclePriceData,
-						now,
-						FIVE_MINUTE // 5MIN
-					);
-					const strictOraclePrice = new StrictOraclePrice(
-						oraclePriceData.price,
-						twap5min
-					);
-
-					const signedTokenValue = getStrictTokenValue(
-						tokenAmount,
-						spotMarketAccount.decimals,
-						strictOraclePrice
-					);
-
-					if (signedTokenValue.gt(ZERO)) {
-						result.depositFuel = result.depositFuel.add(
-							calculateSpotFuelBonus(
-								spotMarketAccount,
-								signedTokenValue,
-								fuelBonusNumerator
-							)
-						);
-					} else {
-						result.borrowFuel = result.borrowFuel.add(
-							calculateSpotFuelBonus(
-								spotMarketAccount,
-								signedTokenValue,
-								fuelBonusNumerator
-							)
-						);
-					}
-				}
-
-				for (const perpPosition of this.getActivePerpPositions()) {
-					const oraclePriceData = this.getMMOracleDataForPerpMarket(
-						perpPosition.marketIndex
-					);
-
-					const perpMarketAccount = this.driftClient.getPerpMarketAccount(
-						perpPosition.marketIndex
-					);
-
-					const baseAssetValue = this.getPerpPositionValue(
-						perpPosition.marketIndex,
-						oraclePriceData,
-						false
-					);
-
-					result.positionFuel = result.positionFuel.add(
-						calculatePerpFuelBonus(
-							perpMarketAccount,
-							baseAssetValue,
-							fuelBonusNumerator
-						)
-					);
-				}
-			}
-		}
-
-		result.insuranceFuel = userStats.getInsuranceFuelBonus(
-			now,
-			includeSettled,
-			includeUnsettled
-		);
-
-		return result;
 	}
 
 	public getSpotMarketAssetAndLiabilityValue(

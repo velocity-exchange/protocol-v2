@@ -18,7 +18,6 @@ pub mod constants;
 pub mod cp_curve;
 pub mod fees;
 mod floor_div;
-pub mod fuel;
 pub mod fulfillment;
 pub mod funding;
 pub mod helpers;

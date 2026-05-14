@@ -109,7 +109,6 @@ import StrictEventEmitter from 'strict-event-emitter-types';
 import {
 	getDriftSignerPublicKey,
 	getDriftStateAccountPublicKey,
-	getFuelOverflowAccountPublicKey,
 	getInsuranceFundStakeAccountPublicKey,
 	getOpenbookV2FulfillmentConfigPublicKey,
 	getPerpMarketPublicKey,
@@ -1574,62 +1573,6 @@ export class DriftClient {
 			}
 		);
 		return ix;
-	}
-
-	public async initializeFuelOverflow(
-		authority?: PublicKey
-	): Promise<TransactionSignature> {
-		const ix = await this.getInitializeFuelOverflowIx(authority);
-		const tx = await this.buildTransaction([ix], this.txParams);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-		return txSig;
-	}
-
-	public async getInitializeFuelOverflowIx(
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		return await this.program.instruction.initializeFuelOverflow({
-			accounts: {
-				fuelOverflow: getFuelOverflowAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				userStats: getUserStatsAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				authority: authority ?? this.wallet.publicKey,
-				payer: this.wallet.publicKey,
-				rent: SYSVAR_RENT_PUBKEY,
-				systemProgram: SystemProgram.programId,
-			},
-		});
-	}
-
-	public async sweepFuel(authority?: PublicKey): Promise<TransactionSignature> {
-		const ix = await this.getSweepFuelIx(authority);
-		const tx = await this.buildTransaction([ix], this.txParams);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-		return txSig;
-	}
-
-	public async getSweepFuelIx(
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		return await this.program.instruction.sweepFuel({
-			accounts: {
-				fuelOverflow: getFuelOverflowAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				userStats: getUserStatsAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				authority: authority ?? this.wallet.publicKey,
-				signer: this.wallet.publicKey,
-			},
-		});
 	}
 
 	private async getInitializeUserInstructions(
@@ -3556,8 +3499,7 @@ export class DriftClient {
 		marketIndex: number,
 		associatedTokenAddress: PublicKey,
 		reduceOnly = false,
-		subAccountId?: number,
-		_updateFuel = false
+		subAccountId?: number
 	): Promise<TransactionInstruction[]> {
 		const withdrawIxs: TransactionInstruction[] = [];
 
@@ -3634,8 +3576,7 @@ export class DriftClient {
 		associatedTokenAddress: PublicKey,
 		reduceOnly = false,
 		subAccountId?: number,
-		txParams?: TxParams,
-		updateFuel = false
+		txParams?: TxParams
 	): Promise<TransactionSignature> {
 		const additionalSigners: Array<Signer> = [];
 
@@ -3644,8 +3585,7 @@ export class DriftClient {
 			marketIndex,
 			associatedTokenAddress,
 			reduceOnly,
-			subAccountId,
-			updateFuel
+			subAccountId
 		);
 
 		const tx = await this.buildTransaction(
@@ -6762,54 +6702,6 @@ export class DriftClient {
 			accounts: {
 				state: await this.getStatePublicKey(),
 				user: userAccountPublicKey,
-				authority: this.wallet.publicKey,
-			},
-			remainingAccounts,
-		});
-	}
-
-	/* Deprecated */
-	public async updateUserFuelBonus(
-		userAccountPublicKey: PublicKey,
-		user: UserAccount,
-		userAuthority: PublicKey,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getUpdateUserFuelBonusIx(
-					userAccountPublicKey,
-					user,
-					userAuthority
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	/* Deprecated */
-	public async getUpdateUserFuelBonusIx(
-		userAccountPublicKey: PublicKey,
-		userAccount: UserAccount,
-		userAuthority: PublicKey
-	): Promise<TransactionInstruction> {
-		const userStatsAccountPublicKey = getUserStatsAccountPublicKey(
-			this.program.programId,
-			userAuthority
-		);
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [userAccount],
-		});
-
-		return await (this.program.instruction as any).updateUserFuelBonus({
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user: userAccountPublicKey,
-				userStats: userStatsAccountPublicKey,
 				authority: this.wallet.publicKey,
 			},
 			remainingAccounts,
