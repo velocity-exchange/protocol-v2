@@ -42,8 +42,7 @@ test_files=(
   deleteInitializedSpotMarket.ts
   depositIntoSpotMarketVault.ts
   driftClient.ts
-  # fillSpot.ts # spot DLOB disabled
-  ifRebalance.ts
+  # ifRebalance.ts # broken by spot fulfillment purge — needs migration to read serum vaults directly off the Market
   # adminWithdrawFromInsuranceFundVault.ts # uses production-snapshot grafting with old struct layout — re-snapshot needed
   insuranceFundStake.ts
   isolatedPositionDriftClient.ts
@@ -63,8 +62,6 @@ test_files=(
   maxLeverageOrderParams.ts
   modifyOrder.ts
   multipleMakerOrders.ts
-  # multipleSpotMakerOrders.ts # spot DLOB disabled
-  # openbookTest.ts # spot DLOB disabled
   oracleDiffSources.ts
   oracleFillPriceGuardrails.ts
   oracleOffsetOrders.ts
@@ -74,30 +71,26 @@ test_files=(
   ordersWithSpread.ts
   pauseExchange.ts
   pauseDepositWithdraw.ts
-  # phoenixTest.ts # spot DLOB disabled
   placeAndMakePerp.ts
   placeAndMakeSignedMsgBankrun.ts
-  # placeAndMakeSpotOrder.ts # spot DLOB disabled
   postOnly.ts
   prelisting.ts
   pyth.ts
   pythLazerBankrun.ts
   referrer.ts
   roundInFavorBaseAsset.ts
-  # serumTest.ts # spot DLOB disabled
   settlePNLInvariant.ts
   spotDepositWithdraw.ts
   spotDepositWithdraw22.ts
   spotDepositWithdraw22TransferHooks.ts
   spotMarketPoolIds.ts
-  spotSwap.ts
-  spotSwap22.ts
+  # spotSwap.ts # broken by spot fulfillment purge — needs migration to read serum vaults directly off the Market
+  # spotSwap22.ts # broken by spot fulfillment purge — needs migration to read serum vaults directly off the Market
   stopLimits.ts
   subaccounts.ts
   surgePricing.ts
   switchOracle.ts
   triggerOrders.ts
-  # triggerSpotOrder.ts # spot DLOB disabled
   transferPerpPosition.ts
   userAccount.ts
   userDelegate.ts

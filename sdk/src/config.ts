@@ -26,16 +26,12 @@ type DriftConfig = {
 	JIT_PROXY_PROGRAM_ID?: string;
 	DRIFT_ORACLE_RECEIVER_ID: string;
 	QUOTE_MINT_ADDRESS: string;
-	SERUM_V3: string;
-	PHOENIX: string;
-	OPENBOOK: string;
 	V2_ALPHA_TICKET_MINT_ADDRESS: string;
 	PERP_MARKETS: PerpMarketConfig[];
 	SPOT_MARKETS: SpotMarketConfig[];
 	/** @deprecated use MARKET_LOOKUP_TABLES */
 	MARKET_LOOKUP_TABLE: string;
 	MARKET_LOOKUP_TABLES: string[];
-	SERUM_LOOKUP_TABLE?: string;
 	SB_ON_DEMAND_PID: PublicKey;
 };
 
@@ -70,9 +66,6 @@ export const configs: { [key in DriftEnv]: DriftConfig } = {
 		DRIFT_PROGRAM_ID: DRIFT_DEVNET_PROGRAM_ID,
 		JIT_PROXY_PROGRAM_ID: 'J1TnP8zvVxbtF5KFp5xRmWuvG9McnhzmBd9XGfCyuxFP',
 		QUOTE_MINT_ADDRESS: '8FfvSRKMZRDHrCBy142XMUXrKEkXnxDQ4YmJv7xbAw8Q',
-		SERUM_V3: 'DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY',
-		PHOENIX: 'PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY',
-		OPENBOOK: 'opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb',
 		V2_ALPHA_TICKET_MINT_ADDRESS:
 			'DeEiGWfCMP9psnLGkxGrBBMEAW5Jv8bBGMN8DCtFRCyB',
 		PERP_MARKETS: DevnetPerpMarkets,
@@ -89,9 +82,6 @@ export const configs: { [key in DriftEnv]: DriftConfig } = {
 		DRIFT_PROGRAM_ID,
 		JIT_PROXY_PROGRAM_ID: 'J1TnP8zvVxbtF5KFp5xRmWuvG9McnhzmBd9XGfCyuxFP',
 		QUOTE_MINT_ADDRESS: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-		SERUM_V3: 'srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX',
-		PHOENIX: 'PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY',
-		OPENBOOK: 'opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb',
 		V2_ALPHA_TICKET_MINT_ADDRESS:
 			'Cmvhycb6LQvvzaShGw4iDHRLzeSSryioAsU98DSSkMNa',
 		PERP_MARKETS: MainnetPerpMarkets,
@@ -102,7 +92,6 @@ export const configs: { [key in DriftEnv]: DriftConfig } = {
 			'Fpys8GRa5RBWfyeN7AaDUwFGD1zkDCA4z3t4CJLV8dfL',
 			'EiWSskK5HXnBTptiS5DH6gpAJRVNQ3cAhTKBGaiaysAb',
 		],
-		SERUM_LOOKUP_TABLE: 'GPZkp76cJtNL2mphCvT6FXkJCVPpouidnacckR6rzKDN',
 		DRIFT_ORACLE_RECEIVER_ID,
 		SB_ON_DEMAND_PID: SB_ON_DEMAND_MAINNET_PID,
 	},

@@ -26,13 +26,7 @@ import { MMOraclePriceData, OraclePriceData } from '../oracles/types';
 import { PublicKey } from '@solana/web3.js';
 import { standardizeBaseAssetAmount, standardizePrice } from '../math/orders';
 
-type liquiditySource =
-	| 'serum'
-	| 'vamm'
-	| 'dlob'
-	| 'phoenix'
-	| 'openbook'
-	| 'indicative';
+type liquiditySource = 'vamm' | 'dlob' | 'indicative';
 
 export type L2Level = {
 	price: BN;

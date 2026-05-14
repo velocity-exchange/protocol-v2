@@ -256,7 +256,7 @@ export class TokenFaucet {
 
 			props.callback(await this.getTokenAccountInfo(props));
 
-			// Couldn't find a way to do it using anchor framework subscription, someone on serum discord recommended this way
+			// Couldn't find a way to do it using anchor framework subscription — fall back to onAccountChange.
 			this.context.connection.onAccountChange(
 				tokenAccountKey,
 				async (

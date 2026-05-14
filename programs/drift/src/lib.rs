@@ -24,7 +24,6 @@ use crate::state::perp_market::ContractTier;
 use crate::state::scale_order_params::ScaleOrderParams;
 use crate::state::settle_pnl_mode::SettlePnlMode;
 use crate::state::spot_market::AssetTier;
-use crate::state::spot_market::SpotFulfillmentConfigStatus;
 use crate::state::state::FeeStructure;
 use crate::state::state::*;
 use crate::state::user::MarketType;
@@ -78,7 +77,6 @@ declare_id!("vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P");
 #[program]
 pub mod drift {
     use super::*;
-    use crate::state::spot_market::SpotFulfillmentConfigStatus;
 
     // User Instructions
 
@@ -868,64 +866,6 @@ pub mod drift {
     ) -> Result<()> {
         handle_delete_initialized_spot_market(ctx, market_index)
     }
-
-    pub fn initialize_serum_fulfillment_config(
-        ctx: Context<InitializeSerumFulfillmentConfig>,
-        market_index: u16,
-    ) -> Result<()> {
-        handle_initialize_serum_fulfillment_config(ctx, market_index)
-    }
-
-    pub fn update_serum_fulfillment_config_status(
-        ctx: Context<UpdateSerumFulfillmentConfig>,
-        status: SpotFulfillmentConfigStatus,
-    ) -> Result<()> {
-        handle_update_serum_fulfillment_config_status(ctx, status)
-    }
-
-    pub fn delete_serum_fulfillment_config(
-        ctx: Context<DeleteSerumFulfillmentConfig>,
-    ) -> Result<()> {
-        handle_delete_serum_fulfillment_config(ctx)
-    }
-
-    pub fn initialize_openbook_v2_fulfillment_config(
-        ctx: Context<InitializeOpenbookV2FulfillmentConfig>,
-        market_index: u16,
-    ) -> Result<()> {
-        handle_initialize_openbook_v2_fulfillment_config(ctx, market_index)
-    }
-
-    pub fn openbook_v2_fulfillment_config_status(
-        ctx: Context<UpdateOpenbookV2FulfillmentConfig>,
-        status: SpotFulfillmentConfigStatus,
-    ) -> Result<()> {
-        handle_update_openbook_v2_fulfillment_config_status(ctx, status)
-    }
-
-    pub fn delete_openbook_v2_fulfillment_config(
-        ctx: Context<DeleteOpenbookV2FulfillmentConfig>,
-    ) -> Result<()> {
-        handle_delete_openbook_v2_fulfillment_config(ctx)
-    }
-
-    pub fn initialize_phoenix_fulfillment_config(
-        ctx: Context<InitializePhoenixFulfillmentConfig>,
-        market_index: u16,
-    ) -> Result<()> {
-        handle_initialize_phoenix_fulfillment_config(ctx, market_index)
-    }
-
-    pub fn phoenix_fulfillment_config_status(
-        ctx: Context<UpdatePhoenixFulfillmentConfig>,
-        status: SpotFulfillmentConfigStatus,
-    ) -> Result<()> {
-        handle_update_phoenix_fulfillment_config_status(ctx, status)
-    }
-
-    // pub fn update_serum_vault(ctx: Context<UpdateSerumVault>) -> Result<()> {
-    //     handle_update_serum_vault(ctx)
-    // }
 
     pub fn initialize_perp_market<'c: 'info, 'info>(
         ctx: Context<'info, InitializePerpMarket<'info>>,

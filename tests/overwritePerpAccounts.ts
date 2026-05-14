@@ -49,18 +49,7 @@ describe('Bankrun Overwrite Accounts', () => {
 	let userUSDCAccount: Keypair;
 
 	before(async () => {
-		const context = await startAnchor(
-			'',
-			[
-				{
-					name: 'serum_dex',
-					programId: new PublicKey(
-						'srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'
-					),
-				},
-			],
-			[]
-		);
+		const context = await startAnchor('', [], []);
 
 		// @ts-ignore
 		bankrunContextWrapper = new BankrunContextWrapper(context);
