@@ -4,6 +4,53 @@ Devnet deployment scripts for the drift program. The devnet quote token is **dUS
 
 The devnet program id is read from `[programs.devnet].drift` in `Anchor.toml` — that and the `declare_id!` in `programs/drift/src/lib.rs` (Anchor enforces they match) are the source of truth. Override with `DRIFT_DEVNET_PROGRAM_ID=…` only for one-off testing.
 
+## Program upgrades via CI (preferred)
+
+Program upgrades to **mainnet** and **devnet** are gated through a Squads multisig and proposed by GitHub Actions; the scripts in this directory remain for emergency / direct deploys against the devnet upgrade keypair.
+
+| Target | Trigger | Workflow |
+| --- | --- | --- |
+| **mainnet** | Push tag `program-drift-<version>` (e.g. `program-drift-2.163.0`) | [`.github/workflows/release-program.yaml`](../.github/workflows/release-program.yaml) |
+| **devnet** | Run **Manual Devnet Program Deploy** from the Actions tab (pick program + branch) | [`.github/workflows/manual-devnet-deploy.yaml`](../.github/workflows/manual-devnet-deploy.yaml) |
+
+Both workflows do the same thing on different multisigs:
+
+1. Build the program — `anchor build` for the IDL, `solana-verify build` for a reproducible `.so` (Docker image pinned in workflow env). Devnet drift strips `mainnet-beta` so the cfg-gated `declare_id!` resolves to the devnet pubkey.
+2. Upload the `.so` to a BPF Upgradeable Loader buffer (via `solana program write-buffer`).
+3. Upload the IDL JSON to a program-metadata buffer (via `npx @solana-program/program-metadata create-buffer` — Anchor 1.0 stopped baking the legacy IDL instructions into programs).
+4. Transfer both buffer authorities to the multisig vault PDA.
+5. Call [`helium/squads-program-upgrade`](https://github.com/helium/squads-program-upgrade), which proposes a single Squads transaction containing: program-metadata `Initialize` (only if the canonical IDL metadata account doesn't exist yet) + `SetData` (apply IDL buffer) + `Close` (refund buffer rent) + BPF Loader `Upgrade` (apply program buffer). The proposal is **not** auto-executed — multisig signers approve + execute through the Squads UI.
+
+### Required GitHub secrets
+
+| Secret | Purpose |
+| --- | --- |
+| `MAINNET_RPC_ENDPOINT` / `DEVNET_RPC_ENDPOINT` | Solana RPC URLs (private RPC strongly recommended for mainnet — write-buffer needs ~1200 chunked writes). |
+| `MAINNET_DEPLOYER_KEYPAIR` / `DEVNET_DEPLOYER_KEYPAIR` | Solana keypair as a raw `[..]` byte array. Pays buffer rent + signs the Squads proposal. Must be a multisig member with Voter permissions. |
+| `MAINNET_DEPLOYER_ADDRESS` / `DEVNET_DEPLOYER_ADDRESS` | Public key of the deployer; receives reclaimed buffer rent on upgrade. |
+| `MAINNET_MULTISIG` / `DEVNET_MULTISIG` | Squads multisig PDA. |
+| `MAINNET_MULTISIG_VAULT` / `DEVNET_MULTISIG_VAULT` | The vault PDA owned by the multisig (Squads "vault index 0"). This is the on-chain program upgrade authority and the IDL metadata authority. |
+
+The first-ever mainnet deploy with this flow will also **initialize the canonical IDL metadata account** for `dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH` — the action detects an absent metadata PDA and includes the `Initialize` instruction in the same Squads proposal. For drift mainnet, that account does not exist today.
+
+### Cutting a mainnet release
+
+```bash
+# 1. Bump programs/drift/Cargo.toml version
+# 2. Land that on mainnet-beta
+git checkout mainnet-beta
+git pull
+# 3. Tag it
+git tag program-drift-2.163.0
+git push origin program-drift-2.163.0
+# 4. Watch Actions → Release Program to Mainnet → wait for Squads proposal
+# 5. Sign + execute in the Squads UI
+```
+
+The `mainnet-beta` branch tracks what is (or is about to be) live on mainnet; `master` is active development. The tag itself is the deploy trigger — branch state doesn't gate the workflow.
+
+---
+
 ## Runbook
 
 1. **Build** both programs (x86_64 toolchain; see root `CLAUDE.md`):

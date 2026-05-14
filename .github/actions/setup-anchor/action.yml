@@ -1,0 +1,21 @@
+name: "Setup Anchor CLI"
+description: "Installs Anchor 1.0 via avm; caches across runs"
+runs:
+  using: "composite"
+  steps:
+    - name: Cache Anchor CLI (avm)
+      id: cache-anchor
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      with:
+        path: ~/.avm
+        key: ${{ runner.os }}-anchor-cli-${{ env.ANCHOR_VERSION }}
+    - name: Install Anchor CLI
+      shell: bash
+      run: |
+        if ! command -v avm >/dev/null 2>&1; then
+          sudo apt update -y && sudo apt install -y libudev-dev pkg-config build-essential
+          cargo install --git https://github.com/coral-xyz/anchor avm --force
+        fi
+        avm install ${{ env.ANCHOR_VERSION }}
+        avm use ${{ env.ANCHOR_VERSION }}
+        anchor --version
