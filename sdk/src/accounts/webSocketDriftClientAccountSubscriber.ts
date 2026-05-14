@@ -37,43 +37,21 @@ const ORACLE_DEFAULT_ID = getOracleId(
 async function ensureAccountFetched<T>(
 	subscriber: AccountSubscriber<T>,
 	maxAttempts = 5,
-	delayMs = 200,
-	logName?: string
+	delayMs = 200
 ): Promise<void> {
 	for (let attempt = 0; attempt < maxAttempts; attempt++) {
 		if (subscriber.dataAndSlot?.data !== undefined) {
-			if (logName && attempt > 0) {
-				console.log(
-					`[ws-debug] ensureAccountFetched(${logName}) got data after ${attempt} retry(ies)`
-				);
-			}
 			return;
 		}
 		try {
 			await subscriber.fetch();
-		} catch (e) {
-			if (logName) {
-				console.log(
-					`[ws-debug] ensureAccountFetched(${logName}) fetch threw on attempt ${attempt}:`,
-					(e as Error).message
-				);
-			}
+		} catch {
+			// retry below
 		}
 		if (subscriber.dataAndSlot?.data !== undefined) {
-			if (logName) {
-				console.log(
-					`[ws-debug] ensureAccountFetched(${logName}) got data after fetch on attempt ${attempt}`
-				);
-			}
 			return;
 		}
 		await new Promise((resolve) => setTimeout(resolve, delayMs));
-	}
-	if (logName) {
-		console.log(
-			`[ws-debug] ensureAccountFetched(${logName}) gave up after ${maxAttempts} attempts; dataAndSlot=`,
-			subscriber.dataAndSlot
-		);
 	}
 }
 
@@ -388,12 +366,7 @@ export class WebSocketDriftClientAccountSubscriber
 			this.eventEmitter.emit('perpMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
 		});
-		await ensureAccountFetched(
-			accountSubscriber,
-			5,
-			200,
-			`perpMarket[${marketIndex}]`
-		);
+		await ensureAccountFetched(accountSubscriber);
 		this.perpMarketAccountSubscribers.set(marketIndex, accountSubscriber);
 		return true;
 	}
@@ -429,12 +402,7 @@ export class WebSocketDriftClientAccountSubscriber
 			this.eventEmitter.emit('spotMarketAccountUpdate', data);
 			this.eventEmitter.emit('update');
 		});
-		await ensureAccountFetched(
-			accountSubscriber,
-			5,
-			200,
-			`spotMarket[${marketIndex}]`
-		);
+		await ensureAccountFetched(accountSubscriber);
 		this.spotMarketAccountSubscribers.set(marketIndex, accountSubscriber);
 		return true;
 	}
@@ -481,12 +449,7 @@ export class WebSocketDriftClientAccountSubscriber
 			);
 			this.eventEmitter.emit('update');
 		});
-		await ensureAccountFetched(
-			accountSubscriber,
-			5,
-			200,
-			`oracle[${oracleInfo.publicKey.toBase58()}/${oracleInfo.source}]`
-		);
+		await ensureAccountFetched(accountSubscriber);
 
 		this.oracleSubscribers.set(oracleId, accountSubscriber);
 		return true;
