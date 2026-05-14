@@ -147,7 +147,7 @@ describe('admin deposit', () => {
 		const userAccount = await userDriftClient.getUserAccountPublicKey(0);
 		console.log('user userAccount', userAccount.toBase58());
 
-		const state = adminDriftClient.getStateAccount().admin.toBase58();
+		const state = adminDriftClient.getStateAccount().coldAdmin.toBase58();
 		expect(state).to.be.equal(adminDriftClient.wallet.publicKey.toBase58());
 
 		// user has 0 balance
@@ -182,7 +182,7 @@ describe('admin deposit', () => {
 	});
 
 	it('user2 cannot deposit into user', async () => {
-		const state = adminDriftClient.getStateAccount().admin.toBase58();
+		const state = adminDriftClient.getStateAccount().coldAdmin.toBase58();
 		expect(state).to.not.be.equal(userDriftClient2.wallet.publicKey.toBase58());
 
 		// user has 0 balance

@@ -115,18 +115,37 @@ mod native_instruction_offsets {
         );
     }
 
-    /// State is borsh-serialised: locate feature_bit_flags via a round-trip, not offset_of!.
+    /// State is zero-copy with `#[repr(C)]`; on-chain bytes match `mem::offset_of!`.
+    /// After folding the admin authority config into State (cold/warm/pause + 11 hot
+    /// pubkeys at the top), feature_bit_flags lives at byte 1414 (offset 1406 + 8
+    /// discriminator).
     #[test]
-    fn state_borsh_feature_bit_flags_offset() {
-        let mut state = State::default();
-        state.feature_bit_flags = 0xFF;
-        let mut buf = Vec::new();
-        state.serialize(&mut buf).unwrap();
-        let borsh_pos = buf.iter().position(|&b| b == 0xFF).unwrap();
+    fn state_feature_bit_flags_offset() {
         assert_eq!(
-            borsh_pos + DISC,
-            982,
-            "State::feature_bit_flags borsh offset changed — update handle_update_mm_oracle_native"
+            std::mem::offset_of!(State, feature_bit_flags) + DISC,
+            1414,
+            "State::feature_bit_flags offset changed — update handle_update_mm_oracle_native"
+        );
+    }
+
+    /// State.hot_mm_oracle_crank lives at byte 392..424 (after discriminator). The native
+    /// mm-oracle handler reads it via raw byte indexing.
+    #[test]
+    fn state_hot_mm_oracle_crank_offset() {
+        assert_eq!(
+            std::mem::offset_of!(State, hot_mm_oracle_crank) + DISC,
+            392,
+            "State::hot_mm_oracle_crank offset changed — update handle_update_mm_oracle_native"
+        );
+    }
+
+    /// State.hot_amm_spread_adjust lives at byte 424..456 (after discriminator).
+    #[test]
+    fn state_hot_amm_spread_adjust_offset() {
+        assert_eq!(
+            std::mem::offset_of!(State, hot_amm_spread_adjust) + DISC,
+            424,
+            "State::hot_amm_spread_adjust offset changed — update handle_update_amm_spread_adjustment_native"
         );
     }
 }

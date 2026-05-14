@@ -4996,7 +4996,7 @@ export class DriftClient {
 			accounts: {
 				state: await this.getStatePublicKey(),
 				admin: this.isSubscribed
-					? this.getStateAccount().admin
+					? this.getStateAccount().coldAdmin
 					: this.wallet.publicKey,
 				perpMarket: perpMarketPublicKey,
 			},
@@ -5037,7 +5037,7 @@ export class DriftClient {
 				accounts: {
 					state: await this.getStatePublicKey(),
 					admin: this.isSubscribed
-						? this.getStateAccount().admin
+						? this.getStateAccount().coldAdmin
 						: this.wallet.publicKey,
 					spotMarket: spotMarketPublicKey,
 					perpMarket: perpMarketPublicKey,

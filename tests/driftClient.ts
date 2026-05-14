@@ -129,7 +129,7 @@ describe('drift client', () => {
 		await driftClient.updatePerpAuctionDuration(new BN(0));
 
 		assert.ok(
-			state.admin.equals(bankrunContextWrapper.provider.wallet.publicKey)
+			state.coldAdmin.equals(bankrunContextWrapper.provider.wallet.publicKey)
 		);
 
 		const expectedSigner = driftClient.getSignerPublicKey();

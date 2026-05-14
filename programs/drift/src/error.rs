@@ -730,6 +730,8 @@ pub enum ErrorCode {
     InvalidInsuranceFundWithdrawalRecipient,
     #[msg("Spot DLOB trading is disabled")]
     SpotDlobTradingDisabled,
+    #[msg("Signer is not authorized for this admin tier")]
+    InvalidAdminTier,
 }
 
 #[macro_export]

@@ -1,5 +1,5 @@
 {
-  "address": "vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P",
+  "address": "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH",
   "metadata": {
     "name": "drift",
     "version": "2.162.0",
@@ -1418,10 +1418,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -1455,10 +1452,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -1597,10 +1591,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "prelaunch_oracle",
@@ -2145,10 +2136,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "source_vault",
@@ -3446,10 +3434,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "if_rebalance_config",
@@ -3993,10 +3978,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "rent",
@@ -4059,8 +4041,7 @@
               },
               {
                 "kind": "account",
-                "path": "state.number_of_markets",
-                "account": "State"
+                "path": "state"
               }
             ]
           }
@@ -4326,10 +4307,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "rent",
@@ -4363,10 +4341,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "prelaunch_oracle",
@@ -4440,10 +4415,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "protected_maker_mode_config",
@@ -4942,10 +4914,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "rent",
@@ -5129,8 +5098,7 @@
               },
               {
                 "kind": "account",
-                "path": "state.number_of_spot_markets",
-                "account": "State"
+                "path": "state"
               }
             ]
           }
@@ -5167,8 +5135,7 @@
               },
               {
                 "kind": "account",
-                "path": "state.number_of_spot_markets",
-                "account": "State"
+                "path": "state"
               }
             ]
           }
@@ -5205,8 +5172,7 @@
               },
               {
                 "kind": "account",
-                "path": "state.number_of_spot_markets",
-                "account": "State"
+                "path": "state"
               }
             ]
           }
@@ -6684,10 +6650,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -6896,10 +6859,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         }
       ],
       "args": [
@@ -7329,10 +7289,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -7660,10 +7617,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         }
       ],
       "args": [
@@ -7837,10 +7791,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         }
       ],
       "args": []
@@ -8402,10 +8353,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -8440,10 +8388,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "spot_market",
@@ -9066,10 +9011,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "perp_market_with_fee_pool",
@@ -9658,15 +9600,12 @@
       ],
       "accounts": [
         {
-          "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
-        },
-        {
           "name": "state",
           "writable": true
+        },
+        {
+          "name": "admin",
+          "signer": true
         }
       ],
       "args": [
@@ -10181,10 +10120,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "insurance_fund_vault",
@@ -10247,10 +10183,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10279,10 +10212,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10502,6 +10432,43 @@
       ]
     },
     {
+      "name": "update_hot_admin",
+      "discriminator": [
+        162,
+        199,
+        182,
+        64,
+        214,
+        244,
+        195,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "role",
+          "type": {
+            "defined": {
+              "name": "HotRole"
+            }
+          }
+        },
+        {
+          "name": "new_pubkey",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "update_if_rebalance_config",
       "discriminator": [
         142,
@@ -10517,10 +10484,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "if_rebalance_config",
@@ -10607,10 +10571,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10639,10 +10600,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -10674,10 +10632,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -10712,10 +10667,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10744,10 +10696,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10886,10 +10835,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10922,10 +10868,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -10987,10 +10930,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -11033,10 +10973,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         }
       ],
       "args": []
@@ -11162,10 +11099,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11197,10 +11131,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11264,10 +11195,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11335,10 +11263,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11370,10 +11295,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11405,10 +11327,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11440,10 +11359,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11479,10 +11395,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11558,10 +11471,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11593,10 +11503,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11628,10 +11535,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11690,10 +11594,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11729,10 +11630,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11764,10 +11662,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11807,10 +11702,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11842,10 +11734,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11909,10 +11798,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11944,10 +11830,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -11984,10 +11867,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12027,10 +11907,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12206,10 +12083,7 @@
         },
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "spot_market",
@@ -12306,10 +12180,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12381,10 +12252,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12420,10 +12288,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12459,10 +12324,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12595,10 +12457,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "protected_maker_mode_config",
@@ -12745,10 +12604,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -12777,10 +12633,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -12813,10 +12666,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12852,10 +12702,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12960,10 +12807,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -12995,10 +12839,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13030,10 +12871,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13073,10 +12911,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13108,10 +12943,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13147,10 +12979,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13198,10 +13027,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13233,10 +13059,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13268,10 +13091,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13303,10 +13123,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13343,10 +13160,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13396,10 +13210,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13431,10 +13242,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13466,10 +13274,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13501,10 +13306,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13536,10 +13338,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13571,10 +13370,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13610,10 +13406,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -13649,10 +13442,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -13681,10 +13471,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -13713,10 +13500,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state",
@@ -14399,6 +14183,35 @@
       "args": []
     },
     {
+      "name": "update_warm_admin",
+      "discriminator": [
+        35,
+        244,
+        112,
+        119,
+        5,
+        99,
+        195,
+        204
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_warm_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "update_withdraw_guard_threshold",
       "discriminator": [
         56,
@@ -14413,10 +14226,7 @@
       "accounts": [
         {
           "name": "admin",
-          "signer": true,
-          "relations": [
-            "state"
-          ]
+          "signer": true
         },
         {
           "name": "state"
@@ -17444,6 +17254,11 @@
       "code": 6350,
       "name": "SpotDlobTradingDisabled",
       "msg": "Spot DLOB trading is disabled"
+    },
+    {
+      "code": 6351,
+      "name": "InvalidAdminTier",
+      "msg": "Signer is not authorized for this admin tier"
     }
   ],
   "types": [
@@ -19189,6 +19004,9 @@
     },
     {
       "name": "FeeStructure",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -19226,6 +19044,9 @@
     },
     {
       "name": "FeeTier",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -19670,6 +19491,51 @@
               "unix_timestamp of last snapshot"
             ],
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HotRole",
+      "docs": [
+        "Purpose-specific hot role keys held on `State`. Each variant maps to one of the",
+        "`hot_*` pubkey fields and is used by `State::require_hot` / `hot_key`."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "AmmCrank"
+          },
+          {
+            "name": "LpCache"
+          },
+          {
+            "name": "LpSwap"
+          },
+          {
+            "name": "LpSettle"
+          },
+          {
+            "name": "IfRebalance"
+          },
+          {
+            "name": "FeatureFlag"
+          },
+          {
+            "name": "Fuel"
+          },
+          {
+            "name": "UserFlag"
+          },
+          {
+            "name": "VaultDeposit"
+          },
+          {
+            "name": "MmOracleCrank"
+          },
+          {
+            "name": "AmmSpreadAdjust"
           }
         ]
       }
@@ -21382,6 +21248,9 @@
     },
     {
       "name": "OracleGuardRails",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -22091,9 +21960,22 @@
     },
     {
       "name": "OrderFillerRewardStructure",
+      "docs": [
+        "`u128` is placed first so `#[repr(C)]` layout matches between host (x86_64,",
+        "align 16 in Rust ≥ 1.77) and the SBF VM (align 8). Trailing `_padding`",
+        "rounds the struct to a host-portable 32 bytes. See",
+        "`docs/alignment-and-native-offsets.md`."
+      ],
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "time_based_reward_lower_bound",
+            "type": "u128"
+          },
           {
             "name": "reward_numerator",
             "type": "u32"
@@ -22103,8 +21985,13 @@
             "type": "u32"
           },
           {
-            "name": "time_based_reward_lower_bound",
-            "type": "u128"
+            "name": "_padding",
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           }
         ]
       }
@@ -23063,6 +22950,9 @@
     },
     {
       "name": "PriceDivergenceGuardRails",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [
@@ -24832,6 +24722,7 @@
     },
     {
       "name": "State",
+      "serialization": "bytemuckunsafe",
       "repr": {
         "kind": "c"
       },
@@ -24839,7 +24730,66 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "admin",
+            "name": "cold_admin",
+            "docs": [
+              "Root authority. Set at `initialize`; only this key can rotate `warm_admin`."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "warm_admin",
+            "docs": [
+              "Operational authority (e.g. multisig+timelock). Can rotate the 11 hot keys",
+              "below. `Pubkey::default()` means unset — only `cold_admin` can act in that case."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_amm_crank",
+            "docs": [
+              "Purpose-specific bot keys. `Pubkey::default()` means the role is unassigned",
+              "and only warm/cold can call handlers gated on that role."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_lp_cache",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_lp_swap",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_lp_settle",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_if_rebalance",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_feature_flag",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_fuel",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_user_flag",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_vault_deposit",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_mm_oracle_crank",
+            "type": "pubkey"
+          },
+          {
+            "name": "hot_amm_spread_adjust",
             "type": "pubkey"
           },
           {
@@ -24959,7 +24909,7 @@
             "type": {
               "array": [
                 "u8",
-                8
+                264
               ]
             }
           }
@@ -25726,6 +25676,9 @@
     },
     {
       "name": "ValidityGuardRails",
+      "repr": {
+        "kind": "c"
+      },
       "type": {
         "kind": "struct",
         "fields": [

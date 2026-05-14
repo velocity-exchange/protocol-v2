@@ -73,19 +73,6 @@ pub mod marinade_mainnet {
     declare_id!("MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD");
 }
 
-pub mod admin_hot_wallet {
-    use solana_program::declare_id;
-    #[cfg(not(feature = "anchor-test"))]
-    declare_id!("5hMjmxexWu954pX9gB9jkHxMqdjpxArQS2XdvkaevRax");
-    #[cfg(feature = "anchor-test")]
-    declare_id!("1ucYHAGrBbi1PaecC4Ptq5ocZLWGLBmbGWysoDGNB1N");
-}
-
-pub mod if_rebalance_wallet {
-    use solana_program::declare_id;
-    declare_id!("BuynBZjr5yiZCFpXngFQ31BAwechmFE1Ab6vNP3f5PTt");
-}
-
 /// Designated owner for insurance fund admin withdrawal. Only token accounts owned by this
 /// pubkey can receive; prevents redirecting funds to an arbitrary address.
 pub mod insurance_fund_withdrawal_recipient {
@@ -103,31 +90,6 @@ pub mod lighthouse {
     declare_id!("L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95");
 }
 
-pub mod mm_oracle_crank_wallet {
-    use solana_program::declare_id;
-    #[cfg(not(feature = "anchor-test"))]
-    #[cfg(feature = "mainnet-beta")]
-    declare_id!("uZ1N4C9dc71Euu4GLYt5UURpFtg1WWSwo3F4Rn46Fr3");
-    #[cfg(not(feature = "anchor-test"))]
-    #[cfg(not(feature = "mainnet-beta"))]
-    declare_id!("8X35rQUK2u9hfn8rMPwwr6ZSEUhbmfDPEapp589XyoM1");
-    #[cfg(feature = "anchor-test")]
-    declare_id!("1ucYHAGrBbi1PaecC4Ptq5ocZLWGLBmbGWysoDGNB1N");
-}
-
-pub mod amm_spread_adjust_wallet {
-    use solana_program::declare_id;
-    #[cfg(not(feature = "anchor-test"))]
-    declare_id!("w1DrTeayRMutAiwzfJfK9zLcpkF7RzwPy1BLCgQA1aF");
-    #[cfg(feature = "anchor-test")]
-    declare_id!("1ucYHAGrBbi1PaecC4Ptq5ocZLWGLBmbGWysoDGNB1N");
-}
-
-pub mod lp_pool_swap_wallet {
-    use solana_program::declare_id;
-    declare_id!("25qbsE2oWri76c9a86ubn17NKKdo6Am4HXD2Jm8vT8K4");
-}
-
 pub mod dflow_mainnet_aggregator_4 {
     use solana_program::declare_id;
     declare_id!("DF1ow4tspfHX9JwWJsAb9epbkA8hmpSEAtxXy1V27QBH");
@@ -136,11 +98,6 @@ pub mod dflow_mainnet_aggregator_4 {
 pub mod titan_mainnet_argos_v1 {
     use solana_program::declare_id;
     declare_id!("T1TANpTeScyeqVzzgNViGDNrkQ6qHz9KrSBS4aNXvGT");
-}
-
-pub mod lp_pool_hot_wallet {
-    use solana_program::declare_id;
-    declare_id!("GP9qHLX8rx4BgRULGPV1poWQPdGuzbxGbvTB12DfmwFk");
 }
 
 pub const WHITELISTED_SWAP_PROGRAMS: &[solana_program::pubkey::Pubkey] = &[
