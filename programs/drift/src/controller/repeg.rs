@@ -349,12 +349,6 @@ pub fn settle_expired_market(
         now
     )?;
 
-    validate!(
-        market.amm.base_asset_amount_with_unsettled_lp == 0,
-        ErrorCode::MarketSettlementRequiresSettledLP,
-        "Outstanding LP in market"
-    )?;
-
     let spot_market = &mut spot_market_map.get_ref_mut(&QUOTE_SPOT_MARKET_INDEX)?;
     let fee_reserved_for_protocol = repeg::get_total_fee_lower_bound(market)?
         .safe_add(market.amm.total_liquidation_fee)?

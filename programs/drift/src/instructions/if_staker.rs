@@ -202,7 +202,7 @@ pub fn handle_request_remove_insurance_fund_stake(
     validate!(
         n_shares > 0,
         ErrorCode::IFWithdrawRequestTooSmall,
-        "Requested lp_shares = 0"
+        "Requested if_shares = 0"
     )?;
 
     let user_if_shares = insurance_fund_stake.checked_if_shares(spot_market)?;

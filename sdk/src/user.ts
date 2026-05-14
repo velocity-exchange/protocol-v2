@@ -36,7 +36,6 @@ import {
 	positionIsAvailable,
 } from './math/position';
 import {
-	AMM_RESERVE_PRECISION,
 	AMM_TO_QUOTE_PRECISION_RATIO,
 	BASE_PRECISION,
 	BN_MAX,
@@ -360,8 +359,6 @@ export class User {
 			openBids: ZERO,
 			openAsks: ZERO,
 			settledPnl: ZERO,
-			lpShares: ZERO,
-			lastQuoteAssetAmountPerLp: ZERO,
 			maxMarginRatio: 0,
 			isolatedPositionScaledBalance: ZERO,
 			positionFlag: 0,
@@ -1918,18 +1915,12 @@ export class User {
 	 * calculates max allowable leverage exceeding hitting requirement category
 	 * for large sizes where imf factor activates, result is a lower bound
 	 * @param marginCategory {Initial, Maintenance}
-	 * @param isLp if calculating max leveraging for adding lp, need to add buffer
 	 * @returns : Precision TEN_THOUSAND
 	 */
 	public getMaxLeverageForPerp(
 		perpMarketIndex: number,
-		_marginCategory: MarginCategory = 'Initial',
-		isLp = false
+		_marginCategory: MarginCategory = 'Initial'
 	): BN {
-		const market = this.driftClient.getPerpMarketAccount(perpMarketIndex);
-		const marketPrice =
-			this.driftClient.getOracleDataForPerpMarket(perpMarketIndex).price;
-
 		const { perpLiabilityValue, perpPnl, spotAssetValue, spotLiabilityValue } =
 			this.getLeverageComponents();
 
@@ -1943,24 +1934,16 @@ export class User {
 
 		const totalLiabilityValue = perpLiabilityValue.add(spotLiabilityValue);
 
-		const lpBuffer = isLp
-			? marketPrice.mul(market.amm.orderStepSize).div(AMM_RESERVE_PRECISION)
-			: ZERO;
-
 		// absolute max fesible size (upper bound)
 		const maxSizeQuote = BN.max(
 			BN.min(
+				this.getMaxTradeSizeUSDCForPerp(perpMarketIndex, PositionDirection.LONG)
+					.tradeSize,
 				this.getMaxTradeSizeUSDCForPerp(
 					perpMarketIndex,
-					PositionDirection.LONG,
-					false
-				).tradeSize,
-				this.getMaxTradeSizeUSDCForPerp(
-					perpMarketIndex,
-					PositionDirection.SHORT,
-					false
+					PositionDirection.SHORT
 				).tradeSize
-			).sub(lpBuffer),
+			),
 			ZERO
 		);
 
@@ -2779,13 +2762,11 @@ export class User {
 	 * - oppositeSideTradeSize: the trade size for closing the opposite direction
 	 * @param targetMarketIndex
 	 * @param tradeSide
-	 * @param isLp
 	 * @returns { tradeSize: BN, oppositeSideTradeSize: BN} : Precision QUOTE_PRECISION
 	 */
 	public getMaxTradeSizeUSDCForPerp(
 		targetMarketIndex: number,
 		tradeSide: PositionDirection,
-		isLp = false,
 		maxMarginRatio = undefined,
 		positionType: 'isolated' | 'cross' = 'cross'
 	): { tradeSize: BN; oppositeSideTradeSize: BN } {
@@ -2808,12 +2789,6 @@ export class User {
 		const marketAccount =
 			this.driftClient.getPerpMarketAccount(targetMarketIndex);
 
-		const lpBuffer = isLp
-			? oracleData.price
-					.mul(marketAccount.amm.orderStepSize)
-					.div(AMM_RESERVE_PRECISION)
-			: ZERO;
-
 		// add any position we have on the opposite side of the current trade, because we can "flip" the size of this position without taking any extra leverage.
 		const oppositeSizeLiabilityValue = targetingSameSide
 			? ZERO
@@ -2824,7 +2799,7 @@ export class User {
 
 		const maxPositionSize = this.getPerpBuyingPower(
 			targetMarketIndex,
-			lpBuffer,
+			ZERO,
 			maxMarginRatio,
 			positionType
 		);

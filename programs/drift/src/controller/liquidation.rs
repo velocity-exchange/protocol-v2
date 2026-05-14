@@ -278,7 +278,6 @@ pub fn liquidate_perp(
                 liquidate_perp: LiquidatePerpRecord {
                     market_index,
                     oracle_price,
-                    lp_shares: 0,
                     ..LiquidatePerpRecord::default()
                 },
                 bit_flags,
@@ -715,7 +714,6 @@ pub fn liquidate_perp(
             oracle_price,
             base_asset_amount: user_position_delta.base_asset_amount,
             quote_asset_amount: user_position_delta.quote_asset_amount,
-            lp_shares: 0,
             user_order_id,
             liquidator_order_id,
             fill_record_id,
@@ -922,7 +920,6 @@ pub fn liquidate_perp_with_fill(
                 liquidate_perp: LiquidatePerpRecord {
                     market_index,
                     oracle_price,
-                    lp_shares: 0,
                     ..LiquidatePerpRecord::default()
                 },
                 bit_flags,
@@ -1179,7 +1176,6 @@ pub fn liquidate_perp_with_fill(
             oracle_price,
             base_asset_amount: user_position_delta.base_asset_amount,
             quote_asset_amount: user_position_delta.quote_asset_amount,
-            lp_shares: 0,
             user_order_id: order_id,
             liquidator_order_id: 0,
             fill_record_id,

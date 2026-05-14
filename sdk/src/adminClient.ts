@@ -1642,7 +1642,6 @@ export class AdminClient extends DriftClient {
 	public async updatePerpMarketAmmSummaryStats(
 		perpMarketIndex: number,
 		updateAmmSummaryStats?: boolean,
-		quoteAssetAmountWithUnsettledLp?: BN,
 		netUnsettledFundingPnl?: BN,
 		excludeTotalLiqFee?: boolean
 	): Promise<TransactionSignature> {
@@ -1650,7 +1649,6 @@ export class AdminClient extends DriftClient {
 			await this.getUpdatePerpMarketAmmSummaryStatsIx(
 				perpMarketIndex,
 				updateAmmSummaryStats,
-				quoteAssetAmountWithUnsettledLp,
 				netUnsettledFundingPnl,
 				excludeTotalLiqFee
 			);
@@ -1665,15 +1663,12 @@ export class AdminClient extends DriftClient {
 	public async getUpdatePerpMarketAmmSummaryStatsIx(
 		perpMarketIndex: number,
 		updateAmmSummaryStats?: boolean,
-		quoteAssetAmountWithUnsettledLp?: BN,
 		netUnsettledFundingPnl?: BN,
 		excludeTotalLiqFee?: boolean
 	): Promise<TransactionInstruction> {
 		return await this.program.instruction.updatePerpMarketAmmSummaryStats(
 			{
 				updateAmmSummaryStats: updateAmmSummaryStats ?? null,
-				quoteAssetAmountWithUnsettledLp:
-					quoteAssetAmountWithUnsettledLp ?? null,
 				netUnsettledFundingPnl: netUnsettledFundingPnl ?? null,
 				excludeTotalLiqFee: excludeTotalLiqFee ?? null,
 			},
@@ -1975,43 +1970,6 @@ export class AdminClient extends DriftClient {
 				),
 			},
 		});
-	}
-
-	public async updatePerpMarketPerLpBase(
-		perpMarketIndex: number,
-		perLpBase: number
-	): Promise<TransactionSignature> {
-		const updatePerpMarketPerLpBaseIx =
-			await this.getUpdatePerpMarketPerLpBaseIx(perpMarketIndex, perLpBase);
-
-		const tx = await this.buildTransaction(updatePerpMarketPerLpBaseIx);
-
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getUpdatePerpMarketPerLpBaseIx(
-		perpMarketIndex: number,
-		perLpBase: number
-	): Promise<TransactionInstruction> {
-		const perpMarketPublicKey = await getPerpMarketPublicKey(
-			this.program.programId,
-			perpMarketIndex
-		);
-
-		return await (this.program.instruction as any).updatePerpMarketPerLpBase(
-			perLpBase,
-			{
-				accounts: {
-					admin: this.isSubscribed
-						? this.getStateAccount().coldAdmin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-					perpMarket: perpMarketPublicKey,
-				},
-			}
-		);
 	}
 
 	public async updatePerpMarketMaxSpread(

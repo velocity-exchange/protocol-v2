@@ -423,7 +423,6 @@ pub mod amm_jit {
 
                     ..HistoricalOracleData::default()
                 },
-                user_lp_shares: 10 * AMM_RESERVE_PRECISION, // some lps exist
                 concentration_coef: CONCENTRATION_PRECISION + 1,
                 ..AMM::default()
             },
@@ -591,9 +590,6 @@ pub mod amm_jit {
             market_after.amm.base_asset_amount_with_amm,
             BASE_PRECISION_I128 / 2
         );
-
-        // make sure lps didnt get anything
-        assert_eq!(market_after.amm.base_asset_amount_per_lp, 0);
     }
 
     #[test]
@@ -639,7 +635,6 @@ pub mod amm_jit {
 
                     ..HistoricalOracleData::default()
                 },
-                user_lp_shares: 10 * AMM_RESERVE_PRECISION, // some lps exist
                 concentration_coef: CONCENTRATION_PRECISION + 1,
                 ..AMM::default()
             },
@@ -796,9 +791,6 @@ pub mod amm_jit {
         let market_after = market_map.get_ref(&0).unwrap();
         // nets to zero
         assert_eq!(market_after.amm.base_asset_amount_with_amm, 0);
-
-        // make sure lps didnt get anything
-        assert_eq!(market_after.amm.base_asset_amount_per_lp, 0);
 
         let maker = makers_and_referrers.get_ref_mut(&maker_key).unwrap();
         let maker_position = &maker.perp_positions[0];
@@ -1483,7 +1475,6 @@ pub mod amm_jit {
                 max_spread: 20000,
                 base_asset_amount_with_amm: (AMM_RESERVE_PRECISION / 2) as i128,
                 base_asset_amount_long: (AMM_RESERVE_PRECISION / 2) as i128,
-                user_lp_shares: 20 * AMM_RESERVE_PRECISION,
                 sqrt_k: 100 * AMM_RESERVE_PRECISION,
                 peg_multiplier: 100 * PEG_PRECISION,
                 max_slippage_ratio: 50,

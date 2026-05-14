@@ -15291,19 +15291,6 @@
       ]
     },
     {
-      "name": "LPRecord",
-      "discriminator": [
-        101,
-        22,
-        54,
-        38,
-        178,
-        13,
-        142,
-        111
-      ]
-    },
-    {
       "name": "LPSettleRecord",
       "discriminator": [
         208,
@@ -17290,22 +17277,6 @@
             }
           },
           {
-            "name": "base_asset_amount_per_lp",
-            "docs": [
-              "accumulated base asset amount since inception per lp share",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
-            "name": "quote_asset_amount_per_lp",
-            "docs": [
-              "accumulated quote asset amount since inception per lp share",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
             "name": "fee_pool",
             "docs": [
               "partition of fees from perp market trading moved from pnl settlements"
@@ -17406,14 +17377,6 @@
             "type": "i128"
           },
           {
-            "name": "base_asset_amount_with_unsettled_lp",
-            "docs": [
-              "tracks net position (longs-shorts) in market with LPs as counterparty",
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i128"
-          },
-          {
             "name": "max_open_interest",
             "docs": [
               "max allowed open interest, blocks trades that breach this value",
@@ -17460,14 +17423,6 @@
               "precision: QUOTE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "user_lp_shares",
-            "docs": [
-              "total user lp shares of sqrt_k (protocol owned liquidity = sqrt_k - last_funding_rate)",
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u128"
           },
           {
             "name": "last_funding_rate",
@@ -17829,7 +17784,7 @@
             "name": "amm_jit_intensity",
             "docs": [
               "the jit intensity of AMM. larger intensity means larger participation in jit. 0 means no jit participation.",
-              "(0, 100] is intensity for protocol-owned AMM. (100, 200] is intensity for user LP-owned AMM."
+              "(0, 100] is intensity for protocol-owned AMM."
             ],
             "type": "u8"
           },
@@ -17852,21 +17807,6 @@
             "type": "bool"
           },
           {
-            "name": "target_base_asset_amount_per_lp",
-            "docs": [
-              "the target value for `base_asset_amount_per_lp`, used during AMM JIT with LP split",
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i32"
-          },
-          {
-            "name": "per_lp_base",
-            "docs": [
-              "expo for unit of per_lp, base 10 (if per_lp_base=X, then per_lp unit is 10^X)"
-            ],
-            "type": "i8"
-          },
-          {
             "name": "oracle_low_risk_slot_delay_override",
             "docs": [
               "the override for the state.min_perp_auction_duration",
@@ -17886,15 +17826,23 @@
             "type": "i8"
           },
           {
+            "name": "padding_pre_mm_oracle_sequence",
+            "docs": [
+              "alignment padding for the following u64 (Rust would otherwise insert 5 implicit bytes here)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                5
+              ]
+            }
+          },
+          {
             "name": "mm_oracle_sequence_id",
             "type": "u64"
           },
           {
             "name": "net_unsettled_funding_pnl",
-            "type": "i64"
-          },
-          {
-            "name": "quote_asset_amount_with_unsettled_lp",
             "type": "i64"
           },
           {
@@ -17913,7 +17861,7 @@
             "type": "u8"
           },
           {
-            "name": "padding",
+            "name": "padding_pre_last_funding",
             "type": {
               "array": [
                 "u8",
@@ -17924,6 +17872,18 @@
           {
             "name": "last_funding_oracle_twap",
             "type": "i64"
+          },
+          {
+            "name": "padding_trailing",
+            "docs": [
+              "trailing alignment padding (struct alignment is 16 due to u128 fields)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
           }
         ]
       }
@@ -19391,13 +19351,6 @@
               "precision: BASE_PRECISION"
             ],
             "type": "i128"
-          },
-          {
-            "name": "base_asset_amount_with_unsettled_lp",
-            "docs": [
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i128"
           }
         ]
       }
@@ -20070,26 +20023,6 @@
       }
     },
     {
-      "name": "LPAction",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "AddLiquidity"
-          },
-          {
-            "name": "RemoveLiquidity"
-          },
-          {
-            "name": "SettleLiquidity"
-          },
-          {
-            "name": "RemoveLiquidityDerisk"
-          }
-        ]
-      }
-    },
-    {
       "name": "LPBorrowLendDepositRecord",
       "type": {
         "kind": "struct",
@@ -20408,63 +20341,6 @@
       }
     },
     {
-      "name": "LPRecord",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "ts",
-            "type": "i64"
-          },
-          {
-            "name": "user",
-            "type": "pubkey"
-          },
-          {
-            "name": "action",
-            "type": {
-              "defined": {
-                "name": "LPAction"
-              }
-            }
-          },
-          {
-            "name": "n_shares",
-            "docs": [
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "market_index",
-            "type": "u16"
-          },
-          {
-            "name": "delta_base_asset_amount",
-            "docs": [
-              "precision: BASE_PRECISION"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "delta_quote_asset_amount",
-            "docs": [
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "pnl",
-            "docs": [
-              "realized pnl of the position settlement",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
       "name": "LPSettleRecord",
       "type": {
         "kind": "struct",
@@ -20733,13 +20609,6 @@
           {
             "name": "quote_asset_amount",
             "type": "i64"
-          },
-          {
-            "name": "lp_shares",
-            "docs": [
-              "precision: AMM_RESERVE_PRECISION"
-            ],
-            "type": "u64"
           },
           {
             "name": "fill_record_id",
@@ -22684,30 +22553,12 @@
             "type": "i64"
           },
           {
-            "name": "lp_shares",
-            "docs": [
-              "The number of lp (liquidity provider) shares the user has in this perp market",
-              "LP shares allow users to provide liquidity via the AMM",
-              "precision: BASE_PRECISION"
-            ],
-            "type": "u64"
-          },
-          {
             "name": "isolated_position_scaled_balance",
             "docs": [
               "The scaled balance of the isolated position",
               "precision: SPOT_BALANCE_PRECISION"
             ],
             "type": "u64"
-          },
-          {
-            "name": "last_quote_asset_amount_per_lp",
-            "docs": [
-              "The last quote asset amount per lp the amm had",
-              "Used to settle the users lp position",
-              "precision: QUOTE_PRECISION"
-            ],
-            "type": "i64"
           },
           {
             "name": "padding",
@@ -24841,10 +24692,6 @@
             "type": "u64"
           },
           {
-            "name": "lp_cooldown_time",
-            "type": "u64"
-          },
-          {
             "name": "liquidation_margin_buffer_ratio",
             "type": "u32"
           },
@@ -25115,12 +24962,6 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "quote_asset_amount_with_unsettled_lp",
-            "type": {
-              "option": "i64"
-            }
-          },
-          {
             "name": "net_unsettled_funding_pnl",
             "type": {
               "option": "i64"
@@ -25223,13 +25064,6 @@
                 32
               ]
             }
-          },
-          {
-            "name": "last_add_perp_lp_shares_ts",
-            "docs": [
-              "The last time the user added perp lp positions"
-            ],
-            "type": "i64"
           },
           {
             "name": "total_deposits",

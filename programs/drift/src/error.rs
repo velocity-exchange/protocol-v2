@@ -280,10 +280,13 @@ pub enum ErrorCode {
     DailyWithdrawLimit,
     #[msg("DefaultError")]
     DefaultError,
+    /// @deprecated vAMM LP removed.
     #[msg("Insufficient LP tokens")]
     InsufficientLPTokens,
+    /// @deprecated vAMM LP removed.
     #[msg("Cant LP with a market position")]
     CantLPWithPerpPosition,
+    /// @deprecated vAMM LP removed.
     #[msg("Unable to burn LP tokens")]
     UnableToBurnLPTokens,
     #[msg("Trying to remove liqudity too fast after adding it")]
@@ -347,6 +350,7 @@ pub enum ErrorCode {
     PerpMarketSettlementBufferNotReached,
     #[msg("PerpMarketSettlementUserHasOpenOrders")]
     PerpMarketSettlementUserHasOpenOrders,
+    /// @deprecated vAMM LP removed.
     #[msg("PerpMarketSettlementUserHasActiveLP")]
     PerpMarketSettlementUserHasActiveLP,
     #[msg("UnableToSettleExpiredUserPosition")]
@@ -430,14 +434,17 @@ pub enum ErrorCode {
     BlockchainClockInconsistency,
     #[msg("InvalidIFSharesDetected")]
     InvalidIFSharesDetected,
+    /// @deprecated vAMM LP removed.
     #[msg("NewLPSizeTooSmall")]
     NewLPSizeTooSmall,
+    /// @deprecated vAMM LP removed.
     #[msg("MarketStatusInvalidForNewLP")]
     MarketStatusInvalidForNewLP,
     #[msg("InvalidMarkTwapUpdateDetected")]
     InvalidMarkTwapUpdateDetected,
     #[msg("MarketSettlementAttemptOnActiveMarket")]
     MarketSettlementAttemptOnActiveMarket,
+    /// @deprecated vAMM LP removed.
     #[msg("MarketSettlementRequiresSettledLP")]
     MarketSettlementRequiresSettledLP,
     #[msg("MarketSettlementAttemptTooEarly")]

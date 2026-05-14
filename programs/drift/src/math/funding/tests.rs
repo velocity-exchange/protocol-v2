@@ -290,7 +290,6 @@ fn max_funding_rates() {
             base_asset_amount_with_amm: -12295081967, //~12
             base_asset_amount_long: 12295081967,
             base_asset_amount_short: -12295081967 * 2,
-            base_asset_amount_with_unsettled_lp: -((AMM_RESERVE_PRECISION * 500) as i128), //wowsers
             total_exchange_fee: QUOTE_PRECISION / 2,
             total_fee_minus_distributions: ((QUOTE_PRECISION * 99999) as i128),
 

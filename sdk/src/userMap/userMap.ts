@@ -10,7 +10,6 @@ import {
 	OrderActionRecord,
 	SettlePnlRecord,
 	NewUserRecord,
-	LPRecord,
 	StateAccount,
 } from '../types';
 import { WrappedEvent } from '../events/types';
@@ -345,9 +344,6 @@ export class UserMap implements UserMapInterface {
 		} else if (record.eventType === 'NewUserRecord') {
 			const newUserRecord = record as NewUserRecord;
 			await this.mustGet(newUserRecord.user.toString());
-		} else if (record.eventType === 'LPRecord') {
-			const lpRecord = record as LPRecord;
-			await this.mustGet(lpRecord.user.toString());
 		}
 	}
 

@@ -111,8 +111,8 @@ impl<'a> PerpMarketMap<'a> {
                 break;
             }
 
-            // market index 1176 bytes from front of account
-            let market_index = u16::from_le_bytes(*array_ref![data, 1176, 2]);
+            // market index 1112 bytes from front of account
+            let market_index = u16::from_le_bytes(*array_ref![data, 1112, 2]);
 
             if perp_market_map.0.contains_key(&market_index) {
                 msg!("Can not include same market index twice {}", market_index);
@@ -160,8 +160,8 @@ impl<'a> PerpMarketMap<'a> {
             return Err(ErrorCode::CouldNotLoadMarketData);
         }
 
-        // market index 1160 bytes from front of account
-        let market_index = u16::from_le_bytes(*array_ref![data, 1176, 2]);
+        // market index 1112 bytes from front of account
+        let market_index = u16::from_le_bytes(*array_ref![data, 1112, 2]);
 
         let is_writable = account_info.is_writable;
         let account_loader: AccountLoader<PerpMarket> =
@@ -203,8 +203,8 @@ impl<'a> PerpMarketMap<'a> {
                 return Err(ErrorCode::CouldNotLoadMarketData);
             }
 
-            // market index 1176 bytes from front of account
-            let market_index = u16::from_le_bytes(*array_ref![data, 1176, 2]);
+            // market index 1112 bytes from front of account
+            let market_index = u16::from_le_bytes(*array_ref![data, 1112, 2]);
 
             let is_writable = account_info.is_writable;
             let account_loader: AccountLoader<PerpMarket> =

@@ -460,24 +460,6 @@ export declare type InsuranceFundStakeRecord = {
 	totalIfSharesAfter: BN;
 };
 
-export type LPRecord = {
-	ts: BN;
-	user: PublicKey;
-	action: LPAction;
-	nShares: BN;
-	marketIndex: number;
-	deltaBaseAssetAmount: BN;
-	deltaQuoteAssetAmount: BN;
-	pnl: BN;
-};
-
-export class LPAction {
-	static readonly ADD_LIQUIDITY = { addLiquidity: {} };
-	static readonly REMOVE_LIQUIDITY = { removeLiquidity: {} };
-	static readonly SETTLE_LIQUIDITY = { settleLiquidity: {} };
-	static readonly REMOVE_LIQUIDITY_DERISK = { removeLiquidityDerisk: {} };
-}
-
 export type FundingRateRecord = {
 	ts: BN;
 	recordId: BN;
@@ -491,7 +473,6 @@ export type FundingRateRecord = {
 	markPriceTwap: BN;
 	periodRevenue: BN;
 	baseAssetAmountWithAmm: BN;
-	baseAssetAmountWithUnsettledLp: BN;
 };
 
 export type FundingPaymentRecord = {
@@ -549,7 +530,6 @@ export type LiquidatePerpRecord = {
 	oraclePrice: BN;
 	baseAssetAmount: BN;
 	quoteAssetAmount: BN;
-	lpShares: BN;
 	userOrderId: BN;
 	liquidatorOrderId: BN;
 	fillRecordId: BN;
@@ -1079,8 +1059,6 @@ export type AMM = {
 	totalFeeWithdrawn: BN;
 	totalFee: BN;
 	mmOracleSequenceId: BN;
-	userLpShares: BN;
-	baseAssetAmountWithUnsettledLp: BN;
 	orderStepSize: BN;
 	orderTickSize: BN;
 	maxFillReserveFraction: number;
@@ -1105,10 +1083,6 @@ export type AMM = {
 	longSpread: number;
 	shortSpread: number;
 	maxSpread: number;
-
-	baseAssetAmountPerLp: BN;
-	quoteAssetAmountPerLp: BN;
-	targetBaseAssetAmountPerLp: number;
 
 	ammJitIntensity: number;
 	maxOpenInterest: BN;
@@ -1135,9 +1109,7 @@ export type AMM = {
 	askBaseAssetReserve: BN;
 	askQuoteAssetReserve: BN;
 
-	perLpBase: number; // i8
 	netUnsettledFundingPnl: BN;
-	quoteAssetAmountWithUnsettledLp: BN;
 	referencePriceOffset: number;
 
 	oracleLowRiskSlotDelayOverride: number;
@@ -1161,11 +1133,9 @@ export type PerpPosition = {
 	openBids: BN;
 	openAsks: BN;
 	settledPnl: BN;
-	lpShares: BN;
 	/**	 TODO: remove this field - it doesn't exist on chain */
 	remainderBaseAssetAmount: number;
 	maxMarginRatio: number;
-	lastQuoteAssetAmountPerLp: BN;
 	positionFlag: number;
 	isolatedPositionScaledBalance: BN;
 };
@@ -1229,7 +1199,6 @@ export type UserAccount = {
 	nextLiquidationId: number;
 	nextOrderId: number;
 	maxMarginRatio: number;
-	lastAddPerpLpSharesTs: BN;
 	settledPerpPnl: BN;
 	totalDeposits: BN;
 	totalWithdraws: BN;

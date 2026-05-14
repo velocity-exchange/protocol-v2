@@ -102,11 +102,6 @@ function testUserAccountDecode(program: Program, buffer: Buffer, i: number) {
 		testOrder(anchorOrder, customOrder);
 	}
 
-	assert(
-		anchorUserAccount.lastAddPerpLpSharesTs.eq(
-			customUserAccount.lastAddPerpLpSharesTs
-		)
-	);
 	assert(anchorUserAccount.totalDeposits.eq(customUserAccount.totalDeposits));
 	assert(anchorUserAccount.totalWithdraws.eq(customUserAccount.totalWithdraws));
 	assert(
@@ -185,8 +180,6 @@ function testPerpPosition(anchor: PerpPosition, custom: PerpPosition) {
 	assert(anchor.openBids.eq(custom.openBids));
 	assert(anchor.openAsks.eq(custom.openAsks));
 	assert(anchor.settledPnl.eq(custom.settledPnl));
-	assert(anchor.lpShares.eq(custom.lpShares));
-	assert(anchor.lastQuoteAssetAmountPerLp.eq(custom.lastQuoteAssetAmountPerLp));
 	assert(anchor.openOrders === custom.openOrders);
 	assert(
 		anchor.isolatedPositionScaledBalance.eq(

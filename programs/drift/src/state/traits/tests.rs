@@ -77,15 +77,15 @@ mod size {
 /// * **PerpMarket / AMM** – zero-copy (`#[account(zero_copy)]`), so the on-chain bytes are the
 ///   raw `repr(C)` memory layout.  Use `std::mem::offset_of!(AMM, field) + 8` (discriminator).
 ///
-/// * **State** – regular `#[account]` (borsh-serialised).  On-chain bytes are sequential with
-///   *no* alignment padding.  Use a borsh round-trip to locate the field, not `offset_of!`.
+/// * **State** – zero-copy (`#[account(zero_copy(unsafe))]` + `#[repr(C)]`), so the on-chain
+///   bytes are the raw `repr(C)` memory layout. Use `std::mem::offset_of!(State, field) + 8`
+///   (discriminator).
 ///
 /// If either test fails after a struct change, update the corresponding literal in admin.rs AND
 /// the expected value here together.
 mod native_instruction_offsets {
     use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::state::State;
-    use anchor_lang::AnchorSerialize;
 
     const DISC: usize = 8; // Anchor 8-byte account discriminator
 
@@ -95,35 +95,35 @@ mod native_instruction_offsets {
         let amm_start = DISC + std::mem::offset_of!(PerpMarket, amm);
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_slot),
-            840,
+            776,
             "mm_oracle_slot offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_price),
-            920,
+            856,
             "mm_oracle_price offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_sequence_id),
-            944,
+            880,
             "mm_oracle_sequence_id offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, amm_spread_adjustment),
-            942,
+            873,
             "amm_spread_adjustment offset changed — update handle_update_amm_spread_adjustment_native"
         );
     }
 
     /// State is zero-copy with `#[repr(C)]`; on-chain bytes match `mem::offset_of!`.
     /// After folding the admin authority config into State (cold/warm/pause + 11 hot
-    /// pubkeys at the top), feature_bit_flags lives at byte 1414 (offset 1406 + 8
-    /// discriminator).
+    /// pubkeys at the top) and removing `lp_cooldown_time`, feature_bit_flags lives at
+    /// byte 1406 (offset 1398 + 8 discriminator).
     #[test]
     fn state_feature_bit_flags_offset() {
         assert_eq!(
             std::mem::offset_of!(State, feature_bit_flags) + DISC,
-            1414,
+            1406,
             "State::feature_bit_flags offset changed — update handle_update_mm_oracle_native"
         );
     }

@@ -1,108 +1,112 @@
-use std::cell::RefMut;
-use std::convert::TryFrom;
+use std::{cell::RefMut, convert::TryFrom};
 
-use anchor_lang::prelude::*;
-use anchor_lang::Discriminator;
-use anchor_spl::associated_token::get_associated_token_address_with_program_id;
-use anchor_spl::token_interface::{TokenAccount, TokenInterface};
-use solana_program::instruction::Instruction;
-use solana_program::pubkey;
-use solana_program::sysvar::instructions::{
-    self, load_current_index_checked, load_instruction_at_checked, ID as IX_ID,
+use anchor_lang::{prelude::*, Discriminator};
+use anchor_spl::{
+    associated_token::{get_associated_token_address_with_program_id, AssociatedToken},
+    token_interface::{TokenAccount, TokenInterface},
 };
-
-use crate::auth::check_hot;
-use crate::controller::insurance::update_user_stats_if_stake_amount;
-use crate::controller::isolated_position::transfer_isolated_perp_position_deposit;
-use crate::controller::liquidation::{
-    liquidate_spot_with_swap_begin, liquidate_spot_with_swap_end,
+use solana_program::{
+    instruction::Instruction,
+    pubkey,
+    sysvar::instructions::{
+        self, load_current_index_checked, load_instruction_at_checked, ID as IX_ID,
+    },
 };
-use crate::controller::orders::cancel_orders;
-use crate::controller::orders::{
-    validate_market_within_price_band, validate_spot_dlob_trading_enabled_for_market_type,
-};
-use crate::controller::position::get_position_index;
-use crate::controller::position::PositionDirection;
-use crate::controller::spot_balance::update_spot_balances;
-use crate::controller::token::{receive, send_from_program_vault};
-use crate::error::ErrorCode;
-use crate::get_then_update_id;
-use crate::ids::{
-    dflow_mainnet_aggregator_4, jupiter_mainnet_3, jupiter_mainnet_4, jupiter_mainnet_6,
-    serum_program, titan_mainnet_argos_v1,
-};
-use crate::instructions::constraints::*;
-use crate::instructions::optional_accounts::get_revenue_share_escrow_account;
-use crate::instructions::optional_accounts::{load_maps, AccountMaps};
-use crate::load_mut;
-use crate::math::casting::Cast;
-use crate::math::constants::{
-    BID_ASK_TWAP_MAX_ORACLE_DIVERGENCE_PERCENT, GOV_SPOT_MARKET_INDEX, QUOTE_PRECISION_I128,
-    QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX,
-};
-use crate::math::lp_pool::perp_lp_pool_settlement;
-use crate::math::margin::{calculate_user_equity, meets_settle_pnl_maintenance_margin_requirement};
-use crate::math::orders::{
-    estimate_price_from_side, filter_bids_asks_by_oracle_divergence, find_bids_and_asks_from_users,
-};
-use crate::math::position::calculate_base_asset_value_and_pnl_with_oracle_price;
-use crate::math::safe_math::SafeMath;
-use crate::math::spot_balance::get_token_amount;
-use crate::math::spot_withdraw::validate_spot_market_vault_amount;
-use crate::optional_accounts::{get_token_mint, update_prelaunch_oracle};
-use crate::signer::get_signer_seeds;
-use crate::state::amm_cache::CacheInfo;
-use crate::state::events::LPSettleRecord;
-use crate::state::events::{DeleteUserRecord, OrderActionExplanation, SignedMsgOrderRecord};
-use crate::state::fill_mode::FillMode;
-use crate::state::insurance_fund_stake::InsuranceFundStake;
-use crate::state::lp_pool::Constituent;
-use crate::state::lp_pool::LPPool;
-use crate::state::lp_pool::CONSTITUENT_PDA_SEED;
-use crate::state::lp_pool::SETTLE_AMM_ORACLE_MAX_DELAY;
-use crate::state::market_status::MarketStatus;
-use crate::state::oracle_map::OracleMap;
-use crate::state::order_params::{OrderParams, PlaceOrderOptions};
-use crate::state::paused_operations::PerpLpOperation;
-use crate::state::paused_operations::{PerpOperation, SpotOperation};
-use crate::state::perp_market::PerpMarket;
-use crate::state::perp_market_map::{
-    get_market_set_for_spot_positions, get_market_set_for_user_positions, get_market_set_from_list,
-    get_writable_perp_market_set, get_writable_perp_market_set_from_vec, MarketSet, PerpMarketMap,
-};
-use crate::state::revenue_share::RevenueShareEscrowZeroCopyMut;
-use crate::state::revenue_share::RevenueShareOrder;
-use crate::state::revenue_share::RevenueShareOrderBitFlag;
-use crate::state::revenue_share_map::load_revenue_share_map;
-use crate::state::settle_pnl_mode::SettlePnlMode;
-use crate::state::signed_msg_user::{
-    SignedMsgOrderId, SignedMsgUserOrdersLoader, SignedMsgUserOrdersZeroCopyMut,
-    SIGNED_MSG_PDA_SEED,
-};
-use crate::state::spot_market::{SpotBalanceType, SpotMarket};
-use crate::state::spot_market_map::{
-    get_writable_spot_market_set, get_writable_spot_market_set_from_many, SpotMarketMap,
-};
-use crate::state::state::HotRole;
-use crate::state::state::State;
-use crate::state::user::{
-    MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats,
-};
-use crate::state::user_map::{load_user_map, load_user_maps};
-use crate::state::zero_copy::AccountZeroCopyMut;
-use crate::state::zero_copy::ZeroCopyLoader;
-use crate::validate;
-use crate::validation::sig_verification::verify_and_decode_ed25519_msg;
-use crate::validation::user::{validate_user_deletion, validate_user_is_idle};
-use crate::{controller, load, math, print_error, safe_decrement, OracleSource};
-use crate::{math_error, ID};
-use anchor_spl::associated_token::AssociatedToken;
-
-use crate::math::margin::calculate_margin_requirement_and_total_collateral_and_liability_info;
-use crate::math::margin::MarginRequirementType;
-use crate::state::margin_calculation::MarginContext;
 
 use super::optional_accounts::get_token_interface;
+use crate::{
+    auth::check_hot,
+    controller,
+    controller::{
+        insurance::update_user_stats_if_stake_amount,
+        isolated_position::transfer_isolated_perp_position_deposit,
+        liquidation::{liquidate_spot_with_swap_begin, liquidate_spot_with_swap_end},
+        orders::{
+            cancel_orders, validate_market_within_price_band,
+            validate_spot_dlob_trading_enabled_for_market_type,
+        },
+        position::{get_position_index, PositionDirection},
+        spot_balance::update_spot_balances,
+        token::{receive, send_from_program_vault},
+    },
+    error::ErrorCode,
+    get_then_update_id,
+    ids::{
+        admin_hot_wallet, dflow_mainnet_aggregator_4, jupiter_mainnet_3, jupiter_mainnet_4,
+        jupiter_mainnet_6, serum_program, titan_mainnet_argos_v1,
+    },
+    instructions::{
+        constraints::*,
+        optional_accounts::{get_revenue_share_escrow_account, load_maps, AccountMaps},
+    },
+    load, load_mut, math,
+    math::{
+        casting::Cast,
+        constants::{
+            BID_ASK_TWAP_MAX_ORACLE_DIVERGENCE_PERCENT, GOV_SPOT_MARKET_INDEX,
+            QUOTE_PRECISION_I128, QUOTE_PRECISION_U64, QUOTE_SPOT_MARKET_INDEX,
+        },
+        lp_pool::perp_lp_pool_settlement,
+        margin::{
+            calculate_margin_requirement_and_total_collateral_and_liability_info,
+            calculate_user_equity, meets_settle_pnl_maintenance_margin_requirement,
+            MarginRequirementType,
+        },
+        orders::{
+            estimate_price_from_side, filter_bids_asks_by_oracle_divergence,
+            find_bids_and_asks_from_users,
+        },
+        position::calculate_base_asset_value_and_pnl_with_oracle_price,
+        safe_math::SafeMath,
+        spot_balance::get_token_amount,
+        spot_withdraw::validate_spot_market_vault_amount,
+    },
+    math_error,
+    optional_accounts::{get_token_mint, update_prelaunch_oracle},
+    print_error, safe_decrement,
+    signer::get_signer_seeds,
+    state::{
+        amm_cache::CacheInfo,
+        events::{DeleteUserRecord, LPSettleRecord, OrderActionExplanation, SignedMsgOrderRecord},
+        fill_mode::FillMode,
+        insurance_fund_stake::InsuranceFundStake,
+        lp_pool::{Constituent, LPPool, CONSTITUENT_PDA_SEED, SETTLE_AMM_ORACLE_MAX_DELAY},
+        margin_calculation::MarginContext,
+        market_status::MarketStatus,
+        oracle_map::OracleMap,
+        order_params::{OrderParams, PlaceOrderOptions},
+        paused_operations::{PerpLpOperation, PerpOperation, SpotOperation},
+        perp_market::PerpMarket,
+        perp_market_map::{
+            get_market_set_for_spot_positions, get_market_set_for_user_positions,
+            get_market_set_from_list, get_writable_perp_market_set,
+            get_writable_perp_market_set_from_vec, MarketSet, PerpMarketMap,
+        },
+        revenue_share::{
+            RevenueShareEscrowZeroCopyMut, RevenueShareOrder, RevenueShareOrderBitFlag,
+        },
+        revenue_share_map::load_revenue_share_map,
+        settle_pnl_mode::SettlePnlMode,
+        signed_msg_user::{
+            SignedMsgOrderId, SignedMsgUserOrdersLoader, SignedMsgUserOrdersZeroCopyMut,
+            SIGNED_MSG_PDA_SEED,
+        },
+        spot_market::{SpotBalanceType, SpotMarket},
+        spot_market_map::{
+            get_writable_spot_market_set, get_writable_spot_market_set_from_many, SpotMarketMap,
+        },
+        state::{HotRole, State},
+        user::{MarketType, OrderStatus, OrderTriggerCondition, OrderType, User, UserStats},
+        user_map::{load_user_map, load_user_maps},
+        zero_copy::{AccountZeroCopyMut, ZeroCopyLoader},
+    },
+    validate,
+    validation::{
+        sig_verification::verify_and_decode_ed25519_msg,
+        user::{validate_user_deletion, validate_user_is_idle},
+    },
+    OracleSource, ID,
+};
 
 #[access_control(
     fill_not_paused(&ctx.accounts.state)
@@ -3624,13 +3628,6 @@ pub struct PlaceSignedMsgTakerOrder<'info> {
 
 #[derive(Accounts)]
 pub struct SettleFunding<'info> {
-    pub state: AccountLoader<'info, State>,
-    #[account(mut)]
-    pub user: AccountLoader<'info, User>,
-}
-
-#[derive(Accounts)]
-pub struct SettleLP<'info> {
     pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,

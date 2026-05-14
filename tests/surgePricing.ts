@@ -181,7 +181,7 @@ describe('surge pricing', () => {
 			const accountInfo = await bankrunContextWrapper.connection.getAccountInfo(
 				userAccount
 			);
-			const baseLamports = 31347840;
+			const baseLamports = 30401280;
 			console.log('expected fee', expectedFee.toNumber());
 			if (i === 4) {
 				// assert(expectedFee.toNumber() === LAMPORTS_PER_SOL / 100);

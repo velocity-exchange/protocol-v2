@@ -1,47 +1,53 @@
-use crate::msg;
-use crate::state::fill_mode::FillMode;
-use crate::state::market_status::MarketStatus;
-use crate::state::pyth_lazer_oracle::PythLazerOracle;
-use crate::state::user::{MarketType, Order};
-use anchor_lang::prelude::*;
-
-use crate::state::state::{State, ValidityGuardRails};
 use std::cmp::max;
 
-use crate::controller::position::PositionDirection;
-use crate::error::{DriftResult, ErrorCode};
-use crate::math::amm::{self};
-use crate::math::casting::Cast;
+use anchor_lang::prelude::{
+    borsh::{BorshDeserialize, BorshSerialize},
+    *,
+};
+
+use super::{oracle_map::OracleIdentifier, protected_maker_mode_config::ProtectedMakerParams};
 #[cfg(test)]
 use crate::math::constants::{AMM_RESERVE_PRECISION, MAX_CONCENTRATION_COEFFICIENT};
-use crate::math::constants::{
-    AMM_TO_QUOTE_PRECISION_RATIO, BID_ASK_SPREAD_PRECISION, BID_ASK_SPREAD_PRECISION_I128,
-    BID_ASK_SPREAD_PRECISION_U128, DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT,
-    FUNDING_RATE_BUFFER_I128, FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
-    MARGIN_PRECISION, MARGIN_PRECISION_U128, MAX_LIQUIDATION_MULTIPLIER, PERCENTAGE_PRECISION,
-    PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_I64, PERCENTAGE_PRECISION_U64, PRICE_PRECISION,
-    PRICE_PRECISION_I128, SPOT_WEIGHT_PRECISION, TWENTY_FOUR_HOUR,
-};
-use crate::math::margin::{
-    calculate_size_discount_asset_weight, calculate_size_premium_liability_weight,
-    MarginRequirementType,
-};
-use crate::math::safe_math::SafeMath;
-use crate::math::stats;
-
-use crate::state::oracle::{
-    get_prelaunch_price, HistoricalOracleData, MMOraclePriceData, OraclePriceData, OracleSource,
-};
-use crate::state::spot_market::{AssetTier, SpotBalance, SpotBalanceType};
-use crate::state::traits::{MarketIndexOffset, Size};
-use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
-
-use crate::state::paused_operations::PerpOperation;
-
-use super::oracle_map::OracleIdentifier;
-use super::protected_maker_mode_config::ProtectedMakerParams;
-use crate::math::oracle::{
-    is_oracle_valid_for_action, oracle_validity, DriftAction, LogMode, OracleValidity,
+use crate::{
+    controller::position::PositionDirection,
+    error::{DriftResult, ErrorCode},
+    math::{
+        amm::{self},
+        casting::Cast,
+        constants::{
+            AMM_TO_QUOTE_PRECISION_RATIO, BID_ASK_SPREAD_PRECISION, BID_ASK_SPREAD_PRECISION_I128,
+            BID_ASK_SPREAD_PRECISION_U128, DEFAULT_REVENUE_SINCE_LAST_FUNDING_SPREAD_RETREAT,
+            FUNDING_RATE_BUFFER_I128, FUNDING_RATE_OFFSET_PERCENTAGE, LIQUIDATION_FEE_PRECISION,
+            MARGIN_PRECISION, MARGIN_PRECISION_U128, MAX_LIQUIDATION_MULTIPLIER,
+            PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_I64,
+            PERCENTAGE_PRECISION_U64, PRICE_PRECISION, PRICE_PRECISION_I128, SPOT_WEIGHT_PRECISION,
+            TWENTY_FOUR_HOUR,
+        },
+        margin::{
+            calculate_size_discount_asset_weight, calculate_size_premium_liability_weight,
+            MarginRequirementType,
+        },
+        oracle::{
+            is_oracle_valid_for_action, oracle_validity, DriftAction, LogMode, OracleValidity,
+        },
+        safe_math::SafeMath,
+        stats,
+    },
+    msg,
+    state::{
+        fill_mode::FillMode,
+        market_status::MarketStatus,
+        oracle::{
+            get_prelaunch_price, HistoricalOracleData, MMOraclePriceData, OraclePriceData,
+            OracleSource,
+        },
+        paused_operations::PerpOperation,
+        pyth_lazer_oracle::PythLazerOracle,
+        spot_market::{AssetTier, SpotBalance, SpotBalanceType},
+        state::{State, ValidityGuardRails},
+        traits::{MarketIndexOffset, Size},
+        user::{MarketType, Order},
+    },
 };
 
 #[cfg(test)]
@@ -268,7 +274,7 @@ impl Default for PerpMarket {
 }
 
 impl Size for PerpMarket {
-    const SIZE: usize = 1240;
+    const SIZE: usize = 1176;
 }
 
 impl MarketIndexOffset for PerpMarket {
@@ -279,7 +285,7 @@ impl MarketIndexOffset for PerpMarket {
     // declared content is 1232 bytes (a multiple of 16), making sizeof(PerpMarket)
     // == 1232 on both architectures.  market_index is at struct byte 1168,
     // account byte 1176 on both.
-    const MARKET_INDEX_OFFSET: usize = 1176;
+    const MARKET_INDEX_OFFSET: usize = 1112;
 }
 
 impl PerpMarket {
@@ -964,12 +970,6 @@ pub struct AMM {
     pub oracle: Pubkey,
     /// stores historically witnessed oracle data
     pub historical_oracle_data: HistoricalOracleData,
-    /// accumulated base asset amount since inception per lp share
-    /// precision: QUOTE_PRECISION
-    pub base_asset_amount_per_lp: i128,
-    /// accumulated quote asset amount since inception per lp share
-    /// precision: QUOTE_PRECISION
-    pub quote_asset_amount_per_lp: i128,
     /// partition of fees from perp market trading moved from pnl settlements
     pub fee_pool: PoolBalance,
     /// `x` reserves for constant product mm formula (x * y = k)
@@ -1006,9 +1006,6 @@ pub struct AMM {
     /// tracks net position (longs-shorts) in market with AMM as counterparty
     /// precision: BASE_PRECISION
     pub base_asset_amount_with_amm: i128,
-    /// tracks net position (longs-shorts) in market with LPs as counterparty
-    /// precision: BASE_PRECISION
-    pub base_asset_amount_with_unsettled_lp: i128,
     /// max allowed open interest, blocks trades that breach this value
     /// precision: BASE_PRECISION
     pub max_open_interest: u128,
@@ -1027,9 +1024,6 @@ pub struct AMM {
     /// sum of all short user's quote_break_even_amount in market
     /// precision: QUOTE_PRECISION
     pub quote_break_even_amount_short: i128,
-    /// total user lp shares of sqrt_k (protocol owned liquidity = sqrt_k - last_funding_rate)
-    /// precision: AMM_RESERVE_PRECISION
-    pub user_lp_shares: u128,
     /// last funding rate in this perp market (unit is quote per base)
     /// precision: FUNDING_RATE_PRECISION
     pub last_funding_rate: i64,
@@ -1152,32 +1146,30 @@ pub struct AMM {
     /// the update intensity of AMM formulaic updates (adjusting k). 0-100
     pub curve_update_intensity: u8,
     /// the jit intensity of AMM. larger intensity means larger participation in jit. 0 means no jit participation.
-    /// (0, 100] is intensity for protocol-owned AMM. (100, 200] is intensity for user LP-owned AMM.
+    /// (0, 100] is intensity for protocol-owned AMM.
     pub amm_jit_intensity: u8,
     /// the oracle provider information. used to decode/scale the oracle public key
     pub oracle_source: OracleSource,
     /// tracks whether the oracle was considered valid at the last AMM update
     pub last_oracle_valid: bool,
-    /// the target value for `base_asset_amount_per_lp`, used during AMM JIT with LP split
-    /// precision: BASE_PRECISION
-    pub target_base_asset_amount_per_lp: i32,
-    /// expo for unit of per_lp, base 10 (if per_lp_base=X, then per_lp unit is 10^X)
-    pub per_lp_base: i8,
     /// the override for the state.min_perp_auction_duration
     /// 0 is no override, -1 is disable speed bump, 1-100 is literal speed bump
     pub oracle_low_risk_slot_delay_override: i8,
     /// signed scale amm_spread similar to fee_adjustment logic (-100 = 0, 100 = double)
     pub amm_spread_adjustment: i8,
     pub oracle_slot_delay_override: i8,
+    /// alignment padding for the following u64 (Rust would otherwise insert 5 implicit bytes here)
+    pub padding_pre_mm_oracle_sequence: [u8; 5],
     pub mm_oracle_sequence_id: u64,
     pub net_unsettled_funding_pnl: i64,
-    pub quote_asset_amount_with_unsettled_lp: i64,
     pub reference_price_offset: i32,
     /// signed scale amm_spread similar to fee_adjustment logic (-100 = 0, 100 = double)
     pub amm_inventory_spread_adjustment: i8,
     pub reference_price_offset_deadband_pct: u8,
-    pub padding: [u8; 2],
+    pub padding_pre_last_funding: [u8; 2],
     pub last_funding_oracle_twap: i64,
+    /// trailing alignment padding (struct alignment is 16 due to u128 fields)
+    pub padding_trailing: [u8; 8],
 }
 
 impl Default for AMM {
@@ -1185,8 +1177,6 @@ impl Default for AMM {
         AMM {
             oracle: Pubkey::default(),
             historical_oracle_data: HistoricalOracleData::default(),
-            base_asset_amount_per_lp: 0,
-            quote_asset_amount_per_lp: 0,
             fee_pool: PoolBalance::default(),
             base_asset_reserve: 0,
             quote_asset_reserve: 0,
@@ -1199,14 +1189,12 @@ impl Default for AMM {
             base_asset_amount_long: 0,
             base_asset_amount_short: 0,
             base_asset_amount_with_amm: 0,
-            base_asset_amount_with_unsettled_lp: 0,
             max_open_interest: 0,
             quote_asset_amount: 0,
             quote_entry_amount_long: 0,
             quote_entry_amount_short: 0,
             quote_break_even_amount_long: 0,
             quote_break_even_amount_short: 0,
-            user_lp_shares: 0,
             last_funding_rate: 0,
             last_funding_rate_long: 0,
             last_funding_rate_short: 0,
@@ -1257,19 +1245,18 @@ impl Default for AMM {
             amm_jit_intensity: 0,
             oracle_source: OracleSource::default(),
             last_oracle_valid: false,
-            target_base_asset_amount_per_lp: 0,
-            per_lp_base: 0,
             oracle_low_risk_slot_delay_override: 0,
             amm_spread_adjustment: 0,
             oracle_slot_delay_override: -1,
+            padding_pre_mm_oracle_sequence: [0; 5],
             mm_oracle_sequence_id: 0,
             net_unsettled_funding_pnl: 0,
-            quote_asset_amount_with_unsettled_lp: 0,
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
-            padding: [0; 2],
+            padding_pre_last_funding: [0; 2],
             last_funding_oracle_twap: 0,
+            padding_trailing: [0; 8],
         }
     }
 }

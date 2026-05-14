@@ -1,17 +1,30 @@
-use crate::controller::spot_balance::execute_transfer_between_pools;
-use crate::{msg, FeatureBitFlags};
+use std::{
+    convert::{identity, TryInto},
+    mem::size_of,
+};
+
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::Token2022;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
+use anchor_spl::{
+    token_2022::{
+        spl_token_2022::{
+            extension::{
+                transfer_hook::TransferHook, BaseStateWithExtensions, StateWithExtensions,
+            },
+            state::Mint as MintInner,
+        },
+        Token2022,
+    },
+    token_interface::{Mint, TokenAccount, TokenInterface},
+};
 use phoenix::quantities::WrapperU64;
-use std::convert::{identity, TryInto};
-use std::mem::size_of;
 
 use crate::auth::{check_hot, check_pause, check_warm, require_pause_only_added};
 use crate::controller;
+use crate::controller::spot_balance::execute_transfer_between_pools;
 use crate::controller::token::{close_vault, initialize_immutable_owner, initialize_token_account};
 use crate::error::ErrorCode;
 use crate::get_then_update_id;
+use crate::ids::{admin_hot_wallet, amm_spread_adjust_wallet, mm_oracle_crank_wallet};
 use crate::instructions::constraints::*;
 use crate::instructions::optional_accounts::{load_maps, AccountMaps};
 use crate::load;
@@ -81,13 +94,7 @@ use crate::validation::fee_structure::validate_fee_structure;
 use crate::validation::margin::{validate_margin, validate_margin_weights};
 use crate::validation::perp_market::validate_perp_market;
 use crate::validation::spot_market::validate_borrow_rate;
-use crate::{math, safe_decrement, safe_increment};
-
-use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHook;
-use anchor_spl::token_2022::spl_token_2022::extension::{
-    BaseStateWithExtensions, StateWithExtensions,
-};
-use anchor_spl::token_2022::spl_token_2022::state::Mint as MintInner;
+use crate::{math, msg, safe_decrement, safe_increment, FeatureBitFlags};
 
 fn validate_supported_market_oracle_source(oracle_source: OracleSource) -> Result<()> {
     if matches!(
@@ -144,7 +151,6 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
         srm_vault: Pubkey::default(),
         perp_fee_structure: FeeStructure::perps_default(),
         spot_fee_structure: FeeStructure::spot_default(),
-        lp_cooldown_time: 0,
         liquidation_duration: 0,
         initial_pct_to_liquidate: 0,
         max_number_of_sub_accounts: 0,
@@ -1072,29 +1078,23 @@ pub fn handle_initialize_perp_market(
             last_trade_ts: now,
             curve_update_intensity,
             fee_pool: PoolBalance::default(),
-            base_asset_amount_per_lp: 0,
-            quote_asset_amount_per_lp: 0,
             last_update_slot: clock_slot,
 
-            // lp stuff
-            base_asset_amount_with_unsettled_lp: 0,
-            user_lp_shares: 0,
             amm_jit_intensity,
 
             last_oracle_valid: false,
-            target_base_asset_amount_per_lp: 0,
-            per_lp_base: 0,
             oracle_slot_delay_override: -1,
             oracle_low_risk_slot_delay_override: 0,
             amm_spread_adjustment: 0,
+            padding_pre_mm_oracle_sequence: [0; 5],
             mm_oracle_sequence_id: 0,
             net_unsettled_funding_pnl: 0,
-            quote_asset_amount_with_unsettled_lp: 0,
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
-            padding: [0; 2],
+            padding_pre_last_funding: [0; 2],
             last_funding_oracle_twap: 0,
+            padding_trailing: [0; 8],
         },
     };
 
@@ -1738,8 +1738,6 @@ pub fn handle_recenter_perp_market_amm_crank(
 
 #[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub struct UpdatePerpMarketSummaryStatsParams {
-    // new aggregate unsettled user stats
-    pub quote_asset_amount_with_unsettled_lp: Option<i64>,
     pub net_unsettled_funding_pnl: Option<i64>,
     pub update_amm_summary_stats: Option<bool>,
     pub exclude_total_liq_fee: Option<bool>,
@@ -1773,16 +1771,6 @@ pub fn handle_update_perp_market_amm_summary_stats(
         price: oracle_price,
         ..
     } = get_oracle_price(&perp_market.amm.oracle_source, price_oracle, clock.slot)?;
-
-    if let Some(quote_asset_amount_with_unsettled_lp) = params.quote_asset_amount_with_unsettled_lp
-    {
-        msg!(
-            "quote_asset_amount_with_unsettled_lp {} -> {}",
-            perp_market.amm.quote_asset_amount_with_unsettled_lp,
-            quote_asset_amount_with_unsettled_lp
-        );
-        perp_market.amm.quote_asset_amount_with_unsettled_lp = quote_asset_amount_with_unsettled_lp;
-    }
 
     if let Some(net_unsettled_funding_pnl) = params.net_unsettled_funding_pnl {
         msg!(
@@ -3808,7 +3796,7 @@ pub fn handle_update_amm_jit_intensity(
     amm_jit_intensity: u8,
 ) -> Result<()> {
     validate!(
-        (0..=200).contains(&amm_jit_intensity),
+        (0..=100).contains(&amm_jit_intensity),
         ErrorCode::DefaultError,
         "invalid amm_jit_intensity",
     )?;
@@ -4915,9 +4903,9 @@ pub fn handle_zero_mm_oracle_fields(ctx: Context<HotAdminUpdatePerpMarket>) -> R
 pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> Result<()> {
     // Verify this ix is allowed. State byte offsets (from discriminator start):
     //   hot_mm_oracle_crank: 392..424
-    //   feature_bit_flags:   1414
+    //   feature_bit_flags:   1406
     let state = &accounts[3].data.borrow();
-    assert!(state[1414] & 1 > 0, "ix disabled by admin state");
+    assert!(state[1406] & 1 > 0, "ix disabled by admin state");
 
     let signer_account = &accounts[1];
     #[cfg(not(feature = "anchor-test"))]
@@ -4935,7 +4923,7 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
 
     let mut perp_market = accounts[0].data.borrow_mut();
     // Account offsets verified via offset_of!(AMM, field) + 8 discriminator bytes.
-    let perp_market_sequence_id = u64::from_le_bytes(perp_market[944..952].try_into().unwrap());
+    let perp_market_sequence_id = u64::from_le_bytes(perp_market[880..888].try_into().unwrap());
     let incoming_sequence_id = u64::from_le_bytes(data[8..16].try_into().unwrap());
 
     if &data[0..8] == &[0u8; 8] {
@@ -4947,9 +4935,9 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
         let clock_account = &accounts[2];
         let clock_data = clock_account.data.borrow();
 
-        perp_market[840..848].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
-        perp_market[920..928].copy_from_slice(&data[0..8]); // mm_oracle_price
-        perp_market[944..952].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
+        perp_market[776..784].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
+        perp_market[856..864].copy_from_slice(&data[0..8]); // mm_oracle_price
+        perp_market[880..888].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
     }
 
     Ok(())
@@ -4976,7 +4964,7 @@ pub fn handle_update_amm_spread_adjustment_native(
         );
     }
     let mut perp_market = accounts[0].data.borrow_mut();
-    perp_market[942..943].copy_from_slice(&[data[0]]); // amm_spread_adjustment
+    perp_market[873..874].copy_from_slice(&[data[0]]); // amm_spread_adjustment
 
     Ok(())
 }
