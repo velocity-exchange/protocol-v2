@@ -5419,7 +5419,6 @@ export class DriftClient {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
 	}
 
-
 	/**
 	 * Swap tokens in drift account using titan or jupiter
 	 * @param swapClient swap client to find routes and instructions (Titan or Jupiter)
