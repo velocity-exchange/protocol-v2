@@ -20,7 +20,7 @@ env:
   # solanafoundation/solana-verifiable-build tags lag behind agave releases;
   # check https://hub.docker.com/r/solanafoundation/solana-verifiable-build/tags
   # for the latest available tag before bumping SOLANA_VERSION above.
-  VERIFIABLE_BUILD_IMAGE: solanafoundation/solana-verifiable-build:v2.3.11
+  VERIFIABLE_BUILD_IMAGE: solanafoundation/solana-verifiable-build:2.3.11
 
 jobs:
   fmt-clippy:
