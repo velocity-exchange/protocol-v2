@@ -20,7 +20,12 @@ env:
   # solanafoundation/solana-verifiable-build tags lag behind agave releases;
   # check https://hub.docker.com/r/solanafoundation/solana-verifiable-build/tags
   # for the latest available tag before bumping SOLANA_VERSION above.
-  VERIFIABLE_BUILD_IMAGE: solanafoundation/solana-verifiable-build:2.3.11
+  # Image picks the SBF platform-tools toolchain used by `cargo build-sbf`.
+  # 2.3.x images ship platform-tools v1.48 (rustc 1.84) which cannot parse
+  # edition2024 crates pulled in transitively by Anchor 1.0; 3.1.x ships
+  # v1.52 (rustc 1.89) which matches the Anchor 1.0 MSRV. The SBF byte code
+  # remains compatible with the agave 2.3.11 runtime targeted by SOLANA_VERSION.
+  VERIFIABLE_BUILD_IMAGE: solanafoundation/solana-verifiable-build:3.1.14
 
 jobs:
   fmt-clippy:
