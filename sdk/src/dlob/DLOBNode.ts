@@ -5,12 +5,7 @@ import {
 	ZERO,
 } from '../constants/numericConstants';
 import { getLimitPrice } from '../math/orders';
-import {
-	isVariant,
-	MarketTypeStr,
-	Order,
-	ProtectedMakerParams,
-} from '../types';
+import { isVariant, MarketTypeStr, Order } from '../types';
 import { MMOraclePriceData, OraclePriceData } from '../oracles/types';
 import { convertToNumber } from '../math/conversion';
 import { getOrderSignature } from './NodeList';
@@ -25,8 +20,6 @@ export interface DLOBNode {
 	isBaseFilled(): boolean;
 	haveFilled: boolean;
 	userAccount: string | undefined;
-	isProtectedMaker: boolean;
-	protectedMakerParams?: ProtectedMakerParams;
 	isSignedMsg: boolean | undefined;
 	baseAssetAmount: BN;
 }
@@ -37,16 +30,12 @@ export abstract class OrderNode implements DLOBNode {
 	sortValue: BN;
 	haveFilled = false;
 	haveTrigger = false;
-	isProtectedMaker: boolean;
-	protectedMakerParams?: ProtectedMakerParams;
 	baseAssetAmount: BN;
 	isSignedMsg: boolean;
 
 	constructor(
 		order: Order,
 		userAccount: string,
-		isProtectedMaker: boolean,
-		protectedMakerParams?: ProtectedMakerParams,
 		baseAssetAmount?: BN,
 		isSignedMsg = false
 	) {
@@ -54,8 +43,6 @@ export abstract class OrderNode implements DLOBNode {
 		this.order = { ...order };
 		this.userAccount = userAccount;
 		this.sortValue = this.getSortValue(order);
-		this.isProtectedMaker = isProtectedMaker;
-		this.protectedMakerParams = protectedMakerParams;
 		this.baseAssetAmount = baseAssetAmount ?? order.baseAssetAmount;
 		this.isSignedMsg = isSignedMsg;
 	}
@@ -93,13 +80,7 @@ export abstract class OrderNode implements DLOBNode {
 		oraclePriceData: T extends 'spot' ? OraclePriceData : MMOraclePriceData,
 		slot: number
 	): BN {
-		return getLimitPrice<T>(
-			this.order,
-			oraclePriceData,
-			slot,
-			undefined,
-			this.isProtectedMaker ? this.protectedMakerParams : undefined
-		);
+		return getLimitPrice<T>(this.order, oraclePriceData, slot);
 	}
 
 	isBaseFilled(): boolean {
@@ -125,17 +106,7 @@ export class RestingLimitOrderNode extends OrderNode {
 	previous?: RestingLimitOrderNode;
 
 	getSortValue(order: Order): BN {
-		let sortValue = order.price;
-		if (this.protectedMakerParams && this.isProtectedMaker) {
-			const offset = sortValue.divn(1000);
-
-			if (isVariant(order.direction, 'long')) {
-				sortValue = sortValue.sub(offset);
-			} else {
-				sortValue = sortValue.add(offset);
-			}
-		}
-		return sortValue;
+		return order.price;
 	}
 }
 
@@ -172,7 +143,7 @@ export class SignedMsgOrderNode extends OrderNode {
 	previous?: SignedMsgOrderNode;
 
 	constructor(order: Order, userAccount: string, baseAssetAmount?: BN) {
-		super(order, userAccount, false, undefined, baseAssetAmount, true);
+		super(order, userAccount, baseAssetAmount, true);
 	}
 
 	getSortValue(order: Order): BN {
@@ -184,7 +155,6 @@ export type DLOBNodeMap = {
 	restingLimit: RestingLimitOrderNode;
 	takingLimit: TakingLimitOrderNode;
 	floatingLimit: FloatingLimitOrderNode;
-	protectedFloatingLimit: FloatingLimitOrderNode;
 	market: MarketOrderNode;
 	trigger: TriggerOrderNode;
 	signedMsg: SignedMsgOrderNode;
@@ -195,7 +165,6 @@ export type DLOBNodeType =
 	| 'restingLimit'
 	| 'takingLimit'
 	| 'floatingLimit'
-	| 'protectedFloatingLimit'
 	| 'market'
 	| ('trigger' & keyof DLOBNodeMap);
 
@@ -203,59 +172,19 @@ export function createNode<T extends DLOBNodeType>(
 	nodeType: T,
 	order: Order,
 	userAccount: string,
-	isProtectedMaker: boolean,
-	protectedMakerParams?: ProtectedMakerParams,
 	baseAssetAmount?: BN
 ): DLOBNodeMap[T] {
 	switch (nodeType) {
 		case 'floatingLimit':
-			return new FloatingLimitOrderNode(
-				order,
-				userAccount,
-				isProtectedMaker,
-				protectedMakerParams,
-				baseAssetAmount
-			);
-		case 'protectedFloatingLimit':
-			return new FloatingLimitOrderNode(
-				order,
-				userAccount,
-				isProtectedMaker,
-				protectedMakerParams,
-				baseAssetAmount
-			);
+			return new FloatingLimitOrderNode(order, userAccount, baseAssetAmount);
 		case 'restingLimit':
-			return new RestingLimitOrderNode(
-				order,
-				userAccount,
-				isProtectedMaker,
-				protectedMakerParams,
-				baseAssetAmount
-			);
+			return new RestingLimitOrderNode(order, userAccount, baseAssetAmount);
 		case 'takingLimit':
-			return new TakingLimitOrderNode(
-				order,
-				userAccount,
-				isProtectedMaker,
-				protectedMakerParams,
-				baseAssetAmount
-			);
+			return new TakingLimitOrderNode(order, userAccount, baseAssetAmount);
 		case 'market':
-			return new MarketOrderNode(
-				order,
-				userAccount,
-				isProtectedMaker,
-				undefined,
-				baseAssetAmount
-			);
+			return new MarketOrderNode(order, userAccount, baseAssetAmount);
 		case 'trigger':
-			return new TriggerOrderNode(
-				order,
-				userAccount,
-				isProtectedMaker,
-				undefined,
-				baseAssetAmount
-			);
+			return new TriggerOrderNode(order, userAccount, baseAssetAmount);
 		case 'signedMsg':
 			return new SignedMsgOrderNode(order, userAccount, baseAssetAmount);
 		default:

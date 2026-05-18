@@ -139,7 +139,6 @@ export * from './blockhashSubscriber';
 export * from './util/chainClock';
 export * from './util/TransactionConfirmationManager';
 export * from './clock/clockSubscriber';
-export * from './math/userStatus';
 export * from './indicative-quotes/indicativeQuotesSender';
 export * from './constants';
 export * from './constituentMap/constituentMap';

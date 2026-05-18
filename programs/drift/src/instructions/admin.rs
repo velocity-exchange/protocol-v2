@@ -74,7 +74,6 @@ use crate::{
             AMM,
         },
         perp_market_map::{get_writable_perp_market_set, MarketSet},
-        protected_maker_mode_config::ProtectedMakerModeConfig,
         pyth_lazer_oracle::{PythLazerOracle, PYTH_LAZER_ORACLE_SEED},
         spot_market::{AssetTier, InsuranceFund, SpotBalanceType, SpotMarket, TokenProgramFlag},
         spot_market_map::get_writable_spot_market_set,
@@ -674,8 +673,7 @@ pub fn handle_initialize_perp_market(
         quote_spot_market_index: QUOTE_SPOT_MARKET_INDEX,
         fee_adjustment: 0,
         pool_id: 0,
-        protected_maker_limit_price_divisor: 0,
-        protected_maker_dynamic_divisor: 0,
+        _padding_pmm: [0; 2],
         lp_fee_transfer_scalar: 1,
         lp_status: 0,
         lp_exchange_fee_excluscion_scalar: 0,
@@ -3701,39 +3699,6 @@ pub fn handle_update_perp_market_number_of_users(
     Ok(())
 }
 
-pub fn handle_update_perp_market_protected_maker_params(
-    ctx: Context<AdminUpdatePerpMarket>,
-    protected_maker_limit_price_divisor: Option<u8>,
-    protected_maker_dynamic_divisor: Option<u8>,
-) -> Result<()> {
-    let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
-    msg!("perp market {}", perp_market.market_index);
-
-    if let Some(protected_maker_limit_price_divisor) = protected_maker_limit_price_divisor {
-        msg!(
-            "perp_market.protected_maker_limit_price_divisor: {:?} -> {:?}",
-            perp_market.protected_maker_limit_price_divisor,
-            protected_maker_limit_price_divisor
-        );
-        perp_market.protected_maker_limit_price_divisor = protected_maker_limit_price_divisor;
-    } else {
-        msg!("perp_market.protected_maker_limit_price_divisor: unchanged");
-    }
-
-    if let Some(protected_maker_dynamic_divisor) = protected_maker_dynamic_divisor {
-        msg!(
-            "perp_market.protected_maker_dynamic_divisor: {:?} -> {:?}",
-            perp_market.protected_maker_dynamic_divisor,
-            protected_maker_dynamic_divisor
-        );
-        perp_market.protected_maker_dynamic_divisor = protected_maker_dynamic_divisor;
-    } else {
-        msg!("perp_market.protected_maker_dynamic_divisor: unchanged");
-    }
-
-    Ok(())
-}
-
 pub fn handle_update_perp_market_lp_pool_paused_operations(
     ctx: Context<PauseAdminUpdatePerpMarket>,
     lp_paused_operations: u8,
@@ -4151,36 +4116,6 @@ pub fn handle_settle_expired_market<'c: 'info, 'info>(
         &state,
         &clock,
     )?;
-
-    Ok(())
-}
-
-pub fn handle_initialize_protected_maker_mode_config(
-    ctx: Context<InitializeProtectedMakerModeConfig>,
-    max_users: u32,
-) -> Result<()> {
-    let mut config = ctx.accounts.protected_maker_mode_config.load_init()?;
-
-    config.max_users = max_users;
-
-    Ok(())
-}
-
-pub fn handle_update_protected_maker_mode_config(
-    ctx: Context<UpdateProtectedMakerModeConfig>,
-    max_users: u32,
-    reduce_only: bool,
-    current_users: Option<u32>,
-) -> Result<()> {
-    let mut config = load_mut!(ctx.accounts.protected_maker_mode_config)?;
-
-    if let Some(users) = current_users {
-        config.current_users = users;
-    }
-    config.max_users = max_users;
-    config.reduce_only = reduce_only as u8;
-
-    config.validate()?;
 
     Ok(())
 }
@@ -5324,36 +5259,6 @@ pub struct InitPythLazerOracle<'info> {
     pub state: AccountLoader<'info, State>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct InitializeProtectedMakerModeConfig<'info> {
-    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
-    pub admin: Signer<'info>,
-    #[account(
-        init,
-        seeds = [b"protected_maker_mode_config".as_ref()],
-        space = ProtectedMakerModeConfig::SIZE,
-        bump,
-        payer = admin
-    )]
-    pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
-    pub state: AccountLoader<'info, State>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateProtectedMakerModeConfig<'info> {
-    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
-    pub admin: Signer<'info>,
-    #[account(
-        mut,
-        seeds = [b"protected_maker_mode_config".as_ref()],
-        bump,
-    )]
-    pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
-    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]

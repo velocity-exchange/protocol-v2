@@ -3983,83 +3983,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "initializeProtectedMakerModeConfig",
-      "discriminator": [
-        67,
-        103,
-        220,
-        67,
-        88,
-        32,
-        252,
-        8
-      ],
-      "accounts": [
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "protectedMakerModeConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  116,
-                  101,
-                  99,
-                  116,
-                  101,
-                  100,
-                  95,
-                  109,
-                  97,
-                  107,
-                  101,
-                  114,
-                  95,
-                  109,
-                  111,
-                  100,
-                  101,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state"
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "maxUsers",
-          "type": "u32"
-        }
-      ]
-    },
-    {
       "name": "initializePythLazerOracle",
       "discriminator": [
         140,
@@ -11457,46 +11380,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "updatePerpMarketProtectedMakerParams",
-      "discriminator": [
-        249,
-        213,
-        115,
-        34,
-        253,
-        239,
-        75,
-        173
-      ],
-      "accounts": [
-        {
-          "name": "admin",
-          "signer": true
-        },
-        {
-          "name": "state"
-        },
-        {
-          "name": "perpMarket",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "protectedMakerLimitPriceDivisor",
-          "type": {
-            "option": "u8"
-          }
-        },
-        {
-          "name": "protectedMakerDynamicDivisor",
-          "type": {
-            "option": "u8"
-          }
-        }
-      ]
-    },
-    {
       "name": "updatePerpMarketReferencePriceOffsetDeadbandPct",
       "discriminator": [
         214,
@@ -11728,85 +11611,6 @@ export type Drift = {
             "defined": {
               "name": "prelaunchOracleParams"
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "updateProtectedMakerModeConfig",
-      "discriminator": [
-        86,
-        166,
-        235,
-        253,
-        67,
-        202,
-        223,
-        17
-      ],
-      "accounts": [
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "protectedMakerModeConfig",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  116,
-                  101,
-                  99,
-                  116,
-                  101,
-                  100,
-                  95,
-                  109,
-                  97,
-                  107,
-                  101,
-                  114,
-                  95,
-                  109,
-                  111,
-                  100,
-                  101,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "state"
-        }
-      ],
-      "args": [
-        {
-          "name": "maxUsers",
-          "type": "u32"
-        },
-        {
-          "name": "reduceOnly",
-          "type": "bool"
-        },
-        {
-          "name": "currentUsers",
-          "type": {
-            "option": "u32"
           }
         }
       ]
@@ -13214,46 +13018,6 @@ export type Drift = {
       ]
     },
     {
-      "name": "updateUserProtectedMakerOrders",
-      "discriminator": [
-        114,
-        39,
-        123,
-        198,
-        187,
-        25,
-        90,
-        219
-      ],
-      "accounts": [
-        {
-          "name": "state"
-        },
-        {
-          "name": "user",
-          "writable": true
-        },
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "protectedMakerModeConfig",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "subAccountId",
-          "type": "u16"
-        },
-        {
-          "name": "protectedMakerOrders",
-          "type": "bool"
-        }
-      ]
-    },
-    {
       "name": "updateUserQuoteAssetInsuranceStake",
       "discriminator": [
         251,
@@ -14176,19 +13940,6 @@ export type Drift = {
         244,
         68,
         26
-      ]
-    },
-    {
-      "name": "protectedMakerModeConfig",
-      "discriminator": [
-        47,
-        86,
-        90,
-        9,
-        224,
-        255,
-        10,
-        69
       ]
     },
     {
@@ -21328,12 +21079,13 @@ export type Drift = {
             "type": "u8"
           },
           {
-            "name": "protectedMakerLimitPriceDivisor",
-            "type": "u8"
-          },
-          {
-            "name": "protectedMakerDynamicDivisor",
-            "type": "u8"
+            "name": "paddingPmm",
+            "type": {
+              "array": [
+                "u8",
+                2
+              ]
+            }
           },
           {
             "name": "lpFeeTransferScalar",
@@ -21644,39 +21396,6 @@ export type Drift = {
           {
             "name": "oracleTwap5minPercentDivergence",
             "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "protectedMakerModeConfig",
-      "serialization": "bytemuckunsafe",
-      "repr": {
-        "kind": "c"
-      },
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "maxUsers",
-            "type": "u32"
-          },
-          {
-            "name": "currentUsers",
-            "type": "u32"
-          },
-          {
-            "name": "reduceOnly",
-            "type": "u8"
-          },
-          {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u8",
-                31
-              ]
-            }
           }
         ]
       }

@@ -84,7 +84,7 @@ export enum UserStatus {
 	BANKRUPT = 2,
 	REDUCE_ONLY = 4,
 	ADVANCED_LP = 8,
-	PROTECTED_MAKER = 16,
+	// 16 reserved (was PROTECTED_MAKER)
 }
 
 export enum SpecialUserStatus {
@@ -842,8 +842,6 @@ export type PerpMarketAccount = {
 	feeAdjustment: number;
 	pausedOperations: number;
 
-	protectedMakerLimitPriceDivisor: number;
-	protectedMakerDynamicDivisor: number;
 	lastFillPrice: BN;
 
 	lpPoolId: number;
@@ -1515,18 +1513,6 @@ export type SignedTxData = {
 	signedTx: Transaction | VersionedTransaction;
 	lastValidBlockHeight?: number;
 	blockHash: string;
-};
-
-export type ProtectedMakerModeConfig = {
-	maxUsers: number;
-	currentUsers: number;
-	reduceOnly: boolean;
-};
-
-export type ProtectedMakerParams = {
-	limitPriceDivisor: number;
-	tickSize: BN;
-	dynamicOffset: BN;
 };
 
 export type IfRebalanceConfigAccount = {

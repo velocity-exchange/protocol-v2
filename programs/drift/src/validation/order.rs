@@ -188,13 +188,8 @@ fn validate_post_only_order(
         return Ok(());
     }
 
-    let limit_price = order.force_get_limit_price(
-        valid_oracle_price,
-        None,
-        slot,
-        market.amm.order_tick_size,
-        None,
-    )?;
+    let limit_price =
+        order.force_get_limit_price(valid_oracle_price, None, slot, market.amm.order_tick_size)?;
 
     let base_asset_amount_market_can_fill = calculate_base_asset_amount_to_fill_up_to_limit_price(
         order,

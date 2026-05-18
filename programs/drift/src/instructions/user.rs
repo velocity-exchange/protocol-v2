@@ -78,7 +78,6 @@ use crate::state::order_params::{
 };
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
 use crate::state::perp_market_map::{get_writable_perp_market_set, MarketSet};
-use crate::state::protected_maker_mode_config::ProtectedMakerModeConfig;
 use crate::state::revenue_share::BuilderInfo;
 use crate::state::revenue_share::RevenueShare;
 use crate::state::revenue_share::RevenueShareEscrow;
@@ -3048,47 +3047,6 @@ pub fn handle_update_user_advanced_lp(
     Ok(())
 }
 
-pub fn handle_update_user_protected_maker_orders(
-    ctx: Context<UpdateUserProtectedMakerMode>,
-    _sub_account_id: u16,
-    protected_maker_orders: bool,
-) -> Result<()> {
-    let mut user = load_mut!(ctx.accounts.user)?;
-
-    validate!(!user.is_being_liquidated(), ErrorCode::LiquidationsOngoing)?;
-
-    validate!(
-        protected_maker_orders != user.is_protected_maker(),
-        ErrorCode::DefaultError,
-        "user already {} protected maker mode",
-        if protected_maker_orders {
-            "in"
-        } else {
-            "out of"
-        }
-    )?;
-
-    user.update_protected_maker_orders_status(protected_maker_orders)?;
-
-    let mut config = load_mut!(ctx.accounts.protected_maker_mode_config)?;
-
-    if protected_maker_orders {
-        validate!(
-            !config.is_reduce_only(),
-            ErrorCode::DefaultError,
-            "protected maker mode config reduce only"
-        )?;
-
-        config.current_users = config.current_users.safe_add(1)?;
-    } else {
-        config.current_users = config.current_users.safe_sub(1)?;
-    }
-
-    config.validate()?;
-
-    Ok(())
-}
-
 pub fn handle_delete_user(ctx: Context<DeleteUser>) -> Result<()> {
     let user = &load!(ctx.accounts.user)?;
     let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
@@ -4800,19 +4758,6 @@ pub struct Swap<'info> {
     /// CHECK: fixed instructions sysvar account
     #[account(address = instructions::ID)]
     pub instructions: UncheckedAccount<'info>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateUserProtectedMakerMode<'info> {
-    pub state: AccountLoader<'info, State>,
-    #[account(
-        mut,
-        constraint = can_sign_for_user(&user, &authority)?
-    )]
-    pub user: AccountLoader<'info, User>,
-    pub authority: Signer<'info>,
-    #[account(mut)]
-    pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
 }
 
 #[derive(Accounts)]

@@ -13,7 +13,6 @@ use crate::math::constants::{
     OPEN_ORDER_MARGIN_REQUIREMENT, PERCENTAGE_PRECISION_I128, PERCENTAGE_PRECISION_U64,
     PRICE_PRECISION_I128, QUOTE_PRECISION_I128, SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_I128,
 };
-use crate::state::protected_maker_mode_config::ProtectedMakerParams;
 use crate::state::user::OrderBitFlag;
 use crate::{load, math, FeeTier};
 
@@ -271,42 +270,6 @@ pub fn standardize_price_i64(
     }
 }
 
-#[inline(always)]
-pub fn apply_protected_maker_limit_price_offset(
-    price: u64,
-    direction: PositionDirection,
-    params: ProtectedMakerParams,
-    standardize: bool,
-) -> DriftResult<u64> {
-    let min_offset = params
-        .tick_size
-        .checked_shl(3)
-        .ok_or(ErrorCode::MathError)?;
-
-    let limit_price_bps_divisor = if params.limit_price_divisor > 0 {
-        10000 / params.limit_price_divisor as u64
-    } else {
-        1000_u64 // 10bps
-    };
-
-    let price_offset = price
-        .safe_div(limit_price_bps_divisor)?
-        .max(min_offset)
-        .max(params.dynamic_offset)
-        .min(price / 20);
-
-    let price = match direction {
-        PositionDirection::Long => price.saturating_sub(price_offset).max(params.tick_size),
-        PositionDirection::Short => price.saturating_add(price_offset),
-    };
-
-    if standardize {
-        standardize_price(price, params.tick_size, direction)
-    } else {
-        Ok(price)
-    }
-}
-
 pub fn get_price_for_perp_order(
     price: u64,
     direction: PositionDirection,
@@ -383,7 +346,7 @@ pub fn order_breaches_maker_oracle_price_bands(
     margin_ratio_initial: u32,
 ) -> DriftResult<bool> {
     let order_limit_price =
-        order.force_get_limit_price(Some(oracle_price), None, slot, tick_size, None)?;
+        order.force_get_limit_price(Some(oracle_price), None, slot, tick_size)?;
     limit_price_breaches_maker_oracle_price_bands(
         order_limit_price,
         order.direction,
@@ -708,7 +671,6 @@ pub fn find_maker_orders(
     valid_oracle_price: Option<i64>,
     slot: u64,
     tick_size: u64,
-    protected_maker_params: Option<ProtectedMakerParams>,
 ) -> DriftResult<Vec<(usize, u64)>> {
     let mut orders: Vec<(usize, u64)> = Vec::with_capacity(32);
 
@@ -730,13 +692,7 @@ pub fn find_maker_orders(
             continue;
         }
 
-        let limit_price = order.force_get_limit_price(
-            valid_oracle_price,
-            None,
-            slot,
-            tick_size,
-            protected_maker_params,
-        )?;
+        let limit_price = order.force_get_limit_price(valid_oracle_price, None, slot, tick_size)?;
 
         orders.push((order_index, limit_price));
     }
@@ -1246,8 +1202,7 @@ pub fn find_bids_and_asks_from_users(
 
             let existing_position = user.get_perp_position(market_index)?.base_asset_amount;
             let base_amount = order.get_base_asset_amount_unfilled(Some(existing_position))?;
-            let limit_price =
-                order.force_get_limit_price(oracle_price, None, slot, tick_size, None)?;
+            let limit_price = order.force_get_limit_price(oracle_price, None, slot, tick_size)?;
 
             insert_order(base_amount, limit_price, order.direction);
         }

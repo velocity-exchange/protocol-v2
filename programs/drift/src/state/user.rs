@@ -7,9 +7,7 @@ use crate::math::constants::{
     SPOT_WEIGHT_PRECISION, SPOT_WEIGHT_PRECISION_I128, THIRTY_DAY,
 };
 use crate::math::margin::MarginRequirementType;
-use crate::math::orders::{
-    apply_protected_maker_limit_price_offset, standardize_base_asset_amount, standardize_price,
-};
+use crate::math::orders::{standardize_base_asset_amount, standardize_price};
 use crate::math::position::{
     calculate_base_asset_value_and_pnl_with_oracle_price, calculate_perp_liability_value,
 };
@@ -56,7 +54,7 @@ pub enum UserStatus {
     Bankrupt = 0b00000010,
     ReduceOnly = 0b00000100,
     AdvancedLp = 0b00001000,
-    ProtectedMakerOrders = 0b00010000,
+    // 0b00010000 reserved (was ProtectedMakerOrders)
 }
 
 #[derive(Clone, Copy, BorshSerialize, BorshDeserialize, PartialEq, Debug, Eq)]
@@ -163,10 +161,6 @@ impl User {
 
     pub fn is_advanced_lp(&self) -> bool {
         self.status & (UserStatus::AdvancedLp as u8) > 0
-    }
-
-    pub fn is_protected_maker(&self) -> bool {
-        self.status & (UserStatus::ProtectedMakerOrders as u8) > 0
     }
 
     pub fn add_user_status(&mut self, status: UserStatus) {
@@ -563,19 +557,6 @@ impl User {
             self.add_user_status(UserStatus::AdvancedLp);
         } else {
             self.remove_user_status(UserStatus::AdvancedLp);
-        }
-
-        Ok(())
-    }
-
-    pub fn update_protected_maker_orders_status(
-        &mut self,
-        protected_maker_orders: bool,
-    ) -> DriftResult {
-        if protected_maker_orders {
-            self.add_user_status(UserStatus::ProtectedMakerOrders);
-        } else {
-            self.remove_user_status(UserStatus::ProtectedMakerOrders);
         }
 
         Ok(())
@@ -1302,7 +1283,6 @@ pub(crate) type PerpPositions = [PerpPosition; 8];
 #[cfg(test)]
 use crate::math::constants::{AMM_TO_QUOTE_PRECISION_RATIO_I128, PRICE_PRECISION_I128};
 
-use super::protected_maker_mode_config::ProtectedMakerParams;
 #[cfg(test)]
 impl PerpPosition {
     pub fn get_breakeven_price(&self) -> DriftResult<i128> {
@@ -1431,7 +1411,6 @@ impl Order {
         fallback_price: Option<u64>,
         slot: u64,
         tick_size: u64,
-        pmm_params: Option<ProtectedMakerParams>,
     ) -> DriftResult<Option<u64>> {
         let price = if self.has_auction_price(self.slot, self.auction_duration, slot)? {
             Some(calculate_auction_price(
@@ -1446,19 +1425,10 @@ impl Order {
                 ErrorCode::OracleNotFound
             })?;
 
-            let mut limit_price = oracle_price
+            let limit_price = oracle_price
                 .safe_add(self.oracle_price_offset.cast()?)?
                 .max(tick_size.cast()?)
                 .cast::<u64>()?;
-
-            if let Some(pmm_params) = pmm_params {
-                limit_price = apply_protected_maker_limit_price_offset(
-                    limit_price,
-                    self.direction,
-                    pmm_params,
-                    false,
-                )?;
-            }
 
             Some(standardize_price(limit_price, tick_size, self.direction)?)
         } else if self.price == 0 {
@@ -1467,18 +1437,7 @@ impl Order {
                 None => None,
             }
         } else {
-            let mut price = self.price;
-
-            if let Some(pmm_params) = pmm_params {
-                price = apply_protected_maker_limit_price_offset(
-                    price,
-                    self.direction,
-                    pmm_params,
-                    true,
-                )?;
-            }
-
-            Some(price)
+            Some(self.price)
         };
 
         Ok(price)
@@ -1492,15 +1451,8 @@ impl Order {
         fallback_price: Option<u64>,
         slot: u64,
         tick_size: u64,
-        pmm_params: Option<ProtectedMakerParams>,
     ) -> DriftResult<u64> {
-        match self.get_limit_price(
-            valid_oracle_price,
-            fallback_price,
-            slot,
-            tick_size,
-            pmm_params,
-        )? {
+        match self.get_limit_price(valid_oracle_price, fallback_price, slot, tick_size)? {
             Some(price) => Ok(price),
             None => {
                 let caller = Location::caller();

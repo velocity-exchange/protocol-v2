@@ -652,6 +652,7 @@ pub enum ErrorCode {
     InvalidSignedMsgOrderId,
     #[msg("Invalid pool id")]
     InvalidPoolId,
+    /// @deprecated protected maker mode removed
     #[msg("Invalid Protected Maker Mode Config")]
     InvalidProtectedMakerModeConfig,
     #[msg("Invalid pyth lazer storage owner")]

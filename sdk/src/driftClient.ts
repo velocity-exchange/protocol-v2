@@ -64,7 +64,6 @@ import {
 	TxParams,
 	UserAccount,
 	UserStatsAccount,
-	ProtectedMakerModeConfig,
 	SignedMsgOrderParamsDelegateMessage,
 	TokenProgramFlag,
 	PostOnlyParams,
@@ -108,7 +107,6 @@ import {
 	getDriftStateAccountPublicKey,
 	getInsuranceFundStakeAccountPublicKey,
 	getPerpMarketPublicKey,
-	getProtectedMakerModeConfigPublicKey,
 	getPythLazerOraclePublicKey,
 	getReferrerNamePublicKeySync,
 	getSpotMarketPublicKey,
@@ -9985,62 +9983,6 @@ export class DriftClient {
 			}
 		);
 		return [verifyIx, ix];
-	}
-
-	public async fetchProtectedMakerModeConfig(): Promise<ProtectedMakerModeConfig> {
-		const config = await (
-			this.program.account as any
-		).protectedMakerModeConfig.fetch(
-			getProtectedMakerModeConfigPublicKey(this.program.programId)
-		);
-		return config as unknown as ProtectedMakerModeConfig;
-	}
-	public async updateUserProtectedMakerOrders(
-		subAccountId: number,
-		protectedOrders: boolean,
-		authority?: PublicKey,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getUpdateUserProtectedMakerOrdersIx(
-					subAccountId,
-					protectedOrders,
-					authority
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async getUpdateUserProtectedMakerOrdersIx(
-		subAccountId: number,
-		protectedOrders: boolean,
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		const ix = await this.program.instruction.updateUserProtectedMakerOrders(
-			subAccountId,
-			protectedOrders,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user: getUserAccountPublicKeySync(
-						this.program.programId,
-						authority ?? this.authority,
-						subAccountId
-					),
-					authority: this.wallet.publicKey,
-					protectedMakerModeConfig: getProtectedMakerModeConfigPublicKey(
-						this.program.programId
-					),
-				},
-			}
-		);
-
-		return ix;
 	}
 
 	public async getPauseSpotMarketDepositWithdrawIx(

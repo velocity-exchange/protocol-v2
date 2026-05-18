@@ -424,14 +424,6 @@ pub mod drift {
     //     handle_update_user_advanced_lp(ctx, _sub_account_id, advanced_lp)
     // }
 
-    pub fn update_user_protected_maker_orders(
-        ctx: Context<UpdateUserProtectedMakerMode>,
-        _sub_account_id: u16,
-        protected_maker_orders: bool,
-    ) -> Result<()> {
-        handle_update_user_protected_maker_orders(ctx, _sub_account_id, protected_maker_orders)
-    }
-
     pub fn delete_user<'c: 'info, 'info>(ctx: Context<'info, DeleteUser>) -> Result<()> {
         handle_delete_user(ctx)
     }
@@ -1508,18 +1500,6 @@ pub mod drift {
         handle_update_spot_market_fee_adjustment(ctx, fee_adjustment)
     }
 
-    pub fn update_perp_market_protected_maker_params(
-        ctx: Context<AdminUpdatePerpMarket>,
-        protected_maker_limit_price_divisor: Option<u8>,
-        protected_maker_dynamic_divisor: Option<u8>,
-    ) -> Result<()> {
-        handle_update_perp_market_protected_maker_params(
-            ctx,
-            protected_maker_limit_price_divisor,
-            protected_maker_dynamic_divisor,
-        )
-    }
-
     pub fn update_perp_market_oracle_low_risk_slot_delay_override(
         ctx: Context<HotAdminUpdatePerpMarket>,
         oracle_low_risk_slot_delay_override: i8,
@@ -1660,22 +1640,6 @@ pub mod drift {
         pyth_message: Vec<u8>,
     ) -> Result<()> {
         handle_update_pyth_lazer_oracle(ctx, pyth_message)
-    }
-
-    pub fn initialize_protected_maker_mode_config(
-        ctx: Context<InitializeProtectedMakerModeConfig>,
-        max_users: u32,
-    ) -> Result<()> {
-        handle_initialize_protected_maker_mode_config(ctx, max_users)
-    }
-
-    pub fn update_protected_maker_mode_config(
-        ctx: Context<UpdateProtectedMakerModeConfig>,
-        max_users: u32,
-        reduce_only: bool,
-        current_users: Option<u32>,
-    ) -> Result<()> {
-        handle_update_protected_maker_mode_config(ctx, max_users, reduce_only, current_users)
     }
 
     pub fn admin_deposit<'c: 'info, 'info>(

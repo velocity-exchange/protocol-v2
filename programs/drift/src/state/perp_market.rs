@@ -5,7 +5,7 @@ use anchor_lang::prelude::{
     *,
 };
 
-use super::{oracle_map::OracleIdentifier, protected_maker_mode_config::ProtectedMakerParams};
+use super::oracle_map::OracleIdentifier;
 #[cfg(test)]
 use crate::math::constants::{AMM_RESERVE_PRECISION, MAX_CONCENTRATION_COEFFICIENT};
 use crate::{
@@ -201,8 +201,7 @@ pub struct PerpMarket {
     pub fee_adjustment: i16,
     pub last_fill_price: u64,
     pub pool_id: u8,
-    pub protected_maker_limit_price_divisor: u8,
-    pub protected_maker_dynamic_divisor: u8,
+    pub _padding_pmm: [u8; 2],
     pub lp_fee_transfer_scalar: u8,
     pub lp_status: u8,
     pub lp_paused_operations: u8,
@@ -244,8 +243,7 @@ impl Default for PerpMarket {
             quote_spot_market_index: 0,
             fee_adjustment: 0,
             pool_id: 0,
-            protected_maker_limit_price_divisor: 0,
-            protected_maker_dynamic_divisor: 0,
+            _padding_pmm: [0; 2],
             lp_fee_transfer_scalar: 0,
             lp_status: 0,
             lp_exchange_fee_excluscion_scalar: 0,
@@ -594,20 +592,6 @@ impl PerpMarket {
 
     pub fn can_sanitize_market_order_auctions(&self) -> bool {
         self.amm.oracle_source != OracleSource::Prelaunch
-    }
-
-    pub fn get_protected_maker_params(&self) -> ProtectedMakerParams {
-        let dynamic_offset = if self.protected_maker_dynamic_divisor > 0 {
-            self.amm.oracle_std.max(self.amm.mark_std) / self.protected_maker_dynamic_divisor as u64
-        } else {
-            0
-        };
-
-        ProtectedMakerParams {
-            limit_price_divisor: self.protected_maker_limit_price_divisor,
-            dynamic_offset,
-            tick_size: self.amm.order_tick_size,
-        }
     }
 
     pub fn get_trigger_price(

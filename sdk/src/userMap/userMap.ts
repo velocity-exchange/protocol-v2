@@ -17,7 +17,6 @@ import { DLOB } from '../dlob/DLOB';
 import { UserSubscriptionConfig } from '../userConfig';
 import { DataAndSlot, UserEvents } from '../accounts/types';
 import { OneShotUserAccountSubscriber } from '../accounts/oneShotUserAccountSubscriber';
-import { ProtectMakerParamsMap } from '../dlob/types';
 
 import {
 	Commitment,
@@ -299,11 +298,8 @@ export class UserMap implements UserMapInterface {
 	 * create a DLOB from all the subscribed users
 	 * @param slot
 	 */
-	public async getDLOB(
-		slot: number,
-		protectedMakerParamsMap?: ProtectMakerParamsMap
-	): Promise<DLOB> {
-		const dlob = new DLOB(protectedMakerParamsMap);
+	public async getDLOB(slot: number): Promise<DLOB> {
+		const dlob = new DLOB();
 		await dlob.initFromUserMap(this, slot);
 		return dlob;
 	}

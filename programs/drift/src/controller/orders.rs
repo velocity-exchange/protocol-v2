@@ -6,7 +6,7 @@
 
 use std::cell::RefMut;
 use std::collections::BTreeMap;
-use std::ops::{Deref, DerefMut};
+use std::ops::DerefMut;
 use std::u64;
 
 use crate::msg;
@@ -62,7 +62,6 @@ use crate::state::order_params::{
 use crate::state::paused_operations::PerpOperation;
 use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::PerpMarketMap;
-use crate::state::protected_maker_mode_config::ProtectedMakerParams;
 use crate::state::spot_market::{SpotBalanceType, SpotMarket};
 use crate::state::spot_market_map::SpotMarketMap;
 use crate::state::state::FeeStructure;
@@ -1169,8 +1168,6 @@ pub fn fill_perp_order(
         jit_maker_order_id,
         now,
         slot,
-        user_can_skip_duration,
-        state.min_perp_auction_duration as u64,
     )?;
 
     // no referrer bonus for liquidations
@@ -1463,14 +1460,10 @@ fn get_maker_orders_info(
     jit_maker_order_id: Option<u32>,
     now: i64,
     slot: u64,
-    user_can_skip_duration: bool,
-    protected_maker_min_age: u64,
 ) -> DriftResult<Vec<(Pubkey, usize, u64)>> {
     let maker_direction = taker_order.direction.opposite();
 
     let mut maker_orders_info = Vec::with_capacity(16);
-
-    let taker_order_age = slot.safe_sub(taker_order.slot)?;
 
     for (maker_key, user_account_loader) in makers_and_referrer.0.iter() {
         if maker_key == taker_key {
@@ -1483,8 +1476,6 @@ fn get_maker_orders_info(
             continue;
         }
 
-        let is_protected_maker = maker.is_protected_maker();
-
         let mut market = perp_market_map.get_ref_mut(&taker_order.market_index)?;
         let maker_order_price_and_indexes = find_maker_orders(
             &maker,
@@ -1494,14 +1485,6 @@ fn get_maker_orders_info(
             Some(oracle_price),
             slot,
             market.amm.order_tick_size,
-            get_protected_maker_params(
-                is_protected_maker,
-                jit_maker_order_id.is_some(),
-                user_can_skip_duration,
-                taker_order_age,
-                protected_maker_min_age,
-                market.deref(),
-            ),
         )?;
 
         if maker_order_price_and_indexes.is_empty() {
@@ -1608,26 +1591,6 @@ fn get_maker_orders_info(
     }
 
     Ok(maker_orders_info)
-}
-
-#[inline(always)]
-fn get_protected_maker_params(
-    is_protected_maker: bool,
-    jit_maker: bool,
-    user_can_skip_duration: bool,
-    taker_order_age: u64,
-    protected_maker_min_age: u64,
-    market: &PerpMarket,
-) -> Option<ProtectedMakerParams> {
-    if is_protected_maker
-        && !jit_maker
-        && !user_can_skip_duration
-        && taker_order_age < protected_maker_min_age
-    {
-        Some(market.get_protected_maker_params())
-    } else {
-        None
-    }
 }
 
 #[inline(always)]

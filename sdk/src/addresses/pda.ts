@@ -1,7 +1,7 @@
 /**
  * PDA derivation helpers for all Drift protocol accounts.
  * Covers: User, UserStats, PerpMarket, SpotMarket, InsuranceFundStake,
- * ProtectedMakerModeConfig, HighLeverageModeConfig, State, and vault PDAs.
+ * HighLeverageModeConfig, State, and vault PDAs.
  * All functions are pure (no RPC calls).
  */
 import { PublicKey } from '@solana/web3.js';
@@ -275,19 +275,6 @@ export function getTokenProgramForSpotMarket(
 		return TOKEN_2022_PROGRAM_ID;
 	}
 	return TOKEN_PROGRAM_ID;
-}
-
-export function getProtectedMakerModeConfigPublicKey(
-	programId: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(
-				anchor.utils.bytes.utf8.encode('protected_maker_mode_config')
-			),
-		],
-		programId
-	)[0];
 }
 
 export function getIfRebalanceConfigPublicKey(

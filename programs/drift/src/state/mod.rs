@@ -25,7 +25,6 @@ pub mod order_params;
 pub mod paused_operations;
 pub mod perp_market;
 pub mod perp_market_map;
-pub mod protected_maker_mode_config;
 pub mod pyth_lazer_oracle;
 pub mod revenue_share;
 pub mod revenue_share_map;

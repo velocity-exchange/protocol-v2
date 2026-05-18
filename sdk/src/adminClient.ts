@@ -46,7 +46,6 @@ import {
 	getPrelaunchOraclePublicKey,
 	getUserStatsAccountPublicKey,
 	getPythLazerOraclePublicKey,
-	getProtectedMakerModeConfigPublicKey,
 	getTokenProgramForSpotMarket,
 	getIfRebalanceConfigPublicKey,
 	getInsuranceFundStakeAccountPublicKey,
@@ -4057,51 +4056,6 @@ export class AdminClient extends DriftClient {
 		);
 	}
 
-	public async updatePerpMarketProtectedMakerParams(
-		perpMarketIndex: number,
-		protectedMakerLimitPriceDivisor?: number,
-		protectedMakerDynamicDivisor?: number
-	): Promise<TransactionSignature> {
-		const updatePerpMarketProtectedMakerParamsIx =
-			await this.getUpdatePerpMarketProtectedMakerParamsIx(
-				perpMarketIndex,
-				protectedMakerLimitPriceDivisor || null,
-				protectedMakerDynamicDivisor || null
-			);
-
-		const tx = await this.buildTransaction(
-			updatePerpMarketProtectedMakerParamsIx
-		);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getUpdatePerpMarketProtectedMakerParamsIx(
-		perpMarketIndex: number,
-		protectedMakerLimitPriceDivisor?: number,
-		protectedMakerDynamicDivisor?: number
-	): Promise<TransactionInstruction> {
-		const perpMarketPublicKey = await getPerpMarketPublicKey(
-			this.program.programId,
-			perpMarketIndex
-		);
-
-		return await this.program.instruction.updatePerpMarketProtectedMakerParams(
-			protectedMakerLimitPriceDivisor || null,
-			protectedMakerDynamicDivisor || null,
-			{
-				accounts: {
-					admin: this.isSubscribed
-						? this.getStateAccount().coldAdmin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-					perpMarket: perpMarketPublicKey,
-				},
-			}
-		);
-	}
-
 	public async initializeIfRebalanceConfig(
 		params: IfRebalanceConfigParams
 	): Promise<TransactionSignature> {
@@ -4162,86 +4116,6 @@ export class AdminClient extends DriftClient {
 				rent: SYSVAR_RENT_PUBKEY,
 			},
 		});
-	}
-
-	public async initializeProtectedMakerModeConfig(
-		maxUsers: number,
-		stateAdmin?: boolean
-	): Promise<TransactionSignature> {
-		const initializeProtectedMakerModeConfigIx =
-			await this.getInitializeProtectedMakerModeConfigIx(maxUsers, stateAdmin);
-
-		const tx = await this.buildTransaction(
-			initializeProtectedMakerModeConfigIx
-		);
-
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getInitializeProtectedMakerModeConfigIx(
-		maxUsers: number,
-		stateAdmin?: boolean
-	): Promise<TransactionInstruction> {
-		return await this.program.instruction.initializeProtectedMakerModeConfig(
-			maxUsers,
-			{
-				accounts: {
-					admin: stateAdmin
-						? this.getStateAccount().coldAdmin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-					rent: SYSVAR_RENT_PUBKEY,
-					systemProgram: anchor.web3.SystemProgram.programId,
-					protectedMakerModeConfig: getProtectedMakerModeConfigPublicKey(
-						this.program.programId
-					),
-				},
-			}
-		);
-	}
-
-	public async updateProtectedMakerModeConfig(
-		maxUsers: number,
-		reduceOnly: boolean,
-		currentUsers: undefined
-	): Promise<TransactionSignature> {
-		const updateProtectedMakerModeConfigIx =
-			await this.getUpdateProtectedMakerModeConfigIx(
-				maxUsers,
-				reduceOnly,
-				currentUsers
-			);
-
-		const tx = await this.buildTransaction(updateProtectedMakerModeConfigIx);
-
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-
-		return txSig;
-	}
-
-	public async getUpdateProtectedMakerModeConfigIx(
-		maxUsers: number,
-		reduceOnly: boolean,
-		currentUsers: undefined
-	): Promise<TransactionInstruction> {
-		return await this.program.instruction.updateProtectedMakerModeConfig(
-			maxUsers,
-			reduceOnly,
-			currentUsers,
-			{
-				accounts: {
-					admin: this.isSubscribed
-						? this.getStateAccount().coldAdmin
-						: this.wallet.publicKey,
-					state: await this.getStatePublicKey(),
-					protectedMakerModeConfig: getProtectedMakerModeConfigPublicKey(
-						this.program.programId
-					),
-				},
-			}
-		);
 	}
 
 	public async adminDeposit(
