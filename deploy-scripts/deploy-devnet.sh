@@ -8,7 +8,7 @@ resolve_upgrade_keypair UPGRADE_KEYPAIR
 
 confirm_program_id "$DRIFT_DEVNET_PROGRAM_ID" "anchor upgrade"
 
-anchor upgrade \
+anchor program upgrade \
 	--program-id "$DRIFT_DEVNET_PROGRAM_ID" \
 	--provider.cluster devnet \
 	--provider.wallet "$UPGRADE_KEYPAIR" \

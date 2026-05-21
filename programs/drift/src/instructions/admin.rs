@@ -5490,3 +5490,134 @@ pub struct PauseAdminUpdateUserStats<'info> {
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
 }
+
+// ----- Force wipe (non-mainnet only) -----
+//
+// One-shot escape hatch for devnet: closes drift-owned PDAs whose on-chain
+// layout no longer matches the program (e.g. after a layout-breaking upgrade).
+// Bypasses `AccountLoader::try_from` size checks by reading State's admin
+// pubkey directly from raw bytes — the first pubkey field lives at offset
+// 8..40 in both the legacy `#[account]` State (admin) and the new zero-copy
+// State (cold_admin), so this admin gate works across layouts.
+//
+// Compiled out of mainnet builds via `cfg(not(feature = "mainnet-beta"))`.
+
+#[cfg(not(feature = "mainnet-beta"))]
+pub fn handle_force_wipe_accounts_devnet<'info>(
+    ctx: Context<'info, ForceWipeAccountsDevnet<'info>>,
+    drift_signer_nonce: u8,
+) -> Result<()> {
+    use anchor_lang::solana_program::system_program;
+    use anchor_spl::token_interface;
+
+    let state_ai = ctx.accounts.state.to_account_info();
+    require_keys_eq!(*state_ai.owner, crate::ID, ErrorCode::DefaultError);
+    {
+        let data = state_ai.try_borrow_data()?;
+        require!(data.len() >= 40, ErrorCode::DefaultError);
+        let mut admin_bytes = [0u8; 32];
+        admin_bytes.copy_from_slice(&data[8..40]);
+        let stored_admin = Pubkey::from(admin_bytes);
+        require_keys_eq!(
+            stored_admin,
+            ctx.accounts.admin.key(),
+            ErrorCode::Unauthorized
+        );
+    }
+
+    let admin_ai = ctx.accounts.admin.to_account_info();
+    let token_program_id = ctx.accounts.token_program.key();
+    let signer_seeds = crate::signer::get_signer_seeds(&drift_signer_nonce);
+    let cpi_signers = &[&signer_seeds[..]];
+
+    // PASS 1: close token vaults. Remaining accounts must come in pairs:
+    //   (vault, mint), (vault, mint), ...
+    // For each vault: if it holds a non-zero balance, CPI burn first (mint is
+    // the next account in the pair), then CPI close_account.
+    // Drift-owned PDAs come AFTER all the (vault, mint) pairs.
+    let mut i = 0;
+    while i < ctx.remaining_accounts.len() {
+        let target = &ctx.remaining_accounts[i];
+        if *target.owner != token_program_id {
+            break; // start of drift-owned section
+        }
+        if target.lamports() == 0 {
+            i += 1;
+            continue;
+        }
+        // pair: next account is the mint
+        let mint_ai = ctx
+            .remaining_accounts
+            .get(i + 1)
+            .ok_or_else(|| ErrorCode::DefaultError)?;
+        require_keys_eq!(*mint_ai.owner, token_program_id, ErrorCode::DefaultError);
+
+        // read current token amount (offset 64..72 in SPL token account layout)
+        let amount = {
+            let data = target.try_borrow_data()?;
+            require!(data.len() >= 72, ErrorCode::DefaultError);
+            u64::from_le_bytes(data[64..72].try_into().unwrap())
+        };
+
+        if amount > 0 {
+            let burn_accounts = token_interface::Burn {
+                mint: mint_ai.clone(),
+                from: target.clone(),
+                authority: ctx.accounts.drift_signer.clone(),
+            };
+            let burn_ctx =
+                CpiContext::new_with_signer(token_program_id, burn_accounts, cpi_signers);
+            token_interface::burn(burn_ctx, amount)?;
+            msg!("burned {} from {}", amount, target.key());
+        }
+
+        let close_accounts = token_interface::CloseAccount {
+            account: target.clone(),
+            destination: admin_ai.clone(),
+            authority: ctx.accounts.drift_signer.clone(),
+        };
+        let close_ctx = CpiContext::new_with_signer(token_program_id, close_accounts, cpi_signers);
+        token_interface::close_account(close_ctx)?;
+        msg!("closed token vault {}", target.key());
+
+        i += 2; // skip past the mint
+    }
+    let drift_section_start = i;
+
+    // PASS 2: drain drift-owned PDAs by zeroing lamports; runtime GCs at EOT.
+    for target in ctx.remaining_accounts.iter().skip(drift_section_start) {
+        if *target.owner == system_program::ID || target.lamports() == 0 {
+            msg!("skip {} (already empty)", target.key());
+            continue;
+        }
+        if *target.owner != crate::ID {
+            msg!("skip {} (owner {} not drift)", target.key(), target.owner,);
+            continue;
+        }
+        let take = target.lamports();
+        **admin_ai.try_borrow_mut_lamports()? = admin_ai
+            .lamports()
+            .checked_add(take)
+            .ok_or_else(math_error!())?;
+        **target.try_borrow_mut_lamports()? = 0;
+        msg!("wiped {} (reclaimed {} lamports)", target.key(), take);
+    }
+    Ok(())
+}
+
+#[cfg(not(feature = "mainnet-beta"))]
+#[derive(Accounts)]
+pub struct ForceWipeAccountsDevnet<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+    /// CHECK: read raw bytes manually; both old and new State layouts have the
+    /// (cold-)admin pubkey at offset 8..40.
+    pub state: UncheckedAccount<'info>,
+    /// CHECK: PDA seeded by [b"drift_signer", nonce]. Verified by Token Program
+    /// at CPI time when closing token vaults; ignored otherwise.
+    pub drift_signer: AccountInfo<'info>,
+    pub token_program: Interface<'info, TokenInterface>,
+    // Targets are passed via `remaining_accounts` so a single call can wipe
+    // many accounts in one tx. Drift-owned PDAs are drained; token-owned vaults
+    // are closed via CPI (rent → admin).
+}

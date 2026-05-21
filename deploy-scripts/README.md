@@ -123,12 +123,11 @@ Optional:
 - `RPC_URL` (default `https://api.devnet.solana.com`)
 - `LP_POOL_ID` (default `1`; id `0` is the "not in a pool" sentinel)
 - `LP_MAX_AUM` (default `1_000_000`, multiplied by `QUOTE_PRECISION`)
-- `PROTECTED_MAKER_MAX_USERS` (default `200`)
 - `RECEIPT_PATH` (default `deploy-scripts/out/devnet-deployment.json`)
-- `SKIP_PHASE_C2=1`, `SKIP_PHASE_D=1`, `SKIP_PHASE_E=1`, `SKIP_PHASE_F=1`, `SKIP_PHASE_G=1`, `SKIP_PHASE_H=1` — bypass individual phases. **Phases F/G/H are optional** (IF shares transfer config / LP pool / protected maker mode) — skip freely. Phase F's program entrypoint (`initialize_protocol_if_shares_transfer_config`) is currently commented out in `programs/drift/src/lib.rs`, so set `SKIP_PHASE_F=1` until it's re-enabled. Phase E (oracle switch) is **required** for a functional dUSDT spot[0] — only skip during partial re-runs.
+- `SKIP_PHASE_C2=1`, `SKIP_PHASE_D=1`, `SKIP_PHASE_E=1`, `SKIP_PHASE_F=1`, `SKIP_PHASE_G=1` — bypass individual phases. **Phases F/G are optional** (IF shares transfer config / LP pool) — skip freely. Phase F's program entrypoint (`initialize_protocol_if_shares_transfer_config`) is currently commented out in `programs/drift/src/lib.rs`, so set `SKIP_PHASE_F=1` until it's re-enabled. Phase E (oracle switch) is **required** for a functional dUSDT spot[0] — only skip during partial re-runs.
 - `NON_INTERACTIVE=1` (or `YES=1`) — skip every confirmation prompt; useful for CI
 
-By default the script pauses before pre-flight and before each phase (0 + A–H), printing the resolved inputs (mint, oracle, LP id, etc.) and waiting for `y` to continue. Pre-flight verifies both the drift and token_faucet programs are deployed/executable, and that any caller-supplied `USDT_MINT` is a real token mint, before any state is touched.
+By default the script pauses before pre-flight and before each phase (0 + A–G), printing the resolved inputs (mint, oracle, LP id, etc.) and waiting for `y` to continue. Pre-flight verifies both the drift and token_faucet programs are deployed/executable, and that any caller-supplied `USDT_MINT` is a real token mint, before any state is touched.
 
 ## What gets initialized
 
@@ -145,11 +144,10 @@ Required phases (0 → E):
 - **D**  SOL-PERP at index 0 (uses SOL Pyth Lazer oracle)
 - **E**  switch dUSDT spot market oracle to `PythLazerStableCoin` pointing at the USDT lazer PDA — required because the program forces `QuoteAsset` at init for spot[0] (`admin.rs:217-228`); the only path to `PythLazerStableCoin` is the post-init `update_spot_market_oracle` ix.
 
-Optional phases (skip individually with `SKIP_PHASE_F/G/H=1`):
+Optional phases (skip individually with `SKIP_PHASE_F/G=1`):
 
 - **F**  `ProtocolIfSharesTransferConfig` *(currently disabled in `lib.rs`; set `SKIP_PHASE_F=1`)*
 - **G**  LP pool + dUSDT constituent
-- **H**  `ProtectedMakerModeConfig`
 
 Skipped by design (left for later):
 - Additional spot markets beyond dUSDT/SOL (BTC, ETH, …)
@@ -178,8 +176,47 @@ End-to-end smoke: use a second wallet to call `DriftClient.initializeUserAccount
 
 ## Operational notes (learned on first deploy)
 
-- **Use a private RPC for `solana program` writes.** The public `api.devnet.solana.com` rate-limits the ~1200 chunked writes an upgrade requires and fails partway through with `Data writes to account failed: Custom error: Max retries exceeded`, leaving an orphan buffer that locks ~38 SOL. Pass a private RPC via `anchor upgrade --provider.cluster <url>` (or edit `deploy-devnet.sh` similarly). `RPC_URL` covers the init script. Drift has a Triton pool at `https://drift-drift-a827.devnet.rpcpool.com/<token>` — see user memory `reference_drift_devnet_rpc.md`.
-- **If a buffer is orphaned, reclaim the SOL** with `solana program show --buffers --buffer-authority <admin>` then `solana program close <buffer> --keypair <admin>` — rent is refunded to the admin wallet.
+- **Use a private RPC for `solana program` writes.** The public `api.devnet.solana.com` rate-limits the ~5,000 chunked writes a drift upgrade requires (drift.so is ~5 MB → ~5,000 × 1 KB chunks) and fails partway through with `Data writes to account failed: Custom error: Max retries exceeded` and/or `Blockhash expired. N retries remaining`, leaving a partial buffer on chain. Pass a private RPC via `--url` to `solana program …` directly, or set `SOLANA_RPC` / `RPC_URL` for the helper scripts (`write-buffer-devnet.sh` / `deploy-from-buffer-devnet.sh` read it). `anchor program upgrade --provider.cluster <url>` works for the wrapper too, but it does **not** propagate the URL to the underlying `solana program deploy` subprocess — so also `solana config set --url <url>` before invoking anchor. Drift has a Triton pool at `https://drift-drift-a827.devnet.rpcpool.com/<token>` — see user memory `reference_drift_devnet_rpc.md`.
+
+- **`anchor upgrade` is deprecated → `anchor program upgrade` in Anchor 1.0.** Same flags, same `solana program deploy` underneath. `deploy-devnet.sh` uses the new form.
+
+- **Prefer the two-phase `write-buffer` → `deploy-from-buffer` flow over `anchor program upgrade`** for any upload more than a few hundred KB. The single-shot `anchor program upgrade` / bare `solana program deploy <file.so>` creates an *anonymous* internal buffer, then auto-closes it on fatal error to refund rent — so on the next attempt there's nothing to resume from and you start at chunk 0 again. The two-phase flow uses a **named buffer keypair** so the on-chain buffer persists across attempts and `write-buffer` resumes by only re-sending chunks that haven't landed yet. Use the helper scripts:
+  ```
+  export DRIFT_DEVNET_UPGRADE_KEYPAIR=/path/to/upgrade-authority.json
+  export SOLANA_RPC=https://drift-drift-a827.devnet.rpcpool.com/<token>
+  bash deploy-scripts/write-buffer-devnet.sh     # ← re-run this until it exits clean
+  BUFFER_ACCOUNT_KEYPAIR=deploy-scripts/out/drift-so-write-buffer-keypair.json \
+    bash deploy-scripts/deploy-from-buffer-devnet.sh
+  ```
+  The buffer keypair file is reused across `write-buffer-devnet.sh` invocations; each pass closes more gaps until the buffer is whole.
+
+- **Symptom: `Failed to parse ELF file: invalid section header` / `invalid account data for instruction`** when running the swap (`program deploy --buffer …`). The buffer is **partial** — some chunk-writes silently never landed even though `write-buffer` exited 0. The CLI's exit code isn't a reliable "buffer is complete" signal: a last-batch retry success can mask earlier dropped writes. Fix:
+  ```
+  solana program show <BUFFER_PK> --url <rpc>     # compare Data Length to ls -l target/deploy/drift.so
+  bash deploy-scripts/write-buffer-devnet.sh      # re-run; resume fills missing chunks
+  ```
+  Two to three resume passes is normal. When `solana program show` reports Data Length ≈ .so size (BPF loader prepends ~45-byte header), the buffer is whole. Adding `--with-compute-unit-price 1000` to the underlying `solana program write-buffer` invocation (or via the `write-buffer-devnet.sh` env) helps individual chunk-writes win contention faster.
+
+- **Why the upload "starts from scratch each time" in the wrapper flow but not in the helper-script flow.** `anchor program upgrade` / `solana program deploy <file>` invent a new buffer pubkey per invocation and never expose it; on partial failure the recent CLI tears the buffer down to refund rent. The next invocation has no buffer to resume into. The helper scripts hold the buffer keypair file on disk, so the next invocation finds the same partial buffer on chain and only writes the gaps.
+
+- **If a buffer is orphaned, reclaim the SOL** — each abandoned buffer locks ~38 SOL (devnet rent for a drift-sized buffer):
+  ```
+  # List buffers under each candidate authority (CLI default keypair vs. upgrade authority)
+  solana program show --buffers --url <rpc>
+  solana program show --buffers --url <rpc> \
+    --buffer-authority $(solana-keygen pubkey "$DRIFT_DEVNET_UPGRADE_KEYPAIR")
+
+  # Close one
+  solana program close <BUFFER_PK> --url <rpc> \
+    --recipient $(solana-keygen pubkey "$DRIFT_DEVNET_UPGRADE_KEYPAIR") \
+    --buffer-authority "$DRIFT_DEVNET_UPGRADE_KEYPAIR"
+
+  # Close all buffers under one authority in one shot
+  solana program close --buffers --url <rpc> \
+    --recipient $(solana-keygen pubkey "$DRIFT_DEVNET_UPGRADE_KEYPAIR") \
+    --buffer-authority "$DRIFT_DEVNET_UPGRADE_KEYPAIR"
+  ```
+  `--buffer-authority` must point at the keypair file (signer), not just the pubkey. If `--buffers` finds nothing under either candidate authority but balances look intact, the CLI already auto-closed and refunded — no action needed.
 - **`anchor build` for the drift keypair mismatch:** the checked-in `target/deploy/drift-keypair.json` is a placeholder, so `anchor build` fails with "Program ID mismatch" on a clean checkout. Pass `--ignore-keys` — the deployed program id is hard-coded in source and the local keypair is unused for upgrade.
 - **`bun` strict type-only re-exports:** `bun run deploy-scripts/init-devnet.ts` fails if the SDK re-exports a type without the `type` keyword (e.g. `export { PythLazerPriceFeedArray }`). This was fixed in `sdk/src/index.ts` and `sdk/src/pyth/index.ts`; keep an eye on it when adding new SDK exports.
 - **Pyth Lazer message must include `feedUpdateTimestamp`.** The on-chain `post_pyth_lazer_oracle_update` ix silently skips updates whose payload lacks `FeedUpdateTimestamp` (`programs/drift/src/instructions/pyth_lazer_oracle.rs:99-102`) — the tx returns Ok with no on-chain write, and the next phase fails with `Unable to read oracle price`. Phase C+ subscribes with `feedUpdateTimestamp` plus `bestBid/AskPrice` (used for confidence) and `exponent`; do not strip these properties.

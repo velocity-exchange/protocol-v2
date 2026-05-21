@@ -1554,6 +1554,24 @@ pub mod drift {
         handle_update_hot_admin(ctx, role, new_pubkey)
     }
 
+    /// Devnet-only escape hatch: cleans up accounts stranded by a layout-breaking
+    /// program upgrade (or by a partial re-init). For each account passed via
+    /// `remaining_accounts`:
+    ///   - drift-owned PDA → drain lamports (runtime GCs at end of tx)
+    ///   - token-program owned vault (drift_signer close-authority) → CPI
+    ///     `close_account`, rent refunded to admin
+    /// Admin gate reads State's first pubkey field at raw offset 8..40 so it
+    /// works regardless of the State layout currently on chain. `drift_signer_nonce`
+    /// must match `State.signer_nonce`; mismatch fails the token CPI signature.
+    /// Stripped from mainnet builds via `mainnet-beta`.
+    #[cfg(not(feature = "mainnet-beta"))]
+    pub fn force_wipe_accounts_devnet<'info>(
+        ctx: Context<'info, ForceWipeAccountsDevnet<'info>>,
+        drift_signer_nonce: u8,
+    ) -> Result<()> {
+        handle_force_wipe_accounts_devnet(ctx, drift_signer_nonce)
+    }
+
     // pub fn update_whitelist_mint(
     //     ctx: Context<AdminUpdateState>,
     //     whitelist_mint: Pubkey,
