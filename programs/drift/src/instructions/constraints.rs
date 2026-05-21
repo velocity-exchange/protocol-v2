@@ -78,7 +78,8 @@ pub fn valid_oracle_for_perp_market(
     Ok(())
 }
 
-pub fn liq_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn liq_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state
         .get_exchange_status()?
         .contains(ExchangeStatus::LiqPaused)
@@ -88,21 +89,24 @@ pub fn liq_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
     Ok(())
 }
 
-pub fn funding_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn funding_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state.funding_paused()? {
         return Err(ErrorCode::ExchangePaused.into());
     }
     Ok(())
 }
 
-pub fn amm_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn amm_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state.amm_paused()? {
         return Err(ErrorCode::ExchangePaused.into());
     }
     Ok(())
 }
 
-pub fn fill_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn fill_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state
         .get_exchange_status()?
         .contains(ExchangeStatus::FillPaused)
@@ -112,7 +116,8 @@ pub fn fill_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
     Ok(())
 }
 
-pub fn deposit_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn deposit_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state
         .get_exchange_status()?
         .contains(ExchangeStatus::DepositPaused)
@@ -122,7 +127,8 @@ pub fn deposit_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
     Ok(())
 }
 
-pub fn withdraw_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn withdraw_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state
         .get_exchange_status()?
         .contains(ExchangeStatus::WithdrawPaused)
@@ -132,7 +138,8 @@ pub fn withdraw_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
     Ok(())
 }
 
-pub fn settle_pnl_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn settle_pnl_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state
         .get_exchange_status()?
         .contains(ExchangeStatus::SettlePnlPaused)
@@ -142,7 +149,8 @@ pub fn settle_pnl_not_paused(state: &Account<State>) -> anchor_lang::Result<()> 
     Ok(())
 }
 
-pub fn exchange_not_paused(state: &Account<State>) -> anchor_lang::Result<()> {
+pub fn exchange_not_paused(state: &AccountLoader<State>) -> anchor_lang::Result<()> {
+    let state = state.load()?;
     if state.get_exchange_status()?.is_all() {
         return Err(ErrorCode::ExchangePaused.into());
     }

@@ -1,9 +1,4 @@
-import {
-	isVariant,
-	MarketTypeStr,
-	Order,
-	ProtectedMakerParams,
-} from '../types';
+import { isVariant, MarketTypeStr, Order } from '../types';
 import { createNode, DLOBNode, DLOBNodeMap } from './DLOBNode';
 import { BN } from '../isomorphic/anchor';
 
@@ -42,8 +37,6 @@ export class NodeList<NodeType extends keyof DLOBNodeMap>
 		order: Order,
 		marketType: MarketTypeStr,
 		userAccount: string,
-		isProtectedMaker: boolean,
-		protectedMakerParamsMap?: ProtectedMakerParams,
 		baseAssetAmount?: BN
 	): void {
 		if (!isVariant(order.status, 'open')) {
@@ -54,8 +47,6 @@ export class NodeList<NodeType extends keyof DLOBNodeMap>
 			this.nodeType,
 			order,
 			userAccount,
-			isProtectedMaker,
-			protectedMakerParamsMap,
 			baseAssetAmount
 		);
 

@@ -1,17 +1,25 @@
-use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
-use anchor_lang::prelude::*;
-
-use crate::controller::position::PositionDirection;
-use crate::error::{DriftResult, ErrorCode::InvalidOrder};
-use crate::math::casting::Cast;
-use crate::math::safe_unwrap::SafeUnwrap;
-use crate::state::order_params::{
-    OrderParams, SignedMsgOrderParamsDelegateMessage, SignedMsgOrderParamsMessage,
-};
-use crate::state::traits::Size;
-use crate::state::user::{MarketType, Order};
-use anchor_lang::Discriminator;
 use std::io::Write;
+
+use anchor_lang::{
+    prelude::{
+        borsh::{BorshDeserialize, BorshSerialize},
+        *,
+    },
+    Discriminator,
+};
+
+use crate::{
+    controller::position::PositionDirection,
+    error::{DriftResult, ErrorCode::InvalidOrder},
+    math::{casting::Cast, safe_unwrap::SafeUnwrap},
+    state::{
+        order_params::{
+            OrderParams, SignedMsgOrderParamsDelegateMessage, SignedMsgOrderParamsMessage,
+        },
+        traits::Size,
+        user::{MarketType, Order},
+    },
+};
 
 #[event]
 pub struct NewUserRecord {
@@ -136,8 +144,6 @@ pub struct FundingRateRecord {
     pub period_revenue: i64,
     /// precision: BASE_PRECISION
     pub base_asset_amount_with_amm: i128,
-    /// precision: BASE_PRECISION
-    pub base_asset_amount_with_unsettled_lp: i128,
 }
 
 #[event]
@@ -394,37 +400,6 @@ pub enum OrderActionExplanation {
 
 #[event]
 #[derive(Default)]
-pub struct LPRecord {
-    pub ts: i64,
-    pub user: Pubkey,
-    pub action: LPAction,
-    /// precision: AMM_RESERVE_PRECISION
-    pub n_shares: u64,
-    pub market_index: u16,
-    /// precision: BASE_PRECISION
-    pub delta_base_asset_amount: i64,
-    /// precision: QUOTE_PRECISION
-    pub delta_quote_asset_amount: i64,
-    /// realized pnl of the position settlement
-    /// precision: QUOTE_PRECISION
-    pub pnl: i64,
-}
-
-#[derive(Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Default)]
-pub enum LPAction {
-    #[default]
-    AddLiquidity,
-    RemoveLiquidity,
-    SettleLiquidity,
-    RemoveLiquidityDerisk,
-}
-
-impl Size for LPRecord {
-    const SIZE: usize = 112;
-}
-
-#[event]
-#[derive(Default)]
 pub struct LiquidationRecord {
     pub ts: i64,
     pub liquidation_type: LiquidationType,
@@ -462,8 +437,6 @@ pub struct LiquidatePerpRecord {
     pub oracle_price: i64,
     pub base_asset_amount: i64,
     pub quote_asset_amount: i64,
-    /// precision: AMM_RESERVE_PRECISION
-    pub lp_shares: u64,
     pub fill_record_id: u64,
     pub user_order_id: u32,
     pub liquidator_order_id: u32,
@@ -696,39 +669,6 @@ pub struct DeleteUserRecord {
     pub user: Pubkey,
     pub sub_account_id: u16,
     pub keeper: Option<Pubkey>,
-}
-
-#[event]
-pub struct FuelSweepRecord {
-    pub ts: i64,
-    pub authority: Pubkey,
-    // fuel values on UserStats before sweep
-    pub user_stats_fuel_insurance: u32,
-    pub user_stats_fuel_deposits: u32,
-    pub user_stats_fuel_borrows: u32,
-    pub user_stats_fuel_positions: u32,
-    pub user_stats_fuel_taker: u32,
-    pub user_stats_fuel_maker: u32,
-    // fuel values on FuelOverflow before sweep
-    pub fuel_overflow_fuel_insurance: u128,
-    pub fuel_overflow_fuel_deposits: u128,
-    pub fuel_overflow_fuel_borrows: u128,
-    pub fuel_overflow_fuel_positions: u128,
-    pub fuel_overflow_fuel_taker: u128,
-    pub fuel_overflow_fuel_maker: u128,
-}
-
-#[event]
-pub struct FuelSeasonRecord {
-    pub ts: i64,
-    pub authority: Pubkey,
-    pub fuel_insurance: u128,
-    pub fuel_deposits: u128,
-    pub fuel_borrows: u128,
-    pub fuel_positions: u128,
-    pub fuel_taker: u128,
-    pub fuel_maker: u128,
-    pub fuel_total: u128,
 }
 
 #[event]

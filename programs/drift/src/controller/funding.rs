@@ -312,7 +312,6 @@ pub fn update_funding_rate(
             oracle_price_twap,
             period_revenue: market.amm.net_revenue_since_last_funding,
             base_asset_amount_with_amm: market.amm.base_asset_amount_with_amm,
-            base_asset_amount_with_unsettled_lp: market.amm.base_asset_amount_with_unsettled_lp,
         });
 
         market.amm.net_revenue_since_last_funding = 0;

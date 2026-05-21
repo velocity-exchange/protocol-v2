@@ -280,10 +280,13 @@ pub enum ErrorCode {
     DailyWithdrawLimit,
     #[msg("DefaultError")]
     DefaultError,
+    /// @deprecated vAMM LP removed.
     #[msg("Insufficient LP tokens")]
     InsufficientLPTokens,
+    /// @deprecated vAMM LP removed.
     #[msg("Cant LP with a market position")]
     CantLPWithPerpPosition,
+    /// @deprecated vAMM LP removed.
     #[msg("Unable to burn LP tokens")]
     UnableToBurnLPTokens,
     #[msg("Trying to remove liqudity too fast after adding it")]
@@ -292,16 +295,22 @@ pub enum ErrorCode {
     InvalidSpotMarketVault,
     #[msg("Invalid Spot Market State")]
     InvalidSpotMarketState,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumProgram")]
     InvalidSerumProgram,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumMarket")]
     InvalidSerumMarket,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumBids")]
     InvalidSerumBids,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumAsks")]
     InvalidSerumAsks,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidSerumOpenOrders")]
     InvalidSerumOpenOrders,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedSerumCPI")]
     FailedSerumCPI,
     #[msg("FailedToFillOnExternalMarket")]
@@ -347,6 +356,7 @@ pub enum ErrorCode {
     PerpMarketSettlementBufferNotReached,
     #[msg("PerpMarketSettlementUserHasOpenOrders")]
     PerpMarketSettlementUserHasOpenOrders,
+    /// @deprecated vAMM LP removed.
     #[msg("PerpMarketSettlementUserHasActiveLP")]
     PerpMarketSettlementUserHasActiveLP,
     #[msg("UnableToSettleExpiredUserPosition")]
@@ -430,14 +440,17 @@ pub enum ErrorCode {
     BlockchainClockInconsistency,
     #[msg("InvalidIFSharesDetected")]
     InvalidIFSharesDetected,
+    /// @deprecated vAMM LP removed.
     #[msg("NewLPSizeTooSmall")]
     NewLPSizeTooSmall,
+    /// @deprecated vAMM LP removed.
     #[msg("MarketStatusInvalidForNewLP")]
     MarketStatusInvalidForNewLP,
     #[msg("InvalidMarkTwapUpdateDetected")]
     InvalidMarkTwapUpdateDetected,
     #[msg("MarketSettlementAttemptOnActiveMarket")]
     MarketSettlementAttemptOnActiveMarket,
+    /// @deprecated vAMM LP removed.
     #[msg("MarketSettlementRequiresSettledLP")]
     MarketSettlementRequiresSettledLP,
     #[msg("MarketSettlementAttemptTooEarly")]
@@ -508,14 +521,18 @@ pub enum ErrorCode {
     InvalidSpotFulfillmentParams,
     #[msg("Failed to Get Mint")]
     FailedToGetMint,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedPhoenixCPI")]
     FailedPhoenixCPI,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedToDeserializePhoenixMarket")]
     FailedToDeserializePhoenixMarket,
     #[msg("InvalidPricePrecision")]
     InvalidPricePrecision,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidPhoenixProgram")]
     InvalidPhoenixProgram,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidPhoenixMarket")]
     InvalidPhoenixMarket,
     #[msg("InvalidSwap")]
@@ -581,10 +598,13 @@ pub enum ErrorCode {
     OracleMismatchedVaaAndPriceUpdates,
     #[msg("Remaining account passed does not match oracle update derived pda")]
     OracleBadRemainingAccountPublicKey,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("FailedOpenbookV2CPI")]
     FailedOpenbookV2CPI,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidOpenbookV2Program")]
     InvalidOpenbookV2Program,
+    /// @deprecated removed with spot fulfillment infra
     #[msg("InvalidOpenbookV2Market")]
     InvalidOpenbookV2Market,
     #[msg("Non zero transfer fee")]
@@ -632,6 +652,7 @@ pub enum ErrorCode {
     InvalidSignedMsgOrderId,
     #[msg("Invalid pool id")]
     InvalidPoolId,
+    /// @deprecated protected maker mode removed
     #[msg("Invalid Protected Maker Mode Config")]
     InvalidProtectedMakerModeConfig,
     #[msg("Invalid pyth lazer storage owner")]
@@ -646,10 +667,12 @@ pub enum ErrorCode {
     InvalidLiquidateSpotWithSwap,
     #[msg("User in SignedMsg message does not match user in ix context")]
     SignedMsgUserContextUserMismatch,
-    #[msg("User fuel overflow threshold not met")]
-    UserFuelOverflowThresholdNotMet,
-    #[msg("FuelOverflow account not found")]
-    FuelOverflowAccountNotFound,
+    /// Deprecated: kept to preserve error code ordering
+    #[msg("Deprecated")]
+    Deprecated1,
+    /// Deprecated: kept to preserve error code ordering
+    #[msg("Deprecated")]
+    Deprecated2,
     #[msg("Invalid Transfer Perp Position")]
     InvalidTransferPerpPosition,
     #[msg("Invalid SignedMsgUserOrders resize")]
@@ -730,6 +753,8 @@ pub enum ErrorCode {
     InvalidInsuranceFundWithdrawalRecipient,
     #[msg("Spot DLOB trading is disabled")]
     SpotDlobTradingDisabled,
+    #[msg("Signer is not authorized for this admin tier")]
+    InvalidAdminTier,
 }
 
 #[macro_export]

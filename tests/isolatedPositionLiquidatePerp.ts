@@ -403,10 +403,6 @@ describe('liquidate perp (no open orders)', () => {
 		assert(driftClient.getUserAccount().perpPositions[0].positionFlag === 1);
 
 		console.log(driftClient.getUserAccount());
-		// assert(
-		// 	driftClient.getUserAccount().perpPositions[0].quoteAssetAmount.eq(ZERO)
-		// );
-		// assert(driftClient.getUserAccount().perpPositions[0].lpShares.eq(ZERO));
 
 		const perpBankruptcyRecord =
 			eventSubscriber.getEventsArray('LiquidationRecord')[0];

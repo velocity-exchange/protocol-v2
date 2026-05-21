@@ -1,10 +1,11 @@
 use anchor_lang::{prelude::*, Accounts, Key, Result};
 use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
-use crate::ids::lp_pool_swap_wallet;
+use crate::auth::check_hot;
 use crate::math::constants::PRICE_PRECISION_I64;
 use crate::state::events::{DepositDirection, LPBorrowLendDepositRecord};
 use crate::state::paused_operations::ConstituentLpOperation;
+use crate::state::state::HotRole;
 use crate::validation::whitelist::validate_whitelist_token;
 use crate::{
     controller::{
@@ -14,7 +15,6 @@ use crate::{
     },
     error::ErrorCode,
     get_then_update_id,
-    ids::admin_hot_wallet,
     math::{
         self,
         casting::Cast,
@@ -155,7 +155,7 @@ pub fn handle_update_lp_pool_aum<'c: 'info, 'info>(
     ctx: Context<'info, UpdateLPPoolAum<'info>>,
 ) -> Result<()> {
     let mut lp_pool = ctx.accounts.lp_pool.load_mut()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let slot = Clock::get()?.slot;
 
@@ -245,7 +245,7 @@ pub fn handle_lp_pool_swap<'c: 'info, 'info>(
     in_amount: u64,
     min_out_amount: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     validate!(
         state.allow_swap_lp_pool(),
         ErrorCode::DefaultError,
@@ -527,7 +527,7 @@ pub fn handle_view_lp_pool_swap_fees<'c: 'info, 'info>(
     out_target_weight: i64,
 ) -> Result<()> {
     let slot = Clock::get()?.slot;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let lp_pool = &ctx.accounts.lp_pool.load()?;
     let in_constituent = ctx.accounts.in_constituent.load()?;
@@ -626,7 +626,7 @@ pub fn handle_lp_pool_add_liquidity<'c: 'info, 'info>(
     in_amount: u128,
     min_mint_amount: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     validate!(
         state.allow_mint_redeem_lp_pool(),
@@ -885,7 +885,7 @@ pub fn handle_view_lp_pool_add_liquidity_fees<'c: 'info, 'info>(
     in_amount: u128,
 ) -> Result<()> {
     let slot = Clock::get()?.slot;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let lp_pool = ctx.accounts.lp_pool.load()?;
 
     if slot.saturating_sub(lp_pool.last_aum_slot) > LP_POOL_SWAP_AUM_UPDATE_DELAY {
@@ -989,7 +989,7 @@ pub fn handle_lp_pool_remove_liquidity<'c: 'info, 'info>(
 ) -> Result<()> {
     let slot = Clock::get()?.slot;
     let now = Clock::get()?.unix_timestamp;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     validate!(
         state.allow_mint_redeem_lp_pool(),
@@ -1155,7 +1155,7 @@ pub fn handle_lp_pool_remove_liquidity<'c: 'info, 'info>(
             &mut out_spot_market,
             &mut out_constituent,
             out_oracle.price,
-            &ctx.accounts.state,
+            &*ctx.accounts.state.load()?,
             &mut ctx.accounts.spot_market_token_account,
             &mut ctx.accounts.constituent_out_token_account,
             &ctx.accounts.token_program,
@@ -1286,7 +1286,7 @@ pub fn handle_view_lp_pool_remove_liquidity_fees<'c: 'info, 'info>(
     lp_to_burn: u64,
 ) -> Result<()> {
     let slot = Clock::get()?.slot;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let lp_pool = ctx.accounts.lp_pool.load()?;
 
     if slot.saturating_sub(lp_pool.last_aum_slot) > LP_POOL_SWAP_AUM_UPDATE_DELAY {
@@ -1388,7 +1388,7 @@ pub fn handle_update_constituent_oracle_info<'c: 'info, 'info>(
     let mut oracle_map = OracleMap::load_one(
         &ctx.accounts.oracle,
         clock.slot,
-        Some(ctx.accounts.state.oracle_guard_rails),
+        Some(ctx.accounts.state.load()?.oracle_guard_rails),
     )?;
 
     let oracle_data = oracle_map.get_price_data(&oracle_id)?;
@@ -1413,7 +1413,7 @@ pub fn handle_deposit_to_program_vault<'c: 'info, 'info>(
     let mut oracle_map = OracleMap::load_one(
         &ctx.accounts.oracle,
         clock.slot,
-        Some(ctx.accounts.state.oracle_guard_rails),
+        Some(ctx.accounts.state.load()?.oracle_guard_rails),
     )?;
     let remaining_accounts = &mut ctx.remaining_accounts.iter().peekable();
 
@@ -1535,7 +1535,7 @@ pub fn handle_withdraw_from_program_vault<'c: 'info, 'info>(
     ctx: Context<'info, WithdrawProgramVault<'info>>,
     amount: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
 
     let mut spot_market = ctx.accounts.spot_market.load_mut()?;
@@ -1544,7 +1544,7 @@ pub fn handle_withdraw_from_program_vault<'c: 'info, 'info>(
     let mut oracle_map = OracleMap::load_one(
         &ctx.accounts.oracle,
         clock.slot,
-        Some(ctx.accounts.state.oracle_guard_rails),
+        Some(ctx.accounts.state.load()?.oracle_guard_rails),
     )?;
     let remaining_accounts = &mut ctx.remaining_accounts.iter().peekable();
 
@@ -1721,10 +1721,10 @@ fn transfer_from_program_vault<'info>(
 
 #[derive(Accounts)]
 pub struct DepositProgramVault<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin || admin.key() == lp_pool_swap_wallet::id()
+        constraint = check_hot(&admin.key(), &state, HotRole::LpSwap)?
     )]
     pub admin: Signer<'info>,
     #[account(mut)]
@@ -1757,10 +1757,10 @@ pub struct DepositProgramVault<'info> {
 
 #[derive(Accounts)]
 pub struct WithdrawProgramVault<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin || admin.key() == lp_pool_swap_wallet::id()
+        constraint = check_hot(&admin.key(), &state, HotRole::LpSwap)?
     )]
     pub admin: Signer<'info>,
     /// CHECK: program signer
@@ -1796,7 +1796,7 @@ pub struct WithdrawProgramVault<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateConstituentOracleInfo<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub keeper: Signer<'info>,
     #[account(mut)]
@@ -1812,7 +1812,7 @@ pub struct UpdateConstituentOracleInfo<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateConstituentTargetBase<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub keeper: Signer<'info>,
     /// CHECK: checked in AmmConstituentMappingZeroCopy checks
@@ -1827,7 +1827,7 @@ pub struct UpdateConstituentTargetBase<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateLPPoolAum<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub keeper: Signer<'info>,
     #[account(mut)]
@@ -1848,7 +1848,7 @@ pub struct UpdateLPPoolAum<'info> {
     out_market_index: u16,
 )]
 pub struct LPPoolSwap<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub lp_pool: AccountLoader<'info, LPPool>,
 
     /// CHECK: checked in ConstituentTargetBaseZeroCopy checks and in ix
@@ -1916,7 +1916,7 @@ pub struct LPPoolSwap<'info> {
 pub struct ViewLPPoolSwapFees<'info> {
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub lp_pool: AccountLoader<'info, LPPool>,
 
     /// CHECK: checked in ConstituentTargetBaseZeroCopy checks and in ix
@@ -1962,7 +1962,7 @@ pub struct ViewLPPoolSwapFees<'info> {
     in_market_index: u16,
 )]
 pub struct LPPoolAddLiquidity<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub lp_pool: AccountLoader<'info, LPPool>,
     pub authority: Signer<'info>,
@@ -2018,7 +2018,7 @@ pub struct LPPoolAddLiquidity<'info> {
     in_market_index: u16,
 )]
 pub struct ViewLPPoolAddLiquidityFees<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub lp_pool: AccountLoader<'info, LPPool>,
     pub authority: Signer<'info>,
     pub in_market_mint: Box<InterfaceAccount<'info, Mint>>,
@@ -2041,9 +2041,9 @@ pub struct ViewLPPoolAddLiquidityFees<'info> {
     out_market_index: u16,
 )]
 pub struct LPPoolRemoveLiquidity<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
-        constraint = drift_signer.key() == state.signer
+        constraint = drift_signer.key() == state.load()?.signer
     )]
     /// CHECK: drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -2113,7 +2113,7 @@ pub struct LPPoolRemoveLiquidity<'info> {
     in_market_index: u16,
 )]
 pub struct ViewLPPoolRemoveLiquidityFees<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub lp_pool: AccountLoader<'info, LPPool>,
     pub authority: Signer<'info>,
     pub out_market_mint: Box<InterfaceAccount<'info, Mint>>,

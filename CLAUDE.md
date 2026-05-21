@@ -30,8 +30,49 @@ cd sdk/ && bun install && bun run build
 ```
 
 **Update IDL after program changes:**
+
+NEVER hand-edit `sdk/src/idl/drift.json` or `sdk/src/idl/drift.ts` — they are generated artifacts. To change them, modify the Rust program and regenerate. Manual edits will silently drift from on-chain layout and break clients.
+
 ```bash
 anchor build -- --features anchor-test && cp target/idl/drift.json sdk/src/idl/drift.json
+```
+
+After regenerating the JSON, also regenerate the TypeScript IDL the SDK imports:
+```bash
+anchor idl type sdk/src/idl/drift.json --out sdk/src/idl/drift.ts
+```
+
+**Fast IDL-only regeneration** (no SBF .so build, useful when only field names/layouts changed):
+```bash
+anchor idl build -p drift -o target/idl/drift.json -- --features anchor-test
+cp target/idl/drift.json sdk/src/idl/drift.json
+anchor idl type sdk/src/idl/drift.json --out sdk/src/idl/drift.ts
+```
+`anchor idl build` runs under `cargo test` with the host toolchain, which sidesteps the bundled-cargo issues described below.
+
+### macOS build environment
+
+Two pitfalls that fresh setups regularly hit. If you see either symptom, apply the matching fix before debugging anything else.
+
+**Symptom: `c/blake3_impl.h:4:10: fatal error: 'assert.h' file not found`** during `anchor build`.
+The Solana platform-tools clang has no built-in macOS SDK path; it can't find system headers. Fix:
+```bash
+export SDKROOT="$(xcrun --show-sdk-path)"
+```
+(or prefix the build command with it). Add it to your shell profile so future sessions inherit it.
+
+**Symptom: `feature 'edition2024' is required ... not stabilized in this version of Cargo (1.84.0)`** when downloading `toml_datetime` / `wincode` / `toml_parser`.
+The bundled cargo in older platform-tools (v1.51 ships cargo 1.84) can't parse `edition2024` deps. Fix by upgrading platform-tools — the Anchor 1.0 branches need ≥ v1.54:
+```bash
+cargo-build-sbf --tools-version v1.54 --force-tools-install
+```
+Run that once; subsequent `anchor build` invocations will use the new toolchain. Check with `cargo-build-sbf --version`.
+
+**Symptom: program panics with `Access violation in unknown section at address 0x80 of size 8`** (or similar address) at runtime, on instructions that touch types you didn't change.
+This is almost always **stale SBF build artifacts** after a Cargo.lock dep change. SBF caches compiled `.rlib`s under `target/sbpf-solana-solana/`, and the cache key doesn't catch every dep-resolution change — the resulting `.so` loads but reads/writes wrong offsets. Whenever Cargo.lock dep versions change (e.g. after `cargo update`, or after switching branches with different lockfiles), do:
+```bash
+rm -rf target/sbpf-solana-solana target/deploy
+cargo-build-sbf --tools-version v1.54 -- --features anchor-test
 ```
 
 ## Testing
@@ -53,6 +94,7 @@ bash test-scripts/run-anchor-tests.sh
 # Skip rebuild if .so is already built:
 bash test-scripts/run-anchor-tests.sh --skip-build
 ```
+The integration tests in `tests/` resolve `@coral-xyz/anchor` and friends from the **repo-root** `node_modules`, not from `sdk/`. If you only ran `bun install` / `yarn install` inside `sdk/`, the test files will fail to load with `Cannot find module '@coral-xyz/anchor'`. Run `yarn install` (or `bun install`) at the repo root first.
 
 **SDK unit tests:**
 ```bash
@@ -65,6 +107,38 @@ cd sdk/ && bun run test:ci      # CI subset
 cargo fmt                        # Rust
 cd sdk/ && yarn prettify:fix     # SDK (TypeScript)
 ```
+
+**Always run `cargo fmt` and `cargo clippy -p drift` before declaring Rust work complete.** CI runs `cargo fmt -- --check` and `cargo clippy -p drift` (see `.github/workflows/main.yml`) and will fail the PR otherwise. The equivalent SDK gate is `cd sdk/ && yarn prettify` + `yarn lint`. Do not hand off a change until those commands are clean.
+
+## Devnet program upgrade
+
+Full runbook lives in [`deploy-scripts/README.md`](./deploy-scripts/README.md). Read its "Operational notes" section before any devnet upgrade. The key rules:
+
+- **Always use a private RPC** for `solana program` / `anchor program upgrade` writes — drift.so is ~5 MB (~5,000 chunked writes) and `api.devnet.solana.com` reliably rate-limits the upload partway through. Drift's Triton URL is recorded in memory `reference_drift_devnet_rpc.md`. Also `solana config set --url <url>` so the underlying CLI inherits it.
+- **Prefer the two-phase deploy over `anchor program upgrade`.** Drive `deploy-scripts/write-buffer-devnet.sh` (creates / resumes a named on-chain buffer) and then `deploy-scripts/deploy-from-buffer-devnet.sh` (one-tx swap). `anchor program upgrade` creates an anonymous buffer and auto-closes it on failure, so the next retry restarts from chunk 0; the two-phase flow keeps the buffer pubkey on disk so re-running `write-buffer-devnet.sh` resumes by only re-sending chunks that didn't land.
+- **Resume until done.** `write-buffer` can exit 0 with the buffer still partial. Verify with `solana program show <BUFFER_PK>` — Data Length must be ≥ the .so size. If `deploy-from-buffer` fails with `Failed to parse ELF file: invalid section header` / `invalid account data for instruction`, the buffer is partial — re-run `write-buffer-devnet.sh` against the same buffer keypair and re-attempt.
+- **Reclaim rent from orphaned buffers** (~38 SOL each for drift-sized buffers): `solana program show --buffers [--buffer-authority <pk>]` to list, `solana program close --buffers --recipient <pk> --buffer-authority <keypair>` to close all under one authority. Check both the CLI default keypair and the upgrade-authority keypair as candidate authorities.
+- **Anchor 1.0 renamed `anchor upgrade` → `anchor program upgrade`.** `deploy-devnet.sh` uses the new form.
+
+After a successful upgrade with a layout-breaking change, run `deploy-scripts/wipe-devnet.ts` (calls the devnet-only `force_wipe_accounts_devnet` ix) then `deploy-scripts/init-devnet.sh` to recreate state under the new layouts.
+
+### Wipe-and-reinit pitfalls
+
+Each item below cost real time before being understood — read this before touching the wipe path.
+
+- **SPL token vaults survive a drift-only wipe.** Solana rule: only the owning program can decrement an account's lamports. `force_wipe_accounts_devnet` zeroes drift-owned PDAs but cannot touch `spot_market_vault` / `insurance_fund_vault` (Token-program owned). After a wipe these vaults linger and `initialize_spot_market` then fails with `Allocate: account ... already in use` because Anchor's `init` constraint unconditionally calls System Allocate on the same PDA address.
+- **Closing an SPL token account requires `amount == 0`.** Token program rejects `close_account` with `Non-native account can only be closed if its balance is zero` (error `0xb`). The wipe ix must `spl_token::burn` (or transfer) before closing — and `burn` needs the mint passed as a writable account. The wipe-devnet.ts script reads each vault's data on chain to find its mint and passes `(vault, mint)` pairs in `remaining_accounts`.
+- **Mixing manual lamport mutation with CPI in one loop trips the runtime.** Solana's per-CPI conservation check fires with `sum of account balances before and after instruction do not match` if you manually credit admin lamports and then CPI into another program that also rebalances lamports. Fix: do all CPI closes in one pass, then all manual drains in a second pass.
+- **The IDL regen recipe must drop `mainnet-beta` or devnet-only ixs vanish from the IDL.** Default features include `mainnet-beta`, which strips `#[cfg(not(feature = "mainnet-beta"))]` items. The deployed `.so` *has* the ix (built via `build-devnet.sh` with `--no-default-features`) but `program.methods.forceWipeAccountsDevnet` is undefined on the SDK because the IDL doesn't list it. Use: `anchor idl build -p drift -o target/idl/drift.json -- --no-default-features --features no-entrypoint,anchor-test` then `cp` and `anchor idl type`.
+- **Anchor 1.0 `.accounts()` is implicitly `accountsPartial` and may reorder.** When sending a wipe ix with explicit `driftSigner` + `tokenProgram`, the auto-resolver can shift them into `remaining_accounts`. Use `.accountsStrict({...})` for fixed account sets.
+- **`deploy-from-buffer-devnet.sh` insists on a `PROGRAM_KEYPAIR` file.** For an *upgrade* you don't need the program keypair — only the upgrade authority. Direct: `solana program deploy target/deploy/drift.so --buffer <BUF_PK> --program-id <PROGRAM_PUBKEY> --upgrade-authority <KP> -u <URL>` (`--program-id` accepts a Pubkey for upgrades).
+- **`wipe-devnet.ts` walks `.wiped-*.json` archives too**, not just the active receipt. Any spot-market index ever recorded gets its derived vault PDAs included in subsequent wipes. Don't delete the archives until you're certain there are no lingering on-chain accounts.
+- **Phase G (LP pool) creates more orphan token accounts.** The LP-pool subaccounts (e.g. dUSDT constituent token vault) survive a wipe the same way as spot vaults. If you don't need an LP pool, `SKIP_PHASE_G=1`. Otherwise extend the `wipe-devnet.ts` collector to derive the LP-pool vault PDAs.
+- **Removing a feature (e.g. PR #38 PMM removal) breaks deploy scripts.** SDK exports referenced by `init-devnet.ts` / `verify-devnet.ts` vanish; the script crashes at import. After any feature removal, search `deploy-scripts/` for helpers named after it and rip that phase out before the next devnet run.
+
+## Git / commit conventions
+
+**Never add Claude (or any AI assistant) as a `Co-Authored-By` on commits, PR bodies, or anywhere else in version control.** Write commit messages and PR descriptions as the human author. No `🤖 Generated with …` footers either.
 
 ## Architecture
 

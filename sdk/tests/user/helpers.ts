@@ -79,7 +79,6 @@ export const mockUserAccount: UserAccount = {
 	nextLiquidationId: 0,
 	nextOrderId: 0,
 	maxMarginRatio: 0,
-	lastAddPerpLpSharesTs: ZERO,
 	settledPerpPnl: ZERO,
 	totalDeposits: ZERO,
 	totalWithdraws: ZERO,
@@ -94,7 +93,6 @@ export const mockUserAccount: UserAccount = {
 	hasOpenOrder: false,
 	openAuctions: 0,
 	hasOpenAuction: false,
-	lastFuelBonusUpdateTs: 0,
 	poolId: 0,
 	specialUserStatus: 0,
 };

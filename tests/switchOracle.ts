@@ -11,6 +11,10 @@ import {
 	EventSubscriber,
 	OracleSource,
 	OracleInfo,
+	PRICE_PRECISION,
+	PEG_PRECISION,
+	Wallet,
+	DriftClient,
 } from '../sdk/src';
 
 import {
@@ -23,7 +27,6 @@ import {
 	mockUserUSDCAccount,
 	sleep,
 } from './testHelpers';
-import { PRICE_PRECISION, PEG_PRECISION, Wallet, DriftClient } from '../sdk';
 import { startAnchor } from 'solana-bankrun';
 import { TestBulkAccountLoader } from '../sdk/src/accounts/testBulkAccountLoader';
 import { BankrunContextWrapper } from '../sdk/src/bankrun/bankrunConnection';
@@ -252,11 +255,10 @@ describe('switch oracles', () => {
 
 		const newSolOracle = await mockOracleNoProgram(bankrunContextWrapper, 100);
 
-		const perpOraclePriceBefore = await driftClient.getOracleDataForPerpMarket(
-			0
+		await waitForOraclePrice(
+			() => driftClient.getOracleDataForPerpMarket(0),
+			PRICE_PRECISION.muln(30)
 		);
-		console.log('oraclePriceBefore', perpOraclePriceBefore.price.toNumber());
-		assert(perpOraclePriceBefore.price.eq(PRICE_PRECISION.muln(30)));
 
 		await admin.updatePerpMarketOracle(
 			0,
@@ -270,10 +272,10 @@ describe('switch oracles', () => {
 			PRICE_PRECISION.muln(100)
 		);
 
-		const spotOraclePriceBefore = await driftClient.getOracleDataForSpotMarket(
-			1
+		await waitForOraclePrice(
+			() => driftClient.getOracleDataForSpotMarket(1),
+			PRICE_PRECISION.muln(30)
 		);
-		assert(spotOraclePriceBefore.price.eq(PRICE_PRECISION.muln(30)));
 
 		await admin.updateSpotMarketOracle(
 			1,

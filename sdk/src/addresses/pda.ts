@@ -1,7 +1,7 @@
 /**
  * PDA derivation helpers for all Drift protocol accounts.
  * Covers: User, UserStats, PerpMarket, SpotMarket, InsuranceFundStake,
- * ProtectedMakerModeConfig, HighLeverageModeConfig, State, and vault PDAs.
+ * HighLeverageModeConfig, State, and vault PDAs.
  * All functions are pure (no RPC calls).
  */
 import { PublicKey } from '@solana/web3.js';
@@ -76,19 +76,6 @@ export function getUserStatsAccountPublicKey(
 	return PublicKey.findProgramAddressSync(
 		[
 			Buffer.from(anchor.utils.bytes.utf8.encode('user_stats')),
-			authority.toBuffer(),
-		],
-		programId
-	)[0];
-}
-
-export function getFuelOverflowAccountPublicKey(
-	programId: PublicKey,
-	authority: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(anchor.utils.bytes.utf8.encode('fuel_overflow')),
 			authority.toBuffer(),
 		],
 		programId
@@ -229,71 +216,6 @@ export function getDriftSignerPublicKey(programId: PublicKey): PublicKey {
 	)[0];
 }
 
-export function getSerumOpenOrdersPublicKey(
-	programId: PublicKey,
-	market: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(anchor.utils.bytes.utf8.encode('serum_open_orders')),
-			market.toBuffer(),
-		],
-		programId
-	)[0];
-}
-
-export function getSerumSignerPublicKey(
-	programId: PublicKey,
-	market: PublicKey,
-	nonce: BN
-): PublicKey {
-	return anchor.web3.PublicKey.createProgramAddressSync(
-		[market.toBuffer(), nonce.toArrayLike(Buffer, 'le', 8)],
-		programId
-	);
-}
-
-export function getSerumFulfillmentConfigPublicKey(
-	programId: PublicKey,
-	market: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(anchor.utils.bytes.utf8.encode('serum_fulfillment_config')),
-			market.toBuffer(),
-		],
-		programId
-	)[0];
-}
-
-export function getPhoenixFulfillmentConfigPublicKey(
-	programId: PublicKey,
-	market: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(anchor.utils.bytes.utf8.encode('phoenix_fulfillment_config')),
-			market.toBuffer(),
-		],
-		programId
-	)[0];
-}
-
-export function getOpenbookV2FulfillmentConfigPublicKey(
-	programId: PublicKey,
-	market: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(
-				anchor.utils.bytes.utf8.encode('openbook_v2_fulfillment_config')
-			),
-			market.toBuffer(),
-		],
-		programId
-	)[0];
-}
-
 export function getReferrerNamePublicKeySync(
 	programId: PublicKey,
 	nameBuffer: number[]
@@ -353,19 +275,6 @@ export function getTokenProgramForSpotMarket(
 		return TOKEN_2022_PROGRAM_ID;
 	}
 	return TOKEN_PROGRAM_ID;
-}
-
-export function getProtectedMakerModeConfigPublicKey(
-	programId: PublicKey
-): PublicKey {
-	return PublicKey.findProgramAddressSync(
-		[
-			Buffer.from(
-				anchor.utils.bytes.utf8.encode('protected_maker_mode_config')
-			),
-		],
-		programId
-	)[0];
 }
 
 export function getIfRebalanceConfigPublicKey(

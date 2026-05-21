@@ -360,7 +360,6 @@ describe('delist market', () => {
 		assert(marketBefore.numberOfUsersWithBase == 2);
 		assert(marketBefore.numberOfUsers == 2);
 
-		await liquidatorDriftClient.addPerpLpShares(BASE_PRECISION, marketIndex);
 		await driftClient.updateK(
 			marketIndex,
 			perpMarket.amm.sqrtK.mul(new BN(10012345)).div(new BN(9912345))
@@ -452,7 +451,6 @@ describe('delist market', () => {
 			liquidatorDriftClient.getUserAccount().perpPositions[0]
 		);
 
-		await liquidatorDriftClient.removePerpLpShares(marketIndex);
 		await driftClient.updateK(
 			marketIndex,
 			perpMarket.amm.sqrtK.mul(new BN(9912345)).div(new BN(10012345))

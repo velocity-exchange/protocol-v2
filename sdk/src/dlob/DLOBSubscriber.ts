@@ -5,7 +5,6 @@ import {
 	DLOBSource,
 	DLOBSubscriberEvents,
 	DLOBSubscriptionConfig,
-	ProtectMakerParamsMap,
 	SlotSource,
 } from './types';
 import { DriftClient } from '../driftClient';
@@ -18,7 +17,6 @@ import {
 	L2OrderBookGenerator,
 	L3OrderBook,
 } from './orderBookLevels';
-import { getProtectedMakerParamsMap } from '../math/protectedMakerParams';
 import { BN } from '../isomorphic/anchor';
 
 export class DLOBSubscriber {
@@ -29,14 +27,12 @@ export class DLOBSubscriber {
 	intervalId?: ReturnType<typeof setTimeout>;
 	dlob: DLOB;
 	public eventEmitter: StrictEventEmitter<EventEmitter, DLOBSubscriberEvents>;
-	protectedMakerView: boolean;
 	constructor(config: DLOBSubscriptionConfig) {
 		this.driftClient = config.driftClient;
 		this.dlobSource = config.dlobSource;
 		this.slotSource = config.slotSource;
 		this.updateFrequency = config.updateFrequency;
-		this.protectedMakerView = config.protectedMakerView || false;
-		this.dlob = new DLOB(this.getProtectedMakerParamsMap());
+		this.dlob = new DLOB();
 		this.eventEmitter = new EventEmitter();
 	}
 
@@ -57,17 +53,8 @@ export class DLOBSubscriber {
 		}, this.updateFrequency);
 	}
 
-	getProtectedMakerParamsMap(): ProtectMakerParamsMap | undefined {
-		return this.protectedMakerView
-			? getProtectedMakerParamsMap(this.driftClient.getPerpMarketAccounts())
-			: undefined;
-	}
-
 	async updateDLOB(): Promise<void> {
-		this.dlob = await this.dlobSource.getDLOB(
-			this.slotSource.getSlot(),
-			this.getProtectedMakerParamsMap()
-		);
+		this.dlob = await this.dlobSource.getDLOB(this.slotSource.getSlot());
 	}
 
 	public getDLOB(): DLOB {
@@ -82,7 +69,7 @@ export class DLOBSubscriber {
 	 * @param marketType
 	 * @param depth Number of orders to include in the order book. Defaults to 10.
 	 * @param includeVamm Whether to include the VAMM orders in the order book. Defaults to false. If true, creates vAMM generator {@link getVammL2Generator} and adds it to fallbackL2Generators.
-	 * @param fallbackL2Generators L2 generators for fallback liquidity e.g. vAMM {@link getVammL2Generator}, openbook {@link SerumSubscriber}
+	 * @param fallbackL2Generators L2 generators for fallback liquidity e.g. vAMM {@link getVammL2Generator}
 	 * @param latestSlot Latest slot observed via slot subscriber or similar for accuarate vamm quotes (if including the vAMM).
 	 */
 	public getL2({

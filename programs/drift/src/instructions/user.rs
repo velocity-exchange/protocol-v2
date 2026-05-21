@@ -12,6 +12,7 @@ use anchor_spl::{
 };
 use solana_program::program::invoke;
 
+use crate::auth::check_hot;
 use crate::controller::funding::settle_funding_payment;
 use crate::controller::orders::{
     cancel_orders, validate_spot_dlob_trading_enabled_for_market_type, ModifyOrderId,
@@ -25,7 +26,6 @@ use crate::controller::spot_position::{
 };
 use crate::error::ErrorCode;
 use crate::get_then_update_id;
-use crate::ids::admin_hot_wallet;
 use crate::ids::{
     lighthouse, marinade_mainnet, WHITELISTED_EXTERNAL_DEPOSITORS, WHITELISTED_SWAP_PROGRAMS,
 };
@@ -65,8 +65,8 @@ use crate::state::events::OrderAction;
 use crate::state::events::OrderActionRecord;
 use crate::state::events::OrderRecord;
 use crate::state::events::{
-    DepositDirection, DepositExplanation, DepositRecord, FuelSeasonRecord, FuelSweepRecord,
-    NewUserRecord, OrderActionExplanation, SwapRecord,
+    DepositDirection, DepositExplanation, DepositRecord, NewUserRecord, OrderActionExplanation,
+    SwapRecord,
 };
 use crate::state::fill_mode::FillMode;
 use crate::state::margin_calculation::MarginContext;
@@ -78,7 +78,6 @@ use crate::state::order_params::{
 };
 use crate::state::paused_operations::{PerpOperation, SpotOperation};
 use crate::state::perp_market_map::{get_writable_perp_market_set, MarketSet};
-use crate::state::protected_maker_mode_config::ProtectedMakerModeConfig;
 use crate::state::revenue_share::BuilderInfo;
 use crate::state::revenue_share::RevenueShare;
 use crate::state::revenue_share::RevenueShareEscrow;
@@ -96,13 +95,12 @@ use crate::state::spot_market::SpotMarket;
 use crate::state::spot_market_map::{
     get_writable_spot_market_set, get_writable_spot_market_set_from_many,
 };
+use crate::state::state::HotRole;
 use crate::state::state::State;
 use crate::state::traits::Size;
 use crate::state::user::OrderStatus;
 use crate::state::user::ReferrerStatus;
-use crate::state::user::{
-    FuelOverflow, FuelOverflowProvider, MarketType, OrderType, ReferrerName, User, UserStats,
-};
+use crate::state::user::{MarketType, OrderType, ReferrerName, User, UserStats};
 use crate::state::user::{Order, SpecialUserStatus};
 use crate::state::user_map::load_user_maps;
 use crate::validate;
@@ -162,11 +160,11 @@ pub fn handle_initialize_user<'c: 'info, 'info>(
         user_stats.referrer = referrer;
     }
 
-    let whitelist_mint = &ctx.accounts.state.whitelist_mint;
+    let whitelist_mint = ctx.accounts.state.load()?.whitelist_mint;
     if !whitelist_mint.eq(&Pubkey::default()) {
         validate_whitelist_token(
             get_whitelist_token(remaining_accounts_iter)?,
-            whitelist_mint,
+            &whitelist_mint,
             &ctx.accounts.authority.key(),
         )?;
     }
@@ -182,7 +180,7 @@ pub fn handle_initialize_user<'c: 'info, 'info>(
     user_stats.number_of_sub_accounts_created =
         user_stats.number_of_sub_accounts_created.safe_add(1)?;
 
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     safe_increment!(state.number_of_sub_accounts, 1);
 
     let max_number_of_sub_accounts = state.max_number_of_sub_accounts();
@@ -194,8 +192,6 @@ pub fn handle_initialize_user<'c: 'info, 'info>(
     )?;
 
     let now_ts = Clock::get()?.unix_timestamp;
-
-    user.last_fuel_bonus_update_ts = now_ts.cast()?;
 
     emit!(NewUserRecord {
         ts: now_ts,
@@ -261,11 +257,10 @@ pub fn handle_initialize_user_stats<'c: 'info, 'info>(
         last_taker_volume_30d_ts: clock.unix_timestamp,
         last_maker_volume_30d_ts: clock.unix_timestamp,
         last_filler_volume_30d_ts: clock.unix_timestamp,
-        last_fuel_if_bonus_update_ts: clock.unix_timestamp.cast()?,
         ..UserStats::default()
     };
 
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     safe_increment!(state.number_of_authorities, 1);
 
     let max_number_of_sub_accounts = state.max_number_of_sub_accounts();
@@ -391,128 +386,6 @@ pub fn handle_change_signed_msg_ws_delegate_status<'c: 'info, 'info>(
     Ok(())
 }
 
-pub fn handle_initialize_fuel_overflow<'c: 'info, 'info>(
-    ctx: Context<'info, InitializeFuelOverflow<'info>>,
-) -> Result<()> {
-    let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
-    validate!(
-        user_stats.can_sweep_fuel(),
-        ErrorCode::UserFuelOverflowThresholdNotMet,
-        "User fuel sweep threshold not met"
-    )?;
-
-    let mut fuel_overflow = ctx
-        .accounts
-        .fuel_overflow
-        .load_init()
-        .or(Err(ErrorCode::UnableToLoadAccountLoader))?;
-
-    *fuel_overflow = FuelOverflow {
-        authority: ctx.accounts.authority.key(),
-        ..FuelOverflow::default()
-    };
-    user_stats.update_fuel_overflow_status(true);
-
-    Ok(())
-}
-
-pub fn handle_sweep_fuel<'c: 'info, 'info>(
-    ctx: Context<'info, SweepFuel<'info>>,
-) -> anchor_lang::Result<()> {
-    let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
-    validate!(
-        user_stats.can_sweep_fuel(),
-        ErrorCode::UserFuelOverflowThresholdNotMet,
-        "User fuel sweep threshold not met"
-    )?;
-
-    let mut fuel_overflow = load_mut!(&ctx.accounts.fuel_overflow)?;
-
-    let clock = Clock::get()?;
-    emit!(FuelSweepRecord {
-        ts: clock.unix_timestamp.cast()?,
-        authority: ctx.accounts.authority.key(),
-        user_stats_fuel_insurance: user_stats.fuel_insurance,
-        user_stats_fuel_deposits: user_stats.fuel_deposits,
-        user_stats_fuel_borrows: user_stats.fuel_borrows,
-        user_stats_fuel_positions: user_stats.fuel_positions,
-        user_stats_fuel_taker: user_stats.fuel_taker,
-        user_stats_fuel_maker: user_stats.fuel_maker,
-        fuel_overflow_fuel_insurance: fuel_overflow.fuel_insurance,
-        fuel_overflow_fuel_deposits: fuel_overflow.fuel_deposits,
-        fuel_overflow_fuel_borrows: fuel_overflow.fuel_borrows,
-        fuel_overflow_fuel_positions: fuel_overflow.fuel_positions,
-        fuel_overflow_fuel_taker: fuel_overflow.fuel_taker,
-        fuel_overflow_fuel_maker: fuel_overflow.fuel_maker,
-    });
-
-    fuel_overflow.update_from_user_stats(&user_stats, clock.unix_timestamp.cast()?)?;
-    user_stats.reset_fuel();
-
-    Ok(())
-}
-
-pub fn handle_reset_fuel_season<'c: 'info, 'info>(
-    ctx: Context<'info, ResetFuelSeason<'info>>,
-) -> Result<()> {
-    let mut user_stats = load_mut!(&ctx.accounts.user_stats)?;
-
-    let fuel_overflow = ctx.fuel_overflow();
-    user_stats.validate_fuel_overflow(&fuel_overflow)?;
-
-    let clock = Clock::get()?;
-    if let Some(fuel_overflow_account) = fuel_overflow {
-        // if FuelOverflow exists, sweep before resetting user_stats
-        let mut fuel_overflow = load_mut!(fuel_overflow_account)?;
-        emit!(FuelSweepRecord {
-            ts: clock.unix_timestamp.cast()?,
-            authority: ctx.accounts.authority.key(),
-            user_stats_fuel_insurance: user_stats.fuel_insurance,
-            user_stats_fuel_deposits: user_stats.fuel_deposits,
-            user_stats_fuel_borrows: user_stats.fuel_borrows,
-            user_stats_fuel_positions: user_stats.fuel_positions,
-            user_stats_fuel_taker: user_stats.fuel_taker,
-            user_stats_fuel_maker: user_stats.fuel_maker,
-            fuel_overflow_fuel_insurance: fuel_overflow.fuel_insurance,
-            fuel_overflow_fuel_deposits: fuel_overflow.fuel_deposits,
-            fuel_overflow_fuel_borrows: fuel_overflow.fuel_borrows,
-            fuel_overflow_fuel_positions: fuel_overflow.fuel_positions,
-            fuel_overflow_fuel_taker: fuel_overflow.fuel_taker,
-            fuel_overflow_fuel_maker: fuel_overflow.fuel_maker,
-        });
-        fuel_overflow.update_from_user_stats(&user_stats, clock.unix_timestamp.cast()?)?;
-
-        emit!(FuelSeasonRecord {
-            ts: clock.unix_timestamp.cast()?,
-            authority: ctx.accounts.authority.key(),
-            fuel_insurance: fuel_overflow.fuel_insurance,
-            fuel_deposits: fuel_overflow.fuel_deposits,
-            fuel_borrows: fuel_overflow.fuel_borrows,
-            fuel_positions: fuel_overflow.fuel_positions,
-            fuel_taker: fuel_overflow.fuel_taker,
-            fuel_maker: fuel_overflow.fuel_maker,
-            fuel_total: fuel_overflow.total_fuel()?,
-        });
-        fuel_overflow.reset_fuel(clock.unix_timestamp.cast()?);
-    } else {
-        emit!(FuelSeasonRecord {
-            ts: clock.unix_timestamp.cast()?,
-            authority: ctx.accounts.authority.key(),
-            fuel_insurance: user_stats.fuel_insurance.cast()?,
-            fuel_deposits: user_stats.fuel_deposits.cast()?,
-            fuel_borrows: user_stats.fuel_borrows.cast()?,
-            fuel_positions: user_stats.fuel_positions.cast()?,
-            fuel_taker: user_stats.fuel_taker.cast()?,
-            fuel_maker: user_stats.fuel_maker.cast()?,
-            fuel_total: user_stats.total_fuel()?,
-        });
-    };
-
-    user_stats.reset_fuel();
-
-    Ok(())
-}
-
 pub fn handle_initialize_revenue_share<'c: 'info, 'info>(
     ctx: Context<'info, InitializeRevenueShare<'info>>,
 ) -> Result<()> {
@@ -537,7 +410,7 @@ pub fn handle_initialize_revenue_share_escrow<'c: 'info, 'info>(
         .orders
         .resize_with(num_orders as usize, RevenueShareOrder::default);
 
-    let state = &mut ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     if state.builder_referral_enabled() {
         let mut user_stats = ctx.accounts.user_stats.load_mut()?;
         escrow.referrer = user_stats.referrer;
@@ -551,14 +424,12 @@ pub fn handle_initialize_revenue_share_escrow<'c: 'info, 'info>(
 pub fn handle_migrate_referrer<'c: 'info, 'info>(
     ctx: Context<'info, MigrateReferrer<'info>>,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
-    if !state.builder_referral_enabled() {
-        if state.admin != ctx.accounts.payer.key()
-            || ctx.accounts.payer.key() == admin_hot_wallet::id()
-        {
-            msg!("Only admin can migrate referrer until builder referral feature is enabled");
-            return Err(anchor_lang::error::ErrorCode::ConstraintSigner.into());
-        }
+    let state = ctx.accounts.state.load()?;
+    if !state.builder_referral_enabled() && state.cold_admin != ctx.accounts.payer.key() {
+        msg!(
+            "Only state.cold_admin can migrate referrer until builder referral feature is enabled"
+        );
+        return Err(anchor_lang::error::ErrorCode::ConstraintSigner.into());
     }
 
     let escrow = &mut ctx.accounts.escrow;
@@ -665,7 +536,7 @@ pub fn handle_deposit<'c: 'info, 'info>(
     let user_key = ctx.accounts.user.key();
     let user = &mut load_mut!(ctx.accounts.user)?;
 
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
     let slot = clock.slot;
@@ -869,7 +740,7 @@ pub fn handle_withdraw<'c: 'info, 'info>(
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
     let slot = clock.slot;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -952,15 +823,11 @@ pub fn handle_withdraw<'c: 'info, 'info>(
         amount
     };
 
-    user.meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+    user.meets_withdraw_margin_requirement(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        market_index,
-        amount as u128,
-        &mut user_stats,
-        now,
     )?;
 
     validate_spot_margin_trading(user, &perp_market_map, &spot_market_map, &mut oracle_map)?;
@@ -1046,7 +913,7 @@ pub fn handle_transfer_deposit<'c: 'info, 'info>(
     let to_user_key = ctx.accounts.to_user.key();
     let from_user_key = ctx.accounts.from_user.key();
 
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let slot = clock.slot;
 
@@ -1128,15 +995,11 @@ pub fn handle_transfer_deposit<'c: 'info, 'info>(
         )?;
     }
 
-    from_user.meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+    from_user.meets_withdraw_margin_requirement(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        market_index,
-        amount as u128,
-        user_stats,
-        now,
     )?;
 
     validate_spot_margin_trading(
@@ -1277,7 +1140,7 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
     let to_user_key = ctx.accounts.to_user.key();
     let from_user_key = ctx.accounts.from_user.key();
 
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let slot = clock.slot;
 
@@ -1608,30 +1471,18 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
     drop(borrow_from_spot_market);
     drop(borrow_to_spot_market);
 
-    from_user.meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    from_user.meets_withdraw_margin_requirement_swap(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        deposit_from_market_index,
-        deposit_transfer.cast::<i128>()?,
-        borrow_from_market_index,
-        -borrow_transfer.cast::<i128>()?,
-        user_stats,
-        clock.unix_timestamp,
     )?;
 
-    to_user.meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    to_user.meets_withdraw_margin_requirement_swap(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         MarginRequirementType::Initial,
-        deposit_to_market_index,
-        -deposit_transfer.cast::<i128>()?,
-        borrow_to_market_index,
-        borrow_transfer.cast::<i128>()?,
-        user_stats,
-        clock.unix_timestamp,
     )?;
 
     validate_spot_margin_trading(
@@ -1758,7 +1609,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
     let to_user_key = ctx.accounts.to_user.key();
     let from_user_key = ctx.accounts.from_user.key();
 
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let slot = clock.slot;
 
@@ -1802,7 +1653,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
         market_index,
         &perp_market_map,
         &mut oracle_map,
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         &clock,
     )?;
 
@@ -1961,8 +1812,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
         )
     };
 
-    let from_user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance)
-        .fuel_perp_delta(market_index, transfer_amount);
+    let from_user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance);
 
     let from_user_margin_calculation =
         calculate_margin_requirement_and_total_collateral_and_liability_info(
@@ -1979,8 +1829,7 @@ pub fn handle_transfer_perp_position<'c: 'info, 'info>(
         "from user margin requirement is greater than total collateral"
     )?;
 
-    let to_user_margin_context = MarginContext::standard(MarginRequirementType::Initial)
-        .fuel_perp_delta(market_index, -transfer_amount);
+    let to_user_margin_context = MarginContext::standard(MarginRequirementType::Initial);
 
     let to_user_margin_requirement =
         calculate_margin_requirement_and_total_collateral_and_liability_info(
@@ -2111,7 +1960,7 @@ pub fn handle_deposit_into_isolated_perp_position<'c: 'info, 'info>(
     let user_key = ctx.accounts.user.key();
     let mut user = load_mut!(ctx.accounts.user)?;
 
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
     let slot = clock.slot;
@@ -2139,7 +1988,7 @@ pub fn handle_deposit_into_isolated_perp_position<'c: 'info, 'info>(
         &mut oracle_map,
         slot,
         now,
-        state,
+        &state,
         spot_market_index,
         perp_market_index,
         amount,
@@ -2183,7 +2032,7 @@ pub fn handle_transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
     perp_market_index: u16,
     amount: i64,
 ) -> anchor_lang::Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let slot = clock.slot;
 
@@ -2248,7 +2097,7 @@ pub fn handle_withdraw_from_isolated_perp_position<'c: 'info, 'info>(
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
     let slot = clock.slot;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -2316,7 +2165,7 @@ pub fn handle_place_perp_order<'c: 'info, 'info>(
     params: OrderParams,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let mut remaining_accounts = ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -2340,7 +2189,7 @@ pub fn handle_place_perp_order<'c: 'info, 'info>(
     let mut user = load_mut!(ctx.accounts.user)?;
 
     controller::orders::place_perp_order(
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         &mut user,
         user_key,
         &perp_market_map,
@@ -2363,7 +2212,7 @@ pub fn handle_cancel_order<'c: 'info, 'info>(
     order_id: Option<u32>,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -2402,7 +2251,7 @@ pub fn handle_cancel_order_by_user_id<'c: 'info, 'info>(
     user_order_id: u8,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -2436,7 +2285,7 @@ pub fn handle_cancel_orders_by_ids<'c: 'info, 'info>(
     order_ids: Vec<u32>,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -2474,7 +2323,7 @@ pub fn handle_cancel_orders<'c: 'info, 'info>(
     direction: Option<PositionDirection>,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -2519,7 +2368,7 @@ pub fn handle_modify_order<'c: 'info, 'info>(
     modify_order_params: ModifyOrderParams,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -2542,7 +2391,7 @@ pub fn handle_modify_order<'c: 'info, 'info>(
         ModifyOrderId::OrderId(order_id),
         modify_order_params,
         &ctx.accounts.user,
-        state,
+        &state,
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
@@ -2561,7 +2410,7 @@ pub fn handle_modify_order_by_user_order_id<'c: 'info, 'info>(
     modify_order_params: ModifyOrderParams,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -2579,7 +2428,7 @@ pub fn handle_modify_order_by_user_order_id<'c: 'info, 'info>(
         ModifyOrderId::UserOrderId(user_order_id),
         modify_order_params,
         &ctx.accounts.user,
-        state,
+        &state,
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
@@ -2622,7 +2471,7 @@ fn place_orders<'c: 'info, 'info>(
     input: PlaceOrdersInput,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let mut remaining_accounts = ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -2692,7 +2541,7 @@ fn place_orders<'c: 'info, 'info>(
 
         if params.market_type == MarketType::Perp {
             controller::orders::place_perp_order(
-                state,
+                &state,
                 &mut user,
                 user_key,
                 &perp_market_map,
@@ -2718,7 +2567,7 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
     optional_params: Option<u32>, // u32 for backwards compatibility
 ) -> Result<()> {
     let clock = Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -2747,7 +2596,7 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
         params.market_index,
         &perp_market_map,
         &mut oracle_map,
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         &Clock::get()?,
     )?;
 
@@ -2758,7 +2607,7 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
     let (success_condition, auction_duration_percentage) = parse_optional_params(optional_params);
 
     controller::orders::place_perp_order(
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         &mut user,
         user_key,
         &perp_market_map,
@@ -2785,7 +2634,7 @@ pub fn handle_place_and_take_perp_order<'c: 'info, 'info>(
 
     let (base_asset_amount_filled, _) = controller::orders::fill_perp_order(
         order_id,
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         user,
         &ctx.accounts.user_stats,
         &spot_market_map,
@@ -2847,7 +2696,7 @@ pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
     taker_order_id: u32,
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -2874,7 +2723,7 @@ pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
         params.market_index,
         &perp_market_map,
         &mut oracle_map,
-        state,
+        &state,
         clock,
     )?;
 
@@ -2882,7 +2731,7 @@ pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
     let mut user = load_mut!(ctx.accounts.user)?;
 
     controller::orders::place_perp_order(
-        state,
+        &state,
         &mut user,
         user_key,
         &perp_market_map,
@@ -2916,7 +2765,7 @@ pub fn handle_place_and_make_perp_order<'c: 'info, 'info>(
 
     controller::orders::fill_perp_order(
         taker_order_id,
-        state,
+        &state,
         &ctx.accounts.taker,
         &ctx.accounts.taker_stats,
         &spot_market_map,
@@ -2961,7 +2810,7 @@ pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
     signed_msg_order_uuid: [u8; 8],
 ) -> Result<()> {
     let clock = &Clock::get()?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
@@ -2988,7 +2837,7 @@ pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
         params.market_index,
         &perp_market_map,
         &mut oracle_map,
-        state,
+        &state,
         clock,
     )?;
 
@@ -2996,7 +2845,7 @@ pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
     let mut user = load_mut!(ctx.accounts.user)?;
 
     controller::orders::place_perp_order(
-        state,
+        &state,
         &mut user,
         user_key,
         &perp_market_map,
@@ -3037,7 +2886,7 @@ pub fn handle_place_and_make_signed_msg_perp_order<'c: 'info, 'info>(
 
     controller::orders::fill_perp_order(
         taker_order_id,
-        state,
+        &state,
         &ctx.accounts.taker,
         &ctx.accounts.taker_stats,
         &spot_market_map,
@@ -3198,47 +3047,6 @@ pub fn handle_update_user_advanced_lp(
     Ok(())
 }
 
-pub fn handle_update_user_protected_maker_orders(
-    ctx: Context<UpdateUserProtectedMakerMode>,
-    _sub_account_id: u16,
-    protected_maker_orders: bool,
-) -> Result<()> {
-    let mut user = load_mut!(ctx.accounts.user)?;
-
-    validate!(!user.is_being_liquidated(), ErrorCode::LiquidationsOngoing)?;
-
-    validate!(
-        protected_maker_orders != user.is_protected_maker(),
-        ErrorCode::DefaultError,
-        "user already {} protected maker mode",
-        if protected_maker_orders {
-            "in"
-        } else {
-            "out of"
-        }
-    )?;
-
-    user.update_protected_maker_orders_status(protected_maker_orders)?;
-
-    let mut config = load_mut!(ctx.accounts.protected_maker_mode_config)?;
-
-    if protected_maker_orders {
-        validate!(
-            !config.is_reduce_only(),
-            ErrorCode::DefaultError,
-            "protected maker mode config reduce only"
-        )?;
-
-        config.current_users = config.current_users.safe_add(1)?;
-    } else {
-        config.current_users = config.current_users.safe_sub(1)?;
-    }
-
-    config.validate()?;
-
-    Ok(())
-}
-
 pub fn handle_delete_user(ctx: Context<DeleteUser>) -> Result<()> {
     let user = &load!(ctx.accounts.user)?;
     let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
@@ -3246,13 +3054,13 @@ pub fn handle_delete_user(ctx: Context<DeleteUser>) -> Result<()> {
     validate_user_deletion(
         user,
         user_stats,
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         Clock::get()?.unix_timestamp,
     )?;
 
     safe_decrement!(user_stats.number_of_sub_accounts, 1);
 
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     safe_decrement!(state.number_of_sub_accounts, 1);
 
     Ok(())
@@ -3291,7 +3099,7 @@ pub fn handle_reclaim_rent(ctx: Context<ReclaimRent>) -> Result<()> {
     let user_stats = &mut load!(ctx.accounts.user_stats)?;
 
     // Skip age check if is no max sub accounts
-    let max_sub_accounts = ctx.accounts.state.max_number_of_sub_accounts();
+    let max_sub_accounts = ctx.accounts.state.load()?.max_number_of_sub_accounts();
     let estimated_user_stats_age = user_stats.get_age_ts(Clock::get()?.unix_timestamp);
     validate!(
         max_sub_accounts == 0 || estimated_user_stats_age >= THIRTEEN_DAY,
@@ -3395,7 +3203,7 @@ pub fn handle_begin_swap<'c: 'info, 'info>(
     out_market_index: u16,
     amount_in: u64,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
 
@@ -3425,7 +3233,7 @@ pub fn handle_begin_swap<'c: 'info, 'info>(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
-        ctx.accounts.state.liquidation_margin_buffer_ratio,
+        ctx.accounts.state.load()?.liquidation_margin_buffer_ratio,
     )?;
 
     let mut in_spot_market = spot_market_map.get_ref_mut(&in_market_index)?;
@@ -3686,7 +3494,7 @@ pub fn handle_end_swap<'c: 'info, 'info>(
     limit_price: Option<u64>,
     reduce_only: Option<SwapReduceOnly>,
 ) -> Result<()> {
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let slot = clock.slot;
     let now = clock.unix_timestamp;
@@ -3911,11 +3719,7 @@ pub fn handle_end_swap<'c: 'info, 'info>(
             out_spot_market.decimals,
             out_oracle_price,
         )?;
-        user_stats.update_taker_volume_30d(
-            out_spot_market.fuel_boost_taker,
-            amount_out_value.cast()?,
-            now,
-        )?;
+        user_stats.update_taker_volume_30d(amount_out_value.cast()?, now)?;
     }
 
     validate!(
@@ -4010,17 +3814,11 @@ pub fn handle_end_swap<'c: 'info, 'info>(
     drop(out_spot_market);
     drop(in_spot_market);
 
-    user.meets_withdraw_margin_requirement_and_increment_fuel_bonus_swap(
+    user.meets_withdraw_margin_requirement_swap(
         &perp_market_map,
         &spot_market_map,
         &mut oracle_map,
         margin_type,
-        in_market_index,
-        in_token_amount_before.safe_sub(in_token_amount_after)?,
-        out_market_index,
-        out_token_amount_before.safe_sub(out_token_amount_after)?,
-        &mut user_stats,
-        now,
     )?;
 
     user.update_last_active_slot(slot);
@@ -4080,7 +3878,7 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
     amount: Option<i64>,
 ) -> Result<()> {
     let user_key = ctx.accounts.user.key();
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let slot = clock.slot;
     let now = clock.unix_timestamp;
@@ -4120,7 +3918,7 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
         market_index,
         &perp_market_map,
         &mut oracle_map,
-        &ctx.accounts.state,
+        &*ctx.accounts.state.load()?,
         &clock,
     )?;
 
@@ -4265,8 +4063,7 @@ pub fn handle_special_transfer_perp_position_to_vamm<'c: 'info, 'info>(
         controller::amm::update_spread_reserves(&mut market)?;
     }
 
-    let user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance)
-        .fuel_perp_delta(market_index, transfer_amount);
+    let user_margin_context = MarginContext::standard(MarginRequirementType::Maintenance);
 
     let user_margin_calculation =
         calculate_margin_requirement_and_total_collateral_and_liability_info(
@@ -4324,7 +4121,7 @@ pub struct InitializeUser<'info> {
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     /// CHECK: Just a normal authority account
     pub authority: AccountInfo<'info>,
     #[account(mut)]
@@ -4344,7 +4141,7 @@ pub struct InitializeUserStats<'info> {
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     /// CHECK: Just a normal authority account
     pub authority: AccountInfo<'info>,
     #[account(mut)]
@@ -4430,62 +4227,6 @@ pub struct ChangeSignedMsgWsDelegateStatus<'info> {
 }
 
 #[derive(Accounts)]
-pub struct InitializeFuelOverflow<'info> {
-    #[account(
-        init,
-        seeds = [b"fuel_overflow", authority.key.as_ref()],
-        space = FuelOverflow::SIZE,
-        bump,
-        payer = payer
-    )]
-    pub fuel_overflow: AccountLoader<'info, FuelOverflow>,
-    #[account(
-        mut,
-        has_one = authority
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
-    /// CHECK: authority
-    pub authority: AccountInfo<'info>,
-    #[account(mut)]
-    pub payer: Signer<'info>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct SweepFuel<'info> {
-    #[account(
-        mut,
-        has_one = authority,
-    )]
-    pub fuel_overflow: AccountLoader<'info, FuelOverflow>,
-    #[account(
-        mut,
-        has_one = authority
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
-    /// CHECK: authority
-    pub authority: AccountInfo<'info>,
-    pub signer: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct ResetFuelSeason<'info> {
-    #[account(
-        mut,
-        has_one = authority
-    )]
-    pub user_stats: AccountLoader<'info, UserStats>,
-    /// CHECK: authority
-    pub authority: AccountInfo<'info>,
-    pub state: Box<Account<'info, State>>,
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
-    pub admin: Signer<'info>,
-}
-
-#[derive(Accounts)]
 #[instruction(
     name: [u8; 32],
 )]
@@ -4518,7 +4259,7 @@ pub struct InitializeReferrerName<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16,)]
 pub struct Deposit<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
     #[account(
@@ -4544,7 +4285,7 @@ pub struct Deposit<'info> {
 
 #[derive(Accounts)]
 pub struct RevenuePoolDeposit<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
     #[account(mut)]
@@ -4567,7 +4308,7 @@ pub struct RevenuePoolDeposit<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16,)]
 pub struct Withdraw<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         has_one = authority,
@@ -4586,7 +4327,7 @@ pub struct Withdraw<'info> {
     )]
     pub spot_market_vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -4617,7 +4358,7 @@ pub struct TransferDeposit<'info> {
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
     pub authority: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         seeds = [b"spot_market_vault".as_ref(), market_index.to_le_bytes().as_ref()],
         bump,
@@ -4649,7 +4390,7 @@ pub struct TransferPools<'info> {
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
     pub authority: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [b"spot_market_vault".as_ref(), deposit_from_market_index.to_le_bytes().as_ref()],
@@ -4675,7 +4416,7 @@ pub struct TransferPools<'info> {
     )]
     pub borrow_to_spot_market_vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -4696,12 +4437,12 @@ pub struct TransferPerpPosition<'info> {
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
     pub authority: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct PlaceOrder<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -4712,7 +4453,7 @@ pub struct PlaceOrder<'info> {
 
 #[derive(Accounts)]
 pub struct CancelOrder<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -4724,7 +4465,7 @@ pub struct CancelOrder<'info> {
 #[derive(Accounts)]
 #[instruction(spot_market_index: u16,)]
 pub struct DepositIsolatedPerpPosition<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -4765,7 +4506,7 @@ pub struct TransferIsolatedPerpPositionDeposit<'info> {
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
     pub authority: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         seeds = [b"spot_market_vault".as_ref(), spot_market_index.to_le_bytes().as_ref()],
         bump,
@@ -4776,7 +4517,7 @@ pub struct TransferIsolatedPerpPositionDeposit<'info> {
 #[derive(Accounts)]
 #[instruction(spot_market_index: u16)]
 pub struct WithdrawIsolatedPerpPosition<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         has_one = authority,
@@ -4795,7 +4536,7 @@ pub struct WithdrawIsolatedPerpPosition<'info> {
     )]
     pub spot_market_vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -4809,7 +4550,7 @@ pub struct WithdrawIsolatedPerpPosition<'info> {
 
 #[derive(Accounts)]
 pub struct PlaceAndTake<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -4825,7 +4566,7 @@ pub struct PlaceAndTake<'info> {
 
 #[derive(Accounts)]
 pub struct PlaceAndMake<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -4848,7 +4589,7 @@ pub struct PlaceAndMake<'info> {
 
 #[derive(Accounts)]
 pub struct PlaceAndMakeSignedMsg<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -4877,7 +4618,7 @@ pub struct PlaceAndMakeSignedMsg<'info> {
 
 #[derive(Accounts)]
 pub struct PlaceAndMatchRFQOrders<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
     #[account(
@@ -4932,7 +4673,7 @@ pub struct DeleteUser<'info> {
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub authority: Signer<'info>,
 }
@@ -4947,7 +4688,7 @@ pub struct DeleteSignedMsgUserOrders<'info> {
     )]
     pub signed_msg_user_orders: Box<Account<'info, SignedMsgUserOrders>>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub authority: Signer<'info>,
 }
 
@@ -4963,7 +4704,7 @@ pub struct ReclaimRent<'info> {
         has_one = authority
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub authority: Signer<'info>,
     pub rent: Sysvar<'info, Rent>,
 }
@@ -4971,7 +4712,7 @@ pub struct ReclaimRent<'info> {
 #[derive(Accounts)]
 #[instruction(in_market_index: u16, out_market_index: u16, )]
 pub struct Swap<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         constraint = can_sign_for_user(&user, &authority)?
@@ -5009,7 +4750,7 @@ pub struct Swap<'info> {
     pub in_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     pub token_program: Interface<'info, TokenInterface>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: forced drift_signer
     pub drift_signer: AccountInfo<'info>,
@@ -5017,19 +4758,6 @@ pub struct Swap<'info> {
     /// CHECK: fixed instructions sysvar account
     #[account(address = instructions::ID)]
     pub instructions: UncheckedAccount<'info>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateUserProtectedMakerMode<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(
-        mut,
-        constraint = can_sign_for_user(&user, &authority)?
-    )]
-    pub user: AccountLoader<'info, User>,
-    pub authority: Signer<'info>,
-    #[account(mut)]
-    pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
 }
 
 #[derive(Accounts)]
@@ -5069,7 +4797,7 @@ pub struct InitializeRevenueShareEscrow<'info> {
         has_one = authority
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub payer: Signer<'info>,
     pub rent: Sysvar<'info, Rent>,
@@ -5091,7 +4819,7 @@ pub struct MigrateReferrer<'info> {
         has_one = authority
     )]
     pub user_stats: AccountLoader<'info, UserStats>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub payer: Signer<'info>,
 }
 
@@ -5143,5 +4871,5 @@ pub struct SpecialTransferPerpPositionToVamm<'info> {
     )]
     pub user: AccountLoader<'info, User>,
     pub authority: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }

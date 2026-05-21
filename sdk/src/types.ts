@@ -84,7 +84,7 @@ export enum UserStatus {
 	BANKRUPT = 2,
 	REDUCE_ONLY = 4,
 	ADVANCED_LP = 8,
-	PROTECTED_MAKER = 16,
+	// 16 reserved (was PROTECTED_MAKER)
 }
 
 export enum SpecialUserStatus {
@@ -267,15 +267,6 @@ export class OrderActionExplanation {
 	static readonly RISK_INCREASING_ORDER = {
 		riskingIncreasingOrder: {},
 	};
-	static readonly ORDER_FILLED_WITH_SERUM = {
-		orderFillWithSerum: {},
-	};
-	static readonly ORDER_FILLED_WITH_OPENBOOK_V2 = {
-		orderFilledWithOpenbookV2: {},
-	};
-	static readonly ORDER_FILLED_WITH_PHOENIX = {
-		orderFillWithPhoenix: {},
-	};
 	static readonly REDUCE_ONLY_ORDER_INCREASED_POSITION = {
 		reduceOnlyOrderIncreasedPosition: {},
 	};
@@ -294,16 +285,6 @@ export class OrderTriggerCondition {
 	static readonly TRIGGERED_BELOW = { triggeredBelow: {} }; // below condition has been triggered
 }
 
-export class SpotFulfillmentType {
-	static readonly EXTERNAL = { external: {} };
-	static readonly MATCH = { match: {} };
-}
-
-export class SpotFulfillmentStatus {
-	static readonly ENABLED = { enabled: {} };
-	static readonly DISABLED = { disabled: {} };
-}
-
 export class DepositExplanation {
 	static readonly NONE = { none: {} };
 	static readonly TRANSFER = { transfer: {} };
@@ -315,11 +296,6 @@ export class DepositExplanation {
 export class SettlePnlExplanation {
 	static readonly NONE = { none: {} };
 	static readonly EXPIRED_POSITION = { expiredPosition: {} };
-}
-
-export class SpotFulfillmentConfigStatus {
-	static readonly ENABLED = { enabled: {} };
-	static readonly DISABLED = { disabled: {} };
 }
 
 export class StakeAction {
@@ -460,24 +436,6 @@ export declare type InsuranceFundStakeRecord = {
 	totalIfSharesAfter: BN;
 };
 
-export type LPRecord = {
-	ts: BN;
-	user: PublicKey;
-	action: LPAction;
-	nShares: BN;
-	marketIndex: number;
-	deltaBaseAssetAmount: BN;
-	deltaQuoteAssetAmount: BN;
-	pnl: BN;
-};
-
-export class LPAction {
-	static readonly ADD_LIQUIDITY = { addLiquidity: {} };
-	static readonly REMOVE_LIQUIDITY = { removeLiquidity: {} };
-	static readonly SETTLE_LIQUIDITY = { settleLiquidity: {} };
-	static readonly REMOVE_LIQUIDITY_DERISK = { removeLiquidityDerisk: {} };
-}
-
 export type FundingRateRecord = {
 	ts: BN;
 	recordId: BN;
@@ -491,7 +449,6 @@ export type FundingRateRecord = {
 	markPriceTwap: BN;
 	periodRevenue: BN;
 	baseAssetAmountWithAmm: BN;
-	baseAssetAmountWithUnsettledLp: BN;
 };
 
 export type FundingPaymentRecord = {
@@ -549,7 +506,6 @@ export type LiquidatePerpRecord = {
 	oraclePrice: BN;
 	baseAssetAmount: BN;
 	quoteAssetAmount: BN;
-	lpShares: BN;
 	userOrderId: BN;
 	liquidatorOrderId: BN;
 	fillRecordId: BN;
@@ -699,37 +655,6 @@ export type DeleteUserRecord = {
 	keeper: PublicKey | null;
 };
 
-export type FuelSeasonRecord = {
-	ts: BN;
-	authority: PublicKey;
-	fuelInsurance: BN;
-	fuelDeposits: BN;
-	fuelBorrows: BN;
-	fuelPositions: BN;
-	fuelTaker: BN;
-	fuelMaker: BN;
-	fuelTotal: BN;
-};
-
-export type FuelSweepRecord = {
-	ts: BN;
-	authority: PublicKey;
-	// fuel values on UserStats before sweep
-	userStatsFuelInsurance: BN;
-	userStatsFuelDeposits: BN;
-	userStatsFuelBorrows: BN;
-	userStatsFuelPositions: BN;
-	userStatsFuelTaker: BN;
-	userStatsFuelMaker: BN;
-	// fuel values on FuelOverflow before sweep
-	fuelOverflowFuelInsurance: BN;
-	fuelOverflowFuelDeposits: BN;
-	fuelOverflowFuelBorrows: BN;
-	fuelOverflowFuelPositions: BN;
-	fuelOverflowFuelTaker: BN;
-	fuelOverflowFuelMaker: BN;
-};
-
 export type InsuranceFundSwapRecord = {
 	rebalanceConfig: PublicKey;
 	inIfTotalSharesBefore: BN;
@@ -843,7 +768,19 @@ export type LPBorrowLendDepositRecord = {
 };
 
 export type StateAccount = {
-	admin: PublicKey;
+	coldAdmin: PublicKey;
+	warmAdmin: PublicKey;
+	hotAmmCrank: PublicKey;
+	hotLpCache: PublicKey;
+	hotLpSwap: PublicKey;
+	hotLpSettle: PublicKey;
+	hotIfRebalance: PublicKey;
+	hotFeatureFlag: PublicKey;
+	hotFuel: PublicKey;
+	hotUserFlag: PublicKey;
+	hotVaultDeposit: PublicKey;
+	hotMmOracleCrank: PublicKey;
+	hotAmmSpreadAdjust: PublicKey;
 	exchangeStatus: number;
 	whitelistMint: PublicKey;
 	discountMint: PublicKey;
@@ -863,7 +800,6 @@ export type StateAccount = {
 	srmVault: PublicKey;
 	perpFeeStructure: FeeStructure;
 	spotFeeStructure: FeeStructure;
-	lpCooldownTime: BN;
 	initialPctToLiquidate: number;
 	liquidationDuration: number;
 	maxInitializeUserFee: number;
@@ -906,12 +842,6 @@ export type PerpMarketAccount = {
 	feeAdjustment: number;
 	pausedOperations: number;
 
-	fuelBoostTaker: number;
-	fuelBoostMaker: number;
-	fuelBoostPosition: number;
-
-	protectedMakerLimitPriceDivisor: number;
-	protectedMakerDynamicDivisor: number;
 	lastFillPrice: BN;
 
 	lpPoolId: number;
@@ -1019,12 +949,6 @@ export type SpotMarketAccount = {
 	maxTokenBorrowsFraction: number;
 	minBorrowRate: number;
 
-	fuelBoostDeposits: number;
-	fuelBoostBorrows: number;
-	fuelBoostTaker: number;
-	fuelBoostMaker: number;
-	fuelBoostInsurance: number;
-
 	tokenProgramFlag: number;
 
 	poolId: number;
@@ -1067,8 +991,6 @@ export type AMM = {
 	totalFeeWithdrawn: BN;
 	totalFee: BN;
 	mmOracleSequenceId: BN;
-	userLpShares: BN;
-	baseAssetAmountWithUnsettledLp: BN;
 	orderStepSize: BN;
 	orderTickSize: BN;
 	maxFillReserveFraction: number;
@@ -1093,10 +1015,6 @@ export type AMM = {
 	longSpread: number;
 	shortSpread: number;
 	maxSpread: number;
-
-	baseAssetAmountPerLp: BN;
-	quoteAssetAmountPerLp: BN;
-	targetBaseAssetAmountPerLp: number;
 
 	ammJitIntensity: number;
 	maxOpenInterest: BN;
@@ -1123,9 +1041,7 @@ export type AMM = {
 	askBaseAssetReserve: BN;
 	askQuoteAssetReserve: BN;
 
-	perLpBase: number; // i8
 	netUnsettledFundingPnl: BN;
-	quoteAssetAmountWithUnsettledLp: BN;
 	referencePriceOffset: number;
 
 	oracleLowRiskSlotDelayOverride: number;
@@ -1149,11 +1065,9 @@ export type PerpPosition = {
 	openBids: BN;
 	openAsks: BN;
 	settledPnl: BN;
-	lpShares: BN;
 	/**	 TODO: remove this field - it doesn't exist on chain */
 	remainderBaseAssetAmount: number;
 	maxMarginRatio: number;
-	lastQuoteAssetAmountPerLp: BN;
 	positionFlag: number;
 	isolatedPositionScaledBalance: BN;
 };
@@ -1179,30 +1093,7 @@ export type UserStatsAccount = {
 	referrerStatus: number;
 	authority: PublicKey;
 	ifStakedQuoteAssetAmount: BN;
-	lastFuelIfBonusUpdateTs: number; // u32 onchain
-
-	fuelOverflowStatus: number;
-	fuelInsurance: number;
-	fuelDeposits: number;
-	fuelBorrows: number;
-	fuelPositions: number;
-	fuelTaker: number;
-	fuelMaker: number;
-
 	ifStakedGovTokenAmount: BN;
-};
-
-export type FuelOverflowAccount = {
-	authority: PublicKey;
-	fuelInsurance: BN;
-	fuelDeposits: BN;
-	fuelBorrows: BN;
-	fuelPositions: BN;
-	fuelTaker: BN;
-	fuelMaker: BN;
-	lastFuelSweepTs: number;
-	lastResetTs: number;
-	padding: number[];
 };
 
 export type UserAccount = {
@@ -1217,7 +1108,6 @@ export type UserAccount = {
 	nextLiquidationId: number;
 	nextOrderId: number;
 	maxMarginRatio: number;
-	lastAddPerpLpSharesTs: BN;
 	settledPerpPnl: BN;
 	totalDeposits: BN;
 	totalWithdraws: BN;
@@ -1232,7 +1122,6 @@ export type UserAccount = {
 	hasOpenOrder: boolean;
 	openAuctions: number;
 	hasOpenAuction: boolean;
-	lastFuelBonusUpdateTs: number;
 	poolId: number;
 	specialUserStatus: number;
 };
@@ -1444,10 +1333,6 @@ export enum ReferrerStatus {
 	IsReferred = 2,
 }
 
-export enum FuelOverflowStatus {
-	Exists = 1,
-}
-
 export enum PlaceAndTakeOrderSuccessCondition {
 	PartialFill = 1,
 	FullFill = 2,
@@ -1574,52 +1459,6 @@ export type InsuranceFundStake = {
 	lastWithdrawRequestTs: BN;
 };
 
-export type SerumV3FulfillmentConfigAccount = {
-	fulfillmentType: SpotFulfillmentType;
-	status: SpotFulfillmentStatus;
-	pubkey: PublicKey;
-	marketIndex: number;
-	serumProgramId: PublicKey;
-	serumMarket: PublicKey;
-	serumRequestQueue: PublicKey;
-	serumEventQueue: PublicKey;
-	serumBids: PublicKey;
-	serumAsks: PublicKey;
-	serumBaseVault: PublicKey;
-	serumQuoteVault: PublicKey;
-	serumOpenOrders: PublicKey;
-	serumSignerNonce: BN;
-};
-
-export type PhoenixV1FulfillmentConfigAccount = {
-	pubkey: PublicKey;
-	phoenixProgramId: PublicKey;
-	phoenixLogAuthority: PublicKey;
-	phoenixMarket: PublicKey;
-	phoenixBaseVault: PublicKey;
-	phoenixQuoteVault: PublicKey;
-	marketIndex: number;
-	fulfillmentType: SpotFulfillmentType;
-	status: SpotFulfillmentStatus;
-};
-
-export type OpenbookV2FulfillmentConfigAccount = {
-	pubkey: PublicKey;
-	openbookV2ProgramId: PublicKey;
-	openbookV2Market: PublicKey;
-	openbookV2MarketAuthority: PublicKey;
-	openbookV2EventHeap: PublicKey;
-	openbookV2Bids: PublicKey;
-	openbookV2Asks: PublicKey;
-	openbookV2BaseVault: PublicKey;
-	openbookV2QuoteVault: PublicKey;
-	marketIndex: number;
-	fulfillmentType: SpotFulfillmentType;
-	status: SpotFulfillmentStatus;
-	// not actually on the account, just used to pass around remaining accounts in ts
-	remainingAccounts?: PublicKey[];
-};
-
 export type ReferrerNameAccount = {
 	name: number[];
 	user: PublicKey;
@@ -1674,18 +1513,6 @@ export type SignedTxData = {
 	signedTx: Transaction | VersionedTransaction;
 	lastValidBlockHeight?: number;
 	blockHash: string;
-};
-
-export type ProtectedMakerModeConfig = {
-	maxUsers: number;
-	currentUsers: number;
-	reduceOnly: boolean;
-};
-
-export type ProtectedMakerParams = {
-	limitPriceDivisor: number;
-	tickSize: BN;
-	dynamicOffset: BN;
 };
 
 export type IfRebalanceConfigAccount = {

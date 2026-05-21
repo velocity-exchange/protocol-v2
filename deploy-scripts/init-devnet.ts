@@ -13,12 +13,11 @@
  *   D)  SOL-PERP at index 0 (uses SOL Pyth Lazer oracle)
  *   E)  switch dUSDT spot market oracle to PythLazerStableCoin pointing at USDT lazer PDA
  *
- * Phases F–H below are OPTIONAL follow-ons. A minimal functional devnet deploy
- * is complete after Phase E. Skip individually with SKIP_PHASE_F/G/H=1:
+ * Phases F–G below are OPTIONAL follow-ons. A minimal functional devnet deploy
+ * is complete after Phase E. Skip individually with SKIP_PHASE_F/G=1:
  *
  *   F)  ProtocolIfSharesTransferConfig                  (optional)
  *   G)  LP pool + dUSDT constituent                     (optional)
- *   H)  ProtectedMakerModeConfig                        (optional)
  *
  * Idempotent: every phase checks whether its destination PDA already exists on
  * chain and skips if so. Safe to re-run after partial failure. Phase 0 reuses
@@ -44,7 +43,6 @@
  *   RPC_URL             default https://api.devnet.solana.com
  *   LP_POOL_ID          default 1 (id 0 is the sentinel "not in a pool")
  *   LP_MAX_AUM          default 1_000_000 USDT (in QUOTE_PRECISION units)
- *   PROTECTED_MAKER_MAX_USERS  default 200
  *   RECEIPT_PATH        default deploy-scripts/out/devnet-deployment.json
  */
 
@@ -90,7 +88,6 @@ import {
 	getDriftStateAccountPublicKey,
 	getLpPoolPublicKey,
 	getPerpMarketPublicKey,
-	getProtectedMakerModeConfigPublicKey,
 	getProtocolIfSharesTransferConfigPublicKey,
 	getPythLazerOraclePublicKey,
 	getSpotMarketPublicKey,
@@ -125,7 +122,6 @@ type Receipt = {
 		txSig?: string;
 	};
 	constituents: Record<number, { pubkey: string; txSig?: string }>;
-	protectedMakerModeConfig?: { pubkey: string; txSig?: string };
 	startedAt: string;
 	finishedAt?: string;
 };
@@ -251,9 +247,6 @@ async function main() {
 	const lpMaxAum = new BN(process.env.LP_MAX_AUM ?? '1000000').mul(
 		QUOTE_PRECISION
 	);
-	const protectedMakerMaxUsers = Number(
-		process.env.PROTECTED_MAKER_MAX_USERS ?? 200
-	);
 	const receiptPath =
 		process.env.RECEIPT_PATH ?? 'deploy-scripts/out/devnet-deployment.json';
 	const absReceiptPath = path.resolve(process.cwd(), receiptPath);
@@ -338,7 +331,6 @@ async function main() {
 		`Lazer endpoints:${pythLazerEndpoints.join(',')}`,
 		`LP pool id:     ${lpPoolId}`,
 		`LP max AUM:     ${lpMaxAum.toString()} (raw, QUOTE_PRECISION units)`,
-		`PMM max users:  ${protectedMakerMaxUsers}`,
 		`receipt path:   ${receiptPath}`,
 		'',
 		'NOTE: State.admin is set IMMUTABLY in Phase A. Verify the admin pubkey above.',
@@ -867,9 +859,9 @@ async function main() {
 		await client.subscribe();
 	}
 
-	// Phases F–H below are optional follow-ons. A minimal devnet deploy is
-	// complete after Phase E. Set SKIP_PHASE_F / SKIP_PHASE_G / SKIP_PHASE_H=1
-	// (individually) to bypass any of them; the receipt still gets written.
+	// Phases F–G below are optional follow-ons. A minimal devnet deploy is
+	// complete after Phase E. Set SKIP_PHASE_F / SKIP_PHASE_G=1 (individually)
+	// to bypass either of them; the receipt still gets written.
 
 	const skipPhaseF = process.env.SKIP_PHASE_F === '1';
 	await confirm('Begin Phase F — ProtocolIfSharesTransferConfig? (optional)', [
@@ -1001,34 +993,6 @@ async function main() {
 		receipt.constituents[0] = { pubkey: constituent0Pk.toBase58(), txSig };
 		await constituentClient.unsubscribe();
 		await client.subscribe();
-	}
-
-	const skipPhaseH = process.env.SKIP_PHASE_H === '1';
-	await confirm('Begin Phase H — ProtectedMakerModeConfig? (optional)', [
-		`maxUsers = ${protectedMakerMaxUsers}`,
-		skipPhaseH ? '*** SKIP_PHASE_H=1 set — phase will be SKIPPED ***' : '',
-	]);
-	// === Phase H: ProtectedMakerModeConfig (optional) ===
-	const pmCfgPk = getProtectedMakerModeConfigPublicKey(programId);
-	if (skipPhaseH) {
-		logStep(
-			'ProtectedMakerModeConfig SKIPPED via SKIP_PHASE_H=1',
-			pmCfgPk.toBase58()
-		);
-	} else if (await pdaExists(connection, pmCfgPk)) {
-		logStep(
-			'ProtectedMakerModeConfig already initialized',
-			pmCfgPk.toBase58()
-		);
-		receipt.protectedMakerModeConfig = { pubkey: pmCfgPk.toBase58() };
-	} else {
-		logStep(
-			`initializeProtectedMakerModeConfig maxUsers=${protectedMakerMaxUsers}`
-		);
-		const txSig = await client.initializeProtectedMakerModeConfig(
-			protectedMakerMaxUsers
-		);
-		receipt.protectedMakerModeConfig = { pubkey: pmCfgPk.toBase58(), txSig };
 	}
 
 	// === Persist receipt ===

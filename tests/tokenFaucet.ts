@@ -76,7 +76,7 @@ describe('token faucet', () => {
 		const state: any = await tokenFaucet.fetchState();
 
 		assert.ok(
-			state.admin.equals(bankrunContextWrapper.provider.wallet.publicKey)
+			state.coldAdmin.equals(bankrunContextWrapper.provider.wallet.publicKey)
 		);
 
 		const [mintAuthority, mintAuthorityNonce] =

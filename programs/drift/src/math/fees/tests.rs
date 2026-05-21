@@ -921,9 +921,10 @@ mod calcuate_fee_tiers {
         let fee_structure = FeeStructure {
             fee_tiers,
             filler_reward_structure: OrderFillerRewardStructure {
+                time_based_reward_lower_bound: 10_000, // 1 cent
                 reward_numerator: 10,
                 reward_denominator: FEE_PERCENTAGE_DENOMINATOR,
-                time_based_reward_lower_bound: 10_000, // 1 cent
+                _padding: [0; 8],
             },
             flat_filler_fee: 10_000,
             referrer_reward_epoch_upper_bound: MAX_REFERRER_REWARD_EPOCH_UPPER_BOUND,

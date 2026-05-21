@@ -12,7 +12,6 @@ import {
 import { OracleSource } from '../types';
 import { BN } from '../isomorphic/anchor';
 import { DriftEnv } from '../config';
-import { MarketStatus } from '@ellipsis-labs/phoenix-sdk';
 
 export type SpotMarketConfig = {
 	symbol: string;
@@ -23,13 +22,9 @@ export type SpotMarketConfig = {
 	oracleSource: OracleSource;
 	precision: BN;
 	precisionExp: BN;
-	serumMarket?: PublicKey;
-	phoenixMarket?: PublicKey;
-	openbookMarket?: PublicKey;
 	launchTs?: number;
 	pythFeedId?: string;
 	pythLazerId?: number;
-	marketStatus?: MarketStatus;
 };
 
 export const WRAPPED_SOL_MINT = new PublicKey(
@@ -86,13 +81,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey(WRAPPED_SOL_MINT),
 		precision: LAMPORTS_PRECISION,
 		precisionExp: LAMPORTS_EXP,
-		serumMarket: new PublicKey('8BnEgHoWFysVcuFFX7QztDmzuH8r5ZFvyP3sYwn1XTh6'),
-		phoenixMarket: new PublicKey(
-			'4DoNfFBfF7UokCC2FQzriy7yHK6DY6NVdYpuekQ5pRgg'
-		),
-		openbookMarket: new PublicKey(
-			'AFgkED1FUVfBe2trPUDqSqK9QKd4stJrfzq5q1RwAFTa'
-		),
 		pythFeedId:
 			'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
 		pythLazerId: 6,
@@ -106,7 +94,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So'),
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
-		serumMarket: new PublicKey('9Lyhks5bQQxb9EyyX55NtgKQzpM4WK7JCmeaWuQ5MoXD'),
 		pythFeedId:
 			'0xc2289a6a43d2ce91c6f55caec370f4acc38a2ed477f58813334c6d03749ff2a4',
 		pythLazerId: 503,
@@ -120,7 +107,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh'),
 		precision: new BN(10).pow(EIGHT),
 		precisionExp: EIGHT,
-		serumMarket: new PublicKey('3BAKsQd3RuhZKES2DGysMhjBdwjZYKYmxRqnSMtZ4KSN'),
 		pythFeedId:
 			'0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33',
 		pythLazerId: 103,
@@ -134,13 +120,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs'),
 		precision: new BN(10).pow(EIGHT),
 		precisionExp: EIGHT,
-		serumMarket: new PublicKey('BbJgE7HZMaDp5NTYvRh5jZSkQPVDTU8ubPFtpogUkEj4'),
-		phoenixMarket: new PublicKey(
-			'Ew3vFDdtdGrknJAVVfraxCA37uNJtimXYPY4QjnfhFHH'
-		),
-		openbookMarket: new PublicKey(
-			'AT1R2jUNb9iTo4EaRfKSTPiNTX4Jb64KSwnVmig6Hu4t'
-		),
 		pythFeedId:
 			'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
 		pythLazerId: 2,
@@ -154,7 +133,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'),
 		precision: QUOTE_PRECISION,
 		precisionExp: QUOTE_PRECISION_EXP,
-		serumMarket: new PublicKey('B2na8Awyd7cpC59iEU43FagJAPLigr3AP3s38KM982bu'),
 		pythFeedId:
 			'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
 		pythLazerId: 8,
@@ -168,10 +146,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn'),
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
-		serumMarket: new PublicKey('DkbVbMhFxswS32xnn1K2UY4aoBugXooBTxdzkWWDWRkH'),
-		phoenixMarket: new PublicKey(
-			'5LQLfGtqcC5rm2WuGxJf4tjqYmDjsQAbKo2AMLQ8KB7p'
-		),
 		pythFeedId:
 			'0x67be9f519b95cf24338801051f9a808eff0a578ccb388db73b7f6fe1de019ffb',
 		pythLazerId: 458,
@@ -185,10 +159,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3'),
 		precision: new BN(10).pow(SIX),
 		precisionExp: SIX,
-		serumMarket: new PublicKey('4E17F3BxtNVqzVsirxguuqkpYLtFgCR6NfTpccPh82WE'),
-		phoenixMarket: new PublicKey(
-			'2sTMN9A1D1qeZLF95XQgJCUPiKe5DiV52jLfZGqMP46m'
-		),
 		pythFeedId:
 			'0x0bbf28e9a841a1cc788f6a361b17ca072d0ea3098a1e5df1c3922d06719579ff',
 		pythLazerId: 3,
@@ -202,7 +172,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1'),
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
-		serumMarket: new PublicKey('ARjaHVxGCQfTvvKjLd7U7srvk6orthZSE6uqWchCczZc'),
 		pythFeedId:
 			'0x89875379e70f8fbadc17aef315adf3a8d5d160b811435537e03c97e8aac97d9c',
 		pythLazerId: 389,
@@ -216,10 +185,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL'),
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
-		serumMarket: new PublicKey('H87FfmHABiZLRGrDsXRZtqq25YpARzaokCzL1vMYGiep'),
-		phoenixMarket: new PublicKey(
-			'BRLLmdtPGuuFn3BU6orYw4KHaohAEptBToi3dwRUnHQZ'
-		),
 		pythFeedId:
 			'0xb43660a5f790c69354b0729a5ef9d50d68f1df92107540210b9cccba1f947cc2',
 		pythLazerId: 91,
@@ -233,13 +198,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm'),
 		precision: new BN(10).pow(SIX),
 		precisionExp: SIX,
-		serumMarket: new PublicKey('2BtDHBTCTUxvdur498ZEcMgimasaFrY5GzLv8wS8XgCb'),
-		phoenixMarket: new PublicKey(
-			'6ojSigXF7nDPyhFRgmn3V9ywhYseKF9J32ZrranMGVSX'
-		),
-		openbookMarket: new PublicKey(
-			'CwGmEwYFo7u5D7vghGwtcCbRToWosytaZa3Ys3JAto6J'
-		),
 		pythFeedId:
 			'0x4ca4beeca86f0d164160323817a4e42b10010a724c2217c6ee41b54cd4cc61fc',
 		pythLazerId: 10,
@@ -253,9 +211,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN'),
 		precision: new BN(10).pow(SIX),
 		precisionExp: SIX,
-		phoenixMarket: new PublicKey(
-			'2pspvjWWaf3dNgt3jsgSzFCNvMGPb7t8FrEYvLGjvcCe'
-		),
 		launchTs: 1706731200000,
 		pythFeedId:
 			'0x0a0408d619e9380abad35060f9192039ed5042fa6f82301d0e48bb52be830996',
@@ -270,7 +225,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof'),
 		precision: new BN(10).pow(EIGHT),
 		precisionExp: EIGHT,
-		serumMarket: new PublicKey('2m7ZLEKtxWF29727DSb5D91erpXPUY1bqhRWRC3wQX7u'),
 		launchTs: 1708964021000,
 		pythFeedId:
 			'0x3d4a2bd9535be6ce8059d75eadeba507b043257321aa544717c56fa19b49e35d',
@@ -285,9 +239,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('85VBFQZC9TZkfaptBWjvUw7YbZjy52A6mjtPGjstQAmQ'),
 		precision: new BN(10).pow(SIX),
 		precisionExp: SIX,
-		phoenixMarket: new PublicKey(
-			'8dFTCTAbtGuHsdDL8WEPrTU6pXFDrU1QSjBTutw8fwZk'
-		),
 		launchTs: 1712149014000,
 		pythFeedId:
 			'0xeff7446475e218517566ea99e72a4abec2e1bd8498b43b7d8331e29dcb059389',
@@ -302,9 +253,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('TNSRxcUxoT9xBG3de7PiJyTDYu7kskLqcpddxnEJAS6'),
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
-		phoenixMarket: new PublicKey(
-			'AbJCZ9TAJiby5AY3cHcXS2gUdENC6mtsm6m7XpC2ZMvE'
-		),
 		launchTs: 1712593532000,
 		pythFeedId:
 			'0x05ecd4597cd48fe13d6cc3596c62af4f9675aee06e2e0b94c06d8bee2b659e05',
@@ -319,9 +267,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('DriFtupJYLTosbwoN8koMbEYSx54aFAVLddWsbksjwg7'),
 		precision: new BN(10).pow(SIX),
 		precisionExp: SIX,
-		phoenixMarket: new PublicKey(
-			'8BV6rrWsUabnTDA3dE6A69oUDJAj3hMhtBHTJyXB7czp'
-		),
 		launchTs: 1715860800000,
 		pythFeedId:
 			'0x5c1690b27bb02446db17cdda13ccc2c1d609ad6d2ef5bf4983a85ea8b6f19d07',
@@ -393,9 +338,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
 		launchTs: 1720013054000,
-		phoenixMarket: new PublicKey(
-			'31XgvAQ1HgFQEk31KdszbPkVXKaQqB1bgYZPoDrFpSR2'
-		),
 		pythFeedId:
 			'0xb9312a7ee50e189ef045aa3c7842e099b061bd9bdc99ac645956c3b660dc8cce',
 		pythLazerId: 130,
@@ -488,9 +430,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij'),
 		precision: new BN(10).pow(EIGHT),
 		precisionExp: EIGHT,
-		openbookMarket: new PublicKey(
-			'2HXgKaXKsMUEzQaSBZiXSd54eMHaS3roiefyGWtkW97W'
-		),
 		pythFeedId:
 			'0x2817d7bfe5c64b8ea956e9a26f573ef64e72e4d7891f2d6af9bcc93f7aff9a97',
 		pythLazerId: 397,
@@ -555,9 +494,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		precisionExp: FIVE,
 		pythFeedId:
 			'0x72b021217ca3fe68922a19aaf990109cb9d84e9ad004b4d2025ad6f529314419',
-		openbookMarket: new PublicKey(
-			'D3gZwng2MgZGjktYcKpbR8Bz8653i4qCgzHCf5E4TcZb'
-		),
 		launchTs: 1734717937000,
 		pythLazerId: 9,
 	},
@@ -663,10 +599,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn'),
 		precision: new BN(10).pow(NINE),
 		precisionExp: NINE,
-		serumMarket: new PublicKey('DkbVbMhFxswS32xnn1K2UY4aoBugXooBTxdzkWWDWRkH'),
-		phoenixMarket: new PublicKey(
-			'5LQLfGtqcC5rm2WuGxJf4tjqYmDjsQAbKo2AMLQ8KB7p'
-		),
 		pythFeedId:
 			'0x67be9f519b95cf24338801051f9a808eff0a578ccb388db73b7f6fe1de019ffb',
 	},
@@ -761,7 +693,6 @@ export const MainnetSpotMarkets: SpotMarketConfig[] = [
 		mint: new PublicKey('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'),
 		precision: QUOTE_PRECISION,
 		precisionExp: QUOTE_PRECISION_EXP,
-		serumMarket: new PublicKey('B2na8Awyd7cpC59iEU43FagJAPLigr3AP3s38KM982bu'),
 		pythFeedId:
 			'0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b',
 		pythLazerId: 8,

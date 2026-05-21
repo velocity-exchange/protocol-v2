@@ -9,7 +9,6 @@ import {
 	OrderActionRecord,
 	SettlePnlRecord,
 	NewUserRecord,
-	LPRecord,
 	InsuranceFundStakeRecord,
 } from '../types';
 import { UserStats } from '../userStats';
@@ -170,13 +169,6 @@ export class UserStatsMap {
 		} else if (record.eventType === 'NewUserRecord') {
 			const newUserRecord = record as NewUserRecord;
 			await this.mustGet(newUserRecord.userAuthority.toString());
-		} else if (record.eventType === 'LPRecord') {
-			if (!userMap) {
-				return;
-			}
-			const lpRecord = record as LPRecord;
-			const user = await userMap.mustGet(lpRecord.user.toString());
-			await this.mustGet(user.getUserAccount().authority.toString());
 		} else if (record.eventType === 'InsuranceFundStakeRecord') {
 			const ifStakeRecord = record as InsuranceFundStakeRecord;
 			await this.mustGet(ifStakeRecord.userAuthority.toString());

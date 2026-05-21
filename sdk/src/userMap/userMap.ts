@@ -10,7 +10,6 @@ import {
 	OrderActionRecord,
 	SettlePnlRecord,
 	NewUserRecord,
-	LPRecord,
 	StateAccount,
 } from '../types';
 import { WrappedEvent } from '../events/types';
@@ -18,7 +17,6 @@ import { DLOB } from '../dlob/DLOB';
 import { UserSubscriptionConfig } from '../userConfig';
 import { DataAndSlot, UserEvents } from '../accounts/types';
 import { OneShotUserAccountSubscriber } from '../accounts/oneShotUserAccountSubscriber';
-import { ProtectMakerParamsMap } from '../dlob/types';
 
 import {
 	Commitment,
@@ -300,11 +298,8 @@ export class UserMap implements UserMapInterface {
 	 * create a DLOB from all the subscribed users
 	 * @param slot
 	 */
-	public async getDLOB(
-		slot: number,
-		protectedMakerParamsMap?: ProtectMakerParamsMap
-	): Promise<DLOB> {
-		const dlob = new DLOB(protectedMakerParamsMap);
+	public async getDLOB(slot: number): Promise<DLOB> {
+		const dlob = new DLOB();
 		await dlob.initFromUserMap(this, slot);
 		return dlob;
 	}
@@ -345,9 +340,6 @@ export class UserMap implements UserMapInterface {
 		} else if (record.eventType === 'NewUserRecord') {
 			const newUserRecord = record as NewUserRecord;
 			await this.mustGet(newUserRecord.user.toString());
-		} else if (record.eventType === 'LPRecord') {
-			const lpRecord = record as LPRecord;
-			await this.mustGet(lpRecord.user.toString());
 		}
 	}
 

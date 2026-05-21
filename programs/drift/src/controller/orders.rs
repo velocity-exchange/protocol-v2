@@ -6,7 +6,7 @@
 
 use std::cell::RefMut;
 use std::collections::BTreeMap;
-use std::ops::{Deref, DerefMut};
+use std::ops::DerefMut;
 use std::u64;
 
 use crate::msg;
@@ -62,7 +62,6 @@ use crate::state::order_params::{
 use crate::state::paused_operations::PerpOperation;
 use crate::state::perp_market::PerpMarket;
 use crate::state::perp_market_map::PerpMarketMap;
-use crate::state::protected_maker_mode_config::ProtectedMakerParams;
 use crate::state::spot_market::{SpotBalanceType, SpotMarket};
 use crate::state::spot_market_map::SpotMarketMap;
 use crate::state::state::FeeStructure;
@@ -82,8 +81,6 @@ mod tests;
 
 #[cfg(test)]
 mod amm_jit_tests;
-#[cfg(test)]
-mod fuel_tests;
 
 pub fn place_perp_order(
     state: &State,
@@ -1171,8 +1168,6 @@ pub fn fill_perp_order(
         jit_maker_order_id,
         now,
         slot,
-        user_can_skip_duration,
-        state.min_perp_auction_duration as u64,
     )?;
 
     // no referrer bonus for liquidations
@@ -1465,14 +1460,10 @@ fn get_maker_orders_info(
     jit_maker_order_id: Option<u32>,
     now: i64,
     slot: u64,
-    user_can_skip_duration: bool,
-    protected_maker_min_age: u64,
 ) -> DriftResult<Vec<(Pubkey, usize, u64)>> {
     let maker_direction = taker_order.direction.opposite();
 
     let mut maker_orders_info = Vec::with_capacity(16);
-
-    let taker_order_age = slot.safe_sub(taker_order.slot)?;
 
     for (maker_key, user_account_loader) in makers_and_referrer.0.iter() {
         if maker_key == taker_key {
@@ -1485,8 +1476,6 @@ fn get_maker_orders_info(
             continue;
         }
 
-        let is_protected_maker = maker.is_protected_maker();
-
         let mut market = perp_market_map.get_ref_mut(&taker_order.market_index)?;
         let maker_order_price_and_indexes = find_maker_orders(
             &maker,
@@ -1496,14 +1485,6 @@ fn get_maker_orders_info(
             Some(oracle_price),
             slot,
             market.amm.order_tick_size,
-            get_protected_maker_params(
-                is_protected_maker,
-                jit_maker_order_id.is_some(),
-                user_can_skip_duration,
-                taker_order_age,
-                protected_maker_min_age,
-                market.deref(),
-            ),
         )?;
 
         if maker_order_price_and_indexes.is_empty() {
@@ -1610,26 +1591,6 @@ fn get_maker_orders_info(
     }
 
     Ok(maker_orders_info)
-}
-
-#[inline(always)]
-fn get_protected_maker_params(
-    is_protected_maker: bool,
-    jit_maker: bool,
-    user_can_skip_duration: bool,
-    taker_order_age: u64,
-    protected_maker_min_age: u64,
-    market: &PerpMarket,
-) -> Option<ProtectedMakerParams> {
-    if is_protected_maker
-        && !jit_maker
-        && !user_can_skip_duration
-        && taker_order_age < protected_maker_min_age
-    {
-        Some(market.get_protected_maker_params())
-    } else {
-        None
-    }
 }
 
 #[inline(always)]
@@ -1969,9 +1930,7 @@ fn fulfill_perp_order(
             }
         };
 
-        let mut context = MarginContext::standard_with_config(margin_type_config)
-            .fuel_perp_delta(market_index, taker_base_asset_amount_delta)
-            .fuel_numerator(user, now);
+        let mut context = MarginContext::standard_with_config(margin_type_config);
 
         if oracle_stale_for_margin && !user_order_position_decreasing {
             context = context.margin_ratio_override(MARGIN_PRECISION);
@@ -1985,14 +1944,6 @@ fn fulfill_perp_order(
                 oracle_map,
                 context,
             )?;
-
-        user_stats.update_fuel_bonus(
-            user,
-            taker_margin_calculation.fuel_deposits,
-            taker_margin_calculation.fuel_borrows,
-            taker_margin_calculation.fuel_positions,
-            now,
-        )?;
 
         if !taker_margin_calculation.meets_margin_requirement() {
             let (margin_requirement, total_collateral) =
@@ -2048,9 +1999,7 @@ fn fulfill_perp_order(
             }
         };
 
-        let mut context = MarginContext::standard_with_config(margin_type_config)
-            .fuel_perp_delta(market_index, -maker_base_asset_amount_filled)
-            .fuel_numerator(&maker, now);
+        let mut context = MarginContext::standard_with_config(margin_type_config);
 
         if oracle_stale_for_margin {
             validate!(
@@ -2072,16 +2021,6 @@ fn fulfill_perp_order(
                 oracle_map,
                 context,
             )?;
-
-        if let Some(mut maker_stats) = maker_stats {
-            maker_stats.update_fuel_bonus(
-                &mut maker,
-                maker_margin_calculation.fuel_deposits,
-                maker_margin_calculation.fuel_borrows,
-                maker_margin_calculation.fuel_positions,
-                now,
-            )?;
-        }
 
         if !maker_margin_calculation.meets_margin_requirement() {
             let (margin_requirement, total_collateral) =
@@ -2422,9 +2361,9 @@ pub fn fulfill_perp_order_with_amm(
     }
 
     if order_post_only {
-        user_stats.update_maker_volume_30d(market.fuel_boost_maker, quote_asset_amount, now)?;
+        user_stats.update_maker_volume_30d(quote_asset_amount, now)?;
     } else {
-        user_stats.update_taker_volume_30d(market.fuel_boost_taker, quote_asset_amount, now)?;
+        user_stats.update_taker_volume_30d(quote_asset_amount, now)?;
     }
 
     if let Some(filler) = filler.as_mut() {
@@ -2808,9 +2747,9 @@ pub fn fulfill_perp_order_with_match(
 
     // if maker is none, makes maker and taker authority was the same
     if let Some(maker_stats) = maker_stats {
-        maker_stats.update_maker_volume_30d(market.fuel_boost_maker, quote_asset_amount, now)?;
+        maker_stats.update_maker_volume_30d(quote_asset_amount, now)?;
     } else {
-        taker_stats.update_maker_volume_30d(market.fuel_boost_maker, quote_asset_amount, now)?;
+        taker_stats.update_maker_volume_30d(quote_asset_amount, now)?;
     };
 
     let taker_position_index = get_position_index(
@@ -2830,7 +2769,7 @@ pub fn fulfill_perp_order_with_match(
         &taker_position_delta,
     )?;
 
-    taker_stats.update_taker_volume_30d(market.fuel_boost_taker, quote_asset_amount, now)?;
+    taker_stats.update_taker_volume_30d(quote_asset_amount, now)?;
 
     let reward_referrer = can_reward_user_with_referral_reward(
         referrer,

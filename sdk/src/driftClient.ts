@@ -40,7 +40,6 @@ import {
 	MarketType,
 	ModifyOrderParams,
 	ModifyOrderPolicy,
-	OpenbookV2FulfillmentConfigAccount,
 	OptionalOrderParams,
 	OracleSource,
 	Order,
@@ -49,13 +48,11 @@ import {
 	OrderType,
 	PerpMarketAccount,
 	PerpMarketExtendedInfo,
-	PhoenixV1FulfillmentConfigAccount,
 	PlaceAndTakeOrderSuccessCondition,
 	PositionDirection,
 	ReferrerInfo,
 	ReferrerNameAccount,
 	ScaleOrderParams,
-	SerumV3FulfillmentConfigAccount,
 	SettlePnlMode,
 	SignedTxData,
 	SpotBalanceType,
@@ -67,7 +64,6 @@ import {
 	TxParams,
 	UserAccount,
 	UserStatsAccount,
-	ProtectedMakerModeConfig,
 	SignedMsgOrderParamsDelegateMessage,
 	TokenProgramFlag,
 	PostOnlyParams,
@@ -109,16 +105,10 @@ import StrictEventEmitter from 'strict-event-emitter-types';
 import {
 	getDriftSignerPublicKey,
 	getDriftStateAccountPublicKey,
-	getFuelOverflowAccountPublicKey,
 	getInsuranceFundStakeAccountPublicKey,
-	getOpenbookV2FulfillmentConfigPublicKey,
 	getPerpMarketPublicKey,
-	getPhoenixFulfillmentConfigPublicKey,
-	getProtectedMakerModeConfigPublicKey,
 	getPythLazerOraclePublicKey,
 	getReferrerNamePublicKeySync,
-	getSerumFulfillmentConfigPublicKey,
-	getSerumSignerPublicKey,
 	getSpotMarketPublicKey,
 	getSignedMsgUserAccountPublicKey,
 	getUserAccountPublicKey,
@@ -153,7 +143,6 @@ import {
 	ONE,
 	PERCENTAGE_PRECISION,
 	PRICE_PRECISION,
-	QUOTE_PRECISION,
 	QUOTE_SPOT_MARKET_INDEX,
 	ZERO,
 } from './constants/numericConstants';
@@ -704,79 +693,6 @@ export class DriftClient {
 		return this.accountSubscriber.getOraclePriceDataAndSlot(
 			getOracleId(oraclePublicKey, oracleSource)
 		);
-	}
-
-	public async getSerumV3FulfillmentConfig(
-		serumMarket: PublicKey
-	): Promise<SerumV3FulfillmentConfigAccount> {
-		const address = await getSerumFulfillmentConfigPublicKey(
-			this.program.programId,
-			serumMarket
-		);
-		return (await (this.program.account as any).serumV3FulfillmentConfig.fetch(
-			address
-		)) as SerumV3FulfillmentConfigAccount;
-	}
-
-	public async getSerumV3FulfillmentConfigs(): Promise<
-		SerumV3FulfillmentConfigAccount[]
-	> {
-		const accounts = await (
-			this.program.account as any
-		).serumV3FulfillmentConfig.all();
-		return accounts.map(
-			(account) => account.account
-		) as SerumV3FulfillmentConfigAccount[];
-	}
-
-	public async getPhoenixV1FulfillmentConfig(
-		phoenixMarket: PublicKey
-	): Promise<PhoenixV1FulfillmentConfigAccount> {
-		const address = await getPhoenixFulfillmentConfigPublicKey(
-			this.program.programId,
-			phoenixMarket
-		);
-		return (await (
-			this.program.account as any
-		).phoenixV1FulfillmentConfig.fetch(
-			address
-		)) as PhoenixV1FulfillmentConfigAccount;
-	}
-
-	public async getPhoenixV1FulfillmentConfigs(): Promise<
-		PhoenixV1FulfillmentConfigAccount[]
-	> {
-		const accounts = await (
-			this.program.account as any
-		).phoenixV1FulfillmentConfig.all();
-		return accounts.map(
-			(account) => account.account
-		) as PhoenixV1FulfillmentConfigAccount[];
-	}
-
-	public async getOpenbookV2FulfillmentConfig(
-		openbookMarket: PublicKey
-	): Promise<OpenbookV2FulfillmentConfigAccount> {
-		const address = getOpenbookV2FulfillmentConfigPublicKey(
-			this.program.programId,
-			openbookMarket
-		);
-		return (await (
-			this.program.account as any
-		).openbookV2FulfillmentConfig.fetch(
-			address
-		)) as OpenbookV2FulfillmentConfigAccount;
-	}
-
-	public async getOpenbookV2FulfillmentConfigs(): Promise<
-		OpenbookV2FulfillmentConfigAccount[]
-	> {
-		const accounts = await (
-			this.program.account as any
-		).openbookV2FulfillmentConfig.all();
-		return accounts.map(
-			(account) => account.account
-		) as OpenbookV2FulfillmentConfigAccount[];
 	}
 
 	/** @deprecated use fetchAllLookupTableAccounts() */
@@ -1575,62 +1491,6 @@ export class DriftClient {
 			}
 		);
 		return ix;
-	}
-
-	public async initializeFuelOverflow(
-		authority?: PublicKey
-	): Promise<TransactionSignature> {
-		const ix = await this.getInitializeFuelOverflowIx(authority);
-		const tx = await this.buildTransaction([ix], this.txParams);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-		return txSig;
-	}
-
-	public async getInitializeFuelOverflowIx(
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		return await this.program.instruction.initializeFuelOverflow({
-			accounts: {
-				fuelOverflow: getFuelOverflowAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				userStats: getUserStatsAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				authority: authority ?? this.wallet.publicKey,
-				payer: this.wallet.publicKey,
-				rent: SYSVAR_RENT_PUBKEY,
-				systemProgram: SystemProgram.programId,
-			},
-		});
-	}
-
-	public async sweepFuel(authority?: PublicKey): Promise<TransactionSignature> {
-		const ix = await this.getSweepFuelIx(authority);
-		const tx = await this.buildTransaction([ix], this.txParams);
-		const { txSig } = await this.sendTransaction(tx, [], this.opts);
-		return txSig;
-	}
-
-	public async getSweepFuelIx(
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		return await this.program.instruction.sweepFuel({
-			accounts: {
-				fuelOverflow: getFuelOverflowAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				userStats: getUserStatsAccountPublicKey(
-					this.program.programId,
-					authority ?? this.wallet.publicKey
-				),
-				authority: authority ?? this.wallet.publicKey,
-				signer: this.wallet.publicKey,
-			},
-		});
 	}
 
 	private async getInitializeUserInstructions(
@@ -3557,8 +3417,7 @@ export class DriftClient {
 		marketIndex: number,
 		associatedTokenAddress: PublicKey,
 		reduceOnly = false,
-		subAccountId?: number,
-		_updateFuel = false
+		subAccountId?: number
 	): Promise<TransactionInstruction[]> {
 		const withdrawIxs: TransactionInstruction[] = [];
 
@@ -3635,8 +3494,7 @@ export class DriftClient {
 		associatedTokenAddress: PublicKey,
 		reduceOnly = false,
 		subAccountId?: number,
-		txParams?: TxParams,
-		updateFuel = false
+		txParams?: TxParams
 	): Promise<TransactionSignature> {
 		const additionalSigners: Array<Signer> = [];
 
@@ -3645,8 +3503,7 @@ export class DriftClient {
 			marketIndex,
 			associatedTokenAddress,
 			reduceOnly,
-			subAccountId,
-			updateFuel
+			subAccountId
 		);
 
 		const tx = await this.buildTransaction(
@@ -4405,229 +4262,6 @@ export class DriftClient {
 		});
 	}
 
-	public async settleLP(
-		settleeUserAccountPublicKey: PublicKey,
-		marketIndex: number,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.settleLPIx(settleeUserAccountPublicKey, marketIndex),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async settleLPIx(
-		settleeUserAccountPublicKey: PublicKey,
-		marketIndex: number
-	): Promise<TransactionInstruction> {
-		const settleeUserAccount = (await (this.program.account as any).user.fetch(
-			settleeUserAccountPublicKey
-		)) as UserAccount;
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [settleeUserAccount],
-			writablePerpMarketIndexes: [marketIndex],
-		});
-
-		return (this.program.instruction as any).settleLp(marketIndex, {
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user: settleeUserAccountPublicKey,
-			},
-			remainingAccounts: remainingAccounts,
-		});
-	}
-
-	public async removePerpLpShares(
-		marketIndex: number,
-		sharesToBurn?: BN,
-		txParams?: TxParams,
-		subAccountId?: number
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getRemovePerpLpSharesIx(
-					marketIndex,
-					sharesToBurn,
-					subAccountId
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async removePerpLpSharesInExpiringMarket(
-		marketIndex: number,
-		userAccountPublicKey: PublicKey,
-		sharesToBurn?: BN,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getRemovePerpLpSharesInExpiringMarket(
-					marketIndex,
-					userAccountPublicKey,
-					sharesToBurn
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async getRemovePerpLpSharesInExpiringMarket(
-		marketIndex: number,
-		userAccountPublicKey: PublicKey,
-		sharesToBurn?: BN
-	): Promise<TransactionInstruction> {
-		const userAccount = (await (this.program.account as any).user.fetch(
-			userAccountPublicKey
-		)) as UserAccount;
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [userAccount],
-			writablePerpMarketIndexes: [marketIndex],
-		});
-
-		if (sharesToBurn == undefined) {
-			const perpPosition = userAccount.perpPositions.filter(
-				(position) => position.marketIndex === marketIndex
-			)[0];
-			sharesToBurn = perpPosition.lpShares;
-			console.log('burning lp shares:', sharesToBurn.toString());
-		}
-
-		return (this.program.instruction as any).removePerpLpSharesInExpiringMarket(
-			sharesToBurn,
-			marketIndex,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user: userAccountPublicKey,
-				},
-				remainingAccounts: remainingAccounts,
-			}
-		);
-	}
-	public async getRemovePerpLpSharesIx(
-		marketIndex: number,
-		sharesToBurn?: BN,
-		subAccountId?: number
-	): Promise<TransactionInstruction> {
-		const user = await this.getUserAccountPublicKey(subAccountId);
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [this.getUserAccount(subAccountId)],
-			useMarketLastSlotCache: true,
-			writablePerpMarketIndexes: [marketIndex],
-		});
-
-		if (sharesToBurn == undefined) {
-			const userAccount = this.getUserAccount(subAccountId);
-			const perpPosition = userAccount.perpPositions.filter(
-				(position) => position.marketIndex === marketIndex
-			)[0];
-			sharesToBurn = perpPosition.lpShares;
-			console.log('burning lp shares:', sharesToBurn.toString());
-		}
-
-		return (this.program.instruction as any).removePerpLpShares(
-			sharesToBurn,
-			marketIndex,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts: remainingAccounts,
-			}
-		);
-	}
-
-	public async addPerpLpShares(
-		amount: BN,
-		marketIndex: number,
-		txParams?: TxParams,
-		subAccountId?: number
-	): Promise<TransactionSignature> {
-		const { txSig, slot } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getAddPerpLpSharesIx(amount, marketIndex, subAccountId),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		this.perpMarketLastSlotCache.set(marketIndex, slot);
-		return txSig;
-	}
-
-	public async getAddPerpLpSharesIx(
-		amount: BN,
-		marketIndex: number,
-		subAccountId?: number
-	): Promise<TransactionInstruction> {
-		const user = await this.getUserAccountPublicKey(subAccountId);
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [this.getUserAccount(subAccountId)],
-			useMarketLastSlotCache: true,
-			writablePerpMarketIndexes: [marketIndex],
-		});
-
-		return (this.program.instruction as any).addPerpLpShares(
-			amount,
-			marketIndex,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user,
-					authority: this.wallet.publicKey,
-				},
-				remainingAccounts: remainingAccounts,
-			}
-		);
-	}
-
-	public getQuoteValuePerLpShare(marketIndex: number): BN {
-		const perpMarketAccount = this.getPerpMarketAccount(marketIndex);
-
-		const openBids = BN.max(
-			perpMarketAccount.amm.baseAssetReserve.sub(
-				perpMarketAccount.amm.minBaseAssetReserve
-			),
-			ZERO
-		);
-
-		const openAsks = BN.max(
-			perpMarketAccount.amm.maxBaseAssetReserve.sub(
-				perpMarketAccount.amm.baseAssetReserve
-			),
-			ZERO
-		);
-
-		const oraclePriceData = this.getOracleDataForPerpMarket(marketIndex);
-
-		const maxOpenBidsAsks = BN.max(openBids, openAsks);
-		const quoteValuePerLpShare = maxOpenBidsAsks
-			.mul(oraclePriceData.price)
-			.mul(QUOTE_PRECISION)
-			.div(PRICE_PRECISION)
-			.div(perpMarketAccount.amm.sqrtK);
-
-		return quoteValuePerLpShare;
-	}
-
 	/**
 	 * @deprecated use {@link placePerpOrder} or {@link placeAndTakePerpOrder} instead
 	 */
@@ -4996,7 +4630,7 @@ export class DriftClient {
 			accounts: {
 				state: await this.getStatePublicKey(),
 				admin: this.isSubscribed
-					? this.getStateAccount().admin
+					? this.getStateAccount().coldAdmin
 					: this.wallet.publicKey,
 				perpMarket: perpMarketPublicKey,
 			},
@@ -5037,7 +4671,7 @@ export class DriftClient {
 				accounts: {
 					state: await this.getStatePublicKey(),
 					admin: this.isSubscribed
-						? this.getStateAccount().admin
+						? this.getStateAccount().coldAdmin
 						: this.wallet.publicKey,
 					spotMarket: spotMarketPublicKey,
 					perpMarket: perpMarketPublicKey,
@@ -5763,10 +5397,7 @@ export class DriftClient {
 		_userAccountPublicKey: PublicKey,
 		_user: UserAccount,
 		_order?: Pick<Order, 'marketIndex' | 'orderId'>,
-		_fulfillmentConfig?:
-			| SerumV3FulfillmentConfigAccount
-			| PhoenixV1FulfillmentConfigAccount
-			| OpenbookV2FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_makerInfo?: MakerInfo | MakerInfo[],
 		_referrerInfo?: ReferrerInfo,
 		_txParams?: TxParams
@@ -5778,304 +5409,12 @@ export class DriftClient {
 		_userAccountPublicKey: PublicKey,
 		_userAccount: UserAccount,
 		_order?: Pick<Order, 'marketIndex' | 'orderId'>,
-		_fulfillmentConfig?:
-			| SerumV3FulfillmentConfigAccount
-			| PhoenixV1FulfillmentConfigAccount
-			| OpenbookV2FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_makerInfo?: MakerInfo | MakerInfo[],
 		_referrerInfo?: ReferrerInfo,
 		_fillerPublicKey?: PublicKey
 	): Promise<TransactionInstruction> {
 		throw new Error(SPOT_DLOB_TRADING_DISABLED_MSG);
-	}
-
-	addSpotFulfillmentAccounts(
-		marketIndex: number,
-		remainingAccounts: AccountMeta[],
-		fulfillmentConfig?:
-			| SerumV3FulfillmentConfigAccount
-			| PhoenixV1FulfillmentConfigAccount
-			| OpenbookV2FulfillmentConfigAccount
-	): void {
-		if (fulfillmentConfig) {
-			if ('serumProgramId' in fulfillmentConfig) {
-				this.addSerumRemainingAccounts(
-					marketIndex,
-					remainingAccounts,
-					fulfillmentConfig
-				);
-			} else if ('phoenixProgramId' in fulfillmentConfig) {
-				this.addPhoenixRemainingAccounts(
-					marketIndex,
-					remainingAccounts,
-					fulfillmentConfig
-				);
-			} else if ('openbookV2ProgramId' in fulfillmentConfig) {
-				this.addOpenbookRemainingAccounts(
-					marketIndex,
-					remainingAccounts,
-					fulfillmentConfig
-				);
-			} else {
-				throw Error('Invalid fulfillment config type');
-			}
-		} else {
-			remainingAccounts.push({
-				pubkey: this.getSpotMarketAccount(marketIndex).vault,
-				isWritable: false,
-				isSigner: false,
-			});
-			remainingAccounts.push({
-				pubkey: this.getQuoteSpotMarketAccount().vault,
-				isWritable: false,
-				isSigner: false,
-			});
-		}
-	}
-
-	addSerumRemainingAccounts(
-		marketIndex: number,
-		remainingAccounts: AccountMeta[],
-		fulfillmentConfig: SerumV3FulfillmentConfigAccount
-	): void {
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.pubkey,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumProgramId,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumMarket,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumRequestQueue,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumEventQueue,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumBids,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumAsks,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumBaseVault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumQuoteVault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.serumOpenOrders,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: getSerumSignerPublicKey(
-				fulfillmentConfig.serumProgramId,
-				fulfillmentConfig.serumMarket,
-				fulfillmentConfig.serumSignerNonce
-			),
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSignerPublicKey(),
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: TOKEN_PROGRAM_ID,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSpotMarketAccount(marketIndex).vault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getQuoteSpotMarketAccount().vault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getStateAccount().srmVault,
-			isWritable: false,
-			isSigner: false,
-		});
-	}
-
-	addPhoenixRemainingAccounts(
-		marketIndex: number,
-		remainingAccounts: AccountMeta[],
-		fulfillmentConfig: PhoenixV1FulfillmentConfigAccount
-	): void {
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.pubkey,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.phoenixProgramId,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.phoenixLogAuthority,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.phoenixMarket,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSignerPublicKey(),
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.phoenixBaseVault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.phoenixQuoteVault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSpotMarketAccount(marketIndex).vault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getQuoteSpotMarketAccount().vault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: TOKEN_PROGRAM_ID,
-			isWritable: false,
-			isSigner: false,
-		});
-	}
-
-	addOpenbookRemainingAccounts(
-		marketIndex: number,
-		remainingAccounts: AccountMeta[],
-		fulfillmentConfig: OpenbookV2FulfillmentConfigAccount
-	): void {
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.pubkey,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSignerPublicKey(),
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2ProgramId,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2Market,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2MarketAuthority,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2EventHeap,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2Bids,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2Asks,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2BaseVault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: fulfillmentConfig.openbookV2QuoteVault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSpotMarketAccount(marketIndex).vault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getQuoteSpotMarketAccount().vault,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: TOKEN_PROGRAM_ID,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: SystemProgram.programId,
-			isWritable: false,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getSpotMarketAccount(marketIndex).pubkey,
-			isWritable: true,
-			isSigner: false,
-		});
-		remainingAccounts.push({
-			pubkey: this.getQuoteSpotMarketAccount().pubkey,
-			isWritable: true,
-			isSigner: false,
-		});
-
-		if (fulfillmentConfig.remainingAccounts) {
-			for (const remainingAccount of fulfillmentConfig.remainingAccounts) {
-				remainingAccounts.push({
-					pubkey: remainingAccount,
-					isWritable: true,
-					isSigner: false,
-				});
-			}
-		}
 	}
 
 	/**
@@ -6992,54 +6331,6 @@ export class DriftClient {
 		});
 	}
 
-	/* Deprecated */
-	public async updateUserFuelBonus(
-		userAccountPublicKey: PublicKey,
-		user: UserAccount,
-		userAuthority: PublicKey,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getUpdateUserFuelBonusIx(
-					userAccountPublicKey,
-					user,
-					userAuthority
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	/* Deprecated */
-	public async getUpdateUserFuelBonusIx(
-		userAccountPublicKey: PublicKey,
-		userAccount: UserAccount,
-		userAuthority: PublicKey
-	): Promise<TransactionInstruction> {
-		const userStatsAccountPublicKey = getUserStatsAccountPublicKey(
-			this.program.programId,
-			userAuthority
-		);
-
-		const remainingAccounts = this.getRemainingAccounts({
-			userAccounts: [userAccount],
-		});
-
-		return await (this.program.instruction as any).updateUserFuelBonus({
-			accounts: {
-				state: await this.getStatePublicKey(),
-				user: userAccountPublicKey,
-				userStats: userStatsAccountPublicKey,
-				authority: this.wallet.publicKey,
-			},
-			remainingAccounts,
-		});
-	}
-
 	public async updateUserStatsReferrerStatus(
 		userAuthority: PublicKey,
 		txParams?: TxParams
@@ -7917,7 +7208,7 @@ export class DriftClient {
 
 	public async preparePlaceAndTakeSpotOrder(
 		_orderParams: OptionalOrderParams,
-		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_makerInfo?: MakerInfo,
 		_referrerInfo?: ReferrerInfo,
 		_txParams?: TxParams,
@@ -7928,7 +7219,7 @@ export class DriftClient {
 
 	public async placeAndTakeSpotOrder(
 		_orderParams: OptionalOrderParams,
-		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_makerInfo?: MakerInfo,
 		_referrerInfo?: ReferrerInfo,
 		_txParams?: TxParams,
@@ -7938,7 +7229,7 @@ export class DriftClient {
 	}
 	public async getPlaceAndTakeSpotOrderIx(
 		_orderParams: OptionalOrderParams,
-		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_makerInfo?: MakerInfo,
 		_referrerInfo?: ReferrerInfo,
 		_subAccountId?: number
@@ -7949,7 +7240,7 @@ export class DriftClient {
 	public async placeAndMakeSpotOrder(
 		_orderParams: OptionalOrderParams,
 		_takerInfo: TakerInfo,
-		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_referrerInfo?: ReferrerInfo,
 		_txParams?: TxParams,
 		_subAccountId?: number
@@ -7960,7 +7251,7 @@ export class DriftClient {
 	public async getPlaceAndMakeSpotOrderIx(
 		_orderParams: OptionalOrderParams,
 		_takerInfo: TakerInfo,
-		_fulfillmentConfig?: SerumV3FulfillmentConfigAccount,
+		_fulfillmentConfig?: unknown,
 		_referrerInfo?: ReferrerInfo,
 		_subAccountId?: number
 	): Promise<TransactionInstruction> {
@@ -10692,62 +9983,6 @@ export class DriftClient {
 			}
 		);
 		return [verifyIx, ix];
-	}
-
-	public async fetchProtectedMakerModeConfig(): Promise<ProtectedMakerModeConfig> {
-		const config = await (
-			this.program.account as any
-		).protectedMakerModeConfig.fetch(
-			getProtectedMakerModeConfigPublicKey(this.program.programId)
-		);
-		return config as unknown as ProtectedMakerModeConfig;
-	}
-	public async updateUserProtectedMakerOrders(
-		subAccountId: number,
-		protectedOrders: boolean,
-		authority?: PublicKey,
-		txParams?: TxParams
-	): Promise<TransactionSignature> {
-		const { txSig } = await this.sendTransaction(
-			await this.buildTransaction(
-				await this.getUpdateUserProtectedMakerOrdersIx(
-					subAccountId,
-					protectedOrders,
-					authority
-				),
-				txParams
-			),
-			[],
-			this.opts
-		);
-		return txSig;
-	}
-
-	public async getUpdateUserProtectedMakerOrdersIx(
-		subAccountId: number,
-		protectedOrders: boolean,
-		authority?: PublicKey
-	): Promise<TransactionInstruction> {
-		const ix = await this.program.instruction.updateUserProtectedMakerOrders(
-			subAccountId,
-			protectedOrders,
-			{
-				accounts: {
-					state: await this.getStatePublicKey(),
-					user: getUserAccountPublicKeySync(
-						this.program.programId,
-						authority ?? this.authority,
-						subAccountId
-					),
-					authority: this.wallet.publicKey,
-					protectedMakerModeConfig: getProtectedMakerModeConfigPublicKey(
-						this.program.programId
-					),
-				},
-			}
-		);
-
-		return ix;
 	}
 
 	public async getPauseSpotMarketDepositWithdrawIx(

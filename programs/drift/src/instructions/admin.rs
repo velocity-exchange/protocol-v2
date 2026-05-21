@@ -1,92 +1,97 @@
-use crate::controller::spot_balance::execute_transfer_between_pools;
-use crate::{msg, FeatureBitFlags};
+use std::convert::TryInto;
+
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::Token2022;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
-use phoenix::quantities::WrapperU64;
-use std::convert::{identity, TryInto};
-use std::mem::size_of;
+use anchor_spl::{
+    token_2022::{
+        spl_token_2022::{
+            extension::{
+                transfer_hook::TransferHook, BaseStateWithExtensions, StateWithExtensions,
+            },
+            state::Mint as MintInner,
+        },
+        Token2022,
+    },
+    token_interface::{Mint, TokenAccount, TokenInterface},
+};
 
-use crate::controller;
-use crate::controller::token::{close_vault, initialize_immutable_owner, initialize_token_account};
-use crate::error::ErrorCode;
-use crate::get_then_update_id;
-use crate::ids::{admin_hot_wallet, amm_spread_adjust_wallet, mm_oracle_crank_wallet};
-use crate::instructions::constraints::*;
-use crate::instructions::optional_accounts::{load_maps, AccountMaps};
-use crate::load;
-use crate::load_mut;
-use crate::math::casting::Cast;
-use crate::math::constants::{
-    AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, DEFAULT_LIQUIDATION_MARGIN_BUFFER_RATIO,
-    EPOCH_DURATION, FEE_ADJUSTMENT_MAX, FEE_POOL_TO_REVENUE_POOL_THRESHOLD, GOV_SPOT_MARKET_INDEX,
-    IF_FACTOR_PRECISION, INSURANCE_A_MAX, INSURANCE_B_MAX, INSURANCE_C_MAX,
-    INSURANCE_SPECULATIVE_MAX, LIQUIDATION_FEE_PRECISION, MAX_CONCENTRATION_COEFFICIENT,
-    MAX_SQRT_K, MAX_UPDATE_K_PRICE_CHANGE, PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I64,
-    QUOTE_PRECISION_I64, QUOTE_SPOT_MARKET_INDEX, SPOT_BALANCE_PRECISION,
-    SPOT_CUMULATIVE_INTEREST_PRECISION, SPOT_IMF_PRECISION, SPOT_WEIGHT_PRECISION, THIRTEEN_DAY,
-    TWENTY_FOUR_HOUR,
+use crate::{
+    auth::{check_hot, check_pause, check_warm, require_pause_only_added},
+    controller,
+    controller::{
+        spot_balance::execute_transfer_between_pools,
+        token::{close_vault, initialize_immutable_owner, initialize_token_account},
+    },
+    error::ErrorCode,
+    get_then_update_id,
+    instructions::{
+        constraints::*,
+        optional_accounts::{load_maps, AccountMaps},
+    },
+    load, load_mut, math,
+    math::{
+        amm, bn,
+        casting::Cast,
+        constants::{
+            AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, DEFAULT_LIQUIDATION_MARGIN_BUFFER_RATIO,
+            EPOCH_DURATION, FEE_ADJUSTMENT_MAX, FEE_POOL_TO_REVENUE_POOL_THRESHOLD,
+            GOV_SPOT_MARKET_INDEX, IF_FACTOR_PRECISION, INSURANCE_A_MAX, INSURANCE_B_MAX,
+            INSURANCE_C_MAX, INSURANCE_SPECULATIVE_MAX, LIQUIDATION_FEE_PRECISION,
+            MAX_CONCENTRATION_COEFFICIENT, MAX_SQRT_K, MAX_UPDATE_K_PRICE_CHANGE,
+            PERCENTAGE_PRECISION, PERCENTAGE_PRECISION_I64, QUOTE_PRECISION_I64,
+            QUOTE_SPOT_MARKET_INDEX, SPOT_BALANCE_PRECISION, SPOT_CUMULATIVE_INTEREST_PRECISION,
+            SPOT_IMF_PRECISION, SPOT_WEIGHT_PRECISION, THIRTEEN_DAY, TWENTY_FOUR_HOUR,
+        },
+        cp_curve::get_update_k_result,
+        helpers::get_proportion_u128,
+        orders::is_multiple_of_step_size,
+        repeg::get_total_fee_lower_bound,
+        safe_math::SafeMath,
+        spot_balance::get_token_amount,
+        spot_withdraw::validate_spot_market_vault_amount,
+    },
+    math_error, msg,
+    optional_accounts::get_token_mint,
+    safe_decrement, safe_increment,
+    state::{
+        amm_cache::{AmmCache, CacheInfo, AMM_POSITIONS_CACHE},
+        events::{
+            CurveRecord, DepositDirection, DepositExplanation, DepositRecord,
+            SpotMarketVaultDepositRecord, TransferFeeAndPnlPoolDirection,
+            TransferFeeAndPnlPoolRecord,
+        },
+        if_rebalance_config::{IfRebalanceConfig, IfRebalanceConfigParams},
+        insurance_fund_stake::{InsuranceFundStake, ProtocolIfSharesTransferConfig},
+        market_status::MarketStatus,
+        oracle::{
+            get_oracle_price, get_prelaunch_price, get_pyth_price, HistoricalIndexData,
+            HistoricalOracleData, OraclePriceData, OracleSource, PrelaunchOracle,
+            PrelaunchOracleParams,
+        },
+        oracle_map::OracleMap,
+        paused_operations::{InsuranceFundOperation, PerpOperation, SpotOperation},
+        perp_market::{
+            ContractTier, ContractType, InsuranceClaim, MarketConfigFlag, PerpMarket, PoolBalance,
+            AMM,
+        },
+        perp_market_map::{get_writable_perp_market_set, MarketSet},
+        pyth_lazer_oracle::{PythLazerOracle, PYTH_LAZER_ORACLE_SEED},
+        spot_market::{AssetTier, InsuranceFund, SpotBalanceType, SpotMarket, TokenProgramFlag},
+        spot_market_map::get_writable_spot_market_set,
+        state::{
+            ExchangeStatus, FeeStructure, HotRole, LpPoolFeatureBitFlags, OracleGuardRails, State,
+        },
+        traits::Size,
+        user::{SpecialUserStatus, User, UserStats},
+    },
+    validate,
+    validation::{
+        fee_structure::validate_fee_structure,
+        margin::{validate_margin, validate_margin_weights},
+        perp_market::validate_perp_market,
+        spot_market::validate_borrow_rate,
+    },
+    FeatureBitFlags,
 };
-use crate::math::cp_curve::get_update_k_result;
-use crate::math::helpers::get_proportion_u128;
-use crate::math::orders::is_multiple_of_step_size;
-use crate::math::repeg::get_total_fee_lower_bound;
-use crate::math::safe_math::SafeMath;
-use crate::math::spot_balance::get_token_amount;
-use crate::math::spot_withdraw::validate_spot_market_vault_amount;
-use crate::math::{amm, bn};
-use crate::math_error;
-use crate::optional_accounts::get_token_mint;
-use crate::state::amm_cache::{AmmCache, CacheInfo, AMM_POSITIONS_CACHE};
-use crate::state::events::{
-    CurveRecord, DepositDirection, DepositExplanation, DepositRecord, SpotMarketVaultDepositRecord,
-    TransferFeeAndPnlPoolDirection, TransferFeeAndPnlPoolRecord,
-};
-use crate::state::fulfillment_params::openbook_v2::{
-    OpenbookV2Context, OpenbookV2FulfillmentConfig,
-};
-use crate::state::fulfillment_params::phoenix::PhoenixMarketContext;
-use crate::state::fulfillment_params::phoenix::PhoenixV1FulfillmentConfig;
-use crate::state::fulfillment_params::serum::SerumContext;
-use crate::state::fulfillment_params::serum::SerumV3FulfillmentConfig;
-use crate::state::if_rebalance_config::{IfRebalanceConfig, IfRebalanceConfigParams};
-use crate::state::insurance_fund_stake::InsuranceFundStake;
-use crate::state::insurance_fund_stake::ProtocolIfSharesTransferConfig;
-use crate::state::market_status::MarketStatus;
-use crate::state::oracle::{
-    get_oracle_price, get_prelaunch_price, get_pyth_price, HistoricalIndexData,
-    HistoricalOracleData, OraclePriceData, OracleSource, PrelaunchOracle, PrelaunchOracleParams,
-};
-use crate::state::oracle_map::OracleMap;
-use crate::state::paused_operations::{InsuranceFundOperation, PerpOperation, SpotOperation};
-use crate::state::perp_market::{
-    ContractTier, ContractType, InsuranceClaim, MarketConfigFlag, PerpMarket, PoolBalance, AMM,
-};
-use crate::state::perp_market_map::{get_writable_perp_market_set, MarketSet};
-use crate::state::protected_maker_mode_config::ProtectedMakerModeConfig;
-use crate::state::pyth_lazer_oracle::{PythLazerOracle, PYTH_LAZER_ORACLE_SEED};
-use crate::state::spot_market::{
-    AssetTier, InsuranceFund, SpotBalanceType, SpotFulfillmentConfigStatus, SpotMarket,
-    TokenProgramFlag,
-};
-use crate::state::spot_market_map::get_writable_spot_market_set;
-use crate::state::state::{
-    ExchangeStatus, FeeStructure, LpPoolFeatureBitFlags, OracleGuardRails, State,
-};
-use crate::state::traits::Size;
-use crate::state::user::{SpecialUserStatus, User, UserStats};
-use crate::validate;
-use crate::validation::fee_structure::validate_fee_structure;
-use crate::validation::margin::{validate_margin, validate_margin_weights};
-use crate::validation::perp_market::validate_perp_market;
-use crate::validation::spot_market::validate_borrow_rate;
-use crate::{math, safe_decrement, safe_increment};
-
-use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHook;
-use anchor_spl::token_2022::spl_token_2022::extension::{
-    BaseStateWithExtensions, StateWithExtensions,
-};
-use anchor_spl::token_2022::spl_token_2022::state::Mint as MintInner;
 
 fn validate_supported_market_oracle_source(oracle_source: OracleSource) -> Result<()> {
     if matches!(
@@ -106,8 +111,25 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
     let (drift_signer, drift_signer_nonce) =
         Pubkey::find_program_address(&[b"drift_signer".as_ref()], ctx.program_id);
 
-    **ctx.accounts.state = State {
-        admin: *ctx.accounts.admin.key,
+    // Default warm_admin to the cold admin so warm-tier handlers work
+    // immediately. All hot roles start as `Pubkey::default()` (unassigned)
+    // until rotated via `update_hot_admin`.
+    let mut state = ctx.accounts.state.load_init()?;
+    *state = State {
+        cold_admin: *ctx.accounts.admin.key,
+        warm_admin: *ctx.accounts.admin.key,
+        pause_admin: Pubkey::default(),
+        hot_amm_crank: Pubkey::default(),
+        hot_lp_cache: Pubkey::default(),
+        hot_lp_swap: Pubkey::default(),
+        hot_lp_settle: Pubkey::default(),
+        hot_if_rebalance: Pubkey::default(),
+        hot_feature_flag: Pubkey::default(),
+        hot_fuel: Pubkey::default(),
+        hot_user_flag: Pubkey::default(),
+        hot_vault_deposit: Pubkey::default(),
+        hot_mm_oracle_crank: Pubkey::default(),
+        hot_amm_spread_adjust: Pubkey::default(),
         exchange_status: ExchangeStatus::active(),
         whitelist_mint: Pubkey::default(),
         discount_mint: Pubkey::default(),
@@ -126,14 +148,13 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
         srm_vault: Pubkey::default(),
         perp_fee_structure: FeeStructure::perps_default(),
         spot_fee_structure: FeeStructure::spot_default(),
-        lp_cooldown_time: 0,
         liquidation_duration: 0,
         initial_pct_to_liquidate: 0,
         max_number_of_sub_accounts: 0,
         max_initialize_user_fee: 0,
         feature_bit_flags: 0,
         lp_pool_feature_bit_flags: 0,
-        padding: [0; 8],
+        padding: [0; 272],
     };
 
     Ok(())
@@ -161,7 +182,7 @@ pub fn handle_initialize_spot_market(
     if_total_factor: u32,
     name: [u8; 32],
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     let spot_market_pubkey = ctx.accounts.spot_market.key();
 
     validate_supported_market_oracle_source(oracle_source)?;
@@ -292,7 +313,7 @@ pub fn handle_initialize_spot_market(
 
     if active_status {
         validate!(
-            ctx.accounts.admin.key() == state.admin,
+            ctx.accounts.admin.key() == state.cold_admin,
             ErrorCode::DefaultError,
             "admin must be state admin"
         )?;
@@ -362,11 +383,6 @@ pub fn handle_initialize_spot_market(
         total_swap_fee: 0,
         scale_initial_asset_weight_start,
         min_borrow_rate: 0,
-        fuel_boost_deposits: 0,
-        fuel_boost_borrows: 0,
-        fuel_boost_taker: 1,
-        fuel_boost_maker: 1,
-        fuel_boost_insurance: 0,
         token_program_flag: token_program,
         pool_id: 0,
         padding: [0; 56],
@@ -405,314 +421,6 @@ pub fn handle_update_spot_market_pool_id(
 
     spot_market.pool_id = pool_id;
 
-    Ok(())
-}
-
-pub fn handle_initialize_serum_fulfillment_config(
-    ctx: Context<InitializeSerumFulfillmentConfig>,
-    market_index: u16,
-) -> Result<()> {
-    validate!(
-        market_index != QUOTE_SPOT_MARKET_INDEX,
-        ErrorCode::InvalidSpotMarketAccount,
-        "Cant add serum market to quote asset"
-    )?;
-
-    let base_spot_market = load!(&ctx.accounts.base_spot_market)?;
-    let quote_spot_market = load!(&ctx.accounts.quote_spot_market)?;
-
-    let serum_program_id = crate::ids::serum_program::id();
-    validate!(
-        ctx.accounts.serum_program.key() == serum_program_id,
-        ErrorCode::InvalidSerumProgram
-    )?;
-
-    let serum_market_key = ctx.accounts.serum_market.key();
-
-    let serum_context = SerumContext {
-        serum_program: &ctx.accounts.serum_program,
-        serum_market: &ctx.accounts.serum_market,
-        serum_open_orders: &ctx.accounts.serum_open_orders,
-    };
-
-    let market_state = serum_context.load_serum_market()?;
-
-    validate!(
-        identity(market_state.coin_mint)
-            == bytemuck::cast::<[u8; 32], [u64; 4]>(base_spot_market.mint.to_bytes()),
-        ErrorCode::InvalidSerumMarket,
-        "Invalid base mint"
-    )?;
-
-    validate!(
-        identity(market_state.pc_mint)
-            == bytemuck::cast::<[u8; 32], [u64; 4]>(quote_spot_market.mint.to_bytes()),
-        ErrorCode::InvalidSerumMarket,
-        "Invalid quote mint"
-    )?;
-
-    let market_step_size = market_state.coin_lot_size;
-    let valid_step_size = base_spot_market.order_step_size >= market_step_size
-        && base_spot_market
-            .order_step_size
-            .rem_euclid(market_step_size)
-            == 0;
-
-    validate!(
-        valid_step_size,
-        ErrorCode::InvalidSerumMarket,
-        "base market step size ({}) not a multiple of serum step size ({})",
-        base_spot_market.order_step_size,
-        market_step_size
-    )?;
-
-    let market_tick_size = market_state.pc_lot_size;
-    let valid_tick_size = base_spot_market.order_tick_size >= market_tick_size
-        && base_spot_market
-            .order_tick_size
-            .rem_euclid(market_tick_size)
-            == 0;
-
-    validate!(
-        valid_tick_size,
-        ErrorCode::InvalidSerumMarket,
-        "base market tick size ({}) not a multiple of serum tick size ({})",
-        base_spot_market.order_tick_size,
-        market_tick_size
-    )?;
-
-    drop(market_state);
-
-    let open_orders_seeds: &[&[u8]] = &[b"serum_open_orders", serum_market_key.as_ref()];
-    controller::pda::seed_and_create_pda(
-        ctx.program_id,
-        &ctx.accounts.admin.to_account_info(),
-        &Rent::get()?,
-        size_of::<serum_dex::state::OpenOrders>() + 12,
-        &serum_program_id,
-        &ctx.accounts.system_program.to_account_info(),
-        &ctx.accounts.serum_open_orders,
-        open_orders_seeds,
-    )?;
-
-    let open_orders = serum_context.load_open_orders()?;
-    validate!(
-        open_orders.account_flags == 0,
-        ErrorCode::InvalidSerumOpenOrders,
-        "Serum open orders already initialized"
-    )?;
-    drop(open_orders);
-
-    serum_context.invoke_init_open_orders(
-        &ctx.accounts.drift_signer,
-        &ctx.accounts.rent,
-        ctx.accounts.state.signer_nonce,
-    )?;
-
-    let serum_fulfillment_config_key = ctx.accounts.serum_fulfillment_config.key();
-    let mut serum_fulfillment_config = ctx.accounts.serum_fulfillment_config.load_init()?;
-    *serum_fulfillment_config = serum_context
-        .to_serum_v3_fulfillment_config(&serum_fulfillment_config_key, market_index)?;
-
-    Ok(())
-}
-
-pub fn handle_update_serum_fulfillment_config_status(
-    ctx: Context<UpdateSerumFulfillmentConfig>,
-    status: SpotFulfillmentConfigStatus,
-) -> Result<()> {
-    let mut config = load_mut!(ctx.accounts.serum_fulfillment_config)?;
-    msg!("config.status {:?} -> {:?}", config.status, status);
-    config.status = status;
-    Ok(())
-}
-
-pub fn handle_delete_serum_fulfillment_config(
-    _ctx: Context<DeleteSerumFulfillmentConfig>,
-) -> Result<()> {
-    msg!("deleted serum fulfillment config");
-    Ok(())
-}
-
-pub fn handle_update_serum_vault(ctx: Context<UpdateSerumVault>) -> Result<()> {
-    let vault = &ctx.accounts.srm_vault;
-    validate!(
-        vault.mint == crate::ids::srm_mint::id() || vault.mint == crate::ids::msrm_mint::id(),
-        ErrorCode::InvalidSrmVault,
-        "vault did not hav srm or msrm mint"
-    )?;
-
-    validate!(
-        vault.owner == ctx.accounts.state.signer,
-        ErrorCode::InvalidVaultOwner,
-        "vault owner was not program signer"
-    )?;
-
-    let state = &mut ctx.accounts.state;
-
-    msg!("state.srm_vault {:?} -> {:?}", state.srm_vault, vault.key());
-    state.srm_vault = vault.key();
-
-    Ok(())
-}
-
-pub fn handle_initialize_openbook_v2_fulfillment_config(
-    ctx: Context<InitializeOpenbookV2FulfillmentConfig>,
-    market_index: u16,
-) -> Result<()> {
-    validate!(
-        market_index != QUOTE_SPOT_MARKET_INDEX,
-        ErrorCode::InvalidSpotMarketAccount,
-        "Cannot add openbook v2 market to quote asset"
-    )?;
-
-    let base_spot_market = load!(&ctx.accounts.base_spot_market)?;
-    let quote_spot_market = load!(&ctx.accounts.quote_spot_market)?;
-
-    let openbook_v2_program_id = openbook_v2_light::id();
-
-    validate!(
-        ctx.accounts.openbook_v2_program.key() == openbook_v2_program_id,
-        ErrorCode::InvalidOpenbookV2Program
-    )?;
-
-    let openbook_v2_market_context = OpenbookV2Context {
-        openbook_v2_program: &ctx.accounts.openbook_v2_program,
-        openbook_v2_market: &ctx.accounts.openbook_v2_market,
-    };
-    let market = openbook_v2_market_context.load_openbook_v2_market()?;
-    validate!(
-        market.base_mint == base_spot_market.mint,
-        ErrorCode::InvalidOpenbookV2Market,
-        "Invalid base mint"
-    )?;
-
-    validate!(
-        market.quote_mint == quote_spot_market.mint,
-        ErrorCode::InvalidOpenbookV2Market,
-        "Invalid quote mint"
-    )?;
-
-    validate!(
-        market.taker_fee == 0,
-        ErrorCode::InvalidOpenbookV2Market,
-        "Fee must be 0"
-    )?;
-
-    let market_step_size = market.base_lot_size as u64;
-    let valid_step_size = base_spot_market.order_step_size >= market_step_size
-        && base_spot_market
-            .order_step_size
-            .rem_euclid(market_step_size)
-            == 0;
-
-    validate!(
-        valid_step_size,
-        ErrorCode::InvalidOpenbookV2Market,
-        "base market step size ({}) not a multiple of Openbook V2 base lot size ({})",
-        base_spot_market.order_step_size,
-        market_step_size
-    )?;
-
-    let openbook_v2_fulfillment_config_key = ctx.accounts.openbook_v2_fulfillment_config.key();
-    let mut openbook_v2_fulfillment_config =
-        ctx.accounts.openbook_v2_fulfillment_config.load_init()?;
-    *openbook_v2_fulfillment_config = openbook_v2_market_context
-        .to_openbook_v2_fulfillment_config(&openbook_v2_fulfillment_config_key, market_index)?;
-    Ok(())
-}
-
-pub fn handle_update_openbook_v2_fulfillment_config_status(
-    ctx: Context<UpdateOpenbookV2FulfillmentConfig>,
-    status: SpotFulfillmentConfigStatus,
-) -> Result<()> {
-    let mut config = load_mut!(ctx.accounts.openbook_v2_fulfillment_config)?;
-    msg!("config.status {:?} -> {:?}", config.status, status);
-    config.status = status;
-    Ok(())
-}
-
-pub fn handle_delete_openbook_v2_fulfillment_config(
-    _ctx: Context<DeleteOpenbookV2FulfillmentConfig>,
-) -> Result<()> {
-    msg!("deleted openbook v2 fulfillment config");
-    Ok(())
-}
-
-pub fn handle_initialize_phoenix_fulfillment_config(
-    ctx: Context<InitializePhoenixFulfillmentConfig>,
-    market_index: u16,
-) -> Result<()> {
-    validate!(
-        market_index != QUOTE_SPOT_MARKET_INDEX,
-        ErrorCode::InvalidSpotMarketAccount,
-        "Cannot add phoenix market to quote asset"
-    )?;
-
-    let base_spot_market = load!(&ctx.accounts.base_spot_market)?;
-    let quote_spot_market = load!(&ctx.accounts.quote_spot_market)?;
-
-    let phoenix_program_id = phoenix::id();
-
-    validate!(
-        ctx.accounts.phoenix_program.key().to_bytes() == phoenix_program_id.to_bytes(),
-        ErrorCode::InvalidPhoenixProgram
-    )?;
-
-    let phoenix_market_context = PhoenixMarketContext::new(&ctx.accounts.phoenix_market)?;
-
-    validate!(
-        phoenix_market_context
-            .header
-            .base_params
-            .mint_key
-            .to_bytes()
-            == base_spot_market.mint.to_bytes(),
-        ErrorCode::InvalidPhoenixMarket,
-        "Invalid base mint"
-    )?;
-
-    validate!(
-        phoenix_market_context
-            .header
-            .quote_params
-            .mint_key
-            .to_bytes()
-            == quote_spot_market.mint.to_bytes(),
-        ErrorCode::InvalidPhoenixMarket,
-        "Invalid quote mint"
-    )?;
-
-    let market_step_size = phoenix_market_context.header.get_base_lot_size().as_u64();
-    let valid_step_size = base_spot_market.order_step_size >= market_step_size
-        && base_spot_market
-            .order_step_size
-            .rem_euclid(market_step_size)
-            == 0;
-
-    validate!(
-        valid_step_size,
-        ErrorCode::InvalidPhoenixMarket,
-        "base market step size ({}) not a multiple of Phoenix base lot size ({})",
-        base_spot_market.order_step_size,
-        market_step_size
-    )?;
-
-    let phoenix_fulfillment_config_key = ctx.accounts.phoenix_fulfillment_config.key();
-    let mut phoenix_fulfillment_config = ctx.accounts.phoenix_fulfillment_config.load_init()?;
-    *phoenix_fulfillment_config = phoenix_market_context
-        .to_phoenix_v1_fulfillment_config(&phoenix_fulfillment_config_key, market_index);
-
-    Ok(())
-}
-
-pub fn handle_update_phoenix_fulfillment_config_status(
-    ctx: Context<UpdatePhoenixFulfillmentConfig>,
-    status: SpotFulfillmentConfigStatus,
-) -> Result<()> {
-    let mut config = load_mut!(ctx.accounts.phoenix_fulfillment_config)?;
-    msg!("config.status {:?} -> {:?}", config.status, status);
-    config.status = status;
     Ok(())
 }
 
@@ -759,13 +467,13 @@ pub fn handle_initialize_perp_market(
     }
 
     validate!(
-        (0..=200).contains(&curve_update_intensity),
+        (0..=100).contains(&curve_update_intensity),
         ErrorCode::DefaultError,
         "invalid curve_update_intensity",
     )?;
 
     validate!(
-        (0..=200).contains(&amm_jit_intensity),
+        (0..=100).contains(&amm_jit_intensity),
         ErrorCode::DefaultError,
         "invalid amm_jit_intensity",
     )?;
@@ -911,7 +619,7 @@ pub fn handle_initialize_perp_market(
         max_spread,
     )?;
 
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     validate!(
         market_index == state.number_of_markets,
         ErrorCode::MarketIndexAlreadyInitialized,
@@ -922,7 +630,7 @@ pub fn handle_initialize_perp_market(
 
     if active_status {
         validate!(
-            ctx.accounts.admin.key() == state.admin,
+            ctx.accounts.admin.key() == state.cold_admin,
             ErrorCode::DefaultError,
             "admin must be state admin"
         )?;
@@ -964,13 +672,8 @@ pub fn handle_initialize_perp_market(
         paused_operations: 0,
         quote_spot_market_index: QUOTE_SPOT_MARKET_INDEX,
         fee_adjustment: 0,
-        fuel_boost_position: 0,
-        fuel_boost_taker: 1,
-        fuel_boost_maker: 1,
         pool_id: 0,
-        padding_former_hlm: [0; 4],
-        protected_maker_limit_price_divisor: 0,
-        protected_maker_dynamic_divisor: 0,
+        _padding_pmm: [0; 2],
         lp_fee_transfer_scalar: 1,
         lp_status: 0,
         lp_exchange_fee_excluscion_scalar: 0,
@@ -1054,29 +757,23 @@ pub fn handle_initialize_perp_market(
             last_trade_ts: now,
             curve_update_intensity,
             fee_pool: PoolBalance::default(),
-            base_asset_amount_per_lp: 0,
-            quote_asset_amount_per_lp: 0,
             last_update_slot: clock_slot,
 
-            // lp stuff
-            base_asset_amount_with_unsettled_lp: 0,
-            user_lp_shares: 0,
             amm_jit_intensity,
 
             last_oracle_valid: false,
-            target_base_asset_amount_per_lp: 0,
-            per_lp_base: 0,
             oracle_slot_delay_override: -1,
             oracle_low_risk_slot_delay_override: 0,
             amm_spread_adjustment: 0,
+            padding_pre_mm_oracle_sequence: [0; 5],
             mm_oracle_sequence_id: 0,
             net_unsettled_funding_pnl: 0,
-            quote_asset_amount_with_unsettled_lp: 0,
             reference_price_offset: 0,
             amm_inventory_spread_adjustment: 0,
             reference_price_offset_deadband_pct: 0,
-            padding: [0; 2],
+            padding_pre_last_funding: [0; 2],
             last_funding_oracle_twap: 0,
+            padding_trailing: [0; 8],
         },
     };
 
@@ -1145,7 +842,7 @@ pub fn handle_delete_initialized_perp_market(
 ) -> Result<()> {
     let perp_market = &mut ctx.accounts.perp_market.load()?;
     msg!("perp market {}", perp_market.market_index);
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
 
     // to preserve all protocol invariants, can only remove the last market if it hasn't been "activated"
 
@@ -1186,7 +883,7 @@ pub fn handle_delete_initialized_spot_market(
 ) -> Result<()> {
     let spot_market = ctx.accounts.spot_market.load()?;
     msg!("spot market {}", spot_market.market_index);
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
 
     // to preserve all protocol invariants, can only remove the last market if it hasn't been "activated"
 
@@ -1380,83 +1077,6 @@ pub fn handle_update_spot_market_expiry(
     // automatically enter reduce only
     spot_market.status = MarketStatus::ReduceOnly;
     spot_market.expiry_ts = expiry_ts;
-
-    Ok(())
-}
-
-pub fn handle_init_user_fuel(
-    ctx: Context<InitUserFuel>,
-    fuel_bonus_deposits: Option<i32>,
-    fuel_bonus_borrows: Option<u32>,
-    fuel_bonus_taker: Option<u32>,
-    fuel_bonus_maker: Option<u32>,
-    fuel_bonus_insurance: Option<u32>,
-) -> Result<()> {
-    let clock: Clock = Clock::get()?;
-    let now_u32 = clock.unix_timestamp as u32;
-
-    let user = &mut load_mut!(ctx.accounts.user)?;
-    let user_stats = &mut load_mut!(ctx.accounts.user_stats)?;
-
-    if let Some(fuel_bonus_deposits) = fuel_bonus_deposits {
-        let new_fuel_bonus_deposits = if fuel_bonus_deposits >= 0 {
-            user_stats
-                .fuel_deposits
-                .saturating_add(fuel_bonus_deposits.cast()?)
-        } else {
-            user_stats
-                .fuel_deposits
-                .saturating_sub(fuel_bonus_deposits.unsigned_abs())
-        };
-
-        msg!(
-            "user_stats.fuel_deposits {:?} -> {:?}",
-            user_stats.fuel_deposits,
-            new_fuel_bonus_deposits
-        );
-        user_stats.fuel_deposits = new_fuel_bonus_deposits;
-    }
-    if let Some(fuel_bonus_borrows) = fuel_bonus_borrows {
-        msg!(
-            "user_stats.fuel_borrows {:?} -> {:?}",
-            user_stats.fuel_borrows,
-            user_stats.fuel_borrows.saturating_add(fuel_bonus_borrows)
-        );
-        user_stats.fuel_borrows = user_stats.fuel_borrows.saturating_add(fuel_bonus_borrows);
-    }
-
-    if let Some(fuel_bonus_taker) = fuel_bonus_taker {
-        msg!(
-            "user_stats.fuel_taker {:?} -> {:?}",
-            user_stats.fuel_taker,
-            user_stats.fuel_taker.saturating_add(fuel_bonus_taker)
-        );
-        user_stats.fuel_taker = user_stats.fuel_taker.saturating_add(fuel_bonus_taker);
-    }
-    if let Some(fuel_bonus_maker) = fuel_bonus_maker {
-        msg!(
-            "user_stats.fuel_maker {:?} -> {:?}",
-            user_stats.fuel_maker,
-            user_stats.fuel_maker.saturating_add(fuel_bonus_maker)
-        );
-        user_stats.fuel_maker = user_stats.fuel_maker.saturating_add(fuel_bonus_maker);
-    }
-
-    if let Some(fuel_bonus_insurance) = fuel_bonus_insurance {
-        msg!(
-            "user_stats.fuel_insurance {:?} -> {:?}",
-            user_stats.fuel_insurance,
-            user_stats
-                .fuel_insurance
-                .saturating_add(fuel_bonus_insurance)
-        );
-        user_stats.fuel_insurance = user_stats
-            .fuel_insurance
-            .saturating_add(fuel_bonus_insurance);
-    }
-
-    user.last_fuel_bonus_update_ts = now_u32;
-    user_stats.last_fuel_if_bonus_update_ts = now_u32;
 
     Ok(())
 }
@@ -1720,8 +1340,6 @@ pub fn handle_recenter_perp_market_amm_crank(
 
 #[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub struct UpdatePerpMarketSummaryStatsParams {
-    // new aggregate unsettled user stats
-    pub quote_asset_amount_with_unsettled_lp: Option<i64>,
     pub net_unsettled_funding_pnl: Option<i64>,
     pub update_amm_summary_stats: Option<bool>,
     pub exclude_total_liq_fee: Option<bool>,
@@ -1755,16 +1373,6 @@ pub fn handle_update_perp_market_amm_summary_stats(
         price: oracle_price,
         ..
     } = get_oracle_price(&perp_market.amm.oracle_source, price_oracle, clock.slot)?;
-
-    if let Some(quote_asset_amount_with_unsettled_lp) = params.quote_asset_amount_with_unsettled_lp
-    {
-        msg!(
-            "quote_asset_amount_with_unsettled_lp {} -> {}",
-            perp_market.amm.quote_asset_amount_with_unsettled_lp,
-            quote_asset_amount_with_unsettled_lp
-        );
-        perp_market.amm.quote_asset_amount_with_unsettled_lp = quote_asset_amount_with_unsettled_lp;
-    }
 
     if let Some(net_unsettled_funding_pnl) = params.net_unsettled_funding_pnl {
         msg!(
@@ -1828,7 +1436,7 @@ pub fn handle_settle_expired_market_pools_to_revenue_pool(
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
     let spot_market: &mut std::cell::RefMut<'_, SpotMarket> =
         &mut load_mut!(ctx.accounts.spot_market)?;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     msg!(
         "settling expired market pools to revenue pool for perp market {}",
@@ -2152,14 +1760,14 @@ pub fn handle_repeg_amm_curve(ctx: Context<RepegCurve>, new_peg_candidate: u128)
     let quote_asset_reserve_before = perp_market.amm.quote_asset_reserve;
     let sqrt_k_before = perp_market.amm.sqrt_k;
 
-    let oracle_validity_rails = &ctx.accounts.state.oracle_guard_rails;
+    let oracle_validity_rails = ctx.accounts.state.load()?.oracle_guard_rails;
 
     let adjustment_cost = controller::repeg::repeg(
         perp_market,
         price_oracle,
         new_peg_candidate,
         clock_slot,
-        oracle_validity_rails,
+        &oracle_validity_rails,
     )?;
 
     let peg_multiplier_after = perp_market.amm.peg_multiplier;
@@ -2956,11 +2564,21 @@ pub fn handle_update_spot_market_status(
 spot_market_valid(&ctx.accounts.spot_market)
 )]
 pub fn handle_update_spot_market_paused_operations(
-    ctx: Context<AdminUpdateSpotMarket>,
+    ctx: Context<PauseAdminUpdateSpotMarket>,
     paused_operations: u8,
 ) -> Result<()> {
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
     msg!("spot market {}", spot_market.market_index);
+
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        spot_market.paused_operations,
+        paused_operations,
+    )?;
+    drop(state);
 
     spot_market.paused_operations = paused_operations;
 
@@ -3214,10 +2832,19 @@ pub fn handle_update_spot_market_orders_enabled(
     spot_market_valid(&ctx.accounts.spot_market)
 )]
 pub fn handle_update_spot_market_if_paused_operations(
-    ctx: Context<AdminUpdateSpotMarket>,
+    ctx: Context<PauseAdminUpdateSpotMarket>,
     paused_operations: u8,
 ) -> Result<()> {
     let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        spot_market.if_paused_operations,
+        paused_operations,
+    )?;
+    drop(state);
     spot_market.if_paused_operations = paused_operations;
     msg!("spot market {}", spot_market.market_index);
     InsuranceFundOperation::log_all_operations_paused(paused_operations);
@@ -3255,20 +2882,35 @@ pub fn handle_update_perp_market_status(
     perp_market_valid(&ctx.accounts.perp_market)
 )]
 pub fn handle_update_perp_market_paused_operations(
-    ctx: Context<HotAdminUpdatePerpMarket>,
+    ctx: Context<PauseAdminUpdatePerpMarket>,
     paused_operations: u8,
 ) -> Result<()> {
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
     msg!("perp market {}", perp_market.market_index);
 
-    if *ctx.accounts.admin.key != ctx.accounts.state.admin {
+    // Authority matrix for perp paused_operations:
+    //   * cold       — may set any value (full unpause + pause)
+    //   * warm       — historically limited to UpdateFunding / SettleRevPool only
+    //   * pause_admin — may set any bit but only *add* bits (no unpause)
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    let is_cold = state.is_cold(&signer);
+    let is_pause_admin = state.pause_admin != Pubkey::default() && state.pause_admin == signer;
+    if !is_cold && !is_pause_admin {
         validate!(
             paused_operations == PerpOperation::UpdateFunding as u8
                 || paused_operations == PerpOperation::SettleRevPool as u8,
             ErrorCode::DefaultError,
-            "signer must be admin",
+            "warm admin may only pause UpdateFunding or SettleRevPool",
         )?;
     }
+    require_pause_only_added(
+        &signer,
+        &state,
+        perp_market.paused_operations,
+        paused_operations,
+    )?;
+    drop(state);
 
     perp_market.paused_operations = paused_operations;
 
@@ -3486,11 +3128,11 @@ pub fn handle_update_perp_fee_structure(
 
     msg!(
         "perp_fee_structure: {:?} -> {:?}",
-        ctx.accounts.state.perp_fee_structure,
+        ctx.accounts.state.load()?.perp_fee_structure,
         fee_structure
     );
 
-    ctx.accounts.state.perp_fee_structure = fee_structure;
+    ctx.accounts.state.load_mut()?.perp_fee_structure = fee_structure;
     Ok(())
 }
 
@@ -3502,11 +3144,11 @@ pub fn handle_update_spot_fee_structure(
 
     msg!(
         "spot_fee_structure: {:?} -> {:?}",
-        ctx.accounts.state.spot_fee_structure,
+        ctx.accounts.state.load()?.spot_fee_structure,
         fee_structure
     );
 
-    ctx.accounts.state.spot_fee_structure = fee_structure;
+    ctx.accounts.state.load_mut()?.spot_fee_structure = fee_structure;
     Ok(())
 }
 
@@ -3516,11 +3158,11 @@ pub fn handle_update_initial_pct_to_liquidate(
 ) -> Result<()> {
     msg!(
         "initial_pct_to_liquidate: {} -> {}",
-        ctx.accounts.state.initial_pct_to_liquidate,
+        ctx.accounts.state.load()?.initial_pct_to_liquidate,
         initial_pct_to_liquidate
     );
 
-    ctx.accounts.state.initial_pct_to_liquidate = initial_pct_to_liquidate;
+    ctx.accounts.state.load_mut()?.initial_pct_to_liquidate = initial_pct_to_liquidate;
     Ok(())
 }
 
@@ -3530,11 +3172,11 @@ pub fn handle_update_liquidation_duration(
 ) -> Result<()> {
     msg!(
         "liquidation_duration: {} -> {}",
-        ctx.accounts.state.liquidation_duration,
+        ctx.accounts.state.load()?.liquidation_duration,
         liquidation_duration
     );
 
-    ctx.accounts.state.liquidation_duration = liquidation_duration;
+    ctx.accounts.state.load_mut()?.liquidation_duration = liquidation_duration;
     Ok(())
 }
 
@@ -3544,11 +3186,14 @@ pub fn handle_update_liquidation_margin_buffer_ratio(
 ) -> Result<()> {
     msg!(
         "liquidation_margin_buffer_ratio: {} -> {}",
-        ctx.accounts.state.liquidation_margin_buffer_ratio,
+        ctx.accounts.state.load()?.liquidation_margin_buffer_ratio,
         liquidation_margin_buffer_ratio
     );
 
-    ctx.accounts.state.liquidation_margin_buffer_ratio = liquidation_margin_buffer_ratio;
+    ctx.accounts
+        .state
+        .load_mut()?
+        .liquidation_margin_buffer_ratio = liquidation_margin_buffer_ratio;
     Ok(())
 }
 
@@ -3558,11 +3203,11 @@ pub fn handle_update_oracle_guard_rails(
 ) -> Result<()> {
     msg!(
         "oracle_guard_rails: {:?} -> {:?}",
-        ctx.accounts.state.oracle_guard_rails,
+        ctx.accounts.state.load()?.oracle_guard_rails,
         oracle_guard_rails
     );
 
-    ctx.accounts.state.oracle_guard_rails = oracle_guard_rails;
+    ctx.accounts.state.load_mut()?.oracle_guard_rails = oracle_guard_rails;
     Ok(())
 }
 
@@ -3572,11 +3217,11 @@ pub fn handle_update_state_settlement_duration(
 ) -> Result<()> {
     msg!(
         "settlement_duration: {} -> {}",
-        ctx.accounts.state.settlement_duration,
+        ctx.accounts.state.load()?.settlement_duration,
         settlement_duration
     );
 
-    ctx.accounts.state.settlement_duration = settlement_duration;
+    ctx.accounts.state.load_mut()?.settlement_duration = settlement_duration;
     Ok(())
 }
 
@@ -3586,11 +3231,11 @@ pub fn handle_update_state_max_number_of_sub_accounts(
 ) -> Result<()> {
     msg!(
         "max_number_of_sub_accounts: {} -> {}",
-        ctx.accounts.state.max_number_of_sub_accounts,
+        ctx.accounts.state.load()?.max_number_of_sub_accounts,
         max_number_of_sub_accounts
     );
 
-    ctx.accounts.state.max_number_of_sub_accounts = max_number_of_sub_accounts;
+    ctx.accounts.state.load_mut()?.max_number_of_sub_accounts = max_number_of_sub_accounts;
     Ok(())
 }
 
@@ -3600,11 +3245,11 @@ pub fn handle_update_state_max_initialize_user_fee(
 ) -> Result<()> {
     msg!(
         "max_initialize_user_fee: {} -> {}",
-        ctx.accounts.state.max_initialize_user_fee,
+        ctx.accounts.state.load()?.max_initialize_user_fee,
         max_initialize_user_fee
     );
 
-    ctx.accounts.state.max_initialize_user_fee = max_initialize_user_fee;
+    ctx.accounts.state.load_mut()?.max_initialize_user_fee = max_initialize_user_fee;
     Ok(())
 }
 
@@ -3753,7 +3398,7 @@ pub fn handle_update_amm_jit_intensity(
     amm_jit_intensity: u8,
 ) -> Result<()> {
     validate!(
-        (0..=200).contains(&amm_jit_intensity),
+        (0..=100).contains(&amm_jit_intensity),
         ErrorCode::DefaultError,
         "invalid amm_jit_intensity",
     )?;
@@ -4054,90 +3699,21 @@ pub fn handle_update_perp_market_number_of_users(
     Ok(())
 }
 
-pub fn handle_update_perp_market_fuel(
-    ctx: Context<HotAdminUpdatePerpMarket>,
-    fuel_boost_taker: Option<u8>,
-    fuel_boost_maker: Option<u8>,
-    fuel_boost_position: Option<u8>,
-) -> Result<()> {
-    let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
-    msg!("perp market {}", perp_market.market_index);
-
-    if let Some(fuel_boost_taker) = fuel_boost_taker {
-        msg!(
-            "perp_market.fuel_boost_taker: {:?} -> {:?}",
-            perp_market.fuel_boost_taker,
-            fuel_boost_taker
-        );
-        perp_market.fuel_boost_taker = fuel_boost_taker;
-    } else {
-        msg!("perp_market.fuel_boost_taker: unchanged");
-    }
-
-    if let Some(fuel_boost_maker) = fuel_boost_maker {
-        msg!(
-            "perp_market.fuel_boost_maker: {:?} -> {:?}",
-            perp_market.fuel_boost_maker,
-            fuel_boost_maker
-        );
-        perp_market.fuel_boost_maker = fuel_boost_maker;
-    } else {
-        msg!("perp_market.fuel_boost_maker: unchanged");
-    }
-
-    if let Some(fuel_boost_position) = fuel_boost_position {
-        msg!(
-            "perp_market.fuel_boost_position: {:?} -> {:?}",
-            perp_market.fuel_boost_position,
-            fuel_boost_position
-        );
-        perp_market.fuel_boost_position = fuel_boost_position;
-    } else {
-        msg!("perp_market.fuel_boost_position: unchanged");
-    }
-
-    Ok(())
-}
-
-pub fn handle_update_perp_market_protected_maker_params(
-    ctx: Context<AdminUpdatePerpMarket>,
-    protected_maker_limit_price_divisor: Option<u8>,
-    protected_maker_dynamic_divisor: Option<u8>,
-) -> Result<()> {
-    let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
-    msg!("perp market {}", perp_market.market_index);
-
-    if let Some(protected_maker_limit_price_divisor) = protected_maker_limit_price_divisor {
-        msg!(
-            "perp_market.protected_maker_limit_price_divisor: {:?} -> {:?}",
-            perp_market.protected_maker_limit_price_divisor,
-            protected_maker_limit_price_divisor
-        );
-        perp_market.protected_maker_limit_price_divisor = protected_maker_limit_price_divisor;
-    } else {
-        msg!("perp_market.protected_maker_limit_price_divisor: unchanged");
-    }
-
-    if let Some(protected_maker_dynamic_divisor) = protected_maker_dynamic_divisor {
-        msg!(
-            "perp_market.protected_maker_dynamic_divisor: {:?} -> {:?}",
-            perp_market.protected_maker_dynamic_divisor,
-            protected_maker_dynamic_divisor
-        );
-        perp_market.protected_maker_dynamic_divisor = protected_maker_dynamic_divisor;
-    } else {
-        msg!("perp_market.protected_maker_dynamic_divisor: unchanged");
-    }
-
-    Ok(())
-}
-
 pub fn handle_update_perp_market_lp_pool_paused_operations(
-    ctx: Context<AdminUpdatePerpMarket>,
+    ctx: Context<PauseAdminUpdatePerpMarket>,
     lp_paused_operations: u8,
 ) -> Result<()> {
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
     msg!("perp market {}", perp_market.market_index);
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    require_pause_only_added(
+        &signer,
+        &state,
+        perp_market.lp_paused_operations,
+        lp_paused_operations,
+    )?;
+    drop(state);
     perp_market.lp_paused_operations = lp_paused_operations;
     Ok(())
 }
@@ -4249,78 +3825,13 @@ pub fn handle_update_spot_market_fee_adjustment(
     Ok(())
 }
 
-pub fn handle_update_spot_market_fuel(
-    ctx: Context<AdminUpdateSpotMarketFuel>,
-    fuel_boost_deposits: Option<u8>,
-    fuel_boost_borrows: Option<u8>,
-    fuel_boost_taker: Option<u8>,
-    fuel_boost_maker: Option<u8>,
-    fuel_boost_insurance: Option<u8>,
-) -> Result<()> {
-    let spot_market = &mut load_mut!(ctx.accounts.spot_market)?;
-    msg!("spot market {}", spot_market.market_index);
-
-    if let Some(fuel_boost_taker) = fuel_boost_taker {
-        msg!(
-            "spot_market.fuel_boost_taker: {:?} -> {:?}",
-            spot_market.fuel_boost_taker,
-            fuel_boost_taker
-        );
-        spot_market.fuel_boost_taker = fuel_boost_taker;
-    } else {
-        msg!("spot_market.fuel_boost_taker: unchanged");
-    }
-
-    if let Some(fuel_boost_maker) = fuel_boost_maker {
-        msg!(
-            "spot_market.fuel_boost_maker: {:?} -> {:?}",
-            spot_market.fuel_boost_maker,
-            fuel_boost_maker
-        );
-        spot_market.fuel_boost_maker = fuel_boost_maker;
-    } else {
-        msg!("spot_market.fuel_boost_maker: unchanged");
-    }
-
-    if let Some(fuel_boost_deposits) = fuel_boost_deposits {
-        msg!(
-            "spot_market.fuel_boost_deposits: {:?} -> {:?}",
-            spot_market.fuel_boost_deposits,
-            fuel_boost_deposits
-        );
-        spot_market.fuel_boost_deposits = fuel_boost_deposits;
-    } else {
-        msg!("spot_market.fuel_boost_deposits: unchanged");
-    }
-
-    if let Some(fuel_boost_borrows) = fuel_boost_borrows {
-        msg!(
-            "spot_market.fuel_boost_borrows: {:?} -> {:?}",
-            spot_market.fuel_boost_borrows,
-            fuel_boost_borrows
-        );
-        spot_market.fuel_boost_borrows = fuel_boost_borrows;
-    } else {
-        msg!("spot_market.fuel_boost_borrows: unchanged");
-    }
-
-    if let Some(fuel_boost_insurance) = fuel_boost_insurance {
-        msg!(
-            "spot_market.fuel_boost_insurance: {:?} -> {:?}",
-            spot_market.fuel_boost_insurance,
-            fuel_boost_insurance
-        );
-        spot_market.fuel_boost_insurance = fuel_boost_insurance;
-    } else {
-        msg!("spot_market.fuel_boost_insurance: unchanged");
-    }
-
-    Ok(())
-}
-
-pub fn handle_update_admin(ctx: Context<AdminUpdateState>, admin: Pubkey) -> Result<()> {
-    msg!("admin: {:?} -> {:?}", ctx.accounts.state.admin, admin);
-    ctx.accounts.state.admin = admin;
+pub fn handle_update_admin(ctx: Context<ColdAdminUpdateState>, admin: Pubkey) -> Result<()> {
+    msg!(
+        "admin: {:?} -> {:?}",
+        ctx.accounts.state.load()?.cold_admin,
+        admin
+    );
+    ctx.accounts.state.load_mut()?.cold_admin = admin;
     Ok(())
 }
 
@@ -4330,11 +3841,11 @@ pub fn handle_update_whitelist_mint(
 ) -> Result<()> {
     msg!(
         "whitelist_mint: {:?} -> {:?}",
-        ctx.accounts.state.whitelist_mint,
+        ctx.accounts.state.load()?.whitelist_mint,
         whitelist_mint
     );
 
-    ctx.accounts.state.whitelist_mint = whitelist_mint;
+    ctx.accounts.state.load_mut()?.whitelist_mint = whitelist_mint;
     Ok(())
 }
 
@@ -4344,25 +3855,27 @@ pub fn handle_update_discount_mint(
 ) -> Result<()> {
     msg!(
         "discount_mint: {:?} -> {:?}",
-        ctx.accounts.state.discount_mint,
+        ctx.accounts.state.load()?.discount_mint,
         discount_mint
     );
 
-    ctx.accounts.state.discount_mint = discount_mint;
+    ctx.accounts.state.load_mut()?.discount_mint = discount_mint;
     Ok(())
 }
 
 pub fn handle_update_exchange_status(
-    ctx: Context<AdminUpdateState>,
+    ctx: Context<PauseAdminUpdateState>,
     exchange_status: u8,
 ) -> Result<()> {
+    let signer = ctx.accounts.admin.key();
+    let mut state = ctx.accounts.state.load_mut()?;
+    require_pause_only_added(&signer, &state, state.exchange_status, exchange_status)?;
     msg!(
         "exchange_status: {:?} -> {:?}",
-        ctx.accounts.state.exchange_status,
+        state.exchange_status,
         exchange_status
     );
-
-    ctx.accounts.state.exchange_status = exchange_status;
+    state.exchange_status = exchange_status;
     Ok(())
 }
 
@@ -4372,11 +3885,11 @@ pub fn handle_update_perp_auction_duration(
 ) -> Result<()> {
     msg!(
         "min_perp_auction_duration: {:?} -> {:?}",
-        ctx.accounts.state.min_perp_auction_duration,
+        ctx.accounts.state.load()?.min_perp_auction_duration,
         min_perp_auction_duration
     );
 
-    ctx.accounts.state.min_perp_auction_duration = min_perp_auction_duration;
+    ctx.accounts.state.load_mut()?.min_perp_auction_duration = min_perp_auction_duration;
     Ok(())
 }
 
@@ -4386,19 +3899,36 @@ pub fn handle_update_spot_auction_duration(
 ) -> Result<()> {
     msg!(
         "default_spot_auction_duration: {:?} -> {:?}",
-        ctx.accounts.state.default_spot_auction_duration,
+        ctx.accounts.state.load()?.default_spot_auction_duration,
         default_spot_auction_duration
     );
 
-    ctx.accounts.state.default_spot_auction_duration = default_spot_auction_duration;
+    ctx.accounts.state.load_mut()?.default_spot_auction_duration = default_spot_auction_duration;
     Ok(())
 }
 
 pub fn handle_admin_update_user_stats_paused_operations(
-    ctx: Context<AdminDisableBidAskTwapUpdate>,
+    ctx: Context<PauseAdminUpdateUserStats>,
     paused_operations: u8,
 ) -> Result<()> {
     let mut user_stats = load_mut!(ctx.accounts.user_stats)?;
+
+    // Authority matrix for user_stats.paused_operations:
+    //   * cold / warm / hot_user_flag — full control (pause + unpause)
+    //   * pause_admin                 — pause-only (may not clear bits)
+    //
+    // `is_hot(.., UserFlag)` already returns true for cold/warm; the negation
+    // therefore isolates pause_admin specifically.
+    let signer = ctx.accounts.admin.key();
+    let state = ctx.accounts.state.load()?;
+    if !state.is_hot(&signer, HotRole::UserFlag) {
+        validate!(
+            (user_stats.paused_operations & paused_operations) == user_stats.paused_operations,
+            ErrorCode::Unauthorized,
+            "pause_admin may not clear pause bits",
+        )?;
+    }
+    drop(state);
 
     msg!(
         "user_stats.paused_operations: {:?} -> {:?}",
@@ -4556,7 +4086,7 @@ pub fn handle_settle_expired_market<'c: 'info, 'info>(
 ) -> Result<()> {
     let clock = Clock::get()?;
     let _now = clock.unix_timestamp;
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
 
     let AccountMaps {
         perp_market_map,
@@ -4574,7 +4104,7 @@ pub fn handle_settle_expired_market<'c: 'info, 'info>(
         market_index,
         &perp_market_map,
         &mut oracle_map,
-        state,
+        &state,
         &clock,
     )?;
 
@@ -4583,39 +4113,9 @@ pub fn handle_settle_expired_market<'c: 'info, 'info>(
         &perp_market_map,
         &mut oracle_map,
         &spot_market_map,
-        state,
+        &state,
         &clock,
     )?;
-
-    Ok(())
-}
-
-pub fn handle_initialize_protected_maker_mode_config(
-    ctx: Context<InitializeProtectedMakerModeConfig>,
-    max_users: u32,
-) -> Result<()> {
-    let mut config = ctx.accounts.protected_maker_mode_config.load_init()?;
-
-    config.max_users = max_users;
-
-    Ok(())
-}
-
-pub fn handle_update_protected_maker_mode_config(
-    ctx: Context<UpdateProtectedMakerModeConfig>,
-    max_users: u32,
-    reduce_only: bool,
-    current_users: Option<u32>,
-) -> Result<()> {
-    let mut config = load_mut!(ctx.accounts.protected_maker_mode_config)?;
-
-    if let Some(users) = current_users {
-        config.current_users = users;
-    }
-    config.max_users = max_users;
-    config.reduce_only = reduce_only as u8;
-
-    config.validate()?;
 
     Ok(())
 }
@@ -4631,7 +4131,7 @@ pub fn handle_admin_deposit<'c: 'info, 'info>(
     let user_key = ctx.accounts.user.key();
     let user = &mut load_mut!(ctx.accounts.user)?;
 
-    let state = &ctx.accounts.state;
+    let state = ctx.accounts.state.load()?;
     let clock = Clock::get()?;
     let now = clock.unix_timestamp;
     let slot = clock.slot;
@@ -4826,22 +4326,29 @@ pub fn handle_zero_mm_oracle_fields(ctx: Context<HotAdminUpdatePerpMarket>) -> R
 }
 
 pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> Result<()> {
-    // Verify this ix is allowed
+    // Verify this ix is allowed. State byte offsets (from discriminator start):
+    //   hot_mm_oracle_crank: 392..424
+    //   feature_bit_flags:   1406
     let state = &accounts[3].data.borrow();
-    assert!(state[982] & 1 > 0, "ix disabled by admin state");
+    assert!(state[1406] & 1 > 0, "ix disabled by admin state");
 
     let signer_account = &accounts[1];
     #[cfg(not(feature = "anchor-test"))]
-    assert!(
-        signer_account.is_signer && *signer_account.key == mm_oracle_crank_wallet::id(),
-        "signer must be mm oracle crank wallet, signer: {}, mm oracle crank wallet: {}",
-        signer_account.key,
-        mm_oracle_crank_wallet::id()
-    );
+    {
+        let mut hot_mm_oracle_crank = [0u8; 32];
+        hot_mm_oracle_crank.copy_from_slice(&state[392..424]);
+        let hot_key = anchor_lang::prelude::Pubkey::new_from_array(hot_mm_oracle_crank);
+        assert!(
+            signer_account.is_signer && *signer_account.key == hot_key,
+            "signer must match state.hot_mm_oracle_crank, signer: {}, expected: {}",
+            signer_account.key,
+            hot_key
+        );
+    }
 
     let mut perp_market = accounts[0].data.borrow_mut();
     // Account offsets verified via offset_of!(AMM, field) + 8 discriminator bytes.
-    let perp_market_sequence_id = u64::from_le_bytes(perp_market[944..952].try_into().unwrap());
+    let perp_market_sequence_id = u64::from_le_bytes(perp_market[880..888].try_into().unwrap());
     let incoming_sequence_id = u64::from_le_bytes(data[8..16].try_into().unwrap());
 
     if &data[0..8] == &[0u8; 8] {
@@ -4853,9 +4360,9 @@ pub fn handle_update_mm_oracle_native(accounts: &[AccountInfo], data: &[u8]) -> 
         let clock_account = &accounts[2];
         let clock_data = clock_account.data.borrow();
 
-        perp_market[840..848].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
-        perp_market[920..928].copy_from_slice(&data[0..8]); // mm_oracle_price
-        perp_market[944..952].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
+        perp_market[776..784].copy_from_slice(&clock_data[0..8]); // mm_oracle_slot
+        perp_market[856..864].copy_from_slice(&data[0..8]); // mm_oracle_price
+        perp_market[880..888].copy_from_slice(&data[8..16]); // mm_oracle_sequence_id
     }
 
     Ok(())
@@ -4865,16 +4372,24 @@ pub fn handle_update_amm_spread_adjustment_native(
     accounts: &[AccountInfo],
     data: &[u8],
 ) -> Result<()> {
+    // Accounts: [0] perp_market (mut), [1] signer, [2] state.
+    // hot_amm_spread_adjust lives at bytes 424..456 of State (after disc).
     let signer_account = &accounts[1];
     #[cfg(not(feature = "anchor-test"))]
-    assert!(
-        signer_account.is_signer && *signer_account.key == amm_spread_adjust_wallet::id(),
-        "signer must be amm spread adjust wallet, signer: {}, amm spread adjust wallet: {}",
-        signer_account.key,
-        amm_spread_adjust_wallet::id()
-    );
+    {
+        let state = &accounts[2].data.borrow();
+        let mut hot_amm_spread_adjust = [0u8; 32];
+        hot_amm_spread_adjust.copy_from_slice(&state[424..456]);
+        let hot_key = anchor_lang::prelude::Pubkey::new_from_array(hot_amm_spread_adjust);
+        assert!(
+            signer_account.is_signer && *signer_account.key == hot_key,
+            "signer must match state.hot_amm_spread_adjust, signer: {}, expected: {}",
+            signer_account.key,
+            hot_key
+        );
+    }
     let mut perp_market = accounts[0].data.borrow_mut();
-    perp_market[942..943].copy_from_slice(&[data[0]]); // amm_spread_adjustment
+    perp_market[873..874].copy_from_slice(&[data[0]]); // amm_spread_adjustment
 
     Ok(())
 }
@@ -4883,10 +4398,10 @@ pub fn handle_update_feature_bit_flags_mm_oracle(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can re-enable after kill switch"
         )?;
@@ -4905,10 +4420,10 @@ pub fn handle_update_feature_bit_flags_median_trigger_price(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can re-enable after kill switch"
         )?;
@@ -4941,16 +4456,12 @@ pub fn handle_update_delegate_user_gov_token_insurance_stake(
     if insurance_fund_stake.market_index == GOV_SPOT_MARKET_INDEX
         && spot_market.market_index == GOV_SPOT_MARKET_INDEX
     {
-        let clock = Clock::get()?;
-        let now = clock.unix_timestamp;
-
         crate::controller::insurance::update_user_stats_if_stake_amount(
             0,
             ctx.accounts.insurance_fund_vault.amount,
             insurance_fund_stake,
             user_stats,
             spot_market,
-            now,
         )?;
     }
 
@@ -4961,10 +4472,10 @@ pub fn handle_update_feature_bit_flags_builder_codes(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can enable feature bit flags"
         )?;
@@ -4982,10 +4493,10 @@ pub fn handle_update_feature_bit_flags_builder_referral(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can enable feature bit flags"
         )?;
@@ -5005,10 +4516,10 @@ pub fn handle_update_feature_bit_flags_settle_lp_pool(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can re-enable after kill switch"
         )?;
@@ -5028,10 +4539,10 @@ pub fn handle_update_feature_bit_flags_swap_lp_pool(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can re-enable after kill switch"
         )?;
@@ -5051,10 +4562,10 @@ pub fn handle_update_feature_bit_flags_mint_redeem_lp_pool(
     ctx: Context<HotAdminUpdateState>,
     enable: bool,
 ) -> Result<()> {
-    let state = &mut ctx.accounts.state;
+    let mut state = ctx.accounts.state.load_mut()?;
     if enable {
         validate!(
-            ctx.accounts.admin.key().eq(&state.admin),
+            ctx.accounts.admin.key().eq(&state.cold_admin),
             ErrorCode::DefaultError,
             "Only state admin can re-enable after kill switch"
         )?;
@@ -5089,7 +4600,7 @@ pub fn handle_update_perp_market_config(
     let perp_market = &mut load_mut!(ctx.accounts.perp_market)?;
     msg!("perp market {}", perp_market.market_index);
 
-    if *ctx.accounts.admin.key != ctx.accounts.state.admin {
+    if *ctx.accounts.admin.key != ctx.accounts.state.load()?.cold_admin {
         validate!(
             market_config == 0,
             ErrorCode::DefaultError,
@@ -5226,7 +4737,7 @@ pub fn handle_update_special_user_status(
 
     let user = &mut load_mut!(ctx.accounts.user)?;
 
-    if *ctx.accounts.admin.key != ctx.accounts.state.admin {
+    if *ctx.accounts.admin.key != ctx.accounts.state.load()?.cold_admin {
         validate!(
             status == 0,
             ErrorCode::DefaultError,
@@ -5257,7 +4768,7 @@ pub struct Initialize<'info> {
         bump,
         payer = admin
     )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub quote_asset_mint: Box<InterfaceAccount<'info, Mint>>,
     /// CHECK: checked in `initialize`
     pub drift_signer: AccountInfo<'info>,
@@ -5270,7 +4781,7 @@ pub struct Initialize<'info> {
 pub struct InitializeSpotMarket<'info> {
     #[account(
         init,
-        seeds = [b"spot_market", state.number_of_spot_markets.to_le_bytes().as_ref()],
+        seeds = [b"spot_market", state.load()?.number_of_spot_markets.to_le_bytes().as_ref()],
         space = SpotMarket::SIZE,
         bump,
         payer = admin
@@ -5282,7 +4793,7 @@ pub struct InitializeSpotMarket<'info> {
     pub spot_market_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(
         init,
-        seeds = [b"spot_market_vault".as_ref(), state.number_of_spot_markets.to_le_bytes().as_ref()],
+        seeds = [b"spot_market_vault".as_ref(), state.load()?.number_of_spot_markets.to_le_bytes().as_ref()],
         bump,
         payer = admin,
         space = get_vault_len(&spot_market_mint)?,
@@ -5292,7 +4803,7 @@ pub struct InitializeSpotMarket<'info> {
     pub spot_market_vault: AccountInfo<'info>,
     #[account(
         init,
-        seeds = [b"insurance_fund_vault".as_ref(), state.number_of_spot_markets.to_le_bytes().as_ref()],
+        seeds = [b"insurance_fund_vault".as_ref(), state.load()?.number_of_spot_markets.to_le_bytes().as_ref()],
         bump,
         payer = admin,
         space = get_vault_len(&spot_market_mint)?,
@@ -5301,17 +4812,17 @@ pub struct InitializeSpotMarket<'info> {
     /// CHECK: checked in `initialize_spot_market`
     pub insurance_fund_vault: AccountInfo<'info>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: program signer
     pub drift_signer: AccountInfo<'info>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     /// CHECK: checked in `initialize_spot_market`
     pub oracle: AccountInfo<'info>,
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
     pub rent: Sysvar<'info, Rent>,
@@ -5322,13 +4833,10 @@ pub struct InitializeSpotMarket<'info> {
 #[derive(Accounts)]
 #[instruction(market_index: u16)]
 pub struct DeleteInitializedSpotMarket<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    #[account(mut)]
+    pub state: AccountLoader<'info, State>,
     #[account(mut, close = admin)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
     #[account(
@@ -5349,154 +4857,17 @@ pub struct DeleteInitializedSpotMarket<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(market_index: u16)]
-pub struct InitializeSerumFulfillmentConfig<'info> {
-    #[account(
-        seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
-        bump,
-    )]
-    pub base_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
-        bump,
-    )]
-    pub quote_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    /// CHECK: checked in ix
-    pub serum_program: AccountInfo<'info>,
-    /// CHECK: checked in ix
-    pub serum_market: AccountInfo<'info>,
-    #[account(
-        mut,
-        seeds = [b"serum_open_orders".as_ref(), serum_market.key.as_ref()],
-        bump,
-    )]
-    /// CHECK: checked in ix
-    pub serum_open_orders: AccountInfo<'info>,
-    #[account(
-        constraint = state.signer.eq(&drift_signer.key())
-    )]
-    /// CHECK: program signer
-    pub drift_signer: AccountInfo<'info>,
-    #[account(
-        init,
-        seeds = [b"serum_fulfillment_config".as_ref(), serum_market.key.as_ref()],
-        space = SerumV3FulfillmentConfig::SIZE,
-        bump,
-        payer = admin,
-    )]
-    pub serum_fulfillment_config: AccountLoader<'info, SerumV3FulfillmentConfig>,
-    #[account(mut)]
-    pub admin: Signer<'info>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateSerumFulfillmentConfig<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub serum_fulfillment_config: AccountLoader<'info, SerumV3FulfillmentConfig>,
-    #[account(
-        mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
-    )]
-    pub admin: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct DeleteSerumFulfillmentConfig<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(mut, close = admin)]
-    pub serum_fulfillment_config: AccountLoader<'info, SerumV3FulfillmentConfig>,
-    #[account(
-        mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
-    )]
-    pub admin: Signer<'info>,
-}
-
-#[derive(Accounts)]
-#[instruction(market_index: u16)]
-pub struct InitializePhoenixFulfillmentConfig<'info> {
-    #[account(
-        seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
-        bump,
-    )]
-    pub base_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
-        bump,
-    )]
-    pub quote_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    /// CHECK: checked in ix
-    pub phoenix_program: AccountInfo<'info>,
-    /// CHECK: checked in ix
-    pub phoenix_market: AccountInfo<'info>,
-    #[account(
-        constraint = state.signer.eq(&drift_signer.key())
-    )]
-    /// CHECK: program signer
-    pub drift_signer: AccountInfo<'info>,
-    #[account(
-        init,
-        seeds = [b"phoenix_fulfillment_config".as_ref(), phoenix_market.key.as_ref()],
-        space = PhoenixV1FulfillmentConfig::SIZE,
-        bump,
-        payer = admin,
-    )]
-    pub phoenix_fulfillment_config: AccountLoader<'info, PhoenixV1FulfillmentConfig>,
-    #[account(mut)]
-    pub admin: Signer<'info>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdatePhoenixFulfillmentConfig<'info> {
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub phoenix_fulfillment_config: AccountLoader<'info, PhoenixV1FulfillmentConfig>,
-    #[account(mut)]
-    pub admin: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateSerumVault<'info> {
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub admin: Signer<'info>,
-    pub srm_vault: Box<InterfaceAccount<'info, TokenAccount>>,
-}
-
-#[derive(Accounts)]
 pub struct InitializePerpMarket<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         init,
-        seeds = [b"perp_market", state.number_of_markets.to_le_bytes().as_ref()],
+        seeds = [b"perp_market", state.load()?.number_of_markets.to_le_bytes().as_ref()],
         space = PerpMarket::SIZE,
         bump,
         payer = admin
@@ -5512,10 +4883,10 @@ pub struct InitializePerpMarket<'info> {
 pub struct InitializeAmmCache<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         init,
         seeds = [AMM_POSITIONS_CACHE.as_bytes()],
@@ -5532,10 +4903,10 @@ pub struct InitializeAmmCache<'info> {
 pub struct AddMarketToAmmCache<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [AMM_POSITIONS_CACHE.as_bytes()],
@@ -5554,10 +4925,10 @@ pub struct AddMarketToAmmCache<'info> {
 pub struct DeleteAmmCache<'info> {
     #[account(
         mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
+        constraint = check_warm(&admin.key(), &state)?
     )]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(
         mut,
         seeds = [AMM_POSITIONS_CACHE.as_bytes()],
@@ -5569,46 +4940,37 @@ pub struct DeleteAmmCache<'info> {
 
 #[derive(Accounts)]
 pub struct DeleteInitializedPerpMarket<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    #[account(mut)]
+    pub state: AccountLoader<'info, State>,
     #[account(mut, close = admin)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdatePerpMarket<'info> {
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
 }
 
 #[derive(Accounts)]
 pub struct HotAdminUpdatePerpMarket<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdatePerpMarketAmmSummaryStats<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::AmmCrank)?)]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     #[account(
@@ -5622,10 +4984,8 @@ pub struct AdminUpdatePerpMarketAmmSummaryStats<'info> {
 
 #[derive(Accounts)]
 pub struct SettleExpiredMarketPoolsToRevenuePool<'info> {
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
@@ -5639,10 +4999,8 @@ pub struct SettleExpiredMarketPoolsToRevenuePool<'info> {
 
 #[derive(Accounts)]
 pub struct UpdatePerpMarketPnlPool<'info> {
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
@@ -5662,13 +5020,11 @@ pub struct UpdatePerpMarketPnlPool<'info> {
 
 #[derive(Accounts)]
 pub struct DepositIntoMarketFeePool<'info> {
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    #[account(mut)]
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::VaultDeposit)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5676,7 +5032,7 @@ pub struct DepositIntoMarketFeePool<'info> {
     )]
     pub source_vault: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
-        constraint = state.signer.eq(&drift_signer.key())
+        constraint = state.load()?.signer.eq(&drift_signer.key())
     )]
     /// CHECK: withdraw fails if this isn't vault owner
     pub drift_signer: AccountInfo<'info>,
@@ -5697,12 +5053,10 @@ pub struct DepositIntoMarketFeePool<'info> {
 
 #[derive(Accounts)]
 pub struct DepositIntoSpotMarketVault<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::VaultDeposit)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5719,44 +5073,36 @@ pub struct DepositIntoSpotMarketVault<'info> {
 
 #[derive(Accounts)]
 pub struct RepegCurve<'info> {
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     /// CHECK: checked in `repeg_curve` ix constraint
     pub oracle: AccountInfo<'info>,
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdateState<'info> {
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    #[account(mut)]
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct HotAdminUpdateState<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::FeatureFlag)?)]
     pub admin: Signer<'info>,
     #[account(mut)]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdateK<'info> {
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     /// CHECK: checked in `admin_update_k` ix constraint
@@ -5765,33 +5111,18 @@ pub struct AdminUpdateK<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdateSpotMarket<'info> {
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub spot_market: AccountLoader<'info, SpotMarket>,
-}
-
-#[derive(Accounts)]
-pub struct AdminUpdateSpotMarketFuel<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
-    pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
 }
 
 #[derive(Accounts)]
 pub struct AdminUpdateSpotMarketOracle<'info> {
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub spot_market: AccountLoader<'info, SpotMarket>,
     /// CHECK: checked in `initialize_spot_market`
@@ -5802,11 +5133,9 @@ pub struct AdminUpdateSpotMarketOracle<'info> {
 
 #[derive(Accounts)]
 pub struct AdminUpdatePerpMarketOracle<'info> {
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub perp_market: AccountLoader<'info, PerpMarket>,
     /// CHECK: checked in `admin_update_perp_market_oracle` ix constraint
@@ -5823,31 +5152,16 @@ pub struct AdminUpdatePerpMarketOracle<'info> {
 
 #[derive(Accounts)]
 pub struct AdminDisableBidAskTwapUpdate<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::UserFlag)?)]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub user_stats: AccountLoader<'info, UserStats>,
-}
-
-#[derive(Accounts)]
-pub struct InitUserFuel<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
-    pub admin: Signer<'info>, // todo
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub user: AccountLoader<'info, User>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
 }
 
 #[derive(Accounts)]
 pub struct InitializeProtocolIfSharesTransferConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         init,
@@ -5857,17 +5171,14 @@ pub struct InitializeProtocolIfSharesTransferConfig<'info> {
         payer = admin
     )]
     pub protocol_if_shares_transfer_config: AccountLoader<'info, ProtocolIfSharesTransferConfig>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateProtocolIfSharesTransferConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5875,16 +5186,13 @@ pub struct UpdateProtocolIfSharesTransferConfig<'info> {
         bump,
     )]
     pub protocol_if_shares_transfer_config: AccountLoader<'info, ProtocolIfSharesTransferConfig>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 #[instruction(params: PrelaunchOracleParams,)]
 pub struct InitializePrelaunchOracle<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         init,
@@ -5894,10 +5202,7 @@ pub struct InitializePrelaunchOracle<'info> {
         payer = admin
     )]
     pub prelaunch_oracle: AccountLoader<'info, PrelaunchOracle>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
 }
@@ -5905,10 +5210,7 @@ pub struct InitializePrelaunchOracle<'info> {
 #[derive(Accounts)]
 #[instruction(params: PrelaunchOracleParams,)]
 pub struct UpdatePrelaunchOracleParams<'info> {
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5921,13 +5223,13 @@ pub struct UpdatePrelaunchOracleParams<'info> {
         constraint = perp_market.load()?.market_index == params.perp_market_index
     )]
     pub perp_market: AccountLoader<'info, PerpMarket>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 #[instruction(perp_market_index: u16,)]
 pub struct DeletePrelaunchOracle<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -5940,84 +5242,13 @@ pub struct DeletePrelaunchOracle<'info> {
         constraint = perp_market.load()?.market_index == perp_market_index
     )]
     pub perp_market: AccountLoader<'info, PerpMarket>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-}
-
-#[derive(Accounts)]
-#[instruction(market_index: u16)]
-pub struct InitializeOpenbookV2FulfillmentConfig<'info> {
-    #[account(
-        seeds = [b"spot_market", market_index.to_le_bytes().as_ref()],
-        bump,
-    )]
-    pub base_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        seeds = [b"spot_market", 0_u16.to_le_bytes().as_ref()],
-        bump,
-    )]
-    pub quote_spot_market: AccountLoader<'info, SpotMarket>,
-    #[account(
-        mut,
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    /// CHECK: checked in ix
-    pub openbook_v2_program: AccountInfo<'info>,
-    /// CHECK: checked in ix
-    pub openbook_v2_market: AccountInfo<'info>,
-    #[account(
-        constraint = state.signer.eq(&drift_signer.key())
-    )]
-    /// CHECK: program signer
-    pub drift_signer: AccountInfo<'info>,
-    #[account(
-        init,
-        seeds = [b"openbook_v2_fulfillment_config".as_ref(), openbook_v2_market.key.as_ref()],
-        space = OpenbookV2FulfillmentConfig::SIZE,
-        bump,
-        payer = admin,
-    )]
-    pub openbook_v2_fulfillment_config: AccountLoader<'info, OpenbookV2FulfillmentConfig>,
-    #[account(mut)]
-    pub admin: Signer<'info>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateOpenbookV2FulfillmentConfig<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(mut)]
-    pub openbook_v2_fulfillment_config: AccountLoader<'info, OpenbookV2FulfillmentConfig>,
-    #[account(
-        mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
-    )]
-    pub admin: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct DeleteOpenbookV2FulfillmentConfig<'info> {
-    pub state: Box<Account<'info, State>>,
-    #[account(mut, close = admin)]
-    pub openbook_v2_fulfillment_config: AccountLoader<'info, OpenbookV2FulfillmentConfig>,
-    #[account(
-        mut,
-        constraint = admin.key() == state.admin || admin.key() == admin_hot_wallet::id()
-    )]
-    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 #[instruction(feed_id: u32)]
 pub struct InitPythLazerOracle<'info> {
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(init, seeds = [PYTH_LAZER_ORACLE_SEED, &feed_id.to_le_bytes()],
         space=PythLazerOracle::SIZE,
@@ -6025,60 +5256,18 @@ pub struct InitPythLazerOracle<'info> {
         payer=admin
     )]
     pub lazer_oracle: AccountLoader<'info, PythLazerOracle>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct InitializeProtectedMakerModeConfig<'info> {
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
-    pub admin: Signer<'info>,
-    #[account(
-        init,
-        seeds = [b"protected_maker_mode_config".as_ref()],
-        space = ProtectedMakerModeConfig::SIZE,
-        bump,
-        payer = admin
-    )]
-    pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateProtectedMakerModeConfig<'info> {
-    #[account(mut)]
-    pub admin: Signer<'info>,
-    #[account(
-        mut,
-        seeds = [b"protected_maker_mode_config".as_ref()],
-        bump,
-    )]
-    pub protected_maker_mode_config: AccountLoader<'info, ProtectedMakerModeConfig>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
 }
 
 #[derive(Accounts)]
 #[instruction(market_index: u16,)]
 pub struct AdminDeposit<'info> {
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
-    #[account(
-        mut,
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(mut, constraint = check_hot(&admin.key(), &state, HotRole::VaultDeposit)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -6098,7 +5287,7 @@ pub struct AdminDeposit<'info> {
 #[derive(Accounts)]
 #[instruction(params: IfRebalanceConfigParams)]
 pub struct InitializeIfRebalanceConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         init,
@@ -6108,24 +5297,18 @@ pub struct InitializeIfRebalanceConfig<'info> {
         payer = admin
     )]
     pub if_rebalance_config: AccountLoader<'info, IfRebalanceConfig>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct UpdateIfRebalanceConfig<'info> {
-    #[account(mut)]
+    #[account(mut, constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(mut)]
     pub if_rebalance_config: AccountLoader<'info, IfRebalanceConfig>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
@@ -6139,6 +5322,7 @@ pub struct UpdateDelegateUserGovTokenInsuranceStake<'info> {
     pub insurance_fund_stake: AccountLoader<'info, InsuranceFundStake>,
     #[account(mut)]
     pub user_stats: AccountLoader<'info, UserStats>,
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(
         mut,
@@ -6146,18 +5330,13 @@ pub struct UpdateDelegateUserGovTokenInsuranceStake<'info> {
         bump,
     )]
     pub insurance_fund_vault: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
 }
 
 #[derive(Accounts)]
 pub struct TransferFeeAndPnlPool<'info> {
-    #[account(
-        has_one = admin
-    )]
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
+    #[account(constraint = check_warm(&admin.key(), &state)?)]
     pub admin: Signer<'info>,
     #[account(mut)]
     pub perp_market_with_fee_pool: AccountLoader<'info, PerpMarket>,
@@ -6179,11 +5358,266 @@ pub struct TransferFeeAndPnlPool<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateSpecialUserStatus<'info> {
-    #[account(
-        constraint = admin.key() == admin_hot_wallet::id() || admin.key() == state.admin
-    )]
+    #[account(constraint = check_hot(&admin.key(), &state, HotRole::UserFlag)?)]
     pub admin: Signer<'info>,
-    pub state: Box<Account<'info, State>>,
+    pub state: AccountLoader<'info, State>,
     #[account(mut)]
     pub user: AccountLoader<'info, User>,
+}
+
+// ----- Tiered admin authority handlers -----
+//
+// cold/warm/hot pubkeys now live directly on `State`. `handle_initialize`
+// seeds `cold_admin = warm_admin = signer` at deploy time; the handlers below
+// rotate `warm_admin` (cold-only), `pause_admin` (cold-only), and individual
+// hot-role keys (warm-only).
+
+pub fn handle_update_warm_admin(
+    ctx: Context<UpdateWarmAdmin>,
+    new_warm_admin: Pubkey,
+) -> Result<()> {
+    let mut state = ctx.accounts.state.load_mut()?;
+    msg!("warm_admin: {:?} -> {:?}", state.warm_admin, new_warm_admin);
+    state.warm_admin = new_warm_admin;
+    Ok(())
+}
+
+pub fn handle_update_pause_admin(
+    ctx: Context<UpdatePauseAdmin>,
+    new_pause_admin: Pubkey,
+) -> Result<()> {
+    let mut state = ctx.accounts.state.load_mut()?;
+    msg!(
+        "pause_admin: {:?} -> {:?}",
+        state.pause_admin,
+        new_pause_admin
+    );
+    state.pause_admin = new_pause_admin;
+    Ok(())
+}
+
+pub fn handle_update_hot_admin(
+    ctx: Context<UpdateHotAdmin>,
+    role: HotRole,
+    new_pubkey: Pubkey,
+) -> Result<()> {
+    let mut state = ctx.accounts.state.load_mut()?;
+    let prev = state.hot_key(role);
+    state.set_hot_key(role, new_pubkey);
+    msg!("hot_admin[{:?}]: {:?} -> {:?}", role, prev, new_pubkey);
+    Ok(())
+}
+
+/// Cold-only state mutation. Constraint enforces `state.cold_admin == admin.key()`.
+#[derive(Accounts)]
+pub struct ColdAdminUpdateState<'info> {
+    #[account(mut, constraint = state.load()?.cold_admin == admin.key() @ ErrorCode::Unauthorized)]
+    pub state: AccountLoader<'info, State>,
+    pub admin: Signer<'info>,
+}
+
+/// Cold-only mutation of `warm_admin`.
+#[derive(Accounts)]
+pub struct UpdateWarmAdmin<'info> {
+    #[account(mut, constraint = state.load()?.cold_admin == admin.key() @ ErrorCode::Unauthorized)]
+    pub state: AccountLoader<'info, State>,
+    pub admin: Signer<'info>,
+}
+
+/// Cold-only mutation of `pause_admin`. The pause admin is the no-timelock
+/// emergency-pause key; only the root (cold) authority can rotate it.
+#[derive(Accounts)]
+pub struct UpdatePauseAdmin<'info> {
+    #[account(mut, constraint = state.load()?.cold_admin == admin.key() @ ErrorCode::Unauthorized)]
+    pub state: AccountLoader<'info, State>,
+    pub admin: Signer<'info>,
+}
+
+/// Warm-or-cold gated mutation of an individual hot-role key.
+#[derive(Accounts)]
+pub struct UpdateHotAdmin<'info> {
+    #[account(
+        mut,
+        constraint = state.load()?.is_warm(&admin.key()) @ ErrorCode::Unauthorized
+    )]
+    pub state: AccountLoader<'info, State>,
+    pub admin: Signer<'info>,
+}
+
+// ----- Pause-admin gated contexts -----
+//
+// Pause flags can be flipped by cold, warm, or the dedicated `pause_admin`
+// (which has no on-chain timelock). pause_admin is restricted *inside* the
+// handlers to bit-additions only — it can never clear a pause bit.
+
+#[derive(Accounts)]
+pub struct PauseAdminUpdateState<'info> {
+    #[account(constraint = check_pause(&admin.key(), &state)?)]
+    pub admin: Signer<'info>,
+    #[account(mut)]
+    pub state: AccountLoader<'info, State>,
+}
+
+#[derive(Accounts)]
+pub struct PauseAdminUpdateSpotMarket<'info> {
+    #[account(constraint = check_pause(&admin.key(), &state)?)]
+    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub spot_market: AccountLoader<'info, SpotMarket>,
+}
+
+#[derive(Accounts)]
+pub struct PauseAdminUpdatePerpMarket<'info> {
+    #[account(constraint = check_pause(&admin.key(), &state)?)]
+    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub perp_market: AccountLoader<'info, PerpMarket>,
+}
+
+/// Per-user pause flips are reachable by cold/warm, the existing
+/// `HotRole::UserFlag` bot, or the pause_admin (pause-only — see handler).
+#[derive(Accounts)]
+pub struct PauseAdminUpdateUserStats<'info> {
+    #[account(
+        constraint =
+            check_pause(&admin.key(), &state)?
+                || check_hot(&admin.key(), &state, HotRole::UserFlag)?
+    )]
+    pub admin: Signer<'info>,
+    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub user_stats: AccountLoader<'info, UserStats>,
+}
+
+// ----- Force wipe (non-mainnet only) -----
+//
+// One-shot escape hatch for devnet: closes drift-owned PDAs whose on-chain
+// layout no longer matches the program (e.g. after a layout-breaking upgrade).
+// Bypasses `AccountLoader::try_from` size checks by reading State's admin
+// pubkey directly from raw bytes — the first pubkey field lives at offset
+// 8..40 in both the legacy `#[account]` State (admin) and the new zero-copy
+// State (cold_admin), so this admin gate works across layouts.
+//
+// Compiled out of mainnet builds via `cfg(not(feature = "mainnet-beta"))`.
+
+#[cfg(not(feature = "mainnet-beta"))]
+pub fn handle_force_wipe_accounts_devnet<'info>(
+    ctx: Context<'info, ForceWipeAccountsDevnet<'info>>,
+    drift_signer_nonce: u8,
+) -> Result<()> {
+    use anchor_lang::solana_program::system_program;
+    use anchor_spl::token_interface;
+
+    let state_ai = ctx.accounts.state.to_account_info();
+    require_keys_eq!(*state_ai.owner, crate::ID, ErrorCode::DefaultError);
+    {
+        let data = state_ai.try_borrow_data()?;
+        require!(data.len() >= 40, ErrorCode::DefaultError);
+        let mut admin_bytes = [0u8; 32];
+        admin_bytes.copy_from_slice(&data[8..40]);
+        let stored_admin = Pubkey::from(admin_bytes);
+        require_keys_eq!(
+            stored_admin,
+            ctx.accounts.admin.key(),
+            ErrorCode::Unauthorized
+        );
+    }
+
+    let admin_ai = ctx.accounts.admin.to_account_info();
+    let token_program_id = ctx.accounts.token_program.key();
+    let signer_seeds = crate::signer::get_signer_seeds(&drift_signer_nonce);
+    let cpi_signers = &[&signer_seeds[..]];
+
+    // PASS 1: close token vaults. Remaining accounts must come in pairs:
+    //   (vault, mint), (vault, mint), ...
+    // For each vault: if it holds a non-zero balance, CPI burn first (mint is
+    // the next account in the pair), then CPI close_account.
+    // Drift-owned PDAs come AFTER all the (vault, mint) pairs.
+    let mut i = 0;
+    while i < ctx.remaining_accounts.len() {
+        let target = &ctx.remaining_accounts[i];
+        if *target.owner != token_program_id {
+            break; // start of drift-owned section
+        }
+        if target.lamports() == 0 {
+            i += 1;
+            continue;
+        }
+        // pair: next account is the mint
+        let mint_ai = ctx
+            .remaining_accounts
+            .get(i + 1)
+            .ok_or_else(|| ErrorCode::DefaultError)?;
+        require_keys_eq!(*mint_ai.owner, token_program_id, ErrorCode::DefaultError);
+
+        // read current token amount (offset 64..72 in SPL token account layout)
+        let amount = {
+            let data = target.try_borrow_data()?;
+            require!(data.len() >= 72, ErrorCode::DefaultError);
+            u64::from_le_bytes(data[64..72].try_into().unwrap())
+        };
+
+        if amount > 0 {
+            let burn_accounts = token_interface::Burn {
+                mint: mint_ai.clone(),
+                from: target.clone(),
+                authority: ctx.accounts.drift_signer.clone(),
+            };
+            let burn_ctx =
+                CpiContext::new_with_signer(token_program_id, burn_accounts, cpi_signers);
+            token_interface::burn(burn_ctx, amount)?;
+            msg!("burned {} from {}", amount, target.key());
+        }
+
+        let close_accounts = token_interface::CloseAccount {
+            account: target.clone(),
+            destination: admin_ai.clone(),
+            authority: ctx.accounts.drift_signer.clone(),
+        };
+        let close_ctx = CpiContext::new_with_signer(token_program_id, close_accounts, cpi_signers);
+        token_interface::close_account(close_ctx)?;
+        msg!("closed token vault {}", target.key());
+
+        i += 2; // skip past the mint
+    }
+    let drift_section_start = i;
+
+    // PASS 2: drain drift-owned PDAs by zeroing lamports; runtime GCs at EOT.
+    for target in ctx.remaining_accounts.iter().skip(drift_section_start) {
+        if *target.owner == system_program::ID || target.lamports() == 0 {
+            msg!("skip {} (already empty)", target.key());
+            continue;
+        }
+        if *target.owner != crate::ID {
+            msg!("skip {} (owner {} not drift)", target.key(), target.owner,);
+            continue;
+        }
+        let take = target.lamports();
+        **admin_ai.try_borrow_mut_lamports()? = admin_ai
+            .lamports()
+            .checked_add(take)
+            .ok_or_else(math_error!())?;
+        **target.try_borrow_mut_lamports()? = 0;
+        msg!("wiped {} (reclaimed {} lamports)", target.key(), take);
+    }
+    Ok(())
+}
+
+#[cfg(not(feature = "mainnet-beta"))]
+#[derive(Accounts)]
+pub struct ForceWipeAccountsDevnet<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+    /// CHECK: read raw bytes manually; both old and new State layouts have the
+    /// (cold-)admin pubkey at offset 8..40.
+    pub state: UncheckedAccount<'info>,
+    /// CHECK: PDA seeded by [b"drift_signer", nonce]. Verified by Token Program
+    /// at CPI time when closing token vaults; ignored otherwise.
+    pub drift_signer: AccountInfo<'info>,
+    pub token_program: Interface<'info, TokenInterface>,
+    // Targets are passed via `remaining_accounts` so a single call can wipe
+    // many accounts in one tx. Drift-owned PDAs are drained; token-owned vaults
+    // are closed via CPI (rent → admin).
 }

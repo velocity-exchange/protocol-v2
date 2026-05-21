@@ -230,7 +230,7 @@ pub fn transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
 
         drop(spot_market);
 
-        if let Some(user_stats) = user_stats {
+        if let Some(_user_stats) = user_stats {
             user.meets_transfer_isolated_position_deposit_margin_requirement(
                 &perp_market_map,
                 &spot_market_map,
@@ -239,10 +239,6 @@ pub fn transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
                     margin_requirement_type: MarginRequirementType::Initial,
                     default_margin_requirement_type: MarginRequirementType::Maintenance,
                 },
-                spot_market_index,
-                amount as u128,
-                user_stats,
-                now,
                 true,
                 perp_market_index,
             )?;
@@ -297,7 +293,7 @@ pub fn transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
 
         drop(spot_market);
 
-        if let Some(user_stats) = user_stats {
+        if let Some(_user_stats) = user_stats {
             user.meets_transfer_isolated_position_deposit_margin_requirement(
                 &perp_market_map,
                 &spot_market_map,
@@ -308,10 +304,6 @@ pub fn transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
                     cross_margin_requirement_type: MarginRequirementType::Maintenance,
                     market_index: perp_market_index,
                 },
-                0,
-                0,
-                user_stats,
-                now,
                 false,
                 perp_market_index,
             )?;
@@ -347,7 +339,7 @@ pub fn transfer_isolated_perp_position_deposit<'c: 'info, 'info>(
 pub fn withdraw_from_isolated_perp_position<'c: 'info, 'info>(
     user_key: Pubkey,
     user: &mut User,
-    user_stats: &mut UserStats,
+    _user_stats: &mut UserStats,
     perp_market_map: &PerpMarketMap,
     spot_market_map: &SpotMarketMap,
     oracle_map: &mut OracleMap,
@@ -413,15 +405,11 @@ pub fn withdraw_from_isolated_perp_position<'c: 'info, 'info>(
         )?;
     }
 
-    user.meets_withdraw_margin_requirement_and_increment_fuel_bonus(
+    user.meets_withdraw_margin_requirement(
         &perp_market_map,
         &spot_market_map,
         oracle_map,
         MarginRequirementType::Initial,
-        0,
-        0,
-        user_stats,
-        now,
     )?;
 
     if user.is_isolated_margin_being_liquidated(perp_market_index)? {

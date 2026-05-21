@@ -278,7 +278,6 @@ pub fn liquidate_perp(
                 liquidate_perp: LiquidatePerpRecord {
                     market_index,
                     oracle_price,
-                    lp_shares: 0,
                     ..LiquidatePerpRecord::default()
                 },
                 bit_flags,
@@ -471,16 +470,8 @@ pub fn liquidate_perp(
         .safe_div(LIQUIDATION_FEE_PRECISION_U128)?
         .cast::<i64>()?;
 
-    user_stats.update_taker_volume_30d(
-        perp_market_map.get_ref(&market_index)?.fuel_boost_taker,
-        base_asset_value,
-        now,
-    )?;
-    liquidator_stats.update_maker_volume_30d(
-        perp_market_map.get_ref(&market_index)?.fuel_boost_maker,
-        base_asset_value,
-        now,
-    )?;
+    user_stats.update_taker_volume_30d(base_asset_value, now)?;
+    liquidator_stats.update_maker_volume_30d(base_asset_value, now)?;
 
     let user_position_delta = get_position_delta_for_fill(
         base_asset_amount,
@@ -715,7 +706,6 @@ pub fn liquidate_perp(
             oracle_price,
             base_asset_amount: user_position_delta.base_asset_amount,
             quote_asset_amount: user_position_delta.quote_asset_amount,
-            lp_shares: 0,
             user_order_id,
             liquidator_order_id,
             fill_record_id,
@@ -922,7 +912,6 @@ pub fn liquidate_perp_with_fill(
                 liquidate_perp: LiquidatePerpRecord {
                     market_index,
                     oracle_price,
-                    lp_shares: 0,
                     ..LiquidatePerpRecord::default()
                 },
                 bit_flags,
@@ -1179,7 +1168,6 @@ pub fn liquidate_perp_with_fill(
             oracle_price,
             base_asset_amount: user_position_delta.base_asset_amount,
             quote_asset_amount: user_position_delta.quote_asset_amount,
-            lp_shares: 0,
             user_order_id: order_id,
             liquidator_order_id: 0,
             fill_record_id,
@@ -1415,16 +1403,14 @@ pub fn liquidate_spot(
     }
 
     let margin_context = MarginContext::liquidation(liquidation_margin_buffer_ratio)
-        .track_market_margin_requirement(MarketIdentifier::spot(liability_market_index))?
-        .fuel_numerator(user, now);
+        .track_market_margin_requirement(MarketIdentifier::spot(liability_market_index))?;
 
-    let margin_calculation = user.calculate_margin_and_increment_fuel_bonus(
+    let margin_calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
+        user,
         perp_market_map,
         spot_market_map,
         oracle_map,
         margin_context,
-        user_stats,
-        now,
     )?;
 
     if !user.is_cross_margin_being_liquidated()
@@ -1469,8 +1455,7 @@ pub fn liquidate_spot(
                 MarginContext::liquidation(liquidation_margin_buffer_ratio)
                     .track_market_margin_requirement(MarketIdentifier::spot(
                         liability_market_index,
-                    ))?
-                    .fuel_numerator(user, now),
+                    ))?,
             )?;
 
         let initial_margin_shortage = margin_calculation.cross_margin_margin_shortage()?;
@@ -1731,21 +1716,15 @@ pub fn liquidate_spot(
         user.enter_cross_margin_bankruptcy();
     }
 
-    let liq_margin_context = MarginContext::standard(MarginRequirementType::Initial)
-        .fuel_spot_deltas([
-            (asset_market_index, -(asset_transfer as i128)),
-            (liability_market_index, liability_transfer as i128),
-        ])
-        .fuel_numerator(liquidator, now);
+    let liq_margin_context = MarginContext::standard(MarginRequirementType::Initial);
 
-    let liquidator_meets_initial_margin_requirement = liquidator
-        .calculate_margin_and_increment_fuel_bonus(
+    let liquidator_meets_initial_margin_requirement =
+        calculate_margin_requirement_and_total_collateral_and_liability_info(
+            liquidator,
             perp_market_map,
             spot_market_map,
             oracle_map,
             liq_margin_context,
-            liquidator_stats,
-            now,
         )
         .map(|calc| calc.meets_margin_requirement())?;
 
@@ -1950,16 +1929,14 @@ pub fn liquidate_spot_with_swap_begin(
     }
 
     let margin_context = MarginContext::liquidation(liquidation_margin_buffer_ratio)
-        .track_market_margin_requirement(MarketIdentifier::spot(liability_market_index))?
-        .fuel_numerator(user, now);
+        .track_market_margin_requirement(MarketIdentifier::spot(liability_market_index))?;
 
-    let margin_calculation = user.calculate_margin_and_increment_fuel_bonus(
+    let margin_calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
+        user,
         perp_market_map,
         spot_market_map,
         oracle_map,
         margin_context,
-        user_stats,
-        now,
     )?;
 
     if !user.is_cross_margin_being_liquidated()
@@ -2003,8 +1980,7 @@ pub fn liquidate_spot_with_swap_begin(
                 MarginContext::liquidation(liquidation_margin_buffer_ratio)
                     .track_market_margin_requirement(MarketIdentifier::spot(
                         liability_market_index,
-                    ))?
-                    .fuel_numerator(user, now),
+                    ))?,
             )?;
 
         let initial_margin_shortage = margin_calculation.cross_margin_margin_shortage()?;
@@ -2240,16 +2216,14 @@ pub fn liquidate_spot_with_swap_end(
     )?;
 
     let margin_context = MarginContext::liquidation(liquidation_margin_buffer_ratio)
-        .track_market_margin_requirement(MarketIdentifier::spot(liability_market_index))?
-        .fuel_numerator(user, now);
+        .track_market_margin_requirement(MarketIdentifier::spot(liability_market_index))?;
 
-    let margin_calculation = user.calculate_margin_and_increment_fuel_bonus(
+    let margin_calculation = calculate_margin_requirement_and_total_collateral_and_liability_info(
+        user,
         perp_market_map,
         spot_market_map,
         oracle_map,
         margin_context,
-        user_stats,
-        now,
     )?;
 
     let liquidation_id = user.enter_cross_margin_liquidation(slot)?;

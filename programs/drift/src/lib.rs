@@ -24,10 +24,10 @@ use crate::state::perp_market::ContractTier;
 use crate::state::scale_order_params::ScaleOrderParams;
 use crate::state::settle_pnl_mode::SettlePnlMode;
 use crate::state::spot_market::AssetTier;
-use crate::state::spot_market::SpotFulfillmentConfigStatus;
 use crate::state::state::FeeStructure;
 use crate::state::state::*;
 use crate::state::user::MarketType;
+pub mod auth;
 pub mod controller;
 pub mod error;
 pub mod ids;
@@ -77,7 +77,6 @@ declare_id!("vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P");
 #[program]
 pub mod drift {
     use super::*;
-    use crate::state::spot_market::SpotFulfillmentConfigStatus;
 
     // User Instructions
 
@@ -122,22 +121,6 @@ pub mod drift {
         add: bool,
     ) -> Result<()> {
         handle_change_signed_msg_ws_delegate_status(ctx, delegate, add)
-    }
-
-    pub fn initialize_fuel_overflow<'c: 'info, 'info>(
-        ctx: Context<'info, InitializeFuelOverflow<'info>>,
-    ) -> Result<()> {
-        handle_initialize_fuel_overflow(ctx)
-    }
-
-    pub fn sweep_fuel<'c: 'info, 'info>(ctx: Context<'info, SweepFuel<'info>>) -> Result<()> {
-        handle_sweep_fuel(ctx)
-    }
-
-    pub fn reset_fuel_season<'c: 'info, 'info>(
-        ctx: Context<'info, ResetFuelSeason<'info>>,
-    ) -> Result<()> {
-        handle_reset_fuel_season(ctx)
     }
 
     pub fn initialize_referrer_name(
@@ -441,14 +424,6 @@ pub mod drift {
     //     handle_update_user_advanced_lp(ctx, _sub_account_id, advanced_lp)
     // }
 
-    pub fn update_user_protected_maker_orders(
-        ctx: Context<UpdateUserProtectedMakerMode>,
-        _sub_account_id: u16,
-        protected_maker_orders: bool,
-    ) -> Result<()> {
-        handle_update_user_protected_maker_orders(ctx, _sub_account_id, protected_maker_orders)
-    }
-
     pub fn delete_user<'c: 'info, 'info>(ctx: Context<'info, DeleteUser>) -> Result<()> {
         handle_delete_user(ctx)
     }
@@ -508,12 +483,6 @@ pub mod drift {
         handle_log_user_balances(ctx)
     }
 
-    // pub fn update_user_fuel_bonus<'c: 'info, 'info>(
-    //     ctx: Context<'info, UpdateUserFuelBonus<'info>>,
-    // ) -> Result<()> {
-    //     handle_update_user_fuel_bonus(ctx)
-    // }
-
     pub fn update_user_stats_referrer_status<'c: 'info, 'info>(
         ctx: Context<'info, UpdateUserStatsReferrerInfo<'info>>,
     ) -> Result<()> {
@@ -525,7 +494,7 @@ pub mod drift {
     // }
 
     pub fn admin_update_user_stats_paused_operations(
-        ctx: Context<AdminDisableBidAskTwapUpdate>,
+        ctx: Context<PauseAdminUpdateUserStats>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_admin_update_user_stats_paused_operations(ctx, paused_operations)
@@ -890,64 +859,6 @@ pub mod drift {
         handle_delete_initialized_spot_market(ctx, market_index)
     }
 
-    pub fn initialize_serum_fulfillment_config(
-        ctx: Context<InitializeSerumFulfillmentConfig>,
-        market_index: u16,
-    ) -> Result<()> {
-        handle_initialize_serum_fulfillment_config(ctx, market_index)
-    }
-
-    pub fn update_serum_fulfillment_config_status(
-        ctx: Context<UpdateSerumFulfillmentConfig>,
-        status: SpotFulfillmentConfigStatus,
-    ) -> Result<()> {
-        handle_update_serum_fulfillment_config_status(ctx, status)
-    }
-
-    pub fn delete_serum_fulfillment_config(
-        ctx: Context<DeleteSerumFulfillmentConfig>,
-    ) -> Result<()> {
-        handle_delete_serum_fulfillment_config(ctx)
-    }
-
-    pub fn initialize_openbook_v2_fulfillment_config(
-        ctx: Context<InitializeOpenbookV2FulfillmentConfig>,
-        market_index: u16,
-    ) -> Result<()> {
-        handle_initialize_openbook_v2_fulfillment_config(ctx, market_index)
-    }
-
-    pub fn openbook_v2_fulfillment_config_status(
-        ctx: Context<UpdateOpenbookV2FulfillmentConfig>,
-        status: SpotFulfillmentConfigStatus,
-    ) -> Result<()> {
-        handle_update_openbook_v2_fulfillment_config_status(ctx, status)
-    }
-
-    pub fn delete_openbook_v2_fulfillment_config(
-        ctx: Context<DeleteOpenbookV2FulfillmentConfig>,
-    ) -> Result<()> {
-        handle_delete_openbook_v2_fulfillment_config(ctx)
-    }
-
-    pub fn initialize_phoenix_fulfillment_config(
-        ctx: Context<InitializePhoenixFulfillmentConfig>,
-        market_index: u16,
-    ) -> Result<()> {
-        handle_initialize_phoenix_fulfillment_config(ctx, market_index)
-    }
-
-    pub fn phoenix_fulfillment_config_status(
-        ctx: Context<UpdatePhoenixFulfillmentConfig>,
-        status: SpotFulfillmentConfigStatus,
-    ) -> Result<()> {
-        handle_update_phoenix_fulfillment_config_status(ctx, status)
-    }
-
-    // pub fn update_serum_vault(ctx: Context<UpdateSerumVault>) -> Result<()> {
-    //     handle_update_serum_vault(ctx)
-    // }
-
     pub fn initialize_perp_market<'c: 'info, 'info>(
         ctx: Context<'info, InitializePerpMarket<'info>>,
         market_index: u16,
@@ -1078,7 +989,7 @@ pub mod drift {
     }
 
     pub fn update_perp_market_lp_pool_paused_operations(
-        ctx: Context<AdminUpdatePerpMarket>,
+        ctx: Context<PauseAdminUpdatePerpMarket>,
         lp_paused_operations: u8,
     ) -> Result<()> {
         handle_update_perp_market_lp_pool_paused_operations(ctx, lp_paused_operations)
@@ -1250,7 +1161,7 @@ pub mod drift {
     }
 
     pub fn update_spot_market_paused_operations(
-        ctx: Context<AdminUpdateSpotMarket>,
+        ctx: Context<PauseAdminUpdateSpotMarket>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_update_spot_market_paused_operations(ctx, paused_operations)
@@ -1353,7 +1264,7 @@ pub mod drift {
     }
 
     pub fn update_spot_market_if_paused_operations(
-        ctx: Context<AdminUpdateSpotMarket>,
+        ctx: Context<PauseAdminUpdateSpotMarket>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_update_spot_market_if_paused_operations(ctx, paused_operations)
@@ -1374,7 +1285,7 @@ pub mod drift {
     }
 
     pub fn update_perp_market_paused_operations(
-        ctx: Context<HotAdminUpdatePerpMarket>,
+        ctx: Context<PauseAdminUpdatePerpMarket>,
         paused_operations: u8,
     ) -> Result<()> {
         handle_update_perp_market_paused_operations(ctx, paused_operations)
@@ -1589,27 +1500,6 @@ pub mod drift {
         handle_update_spot_market_fee_adjustment(ctx, fee_adjustment)
     }
 
-    // pub fn update_perp_market_fuel(
-    //     ctx: Context<HotAdminUpdatePerpMarket>,
-    //     fuel_boost_taker: Option<u8>,
-    //     fuel_boost_maker: Option<u8>,
-    //     fuel_boost_position: Option<u8>,
-    // ) -> Result<()> {
-    //     handle_update_perp_market_fuel(ctx, fuel_boost_taker, fuel_boost_maker, fuel_boost_position)
-    // }
-
-    pub fn update_perp_market_protected_maker_params(
-        ctx: Context<AdminUpdatePerpMarket>,
-        protected_maker_limit_price_divisor: Option<u8>,
-        protected_maker_dynamic_divisor: Option<u8>,
-    ) -> Result<()> {
-        handle_update_perp_market_protected_maker_params(
-            ctx,
-            protected_maker_limit_price_divisor,
-            protected_maker_dynamic_divisor,
-        )
-    }
-
     pub fn update_perp_market_oracle_low_risk_slot_delay_override(
         ctx: Context<HotAdminUpdatePerpMarket>,
         oracle_low_risk_slot_delay_override: i8,
@@ -1641,44 +1531,45 @@ pub mod drift {
         handle_update_perp_market_oracle_slot_delay_override(ctx, oracle_slot_delay_override)
     }
 
-    // pub fn update_spot_market_fuel(
-    //     ctx: Context<AdminUpdateSpotMarketFuel>,
-    //     fuel_boost_deposits: Option<u8>,
-    //     fuel_boost_borrows: Option<u8>,
-    //     fuel_boost_taker: Option<u8>,
-    //     fuel_boost_maker: Option<u8>,
-    //     fuel_boost_insurance: Option<u8>,
-    // ) -> Result<()> {
-    //     handle_update_spot_market_fuel(
-    //         ctx,
-    //         fuel_boost_deposits,
-    //         fuel_boost_borrows,
-    //         fuel_boost_taker,
-    //         fuel_boost_maker,
-    //         fuel_boost_insurance,
-    //     )
-    // }
-
-    // pub fn init_user_fuel(
-    //     ctx: Context<InitUserFuel>,
-    //     fuel_boost_deposits: Option<i32>,
-    //     fuel_boost_borrows: Option<u32>,
-    //     fuel_boost_taker: Option<u32>,
-    //     fuel_boost_maker: Option<u32>,
-    //     fuel_boost_insurance: Option<u32>,
-    // ) -> Result<()> {
-    //     handle_init_user_fuel(
-    //         ctx,
-    //         fuel_boost_deposits,
-    //         fuel_boost_borrows,
-    //         fuel_boost_taker,
-    //         fuel_boost_maker,
-    //         fuel_boost_insurance,
-    //     )
-    // }
-
-    pub fn update_admin(ctx: Context<AdminUpdateState>, admin: Pubkey) -> Result<()> {
+    pub fn update_admin(ctx: Context<ColdAdminUpdateState>, admin: Pubkey) -> Result<()> {
         handle_update_admin(ctx, admin)
+    }
+
+    pub fn update_warm_admin(ctx: Context<UpdateWarmAdmin>, new_warm_admin: Pubkey) -> Result<()> {
+        handle_update_warm_admin(ctx, new_warm_admin)
+    }
+
+    pub fn update_pause_admin(
+        ctx: Context<UpdatePauseAdmin>,
+        new_pause_admin: Pubkey,
+    ) -> Result<()> {
+        handle_update_pause_admin(ctx, new_pause_admin)
+    }
+
+    pub fn update_hot_admin(
+        ctx: Context<UpdateHotAdmin>,
+        role: crate::state::state::HotRole,
+        new_pubkey: Pubkey,
+    ) -> Result<()> {
+        handle_update_hot_admin(ctx, role, new_pubkey)
+    }
+
+    /// Devnet-only escape hatch: cleans up accounts stranded by a layout-breaking
+    /// program upgrade (or by a partial re-init). For each account passed via
+    /// `remaining_accounts`:
+    ///   - drift-owned PDA → drain lamports (runtime GCs at end of tx)
+    ///   - token-program owned vault (drift_signer close-authority) → CPI
+    ///     `close_account`, rent refunded to admin
+    /// Admin gate reads State's first pubkey field at raw offset 8..40 so it
+    /// works regardless of the State layout currently on chain. `drift_signer_nonce`
+    /// must match `State.signer_nonce`; mismatch fails the token CPI signature.
+    /// Stripped from mainnet builds via `mainnet-beta`.
+    #[cfg(not(feature = "mainnet-beta"))]
+    pub fn force_wipe_accounts_devnet<'info>(
+        ctx: Context<'info, ForceWipeAccountsDevnet<'info>>,
+        drift_signer_nonce: u8,
+    ) -> Result<()> {
+        handle_force_wipe_accounts_devnet(ctx, drift_signer_nonce)
     }
 
     // pub fn update_whitelist_mint(
@@ -1696,7 +1587,7 @@ pub mod drift {
     }
 
     pub fn update_exchange_status(
-        ctx: Context<AdminUpdateState>,
+        ctx: Context<PauseAdminUpdateState>,
         exchange_status: u8,
     ) -> Result<()> {
         handle_update_exchange_status(ctx, exchange_status)
@@ -1767,22 +1658,6 @@ pub mod drift {
         pyth_message: Vec<u8>,
     ) -> Result<()> {
         handle_update_pyth_lazer_oracle(ctx, pyth_message)
-    }
-
-    pub fn initialize_protected_maker_mode_config(
-        ctx: Context<InitializeProtectedMakerModeConfig>,
-        max_users: u32,
-    ) -> Result<()> {
-        handle_initialize_protected_maker_mode_config(ctx, max_users)
-    }
-
-    pub fn update_protected_maker_mode_config(
-        ctx: Context<UpdateProtectedMakerModeConfig>,
-        max_users: u32,
-        reduce_only: bool,
-        current_users: Option<u32>,
-    ) -> Result<()> {
-        handle_update_protected_maker_mode_config(ctx, max_users, reduce_only, current_users)
     }
 
     pub fn admin_deposit<'c: 'info, 'info>(

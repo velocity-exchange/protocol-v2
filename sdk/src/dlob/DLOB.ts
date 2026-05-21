@@ -39,13 +39,10 @@ import {
 	Order,
 	PerpMarketAccount,
 	PositionDirection,
-	ProtectedMakerParams,
 	SpotMarketAccount,
 	StateAccount,
 } from '../types';
-import { isUserProtectedMaker } from '../math/userStatus';
 import { MMOraclePriceData, OraclePriceData } from '../oracles/types';
-import { ProtectMakerParamsMap } from './types';
 import { SlotSubscriber } from '../slot/SlotSubscriber';
 import { UserMap } from '../userMap/userMap';
 import { PublicKey } from '@solana/web3.js';
@@ -73,10 +70,6 @@ export type MarketNodeLists = {
 	floatingLimit: {
 		ask: NodeList<'floatingLimit'>;
 		bid: NodeList<'floatingLimit'>;
-	};
-	protectedFloatingLimit: {
-		ask: NodeList<'protectedFloatingLimit'>;
-		bid: NodeList<'protectedFloatingLimit'>;
 	};
 	takingLimit: {
 		ask: NodeList<'takingLimit'>;
@@ -130,13 +123,7 @@ export class DLOB {
 
 	initialized = false;
 
-	protectedMakerParamsMap: ProtectMakerParamsMap;
-
-	public constructor(protectedMakerParamsMap?: ProtectMakerParamsMap) {
-		this.protectedMakerParamsMap = protectedMakerParamsMap || {
-			perp: new Map<number, ProtectedMakerParams>(),
-			spot: new Map<number, ProtectedMakerParams>(),
-		};
+	public constructor() {
 		this.init();
 	}
 
@@ -190,7 +177,6 @@ export class DLOB {
 			const userAccount = user.getUserAccount();
 			const userAccountPubkey = user.getUserAccountPublicKey();
 			const userAccountPubkeyString = userAccountPubkey.toString();
-			const protectedMaker = isUserProtectedMaker(userAccount);
 
 			for (const order of userAccount.orders) {
 				let baseAssetAmount = order.baseAssetAmount;
@@ -206,13 +192,7 @@ export class DLOB {
 					);
 				}
 
-				this.insertOrder(
-					order,
-					userAccountPubkeyString,
-					slot,
-					protectedMaker,
-					baseAssetAmount
-				);
+				this.insertOrder(order, userAccountPubkeyString, slot, baseAssetAmount);
 			}
 		}
 
@@ -224,7 +204,6 @@ export class DLOB {
 		order: Order,
 		userAccount: string,
 		slot: number,
-		isUserProtectedMaker: boolean,
 		baseAssetAmount: BN,
 		onInsert?: OrderBookCallback
 	): void {
@@ -248,12 +227,10 @@ export class DLOB {
 				.add(getOrderSignature(order.orderId, userAccount));
 		}
 
-		this.getListForOnChainOrder(order, slot, isUserProtectedMaker)?.insert(
+		this.getListForOnChainOrder(order, slot)?.insert(
 			order,
 			marketType,
 			userAccount,
-			isUserProtectedMaker,
-			this.protectedMakerParamsMap[marketType].get(order.marketIndex),
 			baseAssetAmount
 		);
 
@@ -265,7 +242,6 @@ export class DLOB {
 	public insertSignedMsgOrder(
 		order: Order,
 		userAccount: string,
-		isUserProtectedMaker: boolean,
 		baseAssetAmount?: BN,
 		onInsert?: OrderBookCallback
 	): void {
@@ -285,8 +261,6 @@ export class DLOB {
 				order,
 				marketType,
 				userAccount,
-				isUserProtectedMaker,
-				this.protectedMakerParamsMap[marketType].get(order.marketIndex),
 				baseAssetAmount
 			);
 		if (onInsert) {
@@ -303,10 +277,6 @@ export class DLOB {
 			floatingLimit: {
 				ask: new NodeList('floatingLimit', 'asc'),
 				bid: new NodeList('floatingLimit', 'desc'),
-			},
-			protectedFloatingLimit: {
-				ask: new NodeList('protectedFloatingLimit', 'asc'),
-				bid: new NodeList('protectedFloatingLimit', 'desc'),
 			},
 			takingLimit: {
 				ask: new NodeList('takingLimit', 'asc'),
@@ -331,7 +301,6 @@ export class DLOB {
 		order: Order,
 		userAccount: PublicKey,
 		slot: number,
-		isUserProtectedMaker: boolean,
 		onDelete?: OrderBookCallback
 	): void {
 		if (!isVariant(order.status, 'open')) {
@@ -340,7 +309,7 @@ export class DLOB {
 
 		this.updateRestingLimitOrders(slot);
 
-		this.getListForOnChainOrder(order, slot, isUserProtectedMaker)?.remove(
+		this.getListForOnChainOrder(order, slot)?.remove(
 			order,
 			userAccount.toString()
 		);
@@ -352,8 +321,7 @@ export class DLOB {
 
 	public getListForOnChainOrder(
 		order: Order,
-		slot: number,
-		isProtectedMaker: boolean
+		slot: number
 	): NodeList<any> | undefined {
 		const isInactiveTriggerOrder =
 			mustBeTriggered(order) && !isTriggered(order);
@@ -366,7 +334,7 @@ export class DLOB {
 		) {
 			type = 'market';
 		} else if (order.oraclePriceOffset !== 0) {
-			type = isProtectedMaker ? 'protectedFloatingLimit' : 'floatingLimit';
+			type = 'floatingLimit';
 		} else {
 			const isResting = isRestingLimitOrder(order, slot);
 			type = isResting ? 'restingLimit' : 'takingLimit';
@@ -436,11 +404,7 @@ export class DLOB {
 				nodeLists.restingLimit[side].insert(
 					node.order,
 					marketTypeStr,
-					node.userAccount,
-					node.isProtectedMaker,
-					this.protectedMakerParamsMap[marketTypeStr].get(
-						node.order.marketIndex
-					)
+					node.userAccount
 				);
 			}
 		}
@@ -888,11 +852,10 @@ export class DLOB {
 				const newMakerOrder = { ...makerOrder };
 				newMakerOrder.baseAssetAmountFilled =
 					makerOrder.baseAssetAmountFilled.add(baseFilled);
-				this.getListForOnChainOrder(
+				this.getListForOnChainOrder(newMakerOrder, slot).update(
 					newMakerOrder,
-					slot,
-					makerNode.isProtectedMaker
-				).update(newMakerOrder, makerNode.userAccount);
+					makerNode.userAccount
+				);
 
 				const newTakerOrder = { ...takerOrder };
 				newTakerOrder.baseAssetAmountFilled =
@@ -905,11 +868,10 @@ export class DLOB {
 						: this.orderLists.get(marketTypeStr).get(marketIndex).signedMsg.ask;
 					orderList.update(newTakerOrder, takerNode.userAccount);
 				} else {
-					this.getListForOnChainOrder(
+					this.getListForOnChainOrder(newTakerOrder, slot).update(
 						newTakerOrder,
-						slot,
-						takerNode.isProtectedMaker
-					).update(newTakerOrder, takerNode.userAccount);
+						takerNode.userAccount
+					);
 				}
 
 				if (
@@ -1265,7 +1227,6 @@ export class DLOB {
 		const generatorList = [
 			nodeLists.restingLimit.ask.getGenerator(),
 			nodeLists.floatingLimit.ask.getGenerator(),
-			nodeLists.protectedFloatingLimit.ask.getGenerator(),
 			this.signedMsgGenerator(nodeLists.signedMsg.ask, (x: DLOBNode) =>
 				isRestingLimitOrder(x.order, slot)
 			),
@@ -1309,7 +1270,6 @@ export class DLOB {
 		const generatorList = [
 			nodeLists.restingLimit.bid.getGenerator(),
 			nodeLists.floatingLimit.bid.getGenerator(),
-			nodeLists.protectedFloatingLimit.bid.getGenerator(),
 			this.signedMsgGenerator(nodeLists.signedMsg.bid, (x: DLOBNode) =>
 				isRestingLimitOrder(x.order, slot)
 			),
@@ -1485,21 +1445,19 @@ export class DLOB {
 				const newBidOrder = { ...bidOrder };
 				newBidOrder.baseAssetAmountFilled =
 					bidOrder.baseAssetAmountFilled.add(baseFilled);
-				this.getListForOnChainOrder(
+				this.getListForOnChainOrder(newBidOrder, slot).update(
 					newBidOrder,
-					slot,
-					bidNode.isProtectedMaker
-				).update(newBidOrder, bidNode.userAccount);
+					bidNode.userAccount
+				);
 
 				// ask completely filled
 				const newAskOrder = { ...askOrder };
 				newAskOrder.baseAssetAmountFilled =
 					askOrder.baseAssetAmountFilled.add(baseFilled);
-				this.getListForOnChainOrder(
+				this.getListForOnChainOrder(newAskOrder, slot).update(
 					newAskOrder,
-					slot,
-					askNode.isProtectedMaker
-				).update(newAskOrder, askNode.userAccount);
+					askNode.userAccount
+				);
 
 				nodesToFill.push({
 					node: takerNode,
@@ -1867,8 +1825,6 @@ export class DLOB {
 			yield nodeLists.market.ask;
 			yield nodeLists.floatingLimit.bid;
 			yield nodeLists.floatingLimit.ask;
-			yield nodeLists.protectedFloatingLimit.bid;
-			yield nodeLists.protectedFloatingLimit.ask;
 			yield nodeLists.trigger.above;
 			yield nodeLists.trigger.below;
 		}
@@ -1882,8 +1838,6 @@ export class DLOB {
 			yield nodeLists.market.ask;
 			yield nodeLists.floatingLimit.bid;
 			yield nodeLists.floatingLimit.ask;
-			yield nodeLists.protectedFloatingLimit.bid;
-			yield nodeLists.protectedFloatingLimit.ask;
 			yield nodeLists.trigger.above;
 			yield nodeLists.trigger.below;
 		}
@@ -1897,7 +1851,7 @@ export class DLOB {
 	 * @param slot
 	 * @param oraclePriceData
 	 * @param depth how many levels of the order book to return
-	 * @param fallbackL2Generators L2 generators for fallback liquidity e.g. vAMM {@link getVammL2Generator}, openbook {@link SerumSubscriber}
+	 * @param fallbackL2Generators L2 generators for fallback liquidity e.g. vAMM {@link getVammL2Generator}
 	 */
 	public getL2<T extends MarketType>({
 		marketIndex,

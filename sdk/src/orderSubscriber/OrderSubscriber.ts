@@ -14,10 +14,8 @@ import { WebsocketSubscription } from './WebsocketSubscription';
 import StrictEventEmitter from 'strict-event-emitter-types';
 import { EventEmitter } from 'events';
 import { BN } from '../isomorphic/anchor';
-import { ProtectMakerParamsMap } from '../dlob/types';
 import { decodeUser } from '../decode/user';
 import { grpcSubscription } from './grpcSubscription';
-import { isUserProtectedMaker } from '../math/userStatus';
 import { calculateOrderBaseAssetAmount } from '../math/orders';
 import { ZERO } from '../constants/numericConstants';
 
@@ -238,17 +236,13 @@ export class OrderSubscriber {
 	 * caller to extend the DLOB Subscriber with a custom DLOB type.
 	 * @returns New, empty DLOB object.
 	 */
-	protected createDLOB(protectedMakerParamsMap?: ProtectMakerParamsMap): DLOB {
-		return new DLOB(protectedMakerParamsMap);
+	protected createDLOB(): DLOB {
+		return new DLOB();
 	}
 
-	public async getDLOB(
-		slot: number,
-		protectedMakerParamsMap?: ProtectMakerParamsMap
-	): Promise<DLOB> {
-		const dlob = this.createDLOB(protectedMakerParamsMap);
+	public async getDLOB(slot: number): Promise<DLOB> {
+		const dlob = this.createDLOB();
 		for (const [key, { userAccount }] of this.usersAccounts.entries()) {
-			const protectedMaker = isUserProtectedMaker(userAccount);
 			for (const order of userAccount.orders) {
 				let baseAssetAmount = order.baseAssetAmount;
 				if (order.reduceOnly) {
@@ -262,7 +256,7 @@ export class OrderSubscriber {
 						existingBaseAmount
 					);
 				}
-				dlob.insertOrder(order, key, slot, protectedMaker, baseAssetAmount);
+				dlob.insertOrder(order, key, slot, baseAssetAmount);
 			}
 		}
 		return dlob;

@@ -1,6 +1,6 @@
 /**
  * UserStats — abstraction over the on-chain `UserStats` account.
- * Tracks referral links, 30-day maker/taker volume, fuel rewards, and IF staking stats.
+ * Tracks referral links, 30-day maker/taker volume, and IF staking stats.
  * One `UserStats` account exists per authority (shared across all subaccounts).
  */
 import { DriftClient } from './driftClient';
@@ -9,20 +9,12 @@ import { DataAndSlot, UserStatsAccountSubscriber } from './accounts/types';
 import { UserStatsConfig } from './userStatsConfig';
 import { PollingUserStatsAccountSubscriber } from './accounts/pollingUserStatsAccountSubscriber';
 import { WebSocketUserStatsAccountSubscriber } from './accounts/webSocketUserStatsAccountSubsriber';
-import { ReferrerInfo, SpotMarketAccount, UserStatsAccount } from './types';
+import { ReferrerInfo, UserStatsAccount } from './types';
 import {
 	getUserAccountPublicKeySync,
 	getUserStatsAccountPublicKey,
 } from './addresses/pda';
 import { grpcUserStatsAccountSubscriber } from './accounts/grpcUserStatsAccountSubscriber';
-import { FUEL_START_TS } from './constants/numericConstants';
-import { ZERO } from './constants/numericConstants';
-import {
-	GOV_SPOT_MARKET_INDEX,
-	QUOTE_SPOT_MARKET_INDEX,
-} from './constants/numericConstants';
-import { BN } from './isomorphic/anchor';
-import { calculateInsuranceFuelBonus } from './math/fuel';
 
 export class UserStats {
 	driftClient: DriftClient;
@@ -95,65 +87,6 @@ export class UserStats {
 
 	public getAccount(): UserStatsAccount {
 		return this.accountSubscriber.getUserStatsAccountAndSlot().data;
-	}
-
-	public getInsuranceFuelBonus(
-		now: BN,
-		includeSettled = true,
-		includeUnsettled = true
-	): BN {
-		const userStats: UserStatsAccount = this.getAccount();
-
-		let insuranceFuel = ZERO;
-
-		if (includeSettled) {
-			insuranceFuel = insuranceFuel.add(new BN(userStats.fuelInsurance));
-		}
-
-		if (includeUnsettled) {
-			// todo: get real time ifStakedGovTokenAmount using ifStakeAccount
-			if (userStats.ifStakedGovTokenAmount.gt(ZERO)) {
-				const spotMarketAccount: SpotMarketAccount =
-					this.driftClient.getSpotMarketAccount(GOV_SPOT_MARKET_INDEX);
-
-				const fuelBonusNumeratorUserStats = BN.max(
-					now.sub(
-						BN.max(new BN(userStats.lastFuelIfBonusUpdateTs), FUEL_START_TS)
-					),
-					ZERO
-				);
-
-				insuranceFuel = insuranceFuel.add(
-					calculateInsuranceFuelBonus(
-						spotMarketAccount,
-						userStats.ifStakedGovTokenAmount,
-						fuelBonusNumeratorUserStats
-					)
-				);
-			}
-
-			if (userStats.ifStakedQuoteAssetAmount.gt(ZERO)) {
-				const spotMarketAccount: SpotMarketAccount =
-					this.driftClient.getSpotMarketAccount(QUOTE_SPOT_MARKET_INDEX);
-
-				const fuelBonusNumeratorUserStats = BN.max(
-					now.sub(
-						BN.max(new BN(userStats.lastFuelIfBonusUpdateTs), FUEL_START_TS)
-					),
-					ZERO
-				);
-
-				insuranceFuel = insuranceFuel.add(
-					calculateInsuranceFuelBonus(
-						spotMarketAccount,
-						userStats.ifStakedQuoteAssetAmount,
-						fuelBonusNumeratorUserStats
-					)
-				);
-			}
-		}
-
-		return insuranceFuel;
 	}
 
 	public getReferrerInfo(): ReferrerInfo | undefined {

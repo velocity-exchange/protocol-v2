@@ -6,7 +6,6 @@ import {
 	AMM,
 	Order,
 	PositionDirection,
-	ProtectedMakerParams,
 	MarketTypeStr,
 	OrderBitFlag,
 	StateAccount,
@@ -165,62 +164,19 @@ export function getLimitPrice<T extends MarketTypeStr>(
 	order: Order,
 	oraclePriceData: T extends 'spot' ? OraclePriceData : MMOraclePriceData,
 	slot: number,
-	fallbackPrice?: BN,
-	protectedMakerParams?: ProtectedMakerParams
+	fallbackPrice?: BN
 ): BN | undefined {
-	let limitPrice;
 	if (hasAuctionPrice(order, slot)) {
-		limitPrice = getAuctionPrice(order, slot, oraclePriceData.price);
+		return getAuctionPrice(order, slot, oraclePriceData.price);
 	} else if (order.oraclePriceOffset !== 0) {
-		limitPrice = BN.max(
+		return BN.max(
 			oraclePriceData.price.add(new BN(order.oraclePriceOffset)),
 			ONE
 		);
 	} else if (order.price.eq(ZERO)) {
-		limitPrice = fallbackPrice;
+		return fallbackPrice;
 	} else {
-		limitPrice = order.price;
-	}
-
-	if (protectedMakerParams) {
-		limitPrice = applyProtectedMakerParams(
-			limitPrice,
-			order.direction,
-			protectedMakerParams
-		);
-	}
-
-	return limitPrice;
-}
-
-export function applyProtectedMakerParams(
-	limitPrice: BN,
-	direction: PositionDirection,
-	protectedMakerParams: ProtectedMakerParams
-): BN {
-	const minOffset = protectedMakerParams.tickSize.muln(8);
-	let limitPriceBpsDivisor;
-	if (protectedMakerParams.limitPriceDivisor > 0) {
-		limitPriceBpsDivisor = 10000 / protectedMakerParams.limitPriceDivisor;
-	} else {
-		limitPriceBpsDivisor = 1000;
-	}
-
-	const limitPriceOffset = BN.min(
-		BN.max(
-			BN.max(limitPrice.divn(limitPriceBpsDivisor), minOffset),
-			protectedMakerParams.dynamicOffset
-		),
-		limitPrice.divn(20)
-	);
-
-	if (isVariant(direction, 'long')) {
-		return BN.max(
-			limitPrice.sub(limitPriceOffset),
-			protectedMakerParams.tickSize
-		);
-	} else {
-		return limitPrice.add(limitPriceOffset);
+		return order.price;
 	}
 }
 

@@ -1,6 +1,5 @@
 mod size {
     use crate::state::events::OrderActionRecord;
-    use crate::state::fulfillment_params::serum::SerumV3FulfillmentConfig;
     use crate::state::insurance_fund_stake::InsuranceFundStake;
     use crate::state::perp_market::PerpMarket;
     use crate::state::spot_market::SpotMarket;
@@ -26,13 +25,6 @@ mod size {
     fn spot_market() {
         let expected_size = std::mem::size_of::<SpotMarket>() + 8;
         let actual_size = SpotMarket::SIZE;
-        assert_eq!(actual_size, expected_size);
-    }
-
-    #[test]
-    fn serum_config() {
-        let expected_size = std::mem::size_of::<SerumV3FulfillmentConfig>() + 8;
-        let actual_size = SerumV3FulfillmentConfig::SIZE;
         assert_eq!(actual_size, expected_size);
     }
 
@@ -77,15 +69,15 @@ mod size {
 /// * **PerpMarket / AMM** – zero-copy (`#[account(zero_copy)]`), so the on-chain bytes are the
 ///   raw `repr(C)` memory layout.  Use `std::mem::offset_of!(AMM, field) + 8` (discriminator).
 ///
-/// * **State** – regular `#[account]` (borsh-serialised).  On-chain bytes are sequential with
-///   *no* alignment padding.  Use a borsh round-trip to locate the field, not `offset_of!`.
+/// * **State** – zero-copy (`#[account(zero_copy(unsafe))]` + `#[repr(C)]`), so the on-chain
+///   bytes are the raw `repr(C)` memory layout. Use `std::mem::offset_of!(State, field) + 8`
+///   (discriminator).
 ///
 /// If either test fails after a struct change, update the corresponding literal in admin.rs AND
 /// the expected value here together.
 mod native_instruction_offsets {
     use crate::state::perp_market::{PerpMarket, AMM};
     use crate::state::state::State;
-    use anchor_lang::AnchorSerialize;
 
     const DISC: usize = 8; // Anchor 8-byte account discriminator
 
@@ -95,38 +87,57 @@ mod native_instruction_offsets {
         let amm_start = DISC + std::mem::offset_of!(PerpMarket, amm);
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_slot),
-            840,
+            776,
             "mm_oracle_slot offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_price),
-            920,
+            856,
             "mm_oracle_price offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, mm_oracle_sequence_id),
-            944,
+            880,
             "mm_oracle_sequence_id offset changed — update handle_update_mm_oracle_native"
         );
         assert_eq!(
             amm_start + std::mem::offset_of!(AMM, amm_spread_adjustment),
-            942,
+            873,
             "amm_spread_adjustment offset changed — update handle_update_amm_spread_adjustment_native"
         );
     }
 
-    /// State is borsh-serialised: locate feature_bit_flags via a round-trip, not offset_of!.
+    /// State is zero-copy with `#[repr(C)]`; on-chain bytes match `mem::offset_of!`.
+    /// After folding the admin authority config into State (cold/warm/pause + 11 hot
+    /// pubkeys at the top) and removing `lp_cooldown_time`, feature_bit_flags lives at
+    /// byte 1406 (offset 1398 + 8 discriminator).
     #[test]
-    fn state_borsh_feature_bit_flags_offset() {
-        let mut state = State::default();
-        state.feature_bit_flags = 0xFF;
-        let mut buf = Vec::new();
-        state.serialize(&mut buf).unwrap();
-        let borsh_pos = buf.iter().position(|&b| b == 0xFF).unwrap();
+    fn state_feature_bit_flags_offset() {
         assert_eq!(
-            borsh_pos + DISC,
-            982,
-            "State::feature_bit_flags borsh offset changed — update handle_update_mm_oracle_native"
+            std::mem::offset_of!(State, feature_bit_flags) + DISC,
+            1406,
+            "State::feature_bit_flags offset changed — update handle_update_mm_oracle_native"
+        );
+    }
+
+    /// State.hot_mm_oracle_crank lives at byte 392..424 (after discriminator). The native
+    /// mm-oracle handler reads it via raw byte indexing.
+    #[test]
+    fn state_hot_mm_oracle_crank_offset() {
+        assert_eq!(
+            std::mem::offset_of!(State, hot_mm_oracle_crank) + DISC,
+            392,
+            "State::hot_mm_oracle_crank offset changed — update handle_update_mm_oracle_native"
+        );
+    }
+
+    /// State.hot_amm_spread_adjust lives at byte 424..456 (after discriminator).
+    #[test]
+    fn state_hot_amm_spread_adjust_offset() {
+        assert_eq!(
+            std::mem::offset_of!(State, hot_amm_spread_adjust) + DISC,
+            424,
+            "State::hot_amm_spread_adjust offset changed — update handle_update_amm_spread_adjustment_native"
         );
     }
 }
