@@ -5320,7 +5320,7 @@ export class DriftClient {
 					withBuilder = hasBuilder(userOrder);
 				}
 			} else if (isSignedMsg) {
-				// Order hasn't been placed yet, we cant tell if it has a builder or not.
+				// Order hasn't been placed yet, we can't tell if it has a builder or not.
 				// Include it optimistically
 				withBuilder = true;
 			}
