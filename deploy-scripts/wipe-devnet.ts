@@ -26,7 +26,6 @@ import path from 'path';
 import readline from 'readline';
 import {
 	Connection,
-	Keypair,
 	PublicKey,
 	TransactionMessage,
 	VersionedTransaction,
