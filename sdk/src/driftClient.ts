@@ -4120,21 +4120,25 @@ export class DriftClient {
 			});
 		}
 
-		this.addTokenMintToRemainingAccounts(depositFromSpotMarket, remainingAccounts);
-		if (this.isTransferHook(depositFromSpotMarket)) {
-			await this.addExtraAccountMetasToRemainingAccounts(
-				depositFromSpotMarket.mint,
-				remainingAccounts
-			);
+		if (depositAmount === undefined || !depositAmount.isZero()) {
+			this.addTokenMintToRemainingAccounts(depositFromSpotMarket, remainingAccounts);
+			if (this.isTransferHook(depositFromSpotMarket)) {
+				await this.addExtraAccountMetasToRemainingAccounts(
+					depositFromSpotMarket.mint,
+					remainingAccounts
+				);
+			}
 		}
 
-		const borrowToSpotMarket = this.getSpotMarketAccount(borrowToMarketIndex);
-		this.addTokenMintToRemainingAccounts(borrowToSpotMarket, remainingAccounts);
-		if (this.isTransferHook(borrowToSpotMarket)) {
-			await this.addExtraAccountMetasToRemainingAccounts(
-				borrowToSpotMarket.mint,
-				remainingAccounts
-			);
+		if (borrowAmount === undefined || !borrowAmount.isZero()) {
+			const borrowToSpotMarket = this.getSpotMarketAccount(borrowToMarketIndex);
+			this.addTokenMintToRemainingAccounts(borrowToSpotMarket, remainingAccounts);
+			if (this.isTransferHook(borrowToSpotMarket)) {
+				await this.addExtraAccountMetasToRemainingAccounts(
+					borrowToSpotMarket.mint,
+					remainingAccounts
+				);
+			}
 		}
 
 		return await this.program.instruction.transferPools(
