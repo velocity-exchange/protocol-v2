@@ -5,7 +5,12 @@ const targetDir = path.join(__dirname, '..', 'node_modules', 'helius-laserstream
 
 if (!fs.existsSync(targetDir)) {
 	console.log('helius-laserstream is not installed. Creating a local shim for compilation...');
-	fs.mkdirSync(targetDir, { recursive: true });
+	try {
+		fs.mkdirSync(targetDir, { recursive: true });
+	} catch (e) {
+		console.error('Failed to create directory for helius-laserstream shim:', e);
+		process.exit(1);
+	}
 
 	const packageJson = {
 		name: 'helius-laserstream',
@@ -74,10 +79,15 @@ export enum CompressionAlgorithms {
 }
 export function subscribe(...args: any[]): any;`;
 
-	fs.writeFileSync(path.join(targetDir, 'package.json'), JSON.stringify(packageJson, null, 2));
-	fs.writeFileSync(path.join(targetDir, 'index.js'), indexJs);
-	fs.writeFileSync(path.join(targetDir, 'index.d.ts'), indexDts);
-	console.log('Shim created successfully.');
+	try {
+		fs.writeFileSync(path.join(targetDir, 'package.json'), JSON.stringify(packageJson, null, 2));
+		fs.writeFileSync(path.join(targetDir, 'index.js'), indexJs);
+		fs.writeFileSync(path.join(targetDir, 'index.d.ts'), indexDts);
+		console.log('Shim created successfully.');
+	} catch (e) {
+		console.error('Failed to write files for helius-laserstream shim:', e);
+		process.exit(1);
+	}
 } else {
 	console.log('helius-laserstream is already installed.');
 }

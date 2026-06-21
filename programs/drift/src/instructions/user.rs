@@ -1687,7 +1687,6 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
             .find(|acc| acc.key() == spot_market_mint.key())
             .map(|acc| InterfaceAccount::try_from(acc).unwrap());
 
-        let mut transfer_hook_remaining_accounts_iter = remaining_accounts_iter.clone();
         controller::token::send_from_program_vault(
             token_program,
             &ctx.accounts.deposit_from_spot_market_vault,
@@ -1697,7 +1696,7 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
             deposit_transfer,
             &mint_account_info,
             if deposit_from_spot_market.has_transfer_hook() {
-                Some(&mut transfer_hook_remaining_accounts_iter)
+                Some(&mut remaining_accounts_iter)
             } else {
                 None
             },

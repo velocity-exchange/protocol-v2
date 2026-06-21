@@ -3297,8 +3297,6 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
             .unwrap()
             .unwrap();
 
-        let mut transfer_hook_remaining_accounts_iter = remaining_accounts_iter.clone();
-
         if balance_type == SpotBalanceType::Deposit {
             update_spot_balances(
                 token_amount,
@@ -3317,7 +3315,7 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
                 token_amount.cast()?,
                 &mint_account_info,
                 if spot_market.has_transfer_hook() {
-                    Some(&mut transfer_hook_remaining_accounts_iter)
+                    Some(&mut remaining_accounts_iter)
                 } else {
                     None
                 },
@@ -3339,7 +3337,7 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
                 token_amount.cast()?,
                 &mint_account_info,
                 if spot_market.has_transfer_hook() {
-                    Some(&mut transfer_hook_remaining_accounts_iter)
+                    Some(&mut remaining_accounts_iter)
                 } else {
                     None
                 },
