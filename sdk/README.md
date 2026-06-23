@@ -5,7 +5,7 @@
 
   <p>
     <a href="https://www.npmjs.com/package/@drift-labs/sdk"><img alt="SDK npm package" src="https://img.shields.io/npm/v/@drift-labs/sdk" /></a>
-    <a href="https://drift-labs.github.io/protocol-v2/sdk/"><img alt="Docs" src="https://img.shields.io/badge/docs-tutorials-blueviolet" /></a>
+    <a href="https://velocity-exchange.github.io/protocol-v2/sdk/"><img alt="Docs" src="https://img.shields.io/badge/docs-tutorials-blueviolet" /></a>
     <a href="https://discord.com/channels/849494028176588802/878700556904980500"><img alt="Discord Chat" src="https://img.shields.io/discord/889577356681945098?color=blueviolet" /></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/github/license/project-serum/anchor?color=blueviolet" /></a>
   </p>
@@ -21,18 +21,18 @@ npm i @drift-labs/sdk
 
 _Start here if you're integrating with Drift!_
 
-- [Drift v2-teacher + API Docs](https://drift-labs.github.io/v2-teacher/)
+- [Drift v2-teacher + API Docs](https://velocity-exchange.github.io/v2-teacher/)
   - Docs and examples for using the SDK in Typescript and Python
   - Useful concepts and examples when integrating Drift
   - Docs for Drift's "Data API"
-- [Typescript API docs](https://drift-labs.github.io/protocol-v2/sdk/)
+- [Typescript API docs](https://velocity-exchange.github.io/protocol-v2/sdk/)
   - JSDoc automated documentation for the Drift v2 Typescript SDK
 - [Drift docs](https://docs.drift.trade/)
   - Comprehensive universal docs for Drift
 
 ---
 
-The below is a light overview of using Solana and Drift's typescript sdk. If you want comprehensive docs with examples of how to integrate with Drift you should use the [v2-teacher docs](https://drift-labs.github.io/v2-teacher/).
+The below is a light overview of using Solana and Drift's typescript sdk. If you want comprehensive docs with examples of how to integrate with Drift you should use the [v2-teacher docs](https://velocity-exchange.github.io/v2-teacher/).
 
 ### Setting up a wallet for your program
 

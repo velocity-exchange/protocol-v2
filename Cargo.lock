@@ -1009,7 +1009,7 @@ dependencies = [
 [[package]]
 name = "drift-macros"
 version = "0.1.0"
-source = "git+https://github.com/drift-labs/drift-macros.git?rev=c57d87#c57d87e073d13d43f4d1fb09fe6822915a4ccc11"
+source = "git+https://github.com/velocity-exchange/drift-macros.git?rev=c57d87#c57d87e073d13d43f4d1fb09fe6822915a4ccc11"
 dependencies = [
  "quote",
  "syn 1.0.92",
@@ -1784,7 +1784,7 @@ dependencies = [
 [[package]]
 name = "phoenix-v1"
 version = "0.2.4"
-source = "git+https://github.com/drift-labs/phoenix-v1?rev=7703c5#7703c50cf92f2bb321dcd1e2824e1c041135ec5c"
+source = "git+https://github.com/velocity-exchange/phoenix-v1?rev=7703c5#7703c50cf92f2bb321dcd1e2824e1c041135ec5c"
 dependencies = [
  "borsh 0.10.3",
  "bytemuck",
@@ -1908,7 +1908,7 @@ checksum = "44de48029c54ec1ca570786b5baeb906b0fc2409c8e0145585e287ee7a526c72"
 [[package]]
 name = "pyth-solana-receiver-sdk"
 version = "0.3.0"
-source = "git+https://github.com/drift-labs/pyth-crosschain?rev=d790d1cb4da873a949cf33ff70349b7614b232eb#d790d1cb4da873a949cf33ff70349b7614b232eb"
+source = "git+https://github.com/velocity-exchange/pyth-crosschain?rev=d790d1cb4da873a949cf33ff70349b7614b232eb#d790d1cb4da873a949cf33ff70349b7614b232eb"
 dependencies = [
  "anchor-lang",
  "hex",
@@ -1942,7 +1942,7 @@ dependencies = [
 [[package]]
 name = "pythnet-sdk"
 version = "2.1.0"
-source = "git+https://github.com/drift-labs/pyth-crosschain?rev=d790d1cb4da873a949cf33ff70349b7614b232eb#d790d1cb4da873a949cf33ff70349b7614b232eb"
+source = "git+https://github.com/velocity-exchange/pyth-crosschain?rev=d790d1cb4da873a949cf33ff70349b7614b232eb#d790d1cb4da873a949cf33ff70349b7614b232eb"
 dependencies = [
  "anchor-lang",
  "bincode",
