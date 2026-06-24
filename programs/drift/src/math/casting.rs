@@ -4,6 +4,15 @@ use crate::msg;
 use std::convert::TryInto;
 use std::panic::Location;
 
+/// A helper trait for safe type casting in the Drift protocol.
+///
+/// Rust does not perform implicit type casting, and standard `as` casting
+/// (e.g., `x as u64`) can cause silent truncation or overflows if the value
+/// is too large or negative.
+///
+/// This trait utilizes `try_into()` to safely convert types. If the conversion
+/// fails, it logs the exact file and line number of the failure using `#[track_caller]`
+/// and returns a `CastingFailure` error instead of panicking.
 pub trait Cast: Sized {
     #[track_caller]
     #[inline(always)]

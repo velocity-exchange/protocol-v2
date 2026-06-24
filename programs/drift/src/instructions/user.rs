@@ -1032,6 +1032,8 @@ pub fn handle_withdraw<'c: 'info, 'info>(
 
     // reload the spot market vault balance so it's up-to-date
     ctx.accounts.spot_market_vault.reload()?;
+    // Verify that the vault's on-chain token balance matches the protocol's internal ledger.
+    // If the vault has fewer tokens than expected, it indicates insolvency or a double-spend attempt, and aborts.
     math::spot_withdraw::validate_spot_market_vault_amount(
         &spot_market,
         ctx.accounts.spot_market_vault.amount,
