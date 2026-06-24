@@ -3180,12 +3180,13 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
 
     let slot = Clock::get()?.slot;
     let now = Clock::get()?.unix_timestamp;
+    let mut remaining_accounts_iter = ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
         perp_market_map,
         spot_market_map,
         mut oracle_map,
     } = load_maps(
-        &mut ctx.remaining_accounts.iter().peekable(),
+        &mut remaining_accounts_iter,
         &MarketSet::new(),
         &get_market_set_for_spot_positions(&user.spot_positions),
         slot,
@@ -3305,7 +3306,6 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
                 true,
             )?;
 
-            // TODO: support transfer hook tokens
             send_from_program_vault(
                 &token_program,
                 &spot_market_vault_account_info,
@@ -3314,7 +3314,11 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
                 state.signer_nonce,
                 token_amount.cast()?,
                 &mint_account_info,
-                None,
+                if spot_market.has_transfer_hook() {
+                    Some(&mut remaining_accounts_iter)
+                } else {
+                    None
+                },
             )?;
         } else {
             update_spot_balances(
@@ -3325,7 +3329,6 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
                 false,
             )?;
 
-            // TODO: support transfer hook tokens
             receive(
                 token_program,
                 &keeper_vault_account_info,
@@ -3333,7 +3336,11 @@ pub fn handle_force_delete_user<'c: 'info, 'info>(
                 &ctx.accounts.keeper.to_account_info(),
                 token_amount.cast()?,
                 &mint_account_info,
-                None,
+                if spot_market.has_transfer_hook() {
+                    Some(&mut remaining_accounts_iter)
+                } else {
+                    None
+                },
             )?;
         }
 

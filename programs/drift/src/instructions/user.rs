@@ -1319,12 +1319,13 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
         "cant transfer between the same pool"
     )?;
 
+    let mut remaining_accounts_iter = ctx.remaining_accounts.iter().peekable();
     let AccountMaps {
         perp_market_map,
         spot_market_map,
         mut oracle_map,
     } = load_maps(
-        &mut ctx.remaining_accounts.iter().peekable(),
+        &mut remaining_accounts_iter,
         &MarketSet::new(),
         &get_writable_spot_market_set_from_many(vec![
             deposit_from_market_index,
@@ -1686,7 +1687,6 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
             .find(|acc| acc.key() == spot_market_mint.key())
             .map(|acc| InterfaceAccount::try_from(acc).unwrap());
 
-        // TODO: support transfer hook tokens
         controller::token::send_from_program_vault(
             token_program,
             &ctx.accounts.deposit_from_spot_market_vault,
@@ -1695,7 +1695,11 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
             state.signer_nonce,
             deposit_transfer,
             &mint_account_info,
-            None,
+            if deposit_from_spot_market.has_transfer_hook() {
+                Some(&mut remaining_accounts_iter)
+            } else {
+                None
+            },
         )?;
     }
 
@@ -1716,7 +1720,6 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
             .find(|acc| acc.key() == spot_market_mint.key())
             .map(|acc| InterfaceAccount::try_from(acc).unwrap());
 
-        // TODO: support transfer hook tokens
         controller::token::send_from_program_vault(
             token_program,
             &ctx.accounts.borrow_to_spot_market_vault,
@@ -1725,7 +1728,11 @@ pub fn handle_transfer_pools<'c: 'info, 'info>(
             state.signer_nonce,
             borrow_transfer,
             &mint_account_info,
-            None,
+            if borrow_to_spot_market.has_transfer_hook() {
+                Some(&mut remaining_accounts_iter)
+            } else {
+                None
+            },
         )?;
     }
 

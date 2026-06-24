@@ -2319,6 +2319,12 @@ export class DriftClient {
 			tokenPrograms.add(tokenProgram.toBase58());
 
 			this.addTokenMintToRemainingAccounts(spotMarket, remainingAccounts);
+			if (this.isTransferHook(spotMarket)) {
+				await this.addExtraAccountMetasToRemainingAccounts(
+					spotMarket.mint,
+					remainingAccounts
+				);
+			}
 		}
 
 		for (const tokenProgram of tokenPrograms) {
@@ -4112,6 +4118,27 @@ export class DriftClient {
 				isWritable: false,
 				pubkey: new PublicKey(tokenProgram),
 			});
+		}
+
+		if (depositAmount === undefined || !depositAmount.isZero()) {
+			this.addTokenMintToRemainingAccounts(depositFromSpotMarket, remainingAccounts);
+			if (this.isTransferHook(depositFromSpotMarket)) {
+				await this.addExtraAccountMetasToRemainingAccounts(
+					depositFromSpotMarket.mint,
+					remainingAccounts
+				);
+			}
+		}
+
+		if (borrowAmount === undefined || !borrowAmount.isZero()) {
+			const borrowToSpotMarket = this.getSpotMarketAccount(borrowToMarketIndex);
+			this.addTokenMintToRemainingAccounts(borrowToSpotMarket, remainingAccounts);
+			if (this.isTransferHook(borrowToSpotMarket)) {
+				await this.addExtraAccountMetasToRemainingAccounts(
+					borrowToSpotMarket.mint,
+					remainingAccounts
+				);
+			}
 		}
 
 		return await this.program.instruction.transferPools(
